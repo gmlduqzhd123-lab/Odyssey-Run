@@ -8,6 +8,8 @@ try{
  for(const mobile of [false,true]){
   const c=await b.newContext({viewport:mobile?{width:844,height:390}:{width:1280,height:800},deviceScaleFactor:2,isMobile:mobile,hasTouch:mobile,acceptDownloads:true});
   const p=await c.newPage();p.on('pageerror',e=>errors.push(e.message));p.on('response',r=>{if(r.status()>=400)failures.push(`${r.status()} ${r.url()}`);});await p.clock.install();const response=await p.goto(url);await p.waitForSelector('.home');await p.clock.pauseAt((await p.evaluate(()=>Date.now()))+1000);
+  const bundle=await p.locator('script[type="module"]').getAttribute('src');
+  if(phase==='after')expect(bundle).toBe((await readFile('dist/index.html','utf8')).match(/<script(?=[^>]*type="module")[^>]*src="([^"]+)"/)![1]);
   const click=async(s:string)=>mobile?p.locator(s).first().tap():p.locator(s).first().click();
   await click('[data-action="settings"]');await p.locator('[data-setting="music"]').uncheck();await p.locator('[data-setting="sfx"]').uncheck();await click('[data-action="home"]');await click('[data-action="islands"]');await click('[data-action="stage:beach"]');await click('[data-action="start"]');
   while(await p.locator('.countdown').count())await p.clock.runFor(17);
@@ -31,7 +33,7 @@ try{
    }
    await click('[data-action="home"]');await click('[data-action="settings"]');const download=p.waitForEvent('download');await click('[data-action="export"]');const path=`artifacts/${prefix}-${mobile?'mobile':'desktop'}-save.json`;await (await download).saveAs(path);const original=JSON.parse(await readFile(path,'utf8'));await p.locator('#import-file').setInputFiles(path);await click('[data-action="import-confirm"]');await p.reload();await p.waitForSelector('.home');const restored=await p.evaluate(()=>{const k=Object.keys(localStorage).find(k=>k.startsWith('odyssey-run:')&&k.endsWith(':save'))!;return JSON.parse(localStorage.getItem(k)!);});expect(restored).toEqual(original);
   }
-  results.push({mobile,status:response?.status(),firstStarX,runs});await c.close();console.log(prefix,mobile?'mobile':'desktop',firstStarX,'passed');
+  results.push({mobile,status:response?.status(),bundle,firstStarX,runs});await c.close();console.log(prefix,mobile?'mobile':'desktop',firstStarX,'passed');
  }
- expect(errors).toEqual([]);expect(failures).toEqual([]);await writeFile(`artifacts/${prefix}-results.json`,JSON.stringify({url,phase,browser:await b.version(),checkedAt:new Date().toISOString(),environment:'Linux Chromium: PC 1280x800 DPR2 keyboard / mobile 844x390 DPR2 emulated multi-pointer touch; virtual game clock; no physical device',results,errors,failures},null,2));
+ expect(errors).toEqual([]);expect(failures).toEqual([]);await writeFile(`artifacts/${prefix}-results.json`,JSON.stringify({url,phase,browser:await b.version(),checkedAt:new Date().toISOString(),environment:`Linux ${engine}: PC 1280x800 DPR2 / mobile 844x390 DPR2 emulation; virtual game clock; no physical device`,scope:phase==='after'&&!smoke?'Three complete routes per profile with keyboard/multi-pointer touch, then save export/restore':'First star boundary: menu input and automatic running only',results,errors,failures},null,2));
 }finally{await b.close();}

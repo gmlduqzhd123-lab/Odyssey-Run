@@ -1,0 +1,53 @@
+{
+  "featureCommit": "23a202e2e55185e74a78862121951b52992496a7",
+  "workflowRun": 40324230960,
+  "workflowUrl": "https://github.com/gmlduqzhd123-lab/Odyssey-Run/actions/runs/40324230960",
+  "jobs": {
+    "build": "success",
+    "deploy": "success"
+  },
+  "remoteScope": "First star boundary on desktop/mobile, plus desktop fall/retry/old save restore. Three complete keyboard/touch routes are local verification, not repeated remotely.",
+  "contactProduction": {
+    "url": "https://gmlduqzhd123-lab.github.io/Odyssey-Run/",
+    "phase": "after",
+    "browser": "154.0.8037.57",
+    "checkedAt": "2026-10-26T12:41:51.109Z",
+    "environment": "Linux Chromium: PC 1280x800 DPR2 keyboard / mobile 844x390 DPR2 emulated multi-pointer touch; virtual game clock; no physical device",
+    "results": [
+      {
+        "mobile": false,
+        "status": 200,
+        "bundle": "/Odyssey-Run/assets/index-Bca4VB6Q.js",
+        "firstStarX": 837.3333333333348,
+        "runs": []
+      },
+      {
+        "mobile": true,
+        "status": 200,
+        "bundle": "/Odyssey-Run/assets/index-Bca4VB6Q.js",
+        "firstStarX": 837.3333333333348,
+        "runs": []
+      }
+    ],
+    "errors": [],
+    "failures": []
+  },
+  "legacyProduction": {
+    "url": "https://gmlduqzhd123-lab.github.io/Odyssey-Run/",
+    "status": 200,
+    "bundle": "/Odyssey-Run/assets/index-Bca4VB6Q.js",
+    "browser": "154.0.8037.57",
+    "checkedAt": "2026-10-26T12:42:15.117Z",
+    "environment": "Linux Chromium desktop DPR2, actual keyboard inputs, virtual clock; independent browser storage",
+    "compassCheckpoint": 7720,
+    "observedRecoveryX": 7720,
+    "fallHp": 2,
+    "duplicateScoreAndStarsPrevented": true,
+    "restartClearsEffects": true,
+    "legacyV1ExactRecordsPreserved": true,
+    "bestiaryKinds": 6,
+    "realItemKinds": 8,
+    "errors": [],
+    "failures": []
+  }
+}

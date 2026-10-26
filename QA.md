@@ -487,3 +487,11 @@ QA_URL=http://localhost:4174/qa-odyssey/ npx tsx scripts/performance-qa.ts
 실제 Android/iPhone 장치 검증은 미실행입니다. 그림 윤곽 판정은 약 1 논리 px 단위의 안쪽 여유를 둔 접촉 판정이며, 모든 디스플레이의 개별 물리 픽셀과 완전히 같다고 주장하지 않습니다. 고도화 아이디어는 제안으로 별도 보고하며 이 수정에서 새 성장/과금/서버 기능을 추가하지 않았습니다.
 
 - **실시간 성능**: 다른 QA 브라우저를 종료한 뒤 해변 첫 10초를 가상 시계 없이 별도 측정했습니다. Linux Chromium/Canvas, 음향 끄기, PC 1280×800/DPR2 **59.20fps / p95 16.8ms**, 모바일 가로 844×390/DPR2 에뮬레이션 **59.90fps / p95 16.7ms**. 약 10초 전진거리는 둘 다 3,205.333px로 고정 320px/s와 프레임 반올림 범위 안입니다. 초반 수집 구간 측정이며 전 구간/실기 성능이나 이전 버전 대비 성능 향상을 주장하지 않습니다. `artifacts/contact-performance-results.json`.
+
+### 접촉 판정 수정의 실제 Pages 배포
+
+- 기능 커밋 `23a202e`를 main에 푸시했고 [Actions 40324230960](https://github.com/gmlduqzhd123-lab/Odyssey-Run/actions/runs/40324230960)의 Node22 설치·타입 검사·58개 테스트·빌드·Pages 배포가 모두 성공했습니다.
+- **2026-10-26 21:42 한국 시간**, 실제 주소 https://gmlduqzhd123-lab.github.io/Odyssey-Run/ 에서 HTTPS **200**과 로컬 빌드와 같은 `/Odyssey-Run/assets/index-Bca4VB6Q.js`를 확인했습니다.
+- 실제 URL의 PC 1280×800/DPR2·모바일 가로 844×390/DPR2 Chromium 에뮬레이션에서 첫 별빛 획득 **837.333px**를 재확인했습니다. 원격 시험은 메뉴 조작 후 첫 수집 경계 확인이며, 위 로컬의 세 섬 전체 키보드/터치 완주와 구분합니다.
+- 별도 실제 URL 실행에서 나침반 추락 복귀·같은 거리/수집물 중복 점수 방지·재도전 초기화·예전 v1 기록/설정의 정확한 UI 복원·지도 9개와 몬스터/아이템 도감을 확인했습니다. 두 원격 실행의 JS 오류/HTTP 실패는 0건입니다.
+- 근거: `artifacts/contact-deployment.json`, `contact-deployed-after-results.json`, 갱신된 `expansion-deployed-results.json`과 캡처. 실제 기기 확인은 미실행입니다. 빌드·커밋·푸시·실제 배포·주소 확인을 수행했습니다. 후속 문서/시험 도구의 모듈 버전 확인 보완과 검증 자료는 `[skip ci]` 커밋으로 보존합니다.
