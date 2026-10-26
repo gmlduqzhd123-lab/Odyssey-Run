@@ -66,7 +66,7 @@ QA_URL=http://localhost:4174/qa-odyssey/ npx tsx scripts/performance-qa.ts
 | A23 | 통과 | 깨진 JSON, 64KiB 초과, 미지원 버전, 음수/NaN/Infinity/초과값, 필수값 누락, 중복·다른 섬 지도, 모순된 해금 거부. 기존 기록 불변 |
 | A24 | 통과 | 확인 후 전용 저장·백업 제거, `other-app-qa` 키 유지. localStorage.clear 사용 없음 |
 | A25 | 통과 | 3회 재시작에 각 3번 빠른 클릭(총 9번), 카운트다운 1개·점수 0 확인. 버튼 리스너를 AbortController로 정리 |
-| A26 | 통과 | 상대/명시 base의 정적 빌드를 `/qa-odyssey/`에서 실행. 모든 메뉴·3개 코스·파일 복원·새로고침·SVG/JS/CSS 로딩 확인. 실제 Pages URL은 미실행 |
+| A26 | 통과 | 상대/명시 base의 정적 빌드를 `/qa-odyssey/`에서 실행. 모든 메뉴·3개 코스·파일 복원·새로고침·SVG/JS/CSS 로딩 확인. 초기 구현 이후 실제 Pages 주소도 후속 검증 |
 | A27 | 통과 | 음악/효과음 개별 음소거 저장. AudioContext 생성 실패 주입 후 정상 플레이. 화면으로 상태 표시. 실제 기기 스피커 청취/OS 음소거는 미실행 |
 | A28 | 통과 | 30/60/120Hz 렌더 간격을 고정 물리 accumulator에 공급. 2초 거리 각 640.0000000000001px, 점프 최고 발 y 각 302px. 거리 차이 0%, 최고점 차이 0px. 실제 30/120Hz 디스플레이는 미실행 |
 
@@ -77,7 +77,7 @@ QA_URL=http://localhost:4174/qa-odyssey/ npx tsx scripts/performance-qa.ts
 | 섬 | 별빛 | 지도 | HP 손실 | 평점 | 점수 |
 |---|---:|---:|---:|---:|---:|
 | 출항의 해변 | 93 | 3/3 | 0 | 3★ | 4,130 |
-| 키클롭스의 동굴 | 91 | 3/3 | 0 | 3★ | 4,110 |
+| 키클롭스의 동굴 | 92 | 3/3 | 0 | 3★ | 4,120 |
 | 아이올로스의 바람 섬 | 85 | 3/3 | 0 | 3★ | 4,050 |
 
 입력 프레임 경계에 따라 별빛 1개 정도의 차이가 있었지만 해금·지도·무피해·평점 조건은 유지됐습니다. 100개를 모두 수집한 최적 브라우저 플레이는 미실행이며 최대 4,200점은 점수 함수와 코스 수량으로 검증했습니다. 시뮬레이션의 정상 완주 시간은 **75.02초**였습니다.
@@ -85,7 +85,7 @@ QA_URL=http://localhost:4174/qa-odyssey/ npx tsx scripts/performance-qa.ts
 ## 성능
 
 - 실제 시간 측정, 960×620 브라우저/960×540 논리 화면, 해변 시작 직후 **10초**. Playwright 가상 시계를 설치하지 않은 별도 실행입니다.
-- 최종 기본 Canvas: 약 **60.0fps**, 프레임 간격 p95 **16.7ms**, 약 3,205px 전진(약 10.016초 측정). Canvas 2D context 사용을 확인했습니다.
+- 최종 기본 Canvas: 약 **60.0fps**, 프레임 간격 p95 **16.8ms**, 약 3,205px 전진(약 10.004초 측정). Canvas 2D context 사용을 확인했습니다.
 - 초기 소프트웨어 WebGL 비교: 약 **28.9fps**, p95 **50ms**, 약 10.009초. 이 결과를 근거로 Canvas를 기본값으로 선택했습니다.
 - 측정 자료: `artifacts/performance-results.json`, 이전 렌더러 비교: `artifacts/renderer-comparison.json`.
 - 이 환경은 실제 휴대폰이 아닙니다. 75초 전체 구간 fps, 발열·배터리·저사양 Android, iOS Safari의 부드러움은 미측정입니다.
@@ -128,8 +128,25 @@ QA_URL=http://localhost:4174/qa-odyssey/ npx tsx scripts/performance-qa.ts
 - 로컬 타입 검사·자동 테스트 **23개 통과**, `PAGES_BASE=/Odyssey-Run/ npm run build` 성공. 해당 하위 경로의 실행 검증은 `artifacts/github-base-results.json`에 기록합니다.
 - Pages 활성화 API는 현재 연동 토큰의 권한 제한으로 HTTP 403(`Resource not accessible by integration`)을 반환했습니다. 현재 도구에는 인증된 사용자 브라우저를 제어할 수 있는 연결도 없어 Pages 활성화는 저장소의 Settings → Pages에서 사용자가 수행해야 합니다.
 - 빌드 검증/산출물 업로드와 Pages 설정/배포를 별도 job으로 나눴습니다. Pages 활성화 전에도 빌드 결과를 확인할 수 있습니다.
-- 원격 `main` 푸시 성공. [첫 Actions 실행](https://github.com/gmlduqzhd123-lab/Odyssey-Run/actions/runs/40250359504)에서 설치·타입 검사·23개 테스트·빌드·Pages artifact 업로드가 모두 성공했습니다. deploy job은 Pages 사이트 미활성화로 `configure-pages` 단계에서 HTTP 404로 중단됐습니다. 실제 배포 주소 접속은 아직 확인하지 않았습니다.
+- 원격 `main` 푸시 성공. [첫 Actions 실행](https://github.com/gmlduqzhd123-lab/Odyssey-Run/actions/runs/40250359504)에서 설치·타입 검사·23개 테스트·빌드·Pages artifact 업로드가 모두 성공했습니다. deploy job은 Pages 사이트 미활성화로 `configure-pages` 단계에서 HTTP 404로 중단됐습니다. 이후 사용자가 Pages Source를 GitHub Actions로 바꾼 뒤 배포 작업을 재실행하여 성공했습니다. 실제 주소 https://gmlduqzhd123-lab.github.io/Odyssey-Run/ 에서 HTTPS 200, 시작·플레이·일시정지·재개·도감·설정·새로고침, JS/CSS/SVG 요청 82건 성공과 브라우저 오류/404 0건을 확인했습니다(2026-10-26 10:31 한국 시간).
 - 저장소 소유자가 **Settings → Pages → Source: GitHub Actions**를 선택한 뒤 Actions에서 **Re-run failed jobs** 또는 워크플로 수동 실행으로 배포할 수 있습니다.
 - 저장소의 실제 `/Odyssey-Run/` base에서 Chromium으로 시작·플레이·새로고침·자산 로딩을 확인했습니다. 오류 및 자산 HTTP 실패 0건입니다.
 
 - 초기 커밋 `811ed90`을 `origin/main`에 푸시했고 원격 추적을 설정했습니다. 브라우저 미리보기는 빌드와 서버의 base가 일치해야 하므로, 저장소 연결 후 로컬 기본 base를 `/Odyssey-Run/`으로 맞췄습니다.
+
+## 사용자 제공 이미지 적용 검증 — 2026-10-26
+
+- 첨부: 캐릭터 이미지.zip(10장), 아이템 이미지.zip(10장). 이미지 외의 첨부 지시를 실행하지 않았습니다.
+- 캐릭터는 인물별 단일 그림입니다. 오디세우스 1명에 4단계 달리기·점프·낙하·낮은 슬라이드·피격·완주를 크기/회전/투명도로 연출합니다. 인물 10장으로 동작 프레임 10개를 받은 것으로 취급하지 않았습니다.
+- 나머지 인물은 도감에서 짧은 이야기를 여는 실제 버튼으로 연결했습니다. 수집 아이템은 기존 5종이며, 추가 그림 5개는 항해의 상징으로 구분합니다.
+- 코스·충돌 영역·물리·HP·점수·아이템 효과·저장 키/버전을 변경하지 않았습니다. 기존 진행을 초기화하지 않습니다.
+- 원본 픽셀은 다시 그리지 않고, 종횡비를 지킨 해상도 축소 후 무손실 WebP로 인코딩했습니다. 준비된 20장 모두 RGBA이며 알파 최솟값 0, 최댓값 255를 확인했습니다.
+- 원본 합계 33,376,061바이트 → 배포 이미지 1,851,274바이트. 원본 PNG는 첨부 파일로 보존하고 웹용 파일만 저장소에 포함합니다.
+- `scripts/art-qa.ts`: 데스크톱 1280×800, 모바일 가로 844×390와 세로 390×844 에뮬레이션. 인물 10장·아이템/상징 10장 로딩, 인물 이야기, 도감 이동, 게임 표시·점프·슬라이드·일시정지·새로고침 통과. JavaScript 오류·이미지 404 없음.
+- `scripts/edge-qa.ts`: 변경된 주인공 WebP 파일을 차단했을 때 오류 화면·재시도 통과. 저장 접근 거부, 음향 불가, 잘못된 파일, 빠른 재도전도 통과.
+- 타입 검사·빌드·기존 순수 로직 테스트 23개 통과. 이미지 교체 후에도 세 섬을 실제 키보드 이벤트로 무피해 완주했고, 지도 총 9개·각 평점 3개·해금·엔딩·저장/복원·멀티터치/회전 검증이 통과했습니다. Chromium 모바일 화면은 에뮬레이션입니다.
+- 변경 이미지의 실제 시간 10초 측정: Canvas 60.00fps, 프레임 간격 p95 16.8ms. 실제 장치 성능을 대신하는 값은 아닙니다.
+- 제목 화면 복귀 때 배의 위치·크기도 초기화해, 앞선 완주 연출이 새 캐릭터와 어긋나지 않게 했습니다.
+- 원격 배포 후 접속 결과는 실행 기록에 추가합니다.
+- 자료: `artifacts/art-results.json`, `art-home.png`, `art-people.png`, `art-relics.png`, `art-run.png`, `art-jump.png`, `art-slide.png`, `art-mobile-home.png`, `art-mobile-person.png`, `art-mobile-book.png`.
+- 실제 Android/iOS 기기와 원본에 없는 손그림 동작 프레임은 이번에도 검증/제공 범위에 포함되지 않습니다.

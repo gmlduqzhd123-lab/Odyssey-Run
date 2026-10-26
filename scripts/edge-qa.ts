@@ -5,7 +5,7 @@ await mkdir('artifacts',{recursive:true});
 const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',args:['--no-sandbox']});
 try{
  const page=await browser.newPage({viewport:{width:960,height:620}});
- await page.route('**/hero-run0.svg',r=>r.abort());await page.goto(url);await expect(page.locator('[data-action="reload"]')).toBeVisible();await page.unroute('**/hero-run0.svg');await page.locator('[data-action="reload"]').click();await page.waitForSelector('.home');
+ await page.route('**/odysseus-*.webp',r=>r.abort());await page.goto(url);await expect(page.locator('[data-action="reload"]')).toBeVisible();await page.unroute('**/odysseus-*.webp');await page.locator('[data-action="reload"]').click();await page.waitForSelector('.home');
  await page.locator('[data-action="islands"]').first().click();await page.locator('[data-action="stage:beach"]').click();await page.locator('[data-action="start"]').click();await page.waitForSelector('.countdown',{state:'detached'});await page.keyboard.press('p');
  for(let i=0;i<3;i++){await page.locator('[data-action="restart"]').evaluate(el=>{el.dispatchEvent(new MouseEvent('click',{bubbles:true}));el.dispatchEvent(new MouseEvent('click',{bubbles:true}));el.dispatchEvent(new MouseEvent('click',{bubbles:true}));});await expect(page.locator('.countdown')).toHaveCount(1);await expect(page.locator('#score')).toHaveText('0');await page.getByRole('button',{name:'잠시 멈추기'}).click();}
  await page.locator('[data-action="islands"]').click();await page.locator('[data-action="home"]').click();await page.locator('[data-action="settings"]').click();

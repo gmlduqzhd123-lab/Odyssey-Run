@@ -2,7 +2,7 @@
 
 **Odyssey Run: Road to Ithaca** — 오디세우스가 세 섬을 달려 고향으로 돌아가는 2D 러닝게임입니다. 로그인, 외부 서버, DB 없이 PC와 스마트폰 브라우저에서 실행합니다.
 
-출항의 해변 → 키클롭스의 동굴 → 아이올로스의 바람 섬 → 이타카 항구. 한 섬은 24,000px, 피해·추락 없는 플레이는 약 75초입니다. 섬마다 별빛 100개와 지도 3개를 배치했습니다. 자체 SVG 그래픽과 Web Audio 합성 음악을 포함합니다.
+출항의 해변 → 키클롭스의 동굴 → 아이올로스의 바람 섬 → 이타카 항구. 한 섬은 24,000px, 피해·추락 없는 플레이는 약 75초입니다. 섬마다 별빛 100개와 지도 3개를 배치했습니다. 사용자 제공 캐릭터·아이템 이미지, 자체 SVG 배경과 Web Audio 합성 음악을 포함합니다.
 
 ## 실행
 
@@ -49,11 +49,13 @@ npx tsx scripts/performance-qa.ts # QA_URL의 빌드에서 10초 실시간 성�
 
 ## GitHub Pages
 
+게임 주소: [오디세이 런: 이타카로!](https://gmlduqzhd123-lab.github.io/Odyssey-Run/)
+
 연결 저장소: [gmlduqzhd123-lab/Odyssey-Run](https://github.com/gmlduqzhd123-lab/Odyssey-Run). 기본 브랜치는 `main`이며, 프로젝트 Pages 빌드 경로는 **`/Odyssey-Run/`**입니다. 구현 당시 작업 공간은 빈 프로젝트였으며, 제공된 GitHub 저장소도 기존 커밋이 없는 상태임을 확인했습니다.
 
 - 기본 `base`는 연결된 저장소에 맞춘 `/Odyssey-Run/`입니다. 개발·미리보기에서도 Vite가 출력하는 이 하위 경로 주소를 엽니다. 다른 경로는 `PAGES_BASE`로 덮어쓸 수 있습니다.
 - `.github/workflows/pages.yml`은 `GITHUB_REPOSITORY`에서 실제 저장소 이름을 읽습니다. 프로젝트 Pages는 `/<실제 저장소 이름>/`, `<실제 소유자>.github.io`와 정확히 일치하는 사용자/조직 Pages 저장소는 `/`로 빌드합니다.
-- [저장소 Pages 설정](https://github.com/gmlduqzhd123-lab/Odyssey-Run/settings/pages)에서 **Source: GitHub Actions**를 선택합니다. 현재 연동 토큰은 Pages 활성화 API 권한이 없어 이 설정은 저장소 소유자가 한 번 선택해야 합니다. 이후 main/master 푸시 또는 수동 workflow 실행으로 배포합니다. Pages를 활성화한 뒤 [Actions](https://github.com/gmlduqzhd123-lab/Odyssey-Run/actions)에서 실패한 deploy job을 재실행하거나 워크플로를 수동 실행합니다. 워크플로 실행 결과와 실제 접속 검증은 `QA.md`의 GitHub 연동 기록에 별도로 남깁니다.
+- [저장소 Pages 설정](https://github.com/gmlduqzhd123-lab/Odyssey-Run/settings/pages)에서 **Source: GitHub Actions**를 선택합니다. 이 저장소는 사용자가 GitHub Actions 방식으로 활성화했으며 실제 배포·접속을 확인했습니다. 이후 main/master 푸시 또는 수동 workflow 실행으로 배포합니다. 필요하면 [Actions](https://github.com/gmlduqzhd123-lab/Odyssey-Run/actions)에서 워크플로를 수동 실행합니다. 워크플로 실행 결과와 실제 접속 검증은 `QA.md`의 GitHub 연동 기록에 별도로 남깁니다.
 - 별도 하위 경로나 사용자 도메인이 필요하면 `PAGES_BASE`와 workflow의 경로 계산을 실제 구성에 맞춰 수정합니다.
 
 ```sh
@@ -88,3 +90,15 @@ npm run preview
 - `PRD.md`: 구현 기준. `ASSET_CREDITS.md`: 자산·라이선스. `QA.md`: 검증 근거와 제한.
 
 Phaser **3.90.0** 공식 문서의 [Scene](https://docs.phaser.io/api-documentation/3.90.0/class/scene)과 [Arcade Physics](https://docs.phaser.io/api-documentation/3.90.0/class/physics-arcade-arcadephysics)를 확인했습니다. 이 게임은 천장 공간·입력 유예·추락 복구의 재현 가능한 검증을 위해 가벼운 고정 시간 시뮬레이션을 사용하고 Phaser Scene.update를 유일한 게임 루프로 사용합니다. 이 게임에 필요한 2D 그리기 기능은 Canvas에서 모두 동작합니다.
+
+## 사용자 제공 이미지
+
+캐릭터 10장과 아이템·상징 10장을 웹용 WebP로 적용했습니다. 붉은 망토의 오디세우스가 제목과 플레이에 등장합니다. 도감의 **지도 조각 / 여정의 인물 / 아이템과 상징**에서 나머지 그림과 설명을 볼 수 있습니다. 인물 카드는 이야기를 여는 버튼이며 조종 캐릭터를 바꾸지 않습니다. 방패·날개 신발·자석·사과·지도의 효과와 저장 형식은 유지합니다.
+
+원본 20장은 약 33.4MB, 배포 이미지 합계는 약 1.85MB입니다. 종횡비·투명 배경을 보존하며, 도감 이미지는 지연 로딩합니다. 캐릭터 원본은 인물별 한 장이어서 동작은 동일 그림의 절차적 애니메이션으로 표현합니다. 원본 별도 동작 프레임은 포함되지 않았습니다.
+
+출처·사용 위치는 `ASSET_CREDITS.md`, 원본 파일명과 해시는 `docs/user-art-manifest.json`에 있습니다. 일반 `npm ci`/`npm run build`는 준비된 WebP만 사용합니다. 원본 ZIP으로 다시 변환할 때만 ImageMagick과 unzip을 설치하고 다음을 실행합니다.
+
+```sh
+node scripts/prepare-user-art.mjs '캐릭터 이미지.zip' '아이템 이미지.zip'
+```

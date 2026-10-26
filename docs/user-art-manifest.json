@@ -1,0 +1,309 @@
+{
+  "providedArchives": [
+    "캐릭터 이미지.zip",
+    "아이템 이미지.zip"
+  ],
+  "processing": "Aspect-preserving downsampling; original transparency; lossless WebP encoding after resize; no redraw.",
+  "images": [
+    {
+      "name": "navigator",
+      "category": "characters",
+      "sourceFile": "ChatGPT 이미지 2026년 10월 26일 오전 09_32_28-10.png",
+      "sourceSha256": "ccccdebc69a6e91ba2a4438be6e660d41f4ebf56161025ff1ce895ca3b63f822",
+      "sourceBytes": 1579293,
+      "originalSize": [
+        1086,
+        1448
+      ],
+      "displayTexture": "assets/art/navigator-6dfee87623a4.webp",
+      "preparedSize": "288x384",
+      "preparedBytes": 99486,
+      "preparedSha256": "6dfee87623a4f8807b42457da1e515d51b75bc3853bc799ff278c8b58923e3f7"
+    },
+    {
+      "name": "odysseus",
+      "category": "characters",
+      "sourceFile": "ChatGPT 이미지 2026년 10월 26일 오전 09_32_06-1.png",
+      "sourceSha256": "9d9aa52fe5e07f035b93c8e941f535acc1a511ea1b43b786cc81d9baa885457e",
+      "sourceBytes": 1300651,
+      "originalSize": [
+        1086,
+        1448
+      ],
+      "displayTexture": "assets/art/odysseus-0389a9dc53ed.webp",
+      "preparedSize": "384x512",
+      "preparedBytes": 142048,
+      "preparedSha256": "0389a9dc53ed004fb997720dacf4e110a4b7d9ccc7a71ab2a5ce9226bd7bf455"
+    },
+    {
+      "name": "penelope",
+      "category": "characters",
+      "sourceFile": "ChatGPT 이미지 2026년 10월 26일 오전 09_32_11-2.png",
+      "sourceSha256": "676957f32f4ce924a08b97092f7670887a63fd26e16dff41ff651488210bdd1f",
+      "sourceBytes": 1464061,
+      "originalSize": [
+        1086,
+        1448
+      ],
+      "displayTexture": "assets/art/penelope-e2fb0cfb9ffa.webp",
+      "preparedSize": "288x384",
+      "preparedBytes": 95198,
+      "preparedSha256": "e2fb0cfb9ffa4b5800eb1eec574ebf34e55429cce0b25d5f723b015ca513695c"
+    },
+    {
+      "name": "telemachus",
+      "category": "characters",
+      "sourceFile": "ChatGPT 이미지 2026년 10월 26일 오전 09_32_15-3.png",
+      "sourceSha256": "313343a2a17fe54e0783f5d33cd2f541d31aede028ba5737d8190ee0a46e55e8",
+      "sourceBytes": 1378638,
+      "originalSize": [
+        1086,
+        1448
+      ],
+      "displayTexture": "assets/art/telemachus-766693093d38.webp",
+      "preparedSize": "288x384",
+      "preparedBytes": 86538,
+      "preparedSha256": "766693093d380fc15ed68231032e29fd1a160b8e5aea7ade9b3a3674f46c1723"
+    },
+    {
+      "name": "athena",
+      "category": "characters",
+      "sourceFile": "ChatGPT 이미지 2026년 10월 26일 오전 09_32_17-4.png",
+      "sourceSha256": "abd876bfce3a2d3baa710428adf8dc94f1a137c5a5a743a7098a9d414b351de8",
+      "sourceBytes": 1471781,
+      "originalSize": [
+        1086,
+        1448
+      ],
+      "displayTexture": "assets/art/athena-6c30807fcfd7.webp",
+      "preparedSize": "288x384",
+      "preparedBytes": 93700,
+      "preparedSha256": "6c30807fcfd7e55f61e39aa8a5b28bed696bce91459750ad925cb252b964c337"
+    },
+    {
+      "name": "hermes",
+      "category": "characters",
+      "sourceFile": "ChatGPT 이미지 2026년 10월 26일 오전 09_32_19-5.png",
+      "sourceSha256": "2800cf0a99e6fbc4e9c361db7b69df00db5796466ecfcb2543dd772d73cbca6c",
+      "sourceBytes": 1433733,
+      "originalSize": [
+        1086,
+        1448
+      ],
+      "displayTexture": "assets/art/hermes-5b03daddab93.webp",
+      "preparedSize": "288x384",
+      "preparedBytes": 94806,
+      "preparedSha256": "5b03daddab935b3e57c467c07b14db14efb5f477c68a22770246d5d2b4d888ae"
+    },
+    {
+      "name": "aeolus",
+      "category": "characters",
+      "sourceFile": "ChatGPT 이미지 2026년 10월 26일 오전 09_32_21-6.png",
+      "sourceSha256": "cf524433faf9b3f2ca64b81928d08ea5d6400f69984ea831c4886fb33e725e82",
+      "sourceBytes": 1854960,
+      "originalSize": [
+        1086,
+        1448
+      ],
+      "displayTexture": "assets/art/aeolus-05a66e6fd56f.webp",
+      "preparedSize": "288x384",
+      "preparedBytes": 118782,
+      "preparedSha256": "05a66e6fd56ffd9537bb0fead5f57d565873b791634cfcdca9486bf37f590255"
+    },
+    {
+      "name": "nausicaa",
+      "category": "characters",
+      "sourceFile": "ChatGPT 이미지 2026년 10월 26일 오전 09_32_23-7.png",
+      "sourceSha256": "4d84feea9203c3804eeedf57e285f5ac374d91477c712d3e9eb3a2e9f0e8d8ea",
+      "sourceBytes": 1641290,
+      "originalSize": [
+        1086,
+        1448
+      ],
+      "displayTexture": "assets/art/nausicaa-b189df128970.webp",
+      "preparedSize": "288x384",
+      "preparedBytes": 104852,
+      "preparedSha256": "b189df128970a3179fcab54f983448b673d46c51296c1f12aaa8d45ade22e461"
+    },
+    {
+      "name": "sailor",
+      "category": "characters",
+      "sourceFile": "ChatGPT 이미지 2026년 10월 26일 오전 09_32_25-8.png",
+      "sourceSha256": "d8cfdfcf4f986bd011d3780a0b7895ad19bb868f3e67f51057a3426969c63b57",
+      "sourceBytes": 1501097,
+      "originalSize": [
+        1086,
+        1448
+      ],
+      "displayTexture": "assets/art/sailor-f02b2b8541dc.webp",
+      "preparedSize": "288x384",
+      "preparedBytes": 96414,
+      "preparedSha256": "f02b2b8541dc789df24a84785902f94005bc02eb2cd3fcdb70c819ddb3ba8fbd"
+    },
+    {
+      "name": "counsellor",
+      "category": "characters",
+      "sourceFile": "ChatGPT 이미지 2026년 10월 26일 오전 09_32_26-9.png",
+      "sourceSha256": "56d42a02e9c1d730e2479436617f69b5c8097e590345ef0b44edea82358b526a",
+      "sourceBytes": 1514665,
+      "originalSize": [
+        1086,
+        1448
+      ],
+      "displayTexture": "assets/art/counsellor-8835e07d4cfc.webp",
+      "preparedSize": "288x384",
+      "preparedBytes": 96892,
+      "preparedSha256": "8835e07d4cfc17bd15d7ff716c14715d288984293d6cd182dfb47b678b6d1962"
+    },
+    {
+      "name": "shield",
+      "category": "items",
+      "sourceFile": "ChatGPT 이미지 2026년 10월 26일 오전 09_32_55-1.png",
+      "sourceSha256": "32ab34609c3b9dc5cda62a037444682186ae07b6aa9f0175696920ed31b34cd9",
+      "sourceBytes": 2359432,
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "displayTexture": "assets/art/shield-460ee6506725.webp",
+      "preparedSize": "256x256",
+      "preparedBytes": 98024,
+      "preparedSha256": "460ee6506725d4399b92ca16e16a39966b4d3fff938c02ec5e46a321a008e306"
+    },
+    {
+      "name": "wings",
+      "category": "items",
+      "sourceFile": "ChatGPT 이미지 2026년 10월 26일 오전 09_33_00-2.png",
+      "sourceSha256": "5ac49e930120a9290063a83bf172e3844161fdc82f4bda7a056c8c964b43eaff",
+      "sourceBytes": 1934970,
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "displayTexture": "assets/art/wings-8b734790c630.webp",
+      "preparedSize": "256x256",
+      "preparedBytes": 85514,
+      "preparedSha256": "8b734790c6306fd00cbf8c9a5860f17adf3d2feb6c6b7cb51e63eb59f618fb9a"
+    },
+    {
+      "name": "magnet",
+      "category": "items",
+      "sourceFile": "ChatGPT 이미지 2026년 10월 26일 오전 09_33_02-3.png",
+      "sourceSha256": "640876ec4b3fd04eb2a771a460f00d3475b3e6138669c7971f976edfa67bae41",
+      "sourceBytes": 1944244,
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "displayTexture": "assets/art/magnet-e899ce1ab3bf.webp",
+      "preparedSize": "256x256",
+      "preparedBytes": 95030,
+      "preparedSha256": "e899ce1ab3bfd8204db06304491da9c0334e2936df846937287e5825c304aa94"
+    },
+    {
+      "name": "apple",
+      "category": "items",
+      "sourceFile": "ChatGPT 이미지 2026년 10월 26일 오전 09_33_04-4.png",
+      "sourceSha256": "4e061b738f1c250a3ef40324716e56a96a47feacc508036c35b1f419eb08918a",
+      "sourceBytes": 1769574,
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "displayTexture": "assets/art/apple-a178178a9e74.webp",
+      "preparedSize": "256x256",
+      "preparedBytes": 80594,
+      "preparedSha256": "a178178a9e74ca0eb45e9456b164cfd85839623b9810c598d3bdd21cf9e08d42"
+    },
+    {
+      "name": "map",
+      "category": "items",
+      "sourceFile": "ChatGPT 이미지 2026년 10월 26일 오전 09_33_06-5.png",
+      "sourceSha256": "c83816fe5aed7cb44ed8e1d12b7f13b8b01b9358ac66338aa3bfaf01cd6e6867",
+      "sourceBytes": 2061237,
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "displayTexture": "assets/art/map-c87be76009fe.webp",
+      "preparedSize": "256x256",
+      "preparedBytes": 86074,
+      "preparedSha256": "c87be76009fe180265d2023ec81023df1524e0c26688b16f9eb2bf9ae961f6f2"
+    },
+    {
+      "name": "wind-bag",
+      "category": "items",
+      "sourceFile": "ChatGPT 이미지 2026년 10월 26일 오전 09_33_08-6.png",
+      "sourceSha256": "3aa9b5e40f24fcf92d39543404c47522e8baa2467aa127e3be6ebec847d058ba",
+      "sourceBytes": 2163272,
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "displayTexture": "assets/art/wind-bag-9bf9baf0fd6a.webp",
+      "preparedSize": "256x256",
+      "preparedBytes": 93406,
+      "preparedSha256": "9bf9baf0fd6a27ef77d4ede2039a8b8438e2ac9ba17abf98a38dc3c5e41fca03"
+    },
+    {
+      "name": "trident",
+      "category": "items",
+      "sourceFile": "ChatGPT 이미지 2026년 10월 26일 오전 09_33_10-7.png",
+      "sourceSha256": "4386440b03a0b0be21dd63f8015b0adcb16cdcc6fc93209467bd330602f1d88a",
+      "sourceBytes": 1155272,
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "displayTexture": "assets/art/trident-4bfc90d78eb6.webp",
+      "preparedSize": "256x256",
+      "preparedBytes": 56314,
+      "preparedSha256": "4bfc90d78eb677f97ea2fcda131c837518d8de509f3b3a3b74e701cf03cbe7c8"
+    },
+    {
+      "name": "laurel",
+      "category": "items",
+      "sourceFile": "ChatGPT 이미지 2026년 10월 26일 오전 09_33_12-8.png",
+      "sourceSha256": "d5edec92fbaeb7f317d23edc8c3d6ed407108a085e9dbb7947f9df2ecc8680c4",
+      "sourceBytes": 1525037,
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "displayTexture": "assets/art/laurel-43b98b476384.webp",
+      "preparedSize": "256x256",
+      "preparedBytes": 71428,
+      "preparedSha256": "43b98b476384bf27a9b95c559d6fbe78c0a887e09a19735dec455eed6e0f84ff"
+    },
+    {
+      "name": "compass",
+      "category": "items",
+      "sourceFile": "ChatGPT 이미지 2026년 10월 26일 오전 09_33_13-9.png",
+      "sourceSha256": "055065d3b2fad47f036289c571428775e98667410ef11fa584539c23962fc85a",
+      "sourceBytes": 1974366,
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "displayTexture": "assets/art/compass-0bfa48989ace.webp",
+      "preparedSize": "256x256",
+      "preparedBytes": 92166,
+      "preparedSha256": "0bfa48989ace00cbd9501db35bbec591454ee6cf882b9fbf9ae2a6b55a135bd7"
+    },
+    {
+      "name": "lantern",
+      "category": "items",
+      "sourceFile": "ChatGPT 이미지 2026년 10월 26일 오전 09_33_15-10.png",
+      "sourceSha256": "ee486ccbd4e3e8e48d4b4a42d4f8b55c043b679c11b78d1fc30cf6ec24ca9a35",
+      "sourceBytes": 1348488,
+      "originalSize": [
+        1254,
+        1254
+      ],
+      "displayTexture": "assets/art/lantern-92cc051f0c7f.webp",
+      "preparedSize": "256x256",
+      "preparedBytes": 64008,
+      "preparedSha256": "92cc051f0c7f9a5d008ff0574e725be550fe7b69314c2ff474d077461e466361"
+    }
+  ]
+}

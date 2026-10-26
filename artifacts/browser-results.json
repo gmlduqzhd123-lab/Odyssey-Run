@@ -1,5 +1,5 @@
 {
-  "base": "http://localhost:4174/qa-odyssey/",
+  "base": "http://localhost:4176/Odyssey-Run/",
   "browser": "154.0.8037.57",
   "viewport": "960x620 desktop Chromium",
   "renderer": "Canvas (game default)",
@@ -22,9 +22,9 @@
       "stage": "cave",
       "record": {
         "complete": true,
-        "bestScore": 4110,
+        "bestScore": 4120,
         "bestRating": 3,
-        "bestStars": 91,
+        "bestStars": 92,
         "maps": [
           "cave-map-1",
           "cave-map-2",

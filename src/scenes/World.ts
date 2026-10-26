@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import {C} from '../config';
 import {COURSES,type StageId} from '../levels/courses';
 import type {Runner} from '../player/runner';
+import {assetUrl} from '../assets/catalog';
 export interface SceneHost {frame(delta:number):void;loaded():void;loadError():void;reduced():boolean;}
 export class World extends Phaser.Scene {
  private bg:Phaser.GameObjects.TileSprite[]=[];private ground!:Phaser.GameObjects.Graphics;private fx!:Phaser.GameObjects.Graphics;
@@ -15,8 +16,9 @@ export class World extends Phaser.Scene {
   const t=this.add.text(480,250,'항해를 준비하고 있어요…',{fontFamily:'sans-serif',fontSize:'22px',color:'#f6e8c5'}).setOrigin(.5);
   const bar=this.add.graphics();this.load.on('progress',(n:number)=>{bar.clear().fillStyle(0xe9b957).fillRoundedRect(300,296,360*n,5,3);t.setText(`항해를 준비하고 있어요… ${Math.round(n*100)}%`);});
   this.load.on('loaderror',()=>{this.failed=true;});
-  const names=['compass','star','map','shield','wings','magnet','apple','crate','pillar','gate','rock','boat','giant',...['run0','run1','run2','run3','jump','fall','slide','hurt','win'].map(s=>'hero-'+s),...['beach','cave','wind'].flatMap(id=>['sky','far','mid'].map(layer=>`${id}-${layer}`))];
+  const names=['star','crate','pillar','gate','rock','boat','giant',...['beach','cave','wind'].flatMap(id=>['sky','far','mid'].map(layer=>`${id}-${layer}`))];
   names.forEach(n=>this.load.svg(n,`${import.meta.env.BASE_URL}assets/${n}.svg`));
+  ['odysseus','map','shield','wings','magnet','apple'].forEach(n=>this.load.image(n,assetUrl(n)));
   this.load.once('complete',()=>{g.destroy();t.destroy();bar.destroy();});
  }
  create(){
@@ -25,14 +27,14 @@ export class World extends Phaser.Scene {
   this.giant=this.add.image(-100,440,'giant').setOrigin(.5,1).setAlpha(.8).setVisible(false);
   this.ground=this.add.graphics();this.fx=this.add.graphics();
   this.boat=this.add.image(744,444,'boat').setDisplaySize(350,230);
-  this.hero=this.add.image(744,370,'hero-win').setOrigin(.5,1).setDisplaySize(180,200);
+  this.hero=this.add.image(744,442,'odysseus').setOrigin(.5,1).setDisplaySize(180,240);
   this.label=this.add.text(480,275,'',{fontFamily:'sans-serif',fontSize:'22px',color:'#fff2d2',stroke:'#223e4b',strokeThickness:5,align:'center'}).setOrigin(.5);
   this.host.loaded();
  }
- showHome(){this.mode='home';this.run=null;this.clearObjects();this.setStage('beach');this.boat.setVisible(true);this.hero.setTexture('hero-win').setDisplaySize(180,200).setPosition(744,442).setAlpha(1);this.giant.setVisible(false);this.label.setText('');}
+ showHome(){this.mode='home';this.run=null;this.clearObjects();this.setStage('beach');this.boat.setVisible(true).setPosition(744,410).setDisplaySize(350,230);this.hero.setDisplaySize(180,240).setPosition(744,442).setRotation(0).setAlpha(1);this.giant.setVisible(false);this.label.setText('');}
  setStage(id:StageId){this.stage=id;this.bg.forEach((b,i)=>b.setTexture(`${id}-${['sky','far','mid'][i]}`));}
  showRun(run:Runner){
-  this.mode='run';this.run=run;this.clearObjects();this.setStage(run.stage);this.boat.setVisible(false);this.hero.setDisplaySize(81,90);
+  this.mode='run';this.run=run;this.clearObjects();this.setStage(run.stage);this.boat.setVisible(false);this.hero.setDisplaySize(66,88).setRotation(0);
   run.course.obstacles.forEach(o=>{this.obstacles.push(this.add.image(o.x,o.y,o.kind==='falling'?'rock':o.kind).setOrigin(0).setDisplaySize(o.w,o.h));});
   run.course.items.forEach(i=>this.items.push(this.add.image(i.x,i.y,i.kind).setDisplaySize(i.kind==='star'?24:36,i.kind==='star'?24:36)));
   run.course.platforms.forEach(p=>this.platforms.push(this.add.image(p.x,p.y,'pillar').setOrigin(0).setDisplaySize(p.w,20)));
@@ -74,13 +76,23 @@ export class World extends Phaser.Scene {
    for(let k=0;k<8;k++){const xx=x+40+k*80,yy=400-(((this.host.reduced()?0:r.time*65)+k*41)%290);fx.lineBetween(xx,yy+12,xx,yy-16);fx.lineBetween(xx,yy-16,xx-8,yy-5);fx.lineBetween(xx,yy-16,xx+8,yy-5);}
   });
   r.course.obstacles.filter(o=>o.kind==='falling'&&o.x-r.x<650&&o.x>r.x-70).forEach(o=>{const x=o.x-cam+30;fx.fillStyle(0xe8b04d,.22).fillRect(x-42,340,84,100);fx.fillStyle(0xeab758).fillTriangle(x,310,x-12,332,x+12,332);});
-  const state=r.state==='success'?'win':r.invincible>1?'hurt':r.sliding?'slide':r.grounded?`run${Math.floor(r.time*12)%4}`:r.vy<0?'jump':'fall';
-  this.hero.setTexture(`hero-${state}`).setPosition(192,r.y+8).setAlpha(r.invincible>0?.55+.35*Math.abs(Math.sin(r.time*18)):1);
+  this.drawHero(r);
   if(r.shield){fx.lineStyle(3,0xffdf85,.85).strokeEllipse(192,r.y-35,86,96);}
   if(r.wings>0){fx.lineStyle(4,0xf4f3d4,.8);fx.lineBetween(160,r.y-40,132,r.y-63);fx.lineBetween(222,r.y-40,246,r.y-63);}
   this.giant.setVisible(this.stage==='cave').setPosition(r.hp<=0?140:r.hp===3?-45:r.hp===2?15:63,440).setDisplaySize(170,230);
   if(r.x<3200){this.label.setPosition(590,160).setText(r.x<1000?'이타카로 가는 여정, 출발!':this.stage==='wind'?'↑ 바람길에서 가볍게 뛰어 보세요':r.x<2100?'Space / ↑ · 점프, 한 번 더 누르면 2단 점프':'↓ 꾹 누르기 · 슬라이드');}
   else if(r.x>22400){this.label.setPosition(650,180).setText(this.stage==='wind'?'이타카 항구가 보여요!':'도착 항구가 보여요!');this.boat.setVisible(true).setPosition(760-(r.x-22400)*.08,370).setDisplaySize(216,142);}
   else{this.label.setText('');this.boat.setVisible(false);}
+ }
+ private drawHero(r:Runner){
+  // One supplied illustration, four running phases. Only rendering changes;
+  // collision boxes and the fixed game clock remain owned by Runner.
+  let width=66,height=88,x=192,y=r.y+2,rotation=0;
+  if(r.state==='success'){width=69;height=92;rotation=-.045;}
+  else if(r.sliding){width=32;height=88;rotation=Math.PI/2;x-=44;y-=17;}
+  else if(r.grounded){const phase=Math.floor(r.time*12)%4;height=[88,90,87,89][phase];width=height*.75;rotation=[-.025,.015,.025,-.01][phase];}
+  else rotation=r.vy<0?-.1:.075;
+  if(r.invincible>1)rotation-=.12;
+  this.hero.setDisplaySize(width,height).setRotation(rotation).setPosition(x,y).setAlpha(r.invincible>0?.55+.35*Math.abs(Math.sin(r.time*18)):1);
  }
 }
