@@ -579,3 +579,13 @@ QA_URL=http://localhost:4174/qa-odyssey/ npx tsx scripts/performance-qa.ts
 - 최종 안전 영역 보완 후 전체 화면 API 미지원 경로에서도 버튼에 포커스가 남지 않고 Space 점프가 바로 동작하는 것을 확인했습니다. `viewport-release-chromium-results.json`의 `unsupportedKeyboardJump`가 true이며 정상/거부/미지원 분기를 모두 통과했습니다.
 
 - 최종 브라우저 시험에서 첫 수집의 HUD 관측 시점이 한 단계 뒤인 842.667px로 잡힌 경우가 있어, 60Hz 렌더/HUD 표본화 범위인 837.333~842.667px를 검사하도록 보정했습니다. 순수 물리 시험의 실제 첫 접촉은 837.333px로 유지되며 게임의 수집 범위를 넓히지 않았습니다.
+
+### 화면 채우기의 실제 Pages 배포
+
+- 기능 커밋 `5836410`을 main에 푸시했고 [Actions 40338261500](https://github.com/gmlduqzhd123-lab/Odyssey-Run/actions/runs/40338261500)의 Node22 설치·타입 검사·68개 테스트·빌드·Pages 배포가 모두 성공했습니다.
+- **2026-10-26 23:22 한국 시간**, 실제 주소 https://gmlduqzhd123-lab.github.io/Odyssey-Run/ 의 HTTPS **200**과 로컬 최종 빌드와 같은 `/Odyssey-Run/assets/index-DpWtBScz.js`를 확인했습니다.
+- 실제 URL에서 PC 1280×800/DPR2와 모바일 가로 844×390/DPR2 Chromium 에뮬레이션의 Canvas/게임 상자가 좌상단 0/0에서 전체 크기를 정확히 채우며 외부 스크롤이 없음을 재확인했습니다. 캐릭터의 20% 가로 위치·균등 배율과 첫 수집도 유지됐습니다.
+- 실제 URL의 PC 브라우저에서 Fullscreen API 진입/종료, 권한 거부와 API 미지원 모의 상황, 미지원 후 Space 점프를 확인했습니다. 모바일은 터치 점프·세로 회전 11초 정지·가로 재개 후 앵커 보존을 통과했습니다.
+- 별도 실제 URL에서 나침반 추락 복귀·중복 점수 방지·재도전 초기화·옛 v1 기록/설정/해금/지도 복원도 재확인했습니다. 정상 원격 실행의 JS 오류/HTTP 실패 0건입니다.
+- 나머지 7개 크기·WebKit·세 섬 완주·실시간 성능은 위 로컬 검증이며 원격에서 전부 반복하지 않았습니다. 실제 Android/iPhone/PWA OS UI는 미실행입니다. 근거: `artifacts/viewport-deployment.json`, `viewport-deployed-after-chromium-results.json`, 갱신된 `expansion-deployed-results.json`과 캡처.
+- 빌드·커밋·푸시·실제 배포·주소 확인을 모두 수행했습니다. 원격 시험 도구의 모듈 버전 확인 보완과 최종 검증 자료/문서는 `[skip ci]` 커밋으로 보존합니다.
