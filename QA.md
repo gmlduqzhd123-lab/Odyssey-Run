@@ -529,3 +529,12 @@ QA_URL=http://localhost:4174/qa-odyssey/ npx tsx scripts/performance-qa.ts
 실제 Android/iPhone 기기와 사람의 주관적 재미/어지러움 평가는 미실행입니다. 가상 시계의 경로 검증을 실제 기기 FPS나 사람의 체감 평가로 표현하지 않습니다. 새로운 코스가 화면 흔들림·카메라 이동·빠른 점멸을 추가하지 않으며 움직임 줄이기 규칙은 유지합니다.
 
 - **실시간 성능**: 다른 QA 브라우저를 종료한 뒤 기본 해변 초반 10초를 가상 시계 없이 측정했습니다. Linux Chromium 소프트웨어 Canvas, PC 1280×800/DPR2 **56.91fps / p95 33.3ms**, 모바일 가로 844×390/DPR2 에뮬레이션 **60.00fps / p95 16.7ms**. 전진거리는 각각 3,205.333/3,200.000px로 고정 시간 갱신의 한 프레임 오차 안입니다. 이 구간의 수치이며 전체 새 코스/실제 기기 FPS나 이전 버전보다 개선됐다는 주장으로 확대하지 않습니다. `artifacts/variants-performance-results.json`.
+
+### 코스 변주의 실제 Pages 배포
+
+- 기능 커밋 `0363a4c`를 main에 푸시했고 [Actions 40329185641](https://github.com/gmlduqzhd123-lab/Odyssey-Run/actions/runs/40329185641)의 Node22 설치·타입 검사·66개 테스트·빌드·Pages 배포가 모두 성공했습니다.
+- **2026-10-26 22:19 한국 시간**, 실제 주소 https://gmlduqzhd123-lab.github.io/Odyssey-Run/ 에서 HTTPS **200**과 로컬 최종 빌드와 같은 `/Odyssey-Run/assets/index-Bd-E8nyS.js`를 확인했습니다.
+- 실제 URL의 PC 960×620/DPR1에서는 코스 라디오의 ArrowRight 선택/Enter 시작과 키보드 조작, 모바일 844×390/DPR2 Chromium 에뮬레이션에서는 터치 메뉴 선택/서로 다른 pointer ID의 점프·숙이기로 해변 유적 순례길 첫 6,000px를 HP3으로 진행했습니다. 선택 코스 HUD, 새 코스 첫 비교 항해 없음, 정지 11초 고정/재개를 재확인했습니다.
+- 별도 실제 URL에서 기본 항로의 나침반 추락 복귀·중복 거리/수집 점수 방지·재도전 초기화·기존 v1 최고/설정/해금/지도 UI 복원도 통과했습니다. 두 원격 정상 실행의 JS 오류/HTTP 실패는 0건입니다.
+- 새 6코스 전체 완주/기록 내보내기·복원과 WebKit/실시간 성능은 위 로컬 검증이며 원격에서 전체를 반복하지 않았습니다. 실제 Android/iPhone은 미실행입니다.
+- 근거: `artifacts/variants-deployment.json`, `variants-deployed-chromium-smoke-results.json`, 갱신된 `expansion-deployed-results.json`과 캡처. 빌드·커밋·푸시·실제 배포·주소 확인을 모두 수행했습니다. 후속 문서·검증 자료는 `[skip ci]` 커밋으로 보존합니다.

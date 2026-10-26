@@ -1,0 +1,51 @@
+{
+  "featureCommit": "0363a4c4a17ae4127738cdc77610bda282b971c0",
+  "workflowRun": 40329185641,
+  "workflowUrl": "https://github.com/gmlduqzhd123-lab/Odyssey-Run/actions/runs/40329185641",
+  "jobs": {
+    "build": "success",
+    "deploy": "success"
+  },
+  "remoteScope": "PC keyboard course radio selection/Enter start and mobile touch selection, pause/resume and first 6000px of beach remix-a, plus original course fall/retry/old save restore; full routes were verified locally.",
+  "courseProduction": {
+    "url": "https://gmlduqzhd123-lab.github.io/Odyssey-Run/",
+    "browser": "154.0.8037.57",
+    "checkedAt": "2026-10-26T13:18:59.160Z",
+    "environment": "Linux chromium, desktop 960x620 DPR1 keyboard / mobile 844x390 DPR2 emulation with CDP multi-pointer touch in Chromium; virtual game clock; no physical phone",
+    "scope": "Menu course selection, pause/resume and first 6000px only",
+    "results": [
+      {
+        "mobile": false,
+        "bundle": "/Odyssey-Run/assets/index-Bd-E8nyS.js",
+        "status": 200,
+        "runs": []
+      },
+      {
+        "mobile": true,
+        "bundle": "/Odyssey-Run/assets/index-Bd-E8nyS.js",
+        "status": 200,
+        "runs": []
+      }
+    ],
+    "errors": [],
+    "failures": []
+  },
+  "legacyProduction": {
+    "url": "https://gmlduqzhd123-lab.github.io/Odyssey-Run/",
+    "status": 200,
+    "bundle": "/Odyssey-Run/assets/index-Bd-E8nyS.js",
+    "browser": "154.0.8037.57",
+    "checkedAt": "2026-10-26T13:19:08.591Z",
+    "environment": "Linux Chromium desktop DPR2, actual keyboard inputs, virtual clock; independent browser storage",
+    "compassCheckpoint": 7720,
+    "observedRecoveryX": 7720,
+    "fallHp": 2,
+    "duplicateScoreAndStarsPrevented": true,
+    "restartClearsEffects": true,
+    "legacyV1ExactRecordsPreserved": true,
+    "bestiaryKinds": 6,
+    "realItemKinds": 8,
+    "errors": [],
+    "failures": []
+  }
+}

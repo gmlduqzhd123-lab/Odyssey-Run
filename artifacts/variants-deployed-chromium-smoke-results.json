@@ -1,0 +1,23 @@
+{
+  "url": "https://gmlduqzhd123-lab.github.io/Odyssey-Run/",
+  "browser": "154.0.8037.57",
+  "checkedAt": "2026-10-26T13:18:59.160Z",
+  "environment": "Linux chromium, desktop 960x620 DPR1 keyboard / mobile 844x390 DPR2 emulation with CDP multi-pointer touch in Chromium; virtual game clock; no physical phone",
+  "scope": "Menu course selection, pause/resume and first 6000px only",
+  "results": [
+    {
+      "mobile": false,
+      "bundle": "/Odyssey-Run/assets/index-Bd-E8nyS.js",
+      "status": 200,
+      "runs": []
+    },
+    {
+      "mobile": true,
+      "bundle": "/Odyssey-Run/assets/index-Bd-E8nyS.js",
+      "status": 200,
+      "runs": []
+    }
+  ],
+  "errors": [],
+  "failures": []
+}
