@@ -1,4 +1,5 @@
 import {ADVENTURE_PLANS,ADVENTURE_BALANCE,GOALS,type GoalId,type ComboId} from '../levels/adventure';
+import {GHOST_SECONDS} from '../storage/journal';
 import {C} from '../config';
 import {COURSES,type StageId,type Rect,type Platform,type Collectible} from '../levels/courses';
 import {score,rating} from '../systems/score';
@@ -91,7 +92,7 @@ export class Runner {
    this.hurt(true);
    if(this.hp>0){this.x=this.safeX;this.y=C.ground;this.vy=0;this.grounded=true;this.jumps=0;this.sliding=false;this.recovering=.35;this.clearInput();this.updateEnemies();}
   }
-  while(this.trace.length<=Math.floor(Math.min(255,this.time)))this.trace.push(Math.floor(this.maxDistance));
+  while(this.trace.length<=Math.floor(Math.min(GHOST_SECONDS,this.time)))this.trace.push(Math.floor(this.maxDistance));
   if(this.hp<=0){this.state='failure';this.clearInput();}
   else if(this.x>=C.length&&this.y<=C.fallBoundary&&this.recovering<=0){this.state='success';this.clearInput();this.emit('finish');}
  }
@@ -115,6 +116,6 @@ export class Runner {
  result():RunResult {
   if(this.finalized)return this.finalized;
   if(this.state!=='success'&&this.state!=='failure')throw Error('Run is not finished');
-  this.finalized={stage:this.stage,complete:this.state==='success',score:this.points,rating:rating(this.state==='success',this.stars,this.hpLoss),stars:this.stars,maps:[...this.maps],hpLoss:this.hpLoss,distance:this.maxDistance,adventure:{stamps:this.goalComplete?[`${this.stage}-${this.goal}`]:[],stories:[...this.stories],constellations:[...this.constellations],combos:[...this.combos],routes:[...this.routes],nearMisses:this.nearMisses.size,evaded:this.evaded.size,tricked:this.tricked.size,ghost:{score:this.points,duration:Math.min(255,this.time),samples:[...this.trace]}}};return this.finalized;
+  this.finalized={stage:this.stage,complete:this.state==='success',score:this.points,rating:rating(this.state==='success',this.stars,this.hpLoss),stars:this.stars,maps:[...this.maps],hpLoss:this.hpLoss,distance:this.maxDistance,adventure:{stamps:this.goalComplete?[`${this.stage}-${this.goal}`]:[],stories:[...this.stories],constellations:[...this.constellations],combos:[...this.combos],routes:[...this.routes],nearMisses:this.nearMisses.size,evaded:this.evaded.size,tricked:this.tricked.size,ghost:{score:this.points,duration:Math.min(GHOST_SECONDS,this.time),samples:[...this.trace]}}};return this.finalized;
  }
 }
