@@ -1,0 +1,15 @@
+{
+  "url": "http://localhost:4176/Odyssey-Run/",
+  "checkedAt": "2026-10-26T05:53:15.066Z",
+  "browser": "154.0.8037.57",
+  "elapsedMs": 27009,
+  "environment": "Linux desktop Chromium; real time; no player-state mutation; restore through file picker",
+  "zeroRating": true,
+  "noCompletionBonus": true,
+  "noNextStageOnFailure": true,
+  "bestRecordsPreserved": true,
+  "restartClean": true,
+  "unlockPreserved": true,
+  "errors": [],
+  "failures": []
+}

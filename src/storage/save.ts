@@ -39,7 +39,7 @@ export const unlocked=(save:Save,id:StageId)=>STAGES.indexOf(id)===0||save.stage
 export class SaveStore {
  data=emptySave(); blocked=false; warning='';
  constructor(private storage:Pick<Storage,'getItem'|'setItem'|'removeItem'>|null){
-  try {const raw=storage?.getItem(SAVE_KEY);if(raw)this.data=validateSave(JSON.parse(raw));}
+  try {const raw=storage?.getItem(SAVE_KEY);if(raw!==null&&raw!==undefined)this.data=validateSave(JSON.parse(raw));}
   catch {this.blocked=true;this.warning='기존 기록을 읽지 못했어요. 원본을 보존했어요. 설정에서 복원하거나 초기화해 주세요.';}
  }
  persist(){

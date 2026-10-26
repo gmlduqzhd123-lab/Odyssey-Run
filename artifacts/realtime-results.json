@@ -1,0 +1,20 @@
+{
+  "url": "http://localhost:4176/Odyssey-Run/",
+  "checkedAt": "2026-10-26T05:46:12.910Z",
+  "browser": "154.0.8037.57",
+  "environment": "Linux Chromium desktop 1280x800 DPR2; real elapsed time; no virtual clock; route uses actual keyboard events and HUD distance only",
+  "elapsedMs": 75143,
+  "record": {
+    "complete": true,
+    "bestScore": 4130,
+    "bestRating": 3,
+    "bestStars": 93,
+    "maps": [
+      "beach-map-1",
+      "beach-map-3",
+      "beach-map-2"
+    ]
+  },
+  "errors": [],
+  "failures": []
+}

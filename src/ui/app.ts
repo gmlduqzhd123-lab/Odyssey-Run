@@ -17,10 +17,11 @@ export class App {
  private controls:Controls;private sound:Sound;private run:Runner|null=null;private result:RunResult|null=null;private screen='loading';private returnScreen='home';private selected:StageId='beach';
  private accumulator=0;private countdown=0;private imported:Save|null=null;private lastHud='';private destroyed=false;private abort=new AbortController();
  private renderDensity=displayDensity(document.querySelector('#shell')!.getBoundingClientRect().width,window.devicePixelRatio);private displayObserver:ResizeObserver;
+ private importRequest=0;
  constructor(){
   let storage:Storage|null=null;try{storage=localStorage;}catch{}
   this.store=new SaveStore(storage);this.selected=this.store.data.lastStage;this.sound=new Sound(()=>this.store.data.settings);
-  this.controls=new Controls({jump:()=>{this.sound.unlock();this.run?.jump();},slide:held=>this.run?.slide(held),pause:()=>this.pause(),active:()=>this.screen==='play'&&this.run?.state==='playing'});
+  this.controls=new Controls({jump:()=>{this.sound.unlock();this.run?.jump();},slide:held=>this.run?.slide(held),pause:()=>this.pause(),active:()=>this.screen==='play'&&this.run?.state==='playing',pauseActive:()=>['play','countdown'].includes(this.screen)});
   this.world=new World({frame:d=>this.frame(d),loaded:()=>this.home(),loadError:()=>this.error(),reduced:()=>this.store.data.settings.reducedMotion,density:()=>this.renderDensity});
   this.game=new Phaser.Game({type:Phaser.CANVAS,parent:'game',width:C.width*this.renderDensity,height:C.height*this.renderDensity,backgroundColor:'#102f46',scene:this.world,scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},render:{antialias:true,roundPixels:false,clearBeforeRender:false},audio:{noAudio:true},fps:{smoothStep:false,target:60},banner:false});
   this.displayObserver=new ResizeObserver(()=>this.resizeDisplay());this.displayObserver.observe(document.querySelector('#shell')!);
@@ -32,7 +33,7 @@ export class App {
   window.addEventListener('pagehide',()=>this.sound.setPlaying(false),{signal:this.abort.signal});
  }
  private notice(message=this.store.warning){const n=document.querySelector<HTMLElement>('#notice')!;n.textContent=message;n.hidden=!message;}
- private set(html:string,screen:string){this.screen=screen;this.controls.clear();this.run?.clearInput();this.ui.innerHTML=html;this.lastHud='';this.orientation();this.notice();queueMicrotask(()=>this.ui.querySelector<HTMLElement>('[autofocus], h1[tabindex], h2[tabindex]')?.focus({preventScroll:true}));}
+ private set(html:string,screen:string){this.importRequest++;this.screen=screen;this.controls.clear();this.run?.clearInput();this.ui.innerHTML=html;const play=this.ui.querySelector<HTMLElement>('.play-ui');if(play)play.inert=['pause','countdown'].includes(screen);this.lastHud='';this.orientation();this.notice();queueMicrotask(()=>this.ui.querySelector<HTMLElement>('[autofocus], h1[tabindex], h2[tabindex]')?.focus({preventScroll:true}));}
  private header(label:string,back='home'){return `<header class="topbar">${button(back,'← <span>돌아가기</span>','text-button')}<span class="brand">${icon('compass')} ${label}</span><span class="edition">ODYSSEY RUN / VOL. 01</span></header>`;}
  home(){
   this.abandon();this.world.showHome();const done=STAGES.every(id=>this.store.data.stages[id].complete);
@@ -104,8 +105,10 @@ export class App {
   const input=e.target as HTMLInputElement;
   if(input.dataset.setting){this.store.data.settings[input.dataset.setting as keyof Settings]=input.checked;this.store.persist();this.sound.unlock();this.sound.changed();this.notice();return;}
   if(input.id==='import-file'&&input.files?.[0]){
-   try{const file=input.files[0];if(file.size>65536)throw Error('기록 파일은 64KiB 이하여야 해요.');let raw:unknown;try{raw=JSON.parse(await file.text());}catch{throw Error('JSON 파일을 읽을 수 없어요. 올바른 기록 파일을 선택해 주세요.');}this.imported=validateSave(raw);this.importPreview();}
-   catch(error){document.querySelector('#import-error')!.textContent=(error as Error).message;}finally{input.value='';}
+   const request=++this.importRequest;
+   const active=()=>!this.destroyed&&request===this.importRequest&&this.screen==='settings'&&input.isConnected;
+   try{const file=input.files[0];if(file.size>65536)throw Error('기록 파일은 64KiB 이하여야 해요.');const text=await file.text();if(!active())return;let raw:unknown;try{raw=JSON.parse(text);}catch{throw Error('JSON 파일을 읽을 수 없어요. 올바른 기록 파일을 선택해 주세요.');}this.imported=validateSave(raw);this.importPreview();}
+   catch(error){if(active()){const box=this.ui.querySelector('#import-error');if(box)box.textContent=(error as Error).message;}}finally{if(active())input.value='';}
   }
  }
  private importPreview(){const s=this.imported!;this.set(`<div class="veil"><section class="panel"><span class="eyebrow">RESTORE YOUR JOURNEY</span><h1 tabindex="-1">이 기록으로 바꿀까요?</h1><p>완주한 섬 ${STAGES.filter(id=>s.stages[id].complete).length}/3 · 지도 ${STAGES.reduce((a,id)=>a+s.stages[id].maps.length,0)}/9</p><div class="import-list">${STAGES.map(id=>`<p><b>${COURSES[id].name}</b><span>${s.stages[id].bestScore}점 / ${s.stages[id].bestRating}★ / 별빛 ${s.stages[id].bestStars}</span></p>`).join('')}</div><p class="muted">현재 진행과 설정을 교체해요.<br>교체 전 원본은 이 게임 전용 백업에 보관해요.</p><div class="button-row">${button('settings','취소','secondary')}${button('import-confirm','이 기록으로 복원','primary')}</div></section></div>`,'import');}
@@ -147,7 +150,9 @@ export class App {
  }
  private orientation(){
   const portrait=innerHeight>innerWidth&&(navigator.maxTouchPoints>0||innerWidth<700);const active=!!this.run&&['play','pause','countdown'].includes(this.screen);
-  const rotate=document.querySelector<HTMLElement>('#rotate')!;rotate.hidden=!(portrait&&active);if(portrait&&active&&this.screen!=='pause')this.pause();
+  const rotate=document.querySelector<HTMLElement>('#rotate')!,wasVisible=!rotate.hidden,visible=portrait&&active;rotate.hidden=!visible;this.ui.inert=visible;if(visible&&this.screen!=='pause')this.pause();
+  if(visible&&!wasVisible)document.querySelector<HTMLButtonElement>('#rotate-menu')!.focus({preventScroll:true});
+  else if(!visible&&wasVisible)this.ui.querySelector<HTMLButtonElement>('[data-action="resume"]')?.focus({preventScroll:true});
  }
  private resizeDisplay(){
   if(!this.game?.isBooted||this.destroyed)return;

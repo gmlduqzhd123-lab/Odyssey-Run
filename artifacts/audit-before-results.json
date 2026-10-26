@@ -1,0 +1,22 @@
+{
+  "url": "http://localhost:4176/Odyssey-Run/",
+  "checkedAt": "2026-10-26T05:41:17.689Z",
+  "browser": "154.0.8037.57",
+  "environment": "Linux Chromium desktop, real keyboard events; File.text delay injection for race reproduction",
+  "results": {
+    "escapePausesCountdown": false,
+    "spaceOnSlideOnlySlides": false,
+    "keyboardSlideSurvivesOtherKeyRelease": false,
+    "spaceActivatesPauseButton": false,
+    "pauseExcludesCoveredControls": false,
+    "emptyCorruptSavePreserved": false,
+    "lateInvalidImportDoesNotCrash": false,
+    "lateValidImportDoesNotHijackScreen": false,
+    "latestImportWins": false,
+    "latestImportIsConfirmed": false
+  },
+  "errors": [
+    "Cannot set properties of null (setting 'textContent')"
+  ],
+  "failures": []
+}
