@@ -5,7 +5,7 @@ import {STAGES} from '../src/levels/courses';
 const base=process.env.QA_URL||'http://localhost:5173/';
 await mkdir('artifacts',{recursive:true});
 const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',args:['--no-sandbox']});
-const ctx=await browser.newContext({viewport:{width:960,height:620},acceptDownloads:true});
+const ctx=await browser.newContext({viewport:{width:960,height:620},deviceScaleFactor:Number(process.env.QA_DPR||1),acceptDownloads:true});
 const page=await ctx.newPage();const errors:string[]=[];const failures:string[]=[];
 page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400)failures.push(`${r.status()} ${r.url()}`);});
 await page.clock.install();await page.goto(base);await page.waitForSelector('.home');await page.clock.pauseAt((await page.evaluate(()=>Date.now()))+1000);
@@ -50,7 +50,7 @@ await page.locator('[data-action="reset-confirm"]').click();await page.locator('
 // Preserve corrupt original across a played run; never overwrite it silently.
 await page.evaluate(()=>{localStorage.setItem('odyssey-run:'+new URL('.',location.href).pathname+':save','{broken');});await page.reload();await page.waitForSelector('.home');await expect(page.locator('#notice')).toContainText('원본');await page.locator('[data-action="settings"]').click();await expect(page.locator('[data-action="original"]')).toBeVisible();
 expect(errors).toEqual([]);expect(failures).toEqual([]);
-await writeFile('artifacts/browser-results.json',JSON.stringify({base,browser:await browser.version(),viewport:'960x620 desktop Chromium',renderer:'Canvas (game default)',details,errors,failures},null,2));
+await writeFile('artifacts/browser-results.json',JSON.stringify({base,browser:await browser.version(),viewport:`960x620 desktop Chromium, DPR ${process.env.QA_DPR||1}`,renderer:'Canvas (game default)',details,errors,failures},null,2));
 await ctx.close();
 // Mobile emulation: independent pointer IDs, outside release, cancel, rotation and minimum CSS targets.
 const mobile=await browser.newContext({viewport:{width:844,height:390},isMobile:true,hasTouch:true,deviceScaleFactor:1});const m=await mobile.newPage();await m.clock.install();await m.goto(base);await m.waitForSelector('.home');await m.clock.pauseAt((await m.evaluate(()=>Date.now()))+1000);

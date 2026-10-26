@@ -7,78 +7,218 @@
     1024
   ],
   "preparedSize": [
-    768,
-    512
+    1536,
+    1024
   ],
-  "processing": "Aspect-preserving resize and lossless WebP encoding after resize; alpha preserved. No external runtime generation.",
-  "preparedSha256": "fd6ec7426b32d547060bd304aff6c58040f17efbd6e14bef89d24e3475dd38fa",
-  "preparedBytes": 360848,
-  "displayTexture": "assets/art/odysseus-run-fd6ec7426b32.webp",
+  "processing": "Native generated resolution, no resize; lossless WebP. Rendering anchors align the head horizontally and halve vertical frame jitter; source pixels unchanged.",
+  "preparedSha256": "cc298de348358349e0bb0f1315e0c8a8e00c63741db0d843938e297942d56c9d",
+  "preparedBytes": 1296700,
+  "displayTexture": "assets/art/odysseus-run-native-cc298de34835.webp",
   "frames": [
     {
-      "x": 6,
-      "y": 14,
-      "w": 197,
-      "h": 238,
-      "originX": 0.5279187817258884,
-      "originY": 0.9747899159663865
+      "x": 12,
+      "y": 28,
+      "w": 394,
+      "h": 476,
+      "originX": 0.5457703910475142,
+      "originY": 0.9772391316214939
     },
     {
-      "x": 204,
-      "y": 14,
-      "w": 174,
-      "h": 238,
-      "originX": 0.5632183908045977,
-      "originY": 0.9747899159663865
+      "x": 408,
+      "y": 28,
+      "w": 348,
+      "h": 476,
+      "originX": 0.5746688568205974,
+      "originY": 0.9764226647247787
     },
     {
-      "x": 391,
-      "y": 12,
-      "w": 186,
-      "h": 240,
-      "originX": 0.5591397849462365,
-      "originY": 0.975
+      "x": 782,
+      "y": 24,
+      "w": 372,
+      "h": 480,
+      "originX": 0.5827106486284724,
+      "originY": 0.9738431562071302
     },
     {
-      "x": 581,
-      "y": 13,
-      "w": 181,
-      "h": 239,
-      "originX": 0.580110497237569,
-      "originY": 0.9748953974895398
+      "x": 1162,
+      "y": 26,
+      "w": 362,
+      "h": 478,
+      "originX": 0.5681537374490919,
+      "originY": 0.9723985003856156
     },
     {
-      "x": 7,
-      "y": 262,
-      "w": 199,
-      "h": 240,
-      "originX": 0.5175879396984925,
-      "originY": 0.975
+      "x": 14,
+      "y": 524,
+      "w": 398,
+      "h": 480,
+      "originX": 0.5194231138088432,
+      "originY": 0.9751841926602227
     },
     {
-      "x": 204,
-      "y": 262,
-      "w": 175,
-      "h": 240,
-      "originX": 0.56,
-      "originY": 0.975
+      "x": 408,
+      "y": 524,
+      "w": 350,
+      "h": 480,
+      "originX": 0.5362374966236841,
+      "originY": 0.9775210596706275
     },
     {
-      "x": 390,
-      "y": 262,
-      "w": 184,
-      "h": 240,
-      "originX": 0.5706521739130435,
-      "originY": 0.975
+      "x": 780,
+      "y": 524,
+      "w": 368,
+      "h": 480,
+      "originX": 0.562517418016421,
+      "originY": 0.9727986253207734
     },
     {
-      "x": 582,
-      "y": 262,
-      "w": 180,
-      "h": 240,
-      "originX": 0.5777777777777777,
-      "originY": 0.975
+      "x": 1164,
+      "y": 524,
+      "w": 360,
+      "h": 480,
+      "originX": 0.5642271015641566,
+      "originY": 0.9740915114638504
     }
   ],
-  "fps": 14
+  "fps": 14,
+  "alignment": [
+    {
+      "frame": 0,
+      "headX": 262.7891260840561,
+      "headY": 97.5012008005337,
+      "anchorX": 227.0335340727206,
+      "anchorY": 493.1658266518311,
+      "logicalHeadX": 198.90020196709983,
+      "logicalHeadY": 363.64366869536366
+    },
+    {
+      "frame": 1,
+      "headX": 643.7403541849034,
+      "headY": 96.72392431486095,
+      "anchorX": 607.9847621735679,
+      "anchorY": 492.7771884089947,
+      "logicalHeadX": 198.90020196709983,
+      "logicalHeadY": 363.568668332711
+    },
+    {
+      "frame": 2,
+      "headX": 1034.5239533011272,
+      "headY": 94.05897745571659,
+      "anchorX": 998.7683612897918,
+      "anchorY": 491.44471497942254,
+      "logicalHeadX": 198.90020196709983,
+      "logicalHeadY": 363.3115243375304
+    },
+    {
+      "frame": 3,
+      "headX": 1403.4272449679067,
+      "headY": 92.78251386552003,
+      "anchorX": 1367.6716529565713,
+      "anchorY": 490.80648318432424,
+      "logicalHeadX": 198.90020196709983,
+      "logicalHeadY": 363.1883567981255
+    },
+    {
+      "frame": 4,
+      "headX": 256.48599130725506,
+      "headY": 595.3463724506854,
+      "anchorX": 220.7303992959196,
+      "anchorY": 992.0884124769069,
+      "logicalHeadX": 198.90020196709983,
+      "logicalHeadY": 363.4357466616064
+    },
+    {
+      "frame": 5,
+      "headX": 631.4387158296249,
+      "headY": 597.5897647806739,
+      "anchorX": 595.6831238182895,
+      "anchorY": 993.2101086419012,
+      "logicalHeadX": 198.90020196709983,
+      "logicalHeadY": 363.6522143425702
+    },
+    {
+      "frame": 6,
+      "headX": 1022.7620018413784,
+      "headY": 593.056227804814,
+      "anchorX": 987.0064098300429,
+      "anchorY": 990.9433401539712,
+      "logicalHeadX": 198.90020196709983,
+      "logicalHeadY": 363.2147677922679
+    },
+    {
+      "frame": 7,
+      "headX": 1402.8773485744318,
+      "headY": 594.2973985021679,
+      "anchorX": 1367.1217565630964,
+      "anchorY": 991.5639255026482,
+      "logicalHeadX": 198.90020196709983,
+      "logicalHeadY": 363.3345298771003
+    }
+  ],
+  "previousDisplayTexture": "assets/art/odysseus-run-fd6ec7426b32.webp",
+  "alignmentMeasurement": {
+    "method": "Alpha >128 centroid of the first 100 native-resolution rows below each pose alpha bounds top. Rendering-origin measurements, not subjective comfort ratings.",
+    "beforeSpanX": 3.2971510909916617,
+    "afterSpanX": 0.0,
+    "beforeSpanY": 0.9277150888893431,
+    "afterSpanY": 0.46385754444469285,
+    "before": [
+      {
+        "frame": 0,
+        "headX": 262.7891260840561,
+        "headY": 97.5012008005337,
+        "oldAnchorX": 220.0,
+        "headLogicalX": 200.2575506478003
+      },
+      {
+        "frame": 1,
+        "headX": 643.7403541849034,
+        "headY": 96.72392431486095,
+        "oldAnchorX": 604.0,
+        "headLogicalX": 199.66919115849012
+      },
+      {
+        "frame": 2,
+        "headX": 1034.5239533011272,
+        "headY": 94.05897745571659,
+        "oldAnchorX": 990.0,
+        "headLogicalX": 200.5923418651298
+      },
+      {
+        "frame": 3,
+        "headX": 1403.4272449679067,
+        "headY": 92.78251386552003,
+        "oldAnchorX": 1372.0,
+        "headLogicalX": 198.06490692363113
+      },
+      {
+        "frame": 4,
+        "headX": 256.48599130725506,
+        "headY": 595.3463724506854,
+        "oldAnchorX": 220.0,
+        "headLogicalX": 199.04115621718958
+      },
+      {
+        "frame": 5,
+        "headX": 631.4387158296249,
+        "headY": 597.5897647806739,
+        "oldAnchorX": 604.0,
+        "headLogicalX": 197.29519077413815
+      },
+      {
+        "frame": 6,
+        "headX": 1022.7620018413784,
+        "headY": 593.056227804814,
+        "oldAnchorX": 990.0,
+        "headLogicalX": 198.3224915834239
+      },
+      {
+        "frame": 7,
+        "headX": 1402.8773485744318,
+        "headY": 594.2973985021679,
+        "oldAnchorX": 1372.0,
+        "headLogicalX": 197.95878656699563
+      }
+    ]
+  }
 }

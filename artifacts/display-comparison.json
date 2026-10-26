@@ -1,0 +1,226 @@
+{
+  "baselineCommit": "51f63d2",
+  "source": "display-before-results.json and display-after-results.json",
+  "sameSizeAndDistanceVerified": true,
+  "rows": [
+    {
+      "device": {
+        "name": "desktop-1x",
+        "width": 1280,
+        "height": 800,
+        "dpr": 1,
+        "mobile": false
+      },
+      "css": [
+        1232,
+        693
+      ],
+      "distance": 640.0000000000001,
+      "beforeBacking": [
+        960,
+        540
+      ],
+      "afterBacking": [
+        1440,
+        810
+      ],
+      "beforePixelCoverage": 0.7792207792207793,
+      "afterPixelCoverage": 1.1688311688311688,
+      "afterBackgroundRates": [
+        0.0,
+        0.025000027247837436,
+        0.06499998910086449
+      ],
+      "reducedBackgroundFixed": true
+    },
+    {
+      "device": {
+        "name": "desktop-2x",
+        "width": 1280,
+        "height": 800,
+        "dpr": 2,
+        "mobile": false
+      },
+      "css": [
+        1232,
+        693
+      ],
+      "distance": 640.0000000000001,
+      "beforeBacking": [
+        960,
+        540
+      ],
+      "afterBacking": [
+        2880,
+        1620
+      ],
+      "beforePixelCoverage": 0.38961038961038963,
+      "afterPixelCoverage": 1.1688311688311688,
+      "afterBackgroundRates": [
+        0.0,
+        0.02499999999999982,
+        0.06500015258789016
+      ],
+      "reducedBackgroundFixed": true
+    },
+    {
+      "device": {
+        "name": "mobile-2x",
+        "width": 844,
+        "height": 390,
+        "dpr": 2,
+        "mobile": true
+      },
+      "css": [
+        693.296875,
+        389.984375
+      ],
+      "distance": 640.0000000000001,
+      "beforeBacking": [
+        960,
+        540
+      ],
+      "afterBacking": [
+        1440,
+        810
+      ],
+      "beforePixelCoverage": 0.6923440986229744,
+      "afterPixelCoverage": 1.0385161479344618,
+      "afterBackgroundRates": [
+        0.0,
+        0.025000027247837436,
+        0.06499998910086449
+      ],
+      "reducedBackgroundFixed": true
+    }
+  ],
+  "beforePerformance": [
+    {
+      "device": {
+        "name": "desktop-2x",
+        "width": 1280,
+        "height": 800,
+        "dpr": 2,
+        "mobile": false
+      },
+      "metrics": {
+        "elapsedMs": 10005.7,
+        "fps": 59.702388095523816,
+        "p95FrameMs": 16.700000000000728,
+        "distance": 3205.3333333333576
+      }
+    },
+    {
+      "device": {
+        "name": "mobile-2x",
+        "width": 844,
+        "height": 390,
+        "dpr": 2,
+        "mobile": true
+      },
+      "metrics": {
+        "elapsedMs": 10007.49999999851,
+        "fps": 60.00240009600384,
+        "p95FrameMs": 16.799999999999272,
+        "distance": 3200.000000000024
+      }
+    }
+  ],
+  "afterPerformance": [
+    {
+      "device": {
+        "name": "desktop-2x",
+        "width": 1280,
+        "height": 800,
+        "dpr": 2,
+        "mobile": false
+      },
+      "metrics": {
+        "elapsedMs": 10006.5,
+        "fps": 59.00382376725937,
+        "p95FrameMs": 16.799999999999272,
+        "distance": 3205.3333333333553
+      }
+    },
+    {
+      "device": {
+        "name": "mobile-2x",
+        "width": 844,
+        "height": 390,
+        "dpr": 2,
+        "mobile": true
+      },
+      "metrics": {
+        "elapsedMs": 10004.20000000298,
+        "fps": 60.00240009600384,
+        "p95FrameMs": 16.700000000000728,
+        "distance": 3205.3333333333576
+      }
+    }
+  ],
+  "alignment": {
+    "method": "Alpha >128 centroid of the first 100 native-resolution rows below each pose alpha bounds top. Rendering-origin measurements, not subjective comfort ratings.",
+    "beforeSpanX": 3.2971510909916617,
+    "afterSpanX": 0.0,
+    "beforeSpanY": 0.9277150888893431,
+    "afterSpanY": 0.46385754444469285,
+    "before": [
+      {
+        "frame": 0,
+        "headX": 262.7891260840561,
+        "headY": 97.5012008005337,
+        "oldAnchorX": 220.0,
+        "headLogicalX": 200.2575506478003
+      },
+      {
+        "frame": 1,
+        "headX": 643.7403541849034,
+        "headY": 96.72392431486095,
+        "oldAnchorX": 604.0,
+        "headLogicalX": 199.66919115849012
+      },
+      {
+        "frame": 2,
+        "headX": 1034.5239533011272,
+        "headY": 94.05897745571659,
+        "oldAnchorX": 990.0,
+        "headLogicalX": 200.5923418651298
+      },
+      {
+        "frame": 3,
+        "headX": 1403.4272449679067,
+        "headY": 92.78251386552003,
+        "oldAnchorX": 1372.0,
+        "headLogicalX": 198.06490692363113
+      },
+      {
+        "frame": 4,
+        "headX": 256.48599130725506,
+        "headY": 595.3463724506854,
+        "oldAnchorX": 220.0,
+        "headLogicalX": 199.04115621718958
+      },
+      {
+        "frame": 5,
+        "headX": 631.4387158296249,
+        "headY": 597.5897647806739,
+        "oldAnchorX": 604.0,
+        "headLogicalX": 197.29519077413815
+      },
+      {
+        "frame": 6,
+        "headX": 1022.7620018413784,
+        "headY": 593.056227804814,
+        "oldAnchorX": 990.0,
+        "headLogicalX": 198.3224915834239
+      },
+      {
+        "frame": 7,
+        "headX": 1402.8773485744318,
+        "headY": 594.2973985021679,
+        "oldAnchorX": 1372.0,
+        "headLogicalX": 197.95878656699563
+      }
+    ]
+  }
+}

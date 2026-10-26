@@ -10,8 +10,8 @@ try{
   const qa={last:'',seen:[] as string[]};(window as any).__runnerArt=qa;
   const draw=CanvasRenderingContext2D.prototype.drawImage;
   CanvasRenderingContext2D.prototype.drawImage=function(this:CanvasRenderingContext2D,...args:any[]){
-   const source=args[0];if(source instanceof HTMLImageElement&&source.naturalHeight===512&&[384,768].includes(source.naturalWidth)){
-    qa.last=source.naturalWidth===768?args.slice(1,5).join(','):'original';
+   const source=args[0];if(source instanceof HTMLImageElement&&(source.naturalHeight===768&&source.naturalWidth===576||source.naturalHeight===1024&&source.naturalWidth===1536&&args[4]>100)){
+    qa.last=source.naturalWidth===1536?args.slice(1,5).join(','):'original';
     if(qa.last!=='original'&&!qa.seen.includes(qa.last))qa.seen.push(qa.last);
    }
    return (draw as Function).apply(this,args);

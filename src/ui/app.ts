@@ -8,6 +8,7 @@ import {Sound} from '../systems/audio';
 import {World} from '../scenes/World';
 import {assetUrl,PEOPLE,RELICS,STAGE_RELIC} from '../assets/catalog';
 import {ART_SHEETS,STAGE_VIEW,regionArt,sheetUrl} from '../assets/terrain';
+import {displayDensity} from '../rendering/display';
 const asset=assetUrl;
 const icon=(name:string,cls='')=>`<img class="icon ${cls}" src="${asset(name)}" alt="">`;
 const button=(action:string,text:string,cls='',extra='')=>`<button class="${cls}" data-action="${action}" ${extra}>${text}</button>`;
@@ -15,16 +16,18 @@ export class App {
  private ui=document.querySelector<HTMLDivElement>('#ui')!;private store:SaveStore;private world:World;private game:Phaser.Game;
  private controls:Controls;private sound:Sound;private run:Runner|null=null;private result:RunResult|null=null;private screen='loading';private returnScreen='home';private selected:StageId='beach';
  private accumulator=0;private countdown=0;private imported:Save|null=null;private lastHud='';private destroyed=false;private abort=new AbortController();
+ private renderDensity=displayDensity(document.querySelector('#shell')!.getBoundingClientRect().width,window.devicePixelRatio);private displayObserver:ResizeObserver;
  constructor(){
   let storage:Storage|null=null;try{storage=localStorage;}catch{}
   this.store=new SaveStore(storage);this.selected=this.store.data.lastStage;this.sound=new Sound(()=>this.store.data.settings);
   this.controls=new Controls({jump:()=>{this.sound.unlock();this.run?.jump();},slide:held=>this.run?.slide(held),pause:()=>this.pause(),active:()=>this.screen==='play'&&this.run?.state==='playing'});
-  this.world=new World({frame:d=>this.frame(d),loaded:()=>this.home(),loadError:()=>this.error(),reduced:()=>this.store.data.settings.reducedMotion});
-  this.game=new Phaser.Game({type:Phaser.CANVAS,parent:'game',width:C.width,height:C.height,backgroundColor:'#102f46',scene:this.world,scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},render:{antialias:true,roundPixels:false},audio:{noAudio:true},fps:{smoothStep:false,target:60},banner:false});
+  this.world=new World({frame:d=>this.frame(d),loaded:()=>this.home(),loadError:()=>this.error(),reduced:()=>this.store.data.settings.reducedMotion,density:()=>this.renderDensity});
+  this.game=new Phaser.Game({type:Phaser.CANVAS,parent:'game',width:C.width*this.renderDensity,height:C.height*this.renderDensity,backgroundColor:'#102f46',scene:this.world,scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},render:{antialias:true,roundPixels:false,clearBeforeRender:false},audio:{noAudio:true},fps:{smoothStep:false,target:60},banner:false});
+  this.displayObserver=new ResizeObserver(()=>this.resizeDisplay());this.displayObserver.observe(document.querySelector('#shell')!);
   this.ui.addEventListener('click',e=>{const b=(e.target as HTMLElement).closest<HTMLElement>('[data-action]');if(b&&!b.hasAttribute('disabled')){this.sound.unlock();this.action(b.dataset.action!);}},{signal:this.abort.signal});
   this.ui.addEventListener('change',e=>this.change(e),{signal:this.abort.signal});
   document.addEventListener('visibilitychange',()=>{if(document.hidden)this.suspend();},{signal:this.abort.signal});
-  window.addEventListener('blur',()=>this.suspend(),{signal:this.abort.signal});window.addEventListener('resize',()=>this.orientation(),{signal:this.abort.signal});
+  window.addEventListener('blur',()=>this.suspend(),{signal:this.abort.signal});window.addEventListener('resize',()=>{this.orientation();this.resizeDisplay();},{signal:this.abort.signal});
   document.querySelector('#rotate-menu')!.addEventListener('click',()=>{this.abandon();this.islands();},{signal:this.abort.signal});
   window.addEventListener('pagehide',()=>this.sound.setPlaying(false),{signal:this.abort.signal});
  }
@@ -93,7 +96,7 @@ export class App {
  private settingToggle(key:keyof Settings,label:string){return `<label class="toggle"><span>${label}</span><input type="checkbox" data-setting="${key}" ${this.store.data.settings[key]?'checked':''}><i aria-hidden="true"></i></label>`;}
  private settings(){
   this.returnScreen=this.screen==='islands'?'islands':'home';
-  this.set(`<div class="page settings">${this.header('설정',this.returnScreen)}<div class="settings-layout"><div class="page-heading"><span class="eyebrow">MAKE IT YOUR JOURNEY</span><h1 tabindex="-1">나의 항해 설정</h1><p>기록은 이 기기와 브라우저에 저장돼요.<br>기록 파일로 옮길 수 있어요.</p><div class="save-note">계정 없이, 이 브라우저에만 저장해요.<br>다른 기기와 자동으로 동기화되지는 않아요.</div></div><div class="settings-body"><section><h2>소리와 움직임</h2>${this.settingToggle('music','배경음')}${this.settingToggle('sfx','효과음')}${this.settingToggle('reducedMotion','움직임 줄이기')}<small>화면 흔들림과 입자를 줄여요. 게임 규칙은 같아요.</small></section><section><h2>기록 보관함</h2><div class="backup-row">${button('export',icon('map')+' 기록 내보내기','secondary')}<label class="button secondary file-button">기록 가져오기<input id="import-file" type="file" accept="application/json,.json" aria-label="JSON 기록 파일 가져오기"></label></div><p class="muted">UTF-8 JSON · 최대 64KiB · 복원 전 내용을 확인해요.</p>${this.store.blocked?button('original','보존된 원본 내려받기','text-button'):''}${button('reset-confirm','이 게임의 기록 초기화','danger text-button')}</section><div id="import-error" role="alert"></div></div></div></div>`,'settings');
+  this.set(`<div class="page settings">${this.header('설정',this.returnScreen)}<div class="settings-layout"><div class="page-heading"><span class="eyebrow">MAKE IT YOUR JOURNEY</span><h1 tabindex="-1">나의 항해 설정</h1><p>기록은 이 기기와 브라우저에 저장돼요.<br>기록 파일로 옮길 수 있어요.</p><div class="save-note">계정 없이, 이 브라우저에만 저장해요.<br>다른 기기와 자동으로 동기화되지는 않아요.</div></div><div class="settings-body"><section><h2>소리와 움직임</h2>${this.settingToggle('music','배경음')}${this.settingToggle('sfx','효과음')}${this.settingToggle('reducedMotion','움직임 줄이기')}<small>배경 스크롤과 장식 움직임을 줄여요. 달리기·점프는 그대로예요.</small></section><section><h2>기록 보관함</h2><div class="backup-row">${button('export',icon('map')+' 기록 내보내기','secondary')}<label class="button secondary file-button">기록 가져오기<input id="import-file" type="file" accept="application/json,.json" aria-label="JSON 기록 파일 가져오기"></label></div><p class="muted">UTF-8 JSON · 최대 64KiB · 복원 전 내용을 확인해요.</p>${this.store.blocked?button('original','보존된 원본 내려받기','text-button'):''}${button('reset-confirm','이 게임의 기록 초기화','danger text-button')}</section><div id="import-error" role="alert"></div></div></div></div>`,'settings');
  }
  private download(data:string,filename:string){const url=URL.createObjectURL(new Blob([data],{type:'application/json;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
  private export(){this.download(JSON.stringify(this.store.data,null,2),`odyssey-run-save-${new Date().toISOString().slice(0,10).replaceAll('-','')}.json`);}
@@ -146,5 +149,11 @@ export class App {
   const portrait=innerHeight>innerWidth&&(navigator.maxTouchPoints>0||innerWidth<700);const active=!!this.run&&['play','pause','countdown'].includes(this.screen);
   const rotate=document.querySelector<HTMLElement>('#rotate')!;rotate.hidden=!(portrait&&active);if(portrait&&active&&this.screen!=='pause')this.pause();
  }
- destroy(){this.destroyed=true;this.abort.abort();this.controls.destroy();this.sound.destroy();this.game.destroy(true);}
+ private resizeDisplay(){
+  if(!this.game?.isBooted||this.destroyed)return;
+  const density=displayDensity(document.querySelector('#shell')!.getBoundingClientRect().width,window.devicePixelRatio);
+  if(density===this.renderDensity)return;
+  this.renderDensity=density;this.game.scale.setGameSize(C.width*density,C.height*density);this.world.syncDisplay();
+ }
+ destroy(){this.destroyed=true;this.displayObserver.disconnect();this.abort.abort();this.controls.destroy();this.sound.destroy();this.game.destroy(true);}
 }

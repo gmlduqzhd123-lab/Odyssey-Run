@@ -22,9 +22,9 @@
     },
     "cave": {
       "complete": true,
-      "bestScore": 4120,
+      "bestScore": 4110,
       "bestRating": 3,
-      "bestStars": 92,
+      "bestStars": 91,
       "maps": [
         "cave-map-1",
         "cave-map-2",
@@ -43,5 +43,5 @@
       ]
     }
   },
-  "savedAt": "2026-10-26T02:30:53.010Z"
+  "savedAt": "2026-10-26T04:31:14.506Z"
 }

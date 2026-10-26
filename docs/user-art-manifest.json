@@ -30,10 +30,10 @@
         1086,
         1448
       ],
-      "displayTexture": "assets/art/odysseus-0389a9dc53ed.webp",
-      "preparedSize": "384x512",
-      "preparedBytes": 142048,
-      "preparedSha256": "0389a9dc53ed004fb997720dacf4e110a4b7d9ccc7a71ab2a5ce9226bd7bf455"
+      "displayTexture": "assets/art/odysseus-48c9d109729f.webp",
+      "preparedSize": "576x768",
+      "preparedBytes": 287024,
+      "preparedSha256": "48c9d109729fd34de7b1e2594c93346ed75173206fb9603cb47fb23975b42387"
     },
     {
       "name": "penelope",

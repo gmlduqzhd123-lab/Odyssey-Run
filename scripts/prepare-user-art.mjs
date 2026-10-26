@@ -25,7 +25,7 @@ try{
    const bytes=unpack.stdout;if(!bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])))throw Error('Invalid PNG signature.');
    const originalSize=[bytes.readUInt32BE(16),bytes.readUInt32BE(20)];if(originalSize.some(n=>n<1||n>4096))throw Error('Unsupported source size.');
    const name=names[category][number-1],source=join(temporaryDirectory,`${category}-${number}.png`);writeFileSync(source,bytes);
-   const dimensions=category==='items'?'256x256':name==='odysseus'?'384x512':'288x384';
+   const dimensions=category==='items'?'256x256':name==='odysseus'?'576x768':'288x384';
    const temporary=`public/assets/art/${name}.tmp.webp`;
    const result=spawnSync('convert',[source,'-resize',dimensions,'-strip','-define','webp:lossless=true',temporary],{encoding:'utf8'});
    if(result.status!==0)throw Error(result.stderr||'Image encoding failed');
