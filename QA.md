@@ -452,3 +452,11 @@ QA_URL=http://localhost:4174/qa-odyssey/ npx tsx scripts/performance-qa.ts
 실제 스피커/이어폰 청취, 곡 끝의 음악적 연결감, 실제 Android/iPhone 장치와 장시간 발열은 미실행입니다. 브라우저 신호/상태 검증과 사람의 청취 평가를 구분합니다. 음악 로딩은 게임 시작을 막지 않으며 외부 Suno API/스트리밍/분석 SDK를 추가하지 않았습니다.
 
 - 원격 `5549946`의 앱 설치/QR/공유/서비스워커 변경을 rebase로 보존하고 합쳐진 빌드에서 Chromium의 전체 음원 시험·음원 오류 시험·기록 복원을 재실행해 통과했습니다. 고의 오류 주입 시험은 서비스워커를 차단해 캐시가 실패 조건을 우회하지 않게 했고, 일반 재생 시험에서는 기본 서비스워커를 유지했습니다. 추가 정적 스크립트가 있어 빌드 비교 도구는 `type="module"` 진입점만 선택하도록 수정했습니다.
+
+### 세 섬 배경음악의 실제 Pages 배포
+
+- 기능 커밋 `13bd607`과 설치/QR 변경 병합 검증 커밋 `7a6007b`를 main에 푸시했습니다. [Actions 40306981515](https://github.com/gmlduqzhd123-lab/Odyssey-Run/actions/runs/40306981515)의 Node22 설치·타입 검사·50개 테스트·빌드·Pages 배포가 모두 성공했습니다.
+- **2026-10-26 19:25 한국 시간**, 실제 주소 https://gmlduqzhd123-lab.github.io/Odyssey-Run/ 의 HTTPS **200**과 로컬 빌드와 같은 `/Odyssey-Run/assets/index-B5CB1q55.js`를 확인했습니다.
+- 실제 URL에서 PC 960×620/DPR1 및 모바일 가로 844×390/DPR2 Chromium 에뮬레이션으로 세 곡 모두 디코딩·비영 출력 신호·반복 플래그를 확인했습니다. 카운트다운 무음, 재생 소스 최대 1개, 정지 후 같은 위치 재개, 배경음 끄기와 점프 효과음 독립, 재도전 0초 시작, pagehide/메뉴/종료 시 활성 소스 0개를 통과했습니다. JavaScript 오류·HTTP 실패 0건입니다.
+- WebKit 결과는 위 로컬 실제 시간 검증이며 원격에서 반복하지 않았습니다. 실제 Android/iPhone 기기 및 스피커/이어폰 청취는 미실행입니다.
+- 근거: `artifacts/music-deployment.json`, `artifacts/music-deployed-chromium-results.json` 및 같은 접두사 PC/모바일 캡처. 빌드·커밋·푸시·실제 배포·주소 확인을 모두 수행했습니다. 후속 문서·검증 자료는 `[skip ci]` 커밋으로 보존합니다.
