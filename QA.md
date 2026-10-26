@@ -332,3 +332,12 @@ QA_URL=http://localhost:4174/qa-odyssey/ npx tsx scripts/performance-qa.ts
 | A27~A28 | 통과: 음향 차단 후 진행과 30/60/120Hz 고정 물리. 실제 스피커 청취는 미실행 |
 
 실제 Android Chrome·iOS Safari 기기, 사람의 주관적 어지러움 평가, 장시간 발열/배터리, 복잡한 관절별 몬스터 애니메이션은 미실행/범위 외입니다. 영상·시각 원인 제거와 자동 검증만으로 모든 이용자의 체감 개선을 보장하지 않습니다. 필요 시 실제 기기에서 지속 플레이 후 별도 평가가 필요합니다.
+
+### 실제 Pages 배포 확인
+
+- 기능 커밋 `86d53cb`을 main에 푸시했습니다. [Actions 실행 40284711598](https://github.com/gmlduqzhd123-lab/Odyssey-Run/actions/runs/40284711598)의 Node22 설치·타입 검사·30개 테스트·빌드·Pages deploy가 모두 성공했습니다.
+- **2026-10-26 16:18 한국 시간**, 실제 주소 https://gmlduqzhd123-lab.github.io/Odyssey-Run/ 에서 HTTPS **200**, 로컬 최종 산출물과 동일한 `/Odyssey-Run/assets/index-C4kfvjl_.js`를 확인했습니다.
+- 실제 URL에서 나침반 획득→추락→7,720px 복귀/1HP 손실·재수집 중복 방지·재도전 초기화, 이전 v1 파일 복원 후 정확한 기록/설정 유지·새 몬스터 도감 6개·실제 아이템 8종을 확인했습니다. PC DPR1/2와 모바일 가로 DPR2에서 고밀도 Canvas/논리 원점/고정 배경/축소 모드의 달리기 유지·회전/터치 재개도 통과했습니다.
+- 실제 사이트의 달리기 8자세·무회전 전용 숙이기·점프/착지·정지/준비 중 자세 동결·재시작/홈 복귀를 별도 실행해 통과했습니다. JavaScript 오류/HTTP 실패는 0건입니다. 원격에서는 전체 세 섬과 성능을 반복 측정하지 않았고 로컬 검증 결과와 구분합니다.
+- 근거: `expansion-deployment.json`, `expansion-deployed-results.json`, `display-comfort-deployed-results.json`, `runner-deployed-results.json` 및 같은 접두사의 캡처. 실제 Android/iOS 장치 결과가 아닌 Linux Chromium의 실제 URL 접속/모바일 에뮬레이션입니다.
+- 빌드·기능 커밋·푸시·실제 배포·주소 접속 확인을 수행했습니다. 후속 검증 자료/문서는 `[skip ci]` 커밋으로 보존합니다.

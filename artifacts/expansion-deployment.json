@@ -1,0 +1,29 @@
+{
+  "featureCommit": "86d53cb3bc7da819ff4e26cdc5099baec01b2eca",
+  "workflowRun": 40284711598,
+  "workflowUrl": "https://github.com/gmlduqzhd123-lab/Odyssey-Run/actions/runs/40284711598",
+  "jobs": {
+    "build": "success",
+    "deploy": "success"
+  },
+  "productionCheck": {
+    "url": "https://gmlduqzhd123-lab.github.io/Odyssey-Run/",
+    "status": 200,
+    "bundle": "/Odyssey-Run/assets/index-C4kfvjl_.js",
+    "browser": "154.0.8037.57",
+    "checkedAt": "2026-10-26T07:18:00.892Z",
+    "environment": "Linux Chromium desktop DPR2, actual keyboard inputs, virtual clock; independent browser storage",
+    "compassCheckpoint": 7720,
+    "observedRecoveryX": 7720,
+    "fallHp": 2,
+    "duplicateScoreAndStarsPrevented": true,
+    "restartClearsEffects": true,
+    "legacyV1ExactRecordsPreserved": true,
+    "bestiaryKinds": 6,
+    "realItemKinds": 8,
+    "errors": [],
+    "failures": []
+  },
+  "displayEvidence": "display-comfort-deployed-results.json",
+  "animationEvidence": "runner-deployed-results.json"
+}
