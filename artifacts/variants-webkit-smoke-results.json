@@ -1,0 +1,17 @@
+{
+  "url": "http://localhost:4176/Odyssey-Run/",
+  "browser": "26.0",
+  "checkedAt": "2026-10-26T13:09:23.348Z",
+  "environment": "Linux webkit, desktop 960x620 DPR1 keyboard / mobile 844x390 DPR2 emulation with CDP multi-pointer touch in Chromium; virtual game clock; no physical phone",
+  "scope": "Menu course selection, pause/resume and first 6000px only",
+  "results": [
+    {
+      "mobile": true,
+      "bundle": "/Odyssey-Run/assets/index-Bd-E8nyS.js",
+      "status": 200,
+      "runs": []
+    }
+  ],
+  "errors": [],
+  "failures": []
+}

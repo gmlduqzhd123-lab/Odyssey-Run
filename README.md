@@ -194,3 +194,23 @@ npx tsx scripts/failure-qa.ts
 `src/rendering/poses.ts`에서 표시/판정의 프레임·크기·기준점을 공유하고 `src/systems/contact.ts`에서 윤곽을 확인합니다. `src/assets/contact-masks.ts`는 원본 알파를 약 1 논리 px 단위로 미리 계산한 데이터이며, 부드러운 외곽을 제외하고 약 1px 안쪽 여유를 둡니다. 런타임 Canvas 픽셀 읽기나 외부 의존성을 추가하지 않습니다. 원화가 바뀌면 `npx tsx scripts/prepare-contact-masks.ts`로 재생성합니다(개발 도구 Chromium/Python Pillow 필요). 원화 파일은 수정하지 않습니다.
 
 검증: `npm test`, `npx tsx scripts/contact-qa.ts`(PC/모바일 터치 세 섬 완주·기록 파일 복원), `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 QA_ENGINE=webkit QA_SMOKE=1 npx tsx scripts/contact-qa.ts`(설치된 Linux WebKit의 첫 수집 경계), `npx tsx scripts/contact-performance.ts`(실제 시간 10초 성능). 실제 기기와 에뮬레이션은 QA.md에서 구분합니다.
+
+## 검증된 코스 변주
+
+섬을 고른 뒤 준비 화면의 **이번에 달릴 코스**에서 항로를 선택하세요. 각 섬은 기본 항로와 새 코스 2개, 전체 9개입니다.
+
+| 섬 | 기본 | 새 코스 1 | 새 코스 2 |
+|---|---|---|---|
+| 출항의 해변 | 기본 항로 | 유적 순례길 | 별빛 해안길 |
+| 키클롭스의 동굴 | 기본 항로 | 횃불 회랑 | 거인의 미로 |
+| 아이올로스의 바람 섬 | 기본 항로 | 구름 순례길 | 순풍 우회길 |
+
+기존 기본 코스는 그대로입니다. 새 항로는 중간의 3,200px 구간 여섯 개를 검증한 순서로 배치합니다. 장애물·몬스터·바람·발판·수집물과 이야기 위치가 함께 이동합니다. 시작 0~3,200px와 도착 22,400~24,000px는 유지하며 매번 같은 배치라 타이밍을 익힐 수 있습니다. 재도전은 같은 선택으로 시작하고, 준비 화면을 다시 열면 기본 항로가 먼저 선택됩니다.
+
+모든 코스는 24,000px/약 75초·별빛 100·지도 3·최대 4,200점입니다. 지도와 도감 발견은 섬별 같은 ID를 공유해 영구 지도는 최대 9개입니다. 어떤 코스든 섬을 완주하면 기존 규칙대로 다음 섬이 열립니다.
+
+최고 점수·평점·별빛·완주 상태와 비교 항해는 **코스별**로 저장합니다. 섬 선택에는 모든 코스 중 최고 기록을 표시하며 기존 기록을 낮추지 않습니다. 코스가 다른 비교 항해를 섞지 않습니다. 이전 v1 파일의 기록/설정/해금/지도는 보존하고 기존 기록과 비교 항해는 기본 항로에 귀속합니다. 선택적 `courses` 필드를 추가했으며 기록 파일 내보내기·복원·백업·초기화에 포함합니다. 9개 코스의 최대 길이 비교 기록도 기존 64KiB 파일 제한 안에 들어갑니다.
+
+배치: `src/levels/variants.ts`, 원본 코스: `src/levels/courses.ts`, 기록: `src/storage/save.ts`. `docs/course-variants-manifest.json`에 9개 코스의 순서·개별 위치·수량·아이템 없는 위/아래 경로 입력을 기록했습니다.
+
+검증 명령: `npx tsx scripts/check-variants.ts`(전체 18경로/배치 문서), `npx tsx scripts/variants-qa.ts`(PC 3개·모바일 새 코스 6개 완주/저장), `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 QA_ENGINE=webkit QA_SMOKE=1 npx tsx scripts/variants-qa.ts`(설치된 Linux WebKit의 메뉴·첫 6,000px), `npm test`. 브라우저 시험은 에뮬레이션이며 실제 기기 확인과 구분합니다.

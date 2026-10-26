@@ -1,0 +1,27 @@
+{
+  "browser": "154.0.8037.57",
+  "checkedAt": "2026-10-26T13:12:57.677Z",
+  "environment": "Linux Chromium headless; PC 1280x800 DPR2 and mobile 844x390 DPR2 emulation; first 10s of beach, real clock, audio off; not physical-device FPS",
+  "results": [
+    {
+      "mobile": false,
+      "metrics": {
+        "elapsedMs": 10000.600000005961,
+        "fps": 56.90724119684913,
+        "p95FrameMs": 33.29999999999927,
+        "distance": 3205.3333333333558
+      },
+      "errors": []
+    },
+    {
+      "mobile": true,
+      "metrics": {
+        "elapsedMs": 10001.69999999702,
+        "fps": 60.00180005400161,
+        "p95FrameMs": 16.700000000000728,
+        "distance": 3200.0000000000246
+      },
+      "errors": []
+    }
+  ]
+}

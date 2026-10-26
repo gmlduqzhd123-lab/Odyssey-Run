@@ -1,11 +1,13 @@
 import {ADVENTURE_PLANS,ADVENTURE_BALANCE,GOALS,type GoalId,type ComboId} from '../levels/adventure';
 import {GHOST_SECONDS} from '../storage/journal';
 import {C} from '../config';
-import {COURSES,type StageId,type Rect,type Platform,type Collectible} from '../levels/courses';
+import {type StageId,type Rect,type Platform,type Collectible} from '../levels/courses';
 import {score,rating} from '../systems/score';
 import type {RunResult} from '../storage/save';
 import {createEnemyState,updateEnemyState,type EnemyState} from '../levels/enemies';
 import {heroPose,collectibleContact,enemyContact,projectileContact} from '../systems/contact';
+import {getCourse} from '../levels/variants';
+import type {VariantId} from '../levels/course-ids';
 export type RunState='ready'|'playing'|'paused'|'success'|'failure';
 export interface RunnerEvent {kind:'jump'|'star'|'map'|'shield'|'wings'|'magnet'|'apple'|'trident'|'lantern'|'compass'|'strike'|'hurt'|'fall'|'block'|'finish'|'constellation'|'near'|'discovery'|'highlight'|'combo'|'trick'|'route';x:number;y:number;text?:string;}
 const overlap=(a:Rect,b:Rect)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
@@ -16,7 +18,7 @@ export class Runner {
  readonly adventure;goal:GoalId;constellations=new Set<string>();stories=new Set<string>();combos=new Set<ComboId>();routes=new Set<string>();nearMisses=new Set<string>();evaded=new Set<string>();tricked=new Set<string>();highlightSeen=false;message='';
  private activeCombos=new Set<ComboId>();private contacts=new Set<string>();private closePasses=new Set<string>();private passed=new Set<string>();private spentShots=new Set<string>();private shotHeights=new Map<string,number>();trace:number[]=[0];
  safeX=0;recovering=0;stars=0;maps=new Set<string>();collected=new Set<string>();events:RunnerEvent[]=[];private finalized:RunResult|null=null;private hitbox:Rect={x:-21,y:376,w:42,h:64};
- constructor(readonly stage:StageId,goal:GoalId='maps'){this.goal=goal;this.adventure=ADVENTURE_PLANS[stage];this.course=COURSES[stage];this.enemyStates=this.course.enemies.map(createEnemyState);this.updateEnemies();}
+ constructor(readonly stage:StageId,goal:GoalId='maps',readonly variant:VariantId='classic',course=getCourse(stage,variant)){this.goal=goal;this.course=course;this.adventure=course.adventure??ADVENTURE_PLANS[stage];this.enemyStates=this.course.enemies.map(createEnemyState);this.updateEnemies();}
  private updateEnemies(){this.enemyStates.forEach((s,i)=>{
   updateEnemyState(s,this.course.enemies[i],this.x,this.time,this.lantern>0,this.defeated.has(s.id));
   if(s.kind==='cyclops'&&s.projectile.active){if(!this.shotHeights.has(s.id))this.shotHeights.set(s.id,Math.max(140,Math.min(372,this.y-68)));s.projectile.y=this.shotHeights.get(s.id)!;if(this.spentShots.has(s.id))s.projectile.active=false;}
@@ -118,6 +120,6 @@ export class Runner {
  result():RunResult {
   if(this.finalized)return this.finalized;
   if(this.state!=='success'&&this.state!=='failure')throw Error('Run is not finished');
-  this.finalized={stage:this.stage,complete:this.state==='success',score:this.points,rating:rating(this.state==='success',this.stars,this.hpLoss),stars:this.stars,maps:[...this.maps],hpLoss:this.hpLoss,distance:this.maxDistance,adventure:{stamps:this.goalComplete?[`${this.stage}-${this.goal}`]:[],stories:[...this.stories],constellations:[...this.constellations],combos:[...this.combos],routes:[...this.routes],nearMisses:this.nearMisses.size,evaded:this.evaded.size,tricked:this.tricked.size,ghost:{score:this.points,duration:Math.min(GHOST_SECONDS,this.time),samples:[...this.trace]}}};return this.finalized;
+  this.finalized={stage:this.stage,variant:this.variant,complete:this.state==='success',score:this.points,rating:rating(this.state==='success',this.stars,this.hpLoss),stars:this.stars,maps:[...this.maps],hpLoss:this.hpLoss,distance:this.maxDistance,adventure:{stamps:this.goalComplete?[`${this.stage}-${this.goal}`]:[],stories:[...this.stories],constellations:[...this.constellations],combos:[...this.combos],routes:[...this.routes],nearMisses:this.nearMisses.size,evaded:this.evaded.size,tricked:this.tricked.size,ghost:{score:this.points,duration:Math.min(GHOST_SECONDS,this.time),samples:[...this.trace]}}};return this.finalized;
  }
 }

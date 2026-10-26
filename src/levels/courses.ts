@@ -1,5 +1,6 @@
 import { C } from '../config';
-import {ADVENTURE_PLANS} from './adventure';
+import {ADVENTURE_PLANS,type AdventurePlan} from './adventure';
+import type {VariantId} from './course-ids';
 import type {EnemyKind,EnemyPlacement} from './enemies';
 export const STAGES = ['beach','cave','wind'] as const;
 export type StageId = typeof STAGES[number];
@@ -8,7 +9,7 @@ export interface Collectible {id:string;kind:ItemKind;x:number;y:number;checkpoi
 export interface Rect {x:number;y:number;w:number;h:number;}
 export interface Obstacle extends Rect {id:string;kind:'crate'|'pillar'|'gate'|'rock'|'falling'|'hand';}
 export interface Platform {id:string;x:number;y:number;w:number; moving?:boolean;}
-export interface Course {id:StageId;name:string;subtitle:string;description:string;color:string;gaps:{x:number;w:number}[];obstacles:Obstacle[];platforms:Platform[];winds:Rect[];safe:number[];items:Collectible[];enemies:EnemyPlacement[];}
+export interface Course {id:StageId;variant?:VariantId;routeName?:string;adventure?:AdventurePlan;name:string;subtitle:string;description:string;color:string;gaps:{x:number;w:number}[];obstacles:Obstacle[];platforms:Platform[];winds:Rect[];safe:number[];items:Collectible[];enemies:EnemyPlacement[];}
 const meta = {
  beach:{name:'출항의 해변',subtitle:'THE DEPARTURE',description:'푸른 파도를 따라, 귀환의 첫걸음을 내디뎌요.',color:'#79c4c6'},
  cave:{name:'키클롭스의 동굴',subtitle:'THE CYCLOPS',description:'거인의 발소리를 뒤로하고 동굴의 빛을 찾아요.',color:'#aca4cd'},
