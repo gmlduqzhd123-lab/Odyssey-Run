@@ -1,0 +1,89 @@
+{
+  "url": "http://localhost:4176/Odyssey-Run/",
+  "browser": "154.0.8037.57",
+  "checkedAt": "2026-10-26T08:26:28.556Z",
+  "environment": "Linux headless browser mobile emulation; no physical Android/iOS; touch events and virtual game clock; pagehide injected independently of visibility",
+  "results": [
+    {
+      "width": 568,
+      "height": 320,
+      "dpr": 2,
+      "startTouchable": true,
+      "multiTouchOutsideCancel": true,
+      "pagehidePauses": false,
+      "resizeRotationTouch": true,
+      "retry": true
+    },
+    {
+      "width": 667,
+      "height": 375,
+      "dpr": 2,
+      "startTouchable": true,
+      "multiTouchOutsideCancel": true,
+      "pagehidePauses": false,
+      "resizeRotationTouch": true,
+      "retry": true
+    },
+    {
+      "width": 740,
+      "height": 300,
+      "dpr": 2,
+      "error": "TimeoutError: locator.tap: Timeout 2500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-action=\"islands\"]').first()\u001b[22m\n\u001b[2m    - locator resolved to <button class=\"primary large\" data-action=\"islands\">…</button>\u001b[22m\n\u001b[2m  - attempting tap action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - elem"
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "dpr": 2,
+      "startTouchable": true,
+      "multiTouchOutsideCancel": true,
+      "pagehidePauses": false,
+      "resizeRotationTouch": true,
+      "retry": true
+    },
+    {
+      "width": 932,
+      "height": 430,
+      "dpr": 2,
+      "startTouchable": true,
+      "multiTouchOutsideCancel": true,
+      "pagehidePauses": false,
+      "resizeRotationTouch": true,
+      "retry": true
+    },
+    {
+      "width": 1024,
+      "height": 600,
+      "dpr": 2,
+      "startTouchable": true,
+      "multiTouchOutsideCancel": true,
+      "pagehidePauses": false,
+      "resizeRotationTouch": true,
+      "retry": true
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "dpr": 2,
+      "startTouchable": true,
+      "portraitStartPaused": true,
+      "multiTouchOutsideCancel": true,
+      "pagehidePauses": false,
+      "resizeRotationTouch": true,
+      "retry": true
+    },
+    {
+      "width": 360,
+      "height": 640,
+      "dpr": 2,
+      "startTouchable": true,
+      "portraitStartPaused": true,
+      "multiTouchOutsideCancel": true,
+      "pagehidePauses": false,
+      "resizeRotationTouch": true,
+      "retry": true
+    }
+  ],
+  "routes": [],
+  "errors": [],
+  "failures": []
+}

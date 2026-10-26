@@ -152,3 +152,11 @@ npx tsx scripts/failure-qa.ts
 몬스터는 집게게(순찰), 하르피아(공중 비행), 석상병(접근 시 돌진), 스킬라(예고 후 출현), 키클롭스(바위 투척), 망령(예고 후 접근) **6종**입니다. 섬마다 7마리, 총 21마리이며 신규 아이템은 종류당 섬마다 2개씩 총 18개입니다. 위치·종류·안전지점은 `src/levels/courses.ts`, 행동은 `src/levels/enemies.ts`에 고정 데이터와 게임 시간 기준으로 정의합니다. 도감의 몬스터 탭에서 행동과 배치 수를 볼 수 있습니다.
 
 전후 영상은 `artifacts/comfort-{before,after}-{desktop,mobile}.webm`, 같은 화면의 캡처와 성능은 `display-comfort-{before,after}-results.json`에 기록합니다. `npx tsx scripts/comfort-video-qa.ts`는 선택적 영상 검증이며 Playwright FFmpeg 설치가 필요합니다(`npx playwright install ffmpeg`). 실제 기기와 체감 어지러움 평가는 QA.md의 미실행 항목을 확인하세요.
+
+## 모바일 회귀 검증
+
+- `npm run test:mobile`: Chromium에서 가로/세로 8개 화면, 터치 유지·멀티터치·화면 밖 해제·취소, 회전/주소창 크기 변화, 페이지 이탈 정지, 재도전과 세 섬 터치 완주·저장/복원. 기본 검증 주소는 `http://localhost:4176/Odyssey-Run/`이며 `QA_URL`로 바꿀 수 있습니다.
+- `QA_MOBILE=1 npx tsx scripts/realtime-qa.ts`: 가상 시계 없이 모바일 가로 에뮬레이션에서 실제 탭/누르기로 해변 완주. 약 75초가 걸리며 첫 10초의 FPS/p95를 별도 기록합니다. 성능 측정 중 다른 QA 브라우저는 종료하세요.
+- `QA_ENGINE=webkit QA_SIZE=844x390 QA_ROUTES=0 npx tsx scripts/mobile-qa.ts`: WebKit 엔진의 모바일 화면·터치 점프·중단/회전/재도전 검증. Playwright WebKit과 OS 의존성 설치가 필요합니다(`npx playwright install --with-deps webkit`). 여러 크기는 각각 독립 실행할 수 있습니다. WebKit 브라우저 에뮬레이션은 실제 iPhone Safari 검증과 다릅니다.
+
+짧은 가로 화면에서는 시작 버튼과 하단 메뉴가 겹치지 않게 제목 화면을 압축합니다. 앱 전환/뒤로 가기 때 `pagehide`만 발생해도 소리·게임 시간·입력을 함께 정지하고, 돌아오면 계속하기를 눌러야 재개합니다. 게임 물리·코스·점수·저장 형식은 이 수정으로 바뀌지 않습니다.

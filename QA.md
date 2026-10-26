@@ -341,3 +341,27 @@ QA_URL=http://localhost:4174/qa-odyssey/ npx tsx scripts/performance-qa.ts
 - 실제 사이트의 달리기 8자세·무회전 전용 숙이기·점프/착지·정지/준비 중 자세 동결·재시작/홈 복귀를 별도 실행해 통과했습니다. JavaScript 오류/HTTP 실패는 0건입니다. 원격에서는 전체 세 섬과 성능을 반복 측정하지 않았고 로컬 검증 결과와 구분합니다.
 - 근거: `expansion-deployment.json`, `expansion-deployed-results.json`, `display-comfort-deployed-results.json`, `runner-deployed-results.json` 및 같은 접두사의 캡처. 실제 Android/iOS 장치 결과가 아닌 Linux Chromium의 실제 URL 접속/모바일 에뮬레이션입니다.
 - 빌드·기능 커밋·푸시·실제 배포·주소 접속 확인을 수행했습니다. 후속 검증 자료/문서는 `[skip ci]` 커밋으로 보존합니다.
+
+## 모바일 집중 재검증 및 수정 — 2026-10-26
+
+### 재현·수정
+
+1. **짧은 가로 화면에서 시작 버튼 터치 차단**: 740×300에서 제목/설명이 세로 공간을 차지해 시작 버튼과 하단 안내가 겹쳤습니다. 버튼 중심에서 실제 hit test가 `.home-bottom`을 반환하고 탭이 시간 초과되는 것을 재현했습니다. 높이 420px 이하 가로 화면에서 제목/설명/여백을 압축하고 시작/도감 버튼을 최소 44px 한 줄로 배치했습니다. 하단 메뉴는 별도 44px 영역을 확보합니다. 같은 740×300에서 중심 hit가 `islands` 버튼으로 바뀌고 실제 탭→섬 선택→준비→시작이 통과했습니다. `mobile-short-before.png` / `mobile-short-after.png`.
+2. **페이지 이탈 중 게임 시간 진행**: `pagehide`만 전달되는 조건에서 기존 코드는 소리만 끄고 게임은 계속 진행했습니다. 독립 이벤트 재현에서 314.67→640px 진행하고 계속하기 메뉴가 없었습니다. 해당 이벤트를 기존 공통 `suspend()`에 연결해 게임·소리 정지와 입력 해제를 함께 처리합니다. 수정 후 같은 이벤트 뒤 11초 동안 거리 불변·계속하기 메뉴 표시·명시적 재개·회전/재도전이 통과했습니다. 이 검증은 Page Visibility와 독립된 이벤트 주입이며 실제 스마트폰 앱 전환 실기 검증으로 표시하지 않습니다.
+
+수정은 `src/style.css`의 짧은 제목 화면 배치와 `src/ui/app.ts`의 pagehide 처리에 한정됩니다. 기본 물리/시야·코스·아이템/몬스터·점수·기록 형식/키는 유지합니다. `scripts/mobile-qa.ts`를 추가하고 `scripts/realtime-qa.ts`에 실제 모바일 탭/누르기 실행을 지원했습니다. `npm run test:mobile`로 반복 실행할 수 있습니다.
+
+### 검증 환경·결과
+
+- **Chromium 154.0.8037.57 / Linux headless, 모바일 에뮬레이션, DPR2**: 568×320, 667×375, 740×300, 844×390, 932×430, 1024×600, 390×844, 360×640 **8개 조건 모두 통과**. 세로 시작은 정지 안내를 확인한 뒤 가로로 전환했습니다.
+- 각 조건에서 실제 탭으로 시작/준비/점프, 점프를 1초 눌러도 자동 재점프하지 않음, 두 pointer ID의 숙이기+점프, 버튼 밖 이동/해제·touchCancel 후 정상 자세, 최소 64px 조작 버튼, pagehide 정지, 세로 11초 정지, 가로 복귀 후 계속하기, 844×320↔844×390 주소창 유사 크기 변화 후 터치 좌표, 재도전 HP3/점수0을 확인했습니다. `mobile-after-chromium-results.json`, `mobile-after-chromium-profiles.json`. 프로필별 최종 캡처는 공통 가로 복귀/재도전 단계(844×390)이며, 짧은 화면 전후 비교는 별도 `mobile-short-*.png`입니다.
+- **WebKit 26.0 / Linux headless, 모바일 에뮬레이션, DPR2**: 568×320, 844×390, 390×844 **3개 조건 통과**. 실제 탭 시작/점프, 세로 시작 정지, pagehide 정지, 회전/가로 복귀·크기 변경 후 점프, 재도전 확인. WebKit 자동화 API로 다중 터치 유지/취소를 실행하지 않았으므로 해당 항목은 Chromium 결과와 구분합니다. `mobile-after-webkit-{568x320,844x390,390x844}-results.json`.
+- **모바일 세 섬 완주**: 844×390/DPR2 Chromium에서 키보드를 사용하지 않고 CDP 터치 시작/유지/해제로 해변 **4,130점**, 동굴 **4,120점**, 바람 섬 **4,050점**. 각각 지도 3·HP 손실 0·평점 3, 순차 해금/엔딩, 재접속 지도 9, 모바일 UI 내보내기/가져오기 후 저장 내용 유지 통과. 가상 시계를 사용했고 플레이어 위치/체력/수집 상태는 수정하지 않았습니다. `mobile-touch-after-chromium-results.json`, `mobile-touch-after-touch-*-result.png`, `mobile-touch-after-mobile-save.json`.
+- 키보드/정지 중 포커스/손상 기록 보존/복원 경쟁 조건 10개 회귀는 `audit-mobile-audit-results.json`에서 모두 통과했습니다. 신규 콘텐츠의 나침반 실제 추락 복귀/중복 방지/기존 v1 기록 정확 복원(`expansion-results.json`), 필수 파일 실패 재시도/빠른 재시작/저장·소리 차단(`edge-results.json`)도 재실행해 통과했습니다.
+- 초기 전체 터치 경로 시험은 마지막 입력 후 대기 5초가 도착까지 필요한 시간보다 짧아 결과를 기다리지 못했습니다. 게임 오류가 아닌 시험 종료 조건을 수정해 도착 직전 거리까지 진행한 뒤 결과를 기다리도록 했으며, 세 섬 전체를 재실행해 통과했습니다.
+- WebKit OS 라이브러리는 관리 권한이 없어 시스템 설치 대신 공식 Debian 패키지를 검증 환경에 별도 준비했습니다. 초기 다중 컨텍스트 실행에서 Linux WebKit 네이티브 프로세스 종료 1회가 있었으며, 크기별 독립 브라우저로 재검증한 3개 최종 결과에는 JavaScript 오류/HTTP 실패/프로세스 종료가 없었습니다. 이 사실을 실제 iOS Safari 안정성 검증으로 확대하지 않습니다.
+- 현재 수정본의 타입 검사, 순수 로직 **30개 테스트**, 프로덕션 빌드, `git diff --check` 통과. 모바일 최종 정상 경로의 JS 오류/HTTP 실패는 0건입니다. 고의 오류 주입은 별도입니다.
+
+실제 Android Chrome/iPhone Safari 장치, 실제 노치/홈 표시줄, 기기 앱 전환과 장시간 발열/배터리·사람의 체감 평가는 미실행입니다. 지원되지 않는 Chromium safe-area override API는 검증에 사용하지 않았습니다. Linux WebKit은 Safari 계열 엔진 검증이며 실제 iPhone 시험은 아닙니다.
+
+- **실시간 모바일 가로 완주**: 다른 QA 브라우저를 종료하고 844×390/DPR2 Chromium에서 실제 탭/슬라이드 누르기로 **75.011초**에 해변 완주했습니다. 4,130점·별빛 93·지도 3·HP 손실 0·평점 3. 가상 시계나 플레이어 상태 변경은 없습니다. 첫 10초 rAF 측정은 **60.00fps / p95 16.7ms**이며 소프트웨어 에뮬레이션 결과입니다. 전체 75초의 최저 FPS나 실제 스마트폰 FPS로 표시하지 않습니다. `mobile-realtime-results.json`, `mobile-realtime-play.png`, `mobile-realtime-result.png`.

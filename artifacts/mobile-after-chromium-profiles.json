@@ -1,0 +1,88 @@
+{
+  "url": "http://localhost:4176/Odyssey-Run/",
+  "browser": "154.0.8037.57",
+  "results": [
+    {
+      "width": 568,
+      "height": 320,
+      "dpr": 2,
+      "startTouchable": true,
+      "multiTouchOutsideCancel": true,
+      "pagehidePauses": true,
+      "resizeRotationTouch": true,
+      "retry": true
+    },
+    {
+      "width": 667,
+      "height": 375,
+      "dpr": 2,
+      "startTouchable": true,
+      "multiTouchOutsideCancel": true,
+      "pagehidePauses": true,
+      "resizeRotationTouch": true,
+      "retry": true
+    },
+    {
+      "width": 740,
+      "height": 300,
+      "dpr": 2,
+      "startTouchable": true,
+      "multiTouchOutsideCancel": true,
+      "pagehidePauses": true,
+      "resizeRotationTouch": true,
+      "retry": true
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "dpr": 2,
+      "startTouchable": true,
+      "multiTouchOutsideCancel": true,
+      "pagehidePauses": true,
+      "resizeRotationTouch": true,
+      "retry": true
+    },
+    {
+      "width": 932,
+      "height": 430,
+      "dpr": 2,
+      "startTouchable": true,
+      "multiTouchOutsideCancel": true,
+      "pagehidePauses": true,
+      "resizeRotationTouch": true,
+      "retry": true
+    },
+    {
+      "width": 1024,
+      "height": 600,
+      "dpr": 2,
+      "startTouchable": true,
+      "multiTouchOutsideCancel": true,
+      "pagehidePauses": true,
+      "resizeRotationTouch": true,
+      "retry": true
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "dpr": 2,
+      "startTouchable": true,
+      "portraitStartPaused": true,
+      "multiTouchOutsideCancel": true,
+      "pagehidePauses": true,
+      "resizeRotationTouch": true,
+      "retry": true
+    },
+    {
+      "width": 360,
+      "height": 640,
+      "dpr": 2,
+      "startTouchable": true,
+      "portraitStartPaused": true,
+      "multiTouchOutsideCancel": true,
+      "pagehidePauses": true,
+      "resizeRotationTouch": true,
+      "retry": true
+    }
+  ]
+}

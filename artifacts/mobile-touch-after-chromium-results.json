@@ -1,0 +1,23 @@
+{
+  "url": "http://localhost:4176/Odyssey-Run/",
+  "browser": "154.0.8037.57",
+  "checkedAt": "2026-10-26T08:34:10.575Z",
+  "environment": "Linux headless browser mobile emulation; no physical Android/iOS; touch events and virtual game clock; pagehide injected independently of visibility",
+  "results": [],
+  "routes": [
+    {
+      "id": "beach",
+      "text": " ISLAND COMPLETE\n멋진 항해였어요!\n\n출항의 해변 완주! 다음 섬의 항로가 열렸어요.\n\n★★★\n이번 항해 점수\n4,130\n최고 기록 4,130 · NEW BEST\n최고 전진거리\n2400\n별빛 93 × 10\n930\n지도 3 × 100\n300\n완주 보너스\n500\n♡ HP 손실 0회\n 영구 지도 3/3\n완주 ★ · 별빛 70개 이상 ★ · HP 손실 0회 ★\n재도전\n다음 섬으로 →\n섬 선택"
+    },
+    {
+      "id": "cave",
+      "text": " ISLAND COMPLETE\n멋진 항해였어요!\n\n키클롭스의 동굴 완주! 다음 섬의 항로가 열렸어요.\n\n★★★\n이번 항해 점수\n4,120\n최고 기록 4,120 · NEW BEST\n최고 전진거리\n2400\n별빛 92 × 10\n920\n지도 3 × 100\n300\n완주 보너스\n500\n♡ HP 손실 0회\n 영구 지도 3/3\n완주 ★ · 별빛 70개 이상 ★ · HP 손실 0회 ★\n재도전\n다음 섬으로 →\n섬 선택"
+    },
+    {
+      "id": "wind",
+      "text": " ISLAND COMPLETE\n마침내, 이타카!\n\n오디세우스가 고향 항구에 도착했어요. 긴 모험을 함께해 줘서 고마워요.\n\n★★★\n이번 항해 점수\n4,050\n최고 기록 4,050 · NEW BEST\n최고 전진거리\n2400\n별빛 85 × 10\n850\n지도 3 × 100\n300\n완주 보너스\n500\n♡ HP 손실 0회\n 영구 지도 3/3\n완주 ★ · 별빛 70개 이상 ★ · HP 손실 0회 ★\n재도전\n섬 선택 →\n귀환의 지도 보기"
+    }
+  ],
+  "errors": [],
+  "failures": []
+}

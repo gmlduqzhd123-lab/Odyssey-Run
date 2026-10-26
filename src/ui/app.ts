@@ -32,7 +32,7 @@ export class App {
   document.addEventListener('visibilitychange',()=>{if(document.hidden)this.suspend();},{signal:this.abort.signal});
   window.addEventListener('blur',()=>this.suspend(),{signal:this.abort.signal});window.addEventListener('resize',()=>{this.orientation();this.resizeDisplay();},{signal:this.abort.signal});
   document.querySelector('#rotate-menu')!.addEventListener('click',()=>{this.abandon();this.islands();},{signal:this.abort.signal});
-  window.addEventListener('pagehide',()=>this.sound.setPlaying(false),{signal:this.abort.signal});
+  window.addEventListener('pagehide',()=>this.suspend(),{signal:this.abort.signal});
  }
  private notice(message=this.store.warning){const n=document.querySelector<HTMLElement>('#notice')!;n.textContent=message;n.hidden=!message;}
  private set(html:string,screen:string){this.importRequest++;this.screen=screen;this.controls.clear();this.run?.clearInput();this.ui.innerHTML=html;const play=this.ui.querySelector<HTMLElement>('.play-ui');if(play)play.inert=['pause','countdown'].includes(screen);this.lastHud='';this.orientation();this.notice();queueMicrotask(()=>this.ui.querySelector<HTMLElement>('[autofocus], h1[tabindex], h2[tabindex]')?.focus({preventScroll:true}));}
