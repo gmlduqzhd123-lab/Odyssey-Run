@@ -1,9 +1,9 @@
 {
   "url": "http://localhost:4176/Odyssey-Run/",
   "status": 200,
-  "bundle": "/Odyssey-Run/assets/index-Uggx-WC_.js",
+  "bundle": "/Odyssey-Run/assets/index-B5CB1q55.js",
   "browser": "154.0.8037.57",
-  "checkedAt": "2026-10-26T10:10:10.778Z",
+  "checkedAt": "2026-10-26T10:21:29.799Z",
   "environment": "Linux Chromium desktop DPR2, actual keyboard inputs, virtual clock; independent browser storage",
   "compassCheckpoint": 7720,
   "observedRecoveryX": 7720,

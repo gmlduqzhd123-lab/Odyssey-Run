@@ -2,7 +2,7 @@ import {chromium,expect} from '@playwright/test';
 import {writeFile} from 'node:fs/promises';
 const b=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--no-sandbox']});const results:any[]=[];
 try{for(const mode of ['missing','corrupt','blocked-resume']){
- const c=await b.newContext({viewport:{width:844,height:390},isMobile:true,hasTouch:true}),p=await c.newPage(),errors:string[]=[];p.on('pageerror',e=>errors.push(e.message));
+ const c=await b.newContext({viewport:{width:844,height:390},isMobile:true,hasTouch:true,serviceWorkers:'block'}),p=await c.newPage(),errors:string[]=[];p.on('pageerror',e=>errors.push(e.message));
  if(mode==='missing')await p.route('**/assets/audio/*.mp3',r=>r.fulfill({status:404,body:'not found'}));
  if(mode==='corrupt')await p.route('**/assets/audio/*.mp3',r=>r.fulfill({status:200,contentType:'audio/mpeg',body:'not a valid MP3'}));
  if(mode==='blocked-resume')await c.addInitScript(()=>{AudioContext.prototype.resume=()=>Promise.reject(new DOMException('Blocked','NotAllowedError'));});

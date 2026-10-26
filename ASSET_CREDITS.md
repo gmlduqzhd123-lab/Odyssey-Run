@@ -51,7 +51,7 @@
 | 배·거인·장애물 | `public/assets/{boat,giant,crate,pillar,gate,rock}.svg` | 자체 벡터 그래픽 |
 | 별빛과 최초 아이콘 SVG | `public/assets/{star,map,shield,wings,magnet,apple,compass}.svg` | 별빛은 현재 사용, 나머지 최초 아이콘은 이전 버전 보존 |
 | 지면·바람·피드백 | `src/scenes/World.ts` | 자체 절차적 그래픽 |
-| 배경 선율·효과음 | `src/systems/audio.ts` | 자체 합성 음향, 외부 음원 없음 |
+| 효과음 | `src/systems/audio.ts` | 자체 합성 효과음. 배경음악은 아래 사용자 제공 Suno 세 곡 |
 | 메뉴 글꼴 | 시스템 글꼴 스택 | 기기 기본 글꼴, 배포 폰트 없음 |
 
 자체 제작 SVG·코드는 이 프로젝트 소스와 함께 수정·재사용할 수 있습니다. 오디세이아의 신화와 인물은 고대 원전에서 착안했고, 짧은 도감 설명은 새로 작성했습니다.

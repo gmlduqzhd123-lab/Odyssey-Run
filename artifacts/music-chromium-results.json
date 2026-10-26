@@ -1,110 +1,12 @@
 {
   "url": "http://localhost:4176/Odyssey-Run/",
   "browser": "154.0.8037.57",
-  "checkedAt": "2026-10-26T10:09:01.444Z",
+  "checkedAt": "2026-10-26T10:20:35.557Z",
   "environment": "Linux headless browser; mobile emulation; real AudioContext decoding/render graph, virtual gameplay clock; no physical speaker listening",
   "results": [
     {
       "mobile": false,
-      "status": 200,
-      "stages": [
-        {
-          "id": "beach",
-          "decodedDuration": 162.11997732426303,
-          "peak": 0.3329435884952545,
-          "measuredRms": 0.000025874696951269422
-        },
-        {
-          "id": "cave",
-          "decodedDuration": 107.96,
-          "peak": 0.369365394115448,
-          "measuredRms": 0.000321084618212344
-        },
-        {
-          "id": "wind",
-          "decodedDuration": 96.88,
-          "peak": 0.35582858324050903,
-          "measuredRms": 0.0004528058464194156
-        }
-      ],
-      "audio": {
-        "entries": [
-          {
-            "duration": 162.11997732426303,
-            "offset": 0,
-            "startTime": 1.8808163265306121,
-            "loop": true,
-            "stopped": true,
-            "peak": 0.3329435884952545,
-            "stopTime": 2.162358276643991
-          },
-          {
-            "duration": 162.11997732426303,
-            "offset": 0.2815419501133789,
-            "startTime": 3.3610884353741497,
-            "loop": true,
-            "stopped": true,
-            "peak": 0.3329435884952545,
-            "stopTime": 3.4017233560090703
-          },
-          {
-            "duration": 162.11997732426303,
-            "offset": 0,
-            "startTime": 5.221587301587301,
-            "loop": true,
-            "stopped": true,
-            "peak": 0.3329435884952545,
-            "stopTime": 5.230294784580499
-          },
-          {
-            "duration": 107.96,
-            "offset": 0,
-            "startTime": 9.581133786848072,
-            "loop": true,
-            "stopped": true,
-            "peak": 0.369365394115448,
-            "stopTime": 9.862675736961451
-          },
-          {
-            "duration": 107.96,
-            "offset": 0.2815419501133789,
-            "startTime": 10.89015873015873,
-            "loop": true,
-            "stopped": true,
-            "peak": 0.369365394115448,
-            "stopTime": 10.901768707482994
-          },
-          {
-            "duration": 96.88,
-            "offset": 0,
-            "startTime": 15.452879818594104,
-            "loop": true,
-            "stopped": true,
-            "peak": 0.35582858324050903,
-            "stopTime": 15.731519274376417
-          },
-          {
-            "duration": 96.88,
-            "offset": 0.2786394557823133,
-            "startTime": 16.8518820861678,
-            "loop": true,
-            "stopped": true,
-            "peak": 0.35582858324050903,
-            "stopTime": 16.860589569160997
-          }
-        ],
-        "active": 0,
-        "decoded": [
-          162.11997732426303,
-          107.96,
-          96.88
-        ],
-        "oscillators": 1,
-        "rms": 0
-      }
-    },
-    {
-      "mobile": true,
+      "bundle": "/Odyssey-Run/assets/index-B5CB1q55.js",
       "status": 200,
       "stages": [
         {
@@ -123,7 +25,107 @@
           "id": "wind",
           "decodedDuration": 96.88,
           "peak": 0.35582858324050903,
-          "measuredRms": 0.0004827405368962778
+          "measuredRms": 0.0005190293656670092
+        }
+      ],
+      "audio": {
+        "entries": [
+          {
+            "duration": 162.11997732426303,
+            "offset": 0,
+            "startTime": 1.9011337868480727,
+            "loop": true,
+            "stopped": true,
+            "peak": 0.3329435884952545,
+            "stopTime": 2.1913832199546484
+          },
+          {
+            "duration": 162.11997732426303,
+            "offset": 0.2902494331065757,
+            "startTime": 3.332063492063492,
+            "loop": true,
+            "stopped": true,
+            "peak": 0.3329435884952545,
+            "stopTime": 3.3726984126984125
+          },
+          {
+            "duration": 162.11997732426303,
+            "offset": 0,
+            "startTime": 5.16063492063492,
+            "loop": true,
+            "stopped": true,
+            "peak": 0.3329435884952545,
+            "stopTime": 5.1722448979591835
+          },
+          {
+            "duration": 107.96,
+            "offset": 0,
+            "startTime": 9.970068027210884,
+            "loop": true,
+            "stopped": true,
+            "peak": 0.369365394115448,
+            "stopTime": 10.271927437641724
+          },
+          {
+            "duration": 107.96,
+            "offset": 0.30185941043083986,
+            "startTime": 11.331337868480725,
+            "loop": true,
+            "stopped": true,
+            "peak": 0.369365394115448,
+            "stopTime": 11.340045351473924
+          },
+          {
+            "duration": 96.88,
+            "offset": 0,
+            "startTime": 15.592199546485261,
+            "loop": true,
+            "stopped": true,
+            "peak": 0.35582858324050903,
+            "stopTime": 15.870839002267573
+          },
+          {
+            "duration": 96.88,
+            "offset": 0.27863945578231153,
+            "startTime": 16.950566893424035,
+            "loop": true,
+            "stopped": true,
+            "peak": 0.35582858324050903,
+            "stopTime": 16.962176870748298
+          }
+        ],
+        "active": 0,
+        "decoded": [
+          162.11997732426303,
+          107.96,
+          96.88
+        ],
+        "oscillators": 1,
+        "rms": 0
+      }
+    },
+    {
+      "mobile": true,
+      "bundle": "/Odyssey-Run/assets/index-B5CB1q55.js",
+      "status": 200,
+      "stages": [
+        {
+          "id": "beach",
+          "decodedDuration": 162.11997732426303,
+          "peak": 0.3329435884952545,
+          "measuredRms": 0.00002609178247611819
+        },
+        {
+          "id": "cave",
+          "decodedDuration": 107.96,
+          "peak": 0.369365394115448,
+          "measuredRms": 0.000321084618212344
+        },
+        {
+          "id": "wind",
+          "decodedDuration": 96.88,
+          "peak": 0.35582858324050903,
+          "measuredRms": 0.0005258125405395553
         }
       ],
       "audio": {
@@ -135,61 +137,61 @@
             "loop": true,
             "stopped": true,
             "peak": 0.3329435884952545,
-            "stopTime": 2.380045351473923
+            "stopTime": 2.3713378684807256
           },
           {
             "duration": 162.11997732426303,
-            "offset": 0.2989569160997734,
-            "startTime": 3.8312925170068026,
+            "offset": 0.29024943310657614,
+            "startTime": 3.7122902494331065,
             "loop": true,
             "stopped": true,
             "peak": 0.3329435884952545,
-            "stopTime": 3.8806349206349204
+            "stopTime": 3.7500226757369615
           },
           {
             "duration": 162.11997732426303,
             "offset": 0,
-            "startTime": 6.382585034013606,
+            "startTime": 6.472562358276644,
             "loop": true,
             "stopped": true,
             "peak": 0.3329435884952545,
-            "stopTime": 6.391292517006803
+            "stopTime": 6.492879818594104
           },
           {
             "duration": 107.96,
             "offset": 0,
-            "startTime": 11.250068027210885,
+            "startTime": 11.380680272108844,
             "loop": true,
             "stopped": true,
             "peak": 0.369365394115448,
-            "stopTime": 11.54031746031746
+            "stopTime": 11.67092970521542
           },
           {
             "duration": 107.96,
             "offset": 0.2902494331065757,
-            "startTime": 12.942222222222222,
+            "startTime": 13.110566893424036,
             "loop": true,
             "stopped": true,
             "peak": 0.369365394115448,
-            "stopTime": 12.950929705215419
+            "stopTime": 13.1221768707483
           },
           {
             "duration": 96.88,
             "offset": 0,
-            "startTime": 17.470113378684808,
+            "startTime": 17.94031746031746,
             "loop": true,
             "stopped": true,
             "peak": 0.35582858324050903,
-            "stopTime": 17.760362811791385
+            "stopTime": 18.2421768707483
           },
           {
             "duration": 96.88,
-            "offset": 0.29024943310657747,
-            "startTime": 19.121632653061223,
+            "offset": 0.30185941043083986,
+            "startTime": 19.702131519274378,
             "loop": true,
             "stopped": true,
             "peak": 0.35582858324050903,
-            "stopTime": 19.13034013605442
+            "stopTime": 19.722448979591835
           }
         ],
         "active": 0,
