@@ -1,0 +1,71 @@
+{
+  "archive": "플랫포머 게임 지형·오브젝트 도감.zip",
+  "processing": "Whole-sheet WebP quality 90 encoding, original resolution, no redraw or background removal. Runtime atlas rectangles are in src/assets/terrain.ts.",
+  "images": [
+    {
+      "name": "terrain-sheet",
+      "sourceFile": "플랫포머 게임 지형·오브젝트 도감.png",
+      "sourceBytes": 3148861,
+      "sourceSha256": "f4a43e3fdf1507215e12689cad011bd902b537eaac52865a6d1f8408948058e8",
+      "size": [
+        1536,
+        1024
+      ],
+      "displayTexture": "assets/art/terrain-sheet-a49214e40bee.webp",
+      "preparedBytes": 730856,
+      "preparedSha256": "a49214e40bee180168f365207dae97e966740218565b740258a3543c32db8f30"
+    },
+    {
+      "name": "enemy-sheet",
+      "sourceFile": "오디세이 해양 몬스터 디자인 시트-2.png",
+      "sourceBytes": 3172660,
+      "sourceSha256": "b8347ae467b65b902160acd699d4400b79dcd0e7dddce75ebebda36f8b8a2535",
+      "size": [
+        1536,
+        1024
+      ],
+      "displayTexture": "assets/art/enemy-sheet-aef33e323286.webp",
+      "preparedBytes": 718976,
+      "preparedSha256": "aef33e32328628149cd9c1f89667cad0961472291da85b9263920541b59e165f"
+    },
+    {
+      "name": "myth-sheet",
+      "sourceFile": "오디세이 몬스터 도감-1.png",
+      "sourceBytes": 2983389,
+      "sourceSha256": "70e40382b9bac6b6de9572167a45e6c301e8deb34e0a27f4ee6e2868647fe9be",
+      "size": [
+        1536,
+        1024
+      ],
+      "displayTexture": "assets/art/myth-sheet-d34eacc8a5a6.webp",
+      "preparedBytes": 677008,
+      "preparedSha256": "d34eacc8a5a68e11c2f038cd5377c9fdea67e9140f1b578679bcb79c6347eb25"
+    },
+    {
+      "name": "landscape-sheet",
+      "sourceFile": "다채로운 판타지 플랫폼 게임 배경 타일 시트.png",
+      "sourceBytes": 3278821,
+      "sourceSha256": "ed1b115854eb68daaf5f264cb3f68af4bbda5da5afab215f5467a1cf59bb7b7b",
+      "size": [
+        1536,
+        1024
+      ],
+      "displayTexture": "assets/art/landscape-sheet-9271e26c9b34.webp",
+      "preparedBytes": 773114,
+      "preparedSha256": "9271e26c9b3437926786bbfe90002f2a9d76e80f9f422c604ae7585957d37bcb"
+    },
+    {
+      "name": "sea-sheet",
+      "sourceFile": "바다 신화 몬스터 도감 10종-3.png",
+      "sourceBytes": 3179964,
+      "sourceSha256": "758904766ef090e98e29ebb7541173b23d0777ea560886409f3a26c0824f5171",
+      "size": [
+        1536,
+        1024
+      ],
+      "displayTexture": "assets/art/sea-sheet-0e24b00ee26d.webp",
+      "preparedBytes": 696884,
+      "preparedSha256": "0e24b00ee26d788f800bbe0a0885678258453abca15e752efb81346cc1c25320"
+    }
+  ]
+}

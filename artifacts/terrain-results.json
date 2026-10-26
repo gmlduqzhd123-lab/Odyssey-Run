@@ -1,0 +1,21 @@
+{
+  "url": "http://localhost:4176/Odyssey-Run/",
+  "checkedAt": "2026-10-26T02:27:04.970Z",
+  "httpStatus": 200,
+  "browser": "154.0.8037.57",
+  "environment": "Headless Chromium desktop and mobile emulation; no physical Android/iOS device",
+  "sheets": 5,
+  "regions": 8,
+  "loaded": [
+    "terrain-sheet-a49214e40bee.webp",
+    "landscape-sheet-9271e26c9b34.webp",
+    "enemy-sheet-aef33e323286.webp",
+    "myth-sheet-d34eacc8a5a6.webp",
+    "sea-sheet-0e24b00ee26d.webp"
+  ],
+  "galleryPersistenceUnchanged": true,
+  "zoomAndMenu": true,
+  "terrainFailureRetry": true,
+  "errors": [],
+  "failures": []
+}

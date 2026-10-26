@@ -3,12 +3,14 @@ import {C} from '../config';
 import {COURSES,type StageId} from '../levels/courses';
 import type {Runner} from '../player/runner';
 import {assetUrl} from '../assets/catalog';
+import {REGIONS,sheetUrl} from '../assets/terrain';
 export interface SceneHost {frame(delta:number):void;loaded():void;loadError():void;reduced():boolean;}
 export class World extends Phaser.Scene {
  private bg:Phaser.GameObjects.TileSprite[]=[];private ground!:Phaser.GameObjects.Graphics;private fx!:Phaser.GameObjects.Graphics;
  private hero!:Phaser.GameObjects.Image;private boat!:Phaser.GameObjects.Image;private giant!:Phaser.GameObjects.Image;
  private obstacles:Phaser.GameObjects.Image[]=[];private items:Phaser.GameObjects.Image[]=[];private platforms:Phaser.GameObjects.Image[]=[];
  private label!:Phaser.GameObjects.Text;private bursts:{text:Phaser.GameObjects.Text;life:number}[]=[];
+ private groundArt:Phaser.GameObjects.TileSprite[]=[];
  private stage:StageId='beach';private run:Runner|null=null;private mode:'home'|'run'='home';private failed=false;
  constructor(private host:SceneHost){super('World');}
  preload(){
@@ -19,25 +21,28 @@ export class World extends Phaser.Scene {
   const names=['star','crate','pillar','gate','rock','boat','giant',...['beach','cave','wind'].flatMap(id=>['sky','far','mid'].map(layer=>`${id}-${layer}`))];
   names.forEach(n=>this.load.svg(n,`${import.meta.env.BASE_URL}assets/${n}.svg`));
   ['odysseus','map','shield','wings','magnet','apple'].forEach(n=>this.load.image(n,assetUrl(n)));
+  this.load.image('terrain-sheet',sheetUrl('terrain-sheet'));
   this.load.once('complete',()=>{g.destroy();t.destroy();bar.destroy();});
  }
  create(){
   if(this.failed){this.host.loadError();return;}
+  Object.entries(REGIONS).filter(([,r])=>r.sheet==='terrain-sheet').forEach(([id,r])=>this.textures.get(r.sheet).add(id,0,r.x,r.y,r.w,r.h));
   this.bg=['sky','far','mid'].map(layer=>this.add.tileSprite(0,0,960,540,`beach-${layer}`).setOrigin(0));
   this.giant=this.add.image(-100,440,'giant').setOrigin(.5,1).setAlpha(.8).setVisible(false);
   this.ground=this.add.graphics();this.fx=this.add.graphics();
+  for(let i=0;i<5;i++)this.groundArt.push(this.add.tileSprite(0,440,1,33,'terrain-sheet','ground-beach').setOrigin(0).setVisible(false));
   this.boat=this.add.image(744,444,'boat').setDisplaySize(350,230);
   this.hero=this.add.image(744,442,'odysseus').setOrigin(.5,1).setDisplaySize(180,240);
   this.label=this.add.text(480,275,'',{fontFamily:'sans-serif',fontSize:'22px',color:'#fff2d2',stroke:'#223e4b',strokeThickness:5,align:'center'}).setOrigin(.5);
   this.host.loaded();
  }
  showHome(){this.mode='home';this.run=null;this.clearObjects();this.setStage('beach');this.boat.setVisible(true).setPosition(744,410).setDisplaySize(350,230);this.hero.setDisplaySize(180,240).setPosition(744,442).setRotation(0).setAlpha(1);this.giant.setVisible(false);this.label.setText('');}
- setStage(id:StageId){this.stage=id;this.bg.forEach((b,i)=>b.setTexture(`${id}-${['sky','far','mid'][i]}`));}
+ setStage(id:StageId){this.stage=id;this.bg.forEach((b,i)=>b.setTexture(`${id}-${['sky','far','mid'][i]}`));this.groundArt.forEach(s=>s.setTexture('terrain-sheet',`ground-${id}`).setVisible(false));}
  showRun(run:Runner){
   this.mode='run';this.run=run;this.clearObjects();this.setStage(run.stage);this.boat.setVisible(false);this.hero.setDisplaySize(66,88).setRotation(0);
   run.course.obstacles.forEach(o=>{this.obstacles.push(this.add.image(o.x,o.y,o.kind==='falling'?'rock':o.kind).setOrigin(0).setDisplaySize(o.w,o.h));});
   run.course.items.forEach(i=>this.items.push(this.add.image(i.x,i.y,i.kind).setDisplaySize(i.kind==='star'?24:36,i.kind==='star'?24:36)));
-  run.course.platforms.forEach(p=>this.platforms.push(this.add.image(p.x,p.y,'pillar').setOrigin(0).setDisplaySize(p.w,20)));
+  run.course.platforms.forEach(p=>this.platforms.push(this.add.image(p.x,p.y,'terrain-sheet','wood-platform').setOrigin(0).setDisplaySize(p.w,20)));
   this.hero.setDepth(10);this.label.setDepth(20);this.fx.setDepth(15);this.drawRun();
  }
  private clearObjects(){this.obstacles.forEach(o=>o.destroy());this.items.forEach(o=>o.destroy());this.platforms.forEach(o=>o.destroy());this.obstacles=[];this.items=[];this.platforms=[];this.bursts.forEach(b=>b.text.destroy());this.bursts=[];}
@@ -62,8 +67,8 @@ export class World extends Phaser.Scene {
   this.bg[0].tilePositionX=310;this.bg[1].tilePositionX=r.x*.09;this.bg[2].tilePositionX=r.x*.23;
   const g=this.ground;g.clear();
   // Ground spans retain the complete logical view, including on small screens.
-  let start=cam-20;
-  const groundSpan=(a:number,b:number)=>{if(b<a)return;g.fillStyle(dark?0x5d6571:this.stage==='wind'?0x9bafa3:0xd0ac77).fillRect(a-cam,440,b-a,100);g.fillStyle(dark?0xaaa797:0xf0dfb4).fillRect(a-cam,440,b-a,12);g.lineStyle(2,dark?0x747b7d:0xbc9764,.6);for(let x=Math.floor(a/100)*100;x<b;x+=100){g.strokeRect(x-cam,463,82,40);g.lineBetween(x-cam,483,x+28-cam,483);}};
+  let start=cam-20,spanIndex=0;this.groundArt.forEach(s=>s.setVisible(false));
+  const groundSpan=(a:number,b:number)=>{if(b<=a)return;g.fillStyle(dark?0x5d6571:this.stage==='wind'?0x9bafa3:0xd0ac77).fillRect(a-cam,440,b-a,100);g.lineStyle(2,dark?0x747b7d:0xbc9764,.6);for(let x=Math.floor(a/100)*100;x<b;x+=100){g.strokeRect(x-cam,477,82,40);g.lineBetween(x-cam,497,x+28-cam,497);}const band=this.groundArt[spanIndex++];if(band&&b-a>=1){band.setPosition(a-cam,440).setSize(b-a,REGIONS[`ground-${this.stage}`].h).setVisible(true);band.tilePositionX=a;}g.lineStyle(2,0xf5de9b,.9).lineBetween(a-cam,440,b-cam,440);};
   for(const gap of r.course.gaps){if(gap.x+gap.w<start||gap.x>cam+1000)continue;groundSpan(start,gap.x);start=gap.x+gap.w;}
   groundSpan(start,cam+1000);
   this.obstacles.forEach((s,i)=>{const o=r.course.obstacles[i],x=o.x-cam;s.setVisible(x>-200&&x<1020).setX(x);if(o.kind==='falling'){const d=o.x-r.x;s.y=o.y-Math.max(0,Math.min(290,(d-100)*1.5));}});

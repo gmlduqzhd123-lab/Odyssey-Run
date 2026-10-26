@@ -152,3 +152,19 @@ QA_URL=http://localhost:4174/qa-odyssey/ npx tsx scripts/performance-qa.ts
 - 배포 검증 자료: `artifacts/art-deployment-results.json`, `art-deployed-home.png`, `art-deployed-people.png`, `art-deployed-play.png`.
 - 자료: `artifacts/art-results.json`, `art-home.png`, `art-people.png`, `art-relics.png`, `art-run.png`, `art-jump.png`, `art-slide.png`, `art-mobile-home.png`, `art-mobile-person.png`, `art-mobile-book.png`.
 - 실제 Android/iOS 기기와 원본에 없는 손그림 동작 프레임은 이번에도 검증/제공 범위에 포함되지 않습니다.
+
+## 지형·오브젝트 시트 적용 검증 — 2026-10-26
+
+- 첨부 ZIP에는 1536×1024 PNG 원화 시트 5장만 있었습니다. 지형·배경·몬스터의 설명은 참고 자료로 읽고, 원화의 추가 공격·새 스테이지를 구현 지시로 취급하지 않았습니다.
+- 전체 해상도를 유지한 WebP 품질 90 인코딩입니다. 원본 합계 15,763,695바이트 → 배포 시트 3,596,838바이트. 준비 파일 5개의 SHA-256이 manifest와 일치합니다. 원본 ZIP·PNG는 작업 공간의 첨부로 보존합니다.
+- `src/assets/terrain.ts`의 8개 영역 중 4개는 모래·동굴 바위·유적 바닥과 나무 발판, 4개는 세 섬과 이타카 풍경입니다. 바닥·발판의 위치는 기존 물리 객체에서 읽으며 충돌·낭떠러지·이동 경로는 바꾸지 않습니다.
+- 원화에 이미 그려진 발판이 비충돌 지형으로 보이는 혼동을 피하기 위해 풍경은 선택·준비·엔딩에만 표시합니다. 플레이 배경은 기존 3층 시차 풍경입니다. SVG viewBox의 slice로 종횡비를 유지하고 빈 공간 없이 잘라 맞춥니다.
+- 도감의 **풍경과 원화**에서 시트 5장 전체 보기·원본 크기 확대·화면에 맞추기·방향키 스크롤·목록 복귀를 확인했습니다. 도감 탐색 전후 localStorage가 정확히 동일합니다. 몬스터 원화 3장은 도감용이며 추가 적이나 공격으로 동작하지 않습니다.
+- `scripts/terrain-qa.ts`: 데스크톱 1280×800, 모바일 가로 844×390와 세로 390×844 에뮬레이션에서 통과. 시트 5장 디코딩·세 섬 미리보기·준비·플레이·점프·일시정지/재개·새로고침·확대·가로 스크롤·페이지 가로 넘침 없음 확인. 필수 지형 WebP 차단 → 오류 화면 → 차단 해제 후 재시도도 통과. JavaScript 오류·HTTP 실패 0건.
+- `scripts/art-qa.ts`: 기존 인물·아이템 20장, 도감 이야기 버튼과 조작 화면 회귀 검증 통과. `scripts/edge-qa.ts`: 저장·음향 차단, 잘못된 파일, 빠른 재시작, 주인공 이미지 실패 후 재시도 통과.
+- 전체 코스 검증 중 지면의 가시 폭이 1픽셀 미만일 때 Phaser Canvas가 폭 0의 임시 캔버스를 그리려는 오류를 발견했습니다. 이런 극소 영역에는 텍스처 띠를 생성하지 않고 기존 바닥 그리기만 유지하도록 수정했습니다. 물리 경계나 HP를 바꾸어 회피하지 않았습니다.
+- 속도·점프·체력·아이템 시간·코스·점수·저장 키/버전은 변경하지 않았습니다. 실제 Android Chrome·iOS Safari 장치는 미실행입니다.
+- 근거: `artifacts/terrain-results.json`, `terrain-islands.png`, `terrain-prepare.png`, `terrain-play.png`, `terrain-mobile-zoom.png`, `terrain-portrait.png`, `terrain-*-sheet.png`.
+- 수정 빌드의 전체 브라우저 검증 통과: 해변 4,130점·별빛 93개, 동굴 4,120점·92개, 바람 섬 4,050점·85개. 각 지도 3/3, HP 손실 0, 평점 3개. 지도 9개·순차 해금·이타카 엔딩·숨김/재개·저장/복원·초기화·멀티터치·회전도 통과했으며 오류/HTTP 실패 0건입니다. `wind-result.png`에서 새 도착 항구 그림을 확인했습니다.
+- `npm run typecheck`, `npm test`(23개), `npm run build` 통과. 실제 `/Odyssey-Run/` base의 정적 빌드를 preview에서 실행했습니다. 코드 변경 범위에서 물리·입력·저장·코스 파일이 그대로임을 diff로 확인했습니다.
+- 별도 실시간 측정: Linux Chromium 154.0.8037.57, 960×620 viewport/960×540 논리 해상도, 해변 초반 10.008초, Canvas **60.00fps**, 프레임 간격 p95 **16.7ms**, 전진 **3,205.33px**. 다른 브라우저 검증 프로세스가 종료된 후 측정했습니다. 실제 장치 성능이나 75초 전체 구간 측정으로 확대하지 않습니다.

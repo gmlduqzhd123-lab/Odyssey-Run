@@ -102,3 +102,14 @@ Phaser **3.90.0** 공식 문서의 [Scene](https://docs.phaser.io/api-documentat
 ```sh
 node scripts/prepare-user-art.mjs '캐릭터 이미지.zip' '아이템 이미지.zip'
 ```
+
+지형·오브젝트 ZIP의 원화 시트 5장도 포함했습니다. 모래·동굴 바위·유적 무늬와 나무 발판을 실제 지형에 사용하고, 풍경은 섬 선택·준비·이타카 엔딩에 표시합니다. **도감 → 풍경과 원화**에서 다섯 시트의 전체 그림을 열고 **원본 크기로 확대**할 수 있습니다. 확대 그림은 터치 드래그 또는 포커스 후 방향키로 이동합니다.
+
+원화에는 다른 섬·몬스터·추가 공격 설명도 있지만, 이 게임의 세 코스와 기존 규칙은 유지합니다. 배경에 그려진 발판이 실제 길로 보이지 않도록 풍경 원화는 메뉴와 엔딩에 배치했습니다. 원본 15.76MB → 웹용 시트 3.60MB이며, 원본 해상도 1536×1024를 유지한 WebP 품질 90 인코딩입니다. `docs/terrain-art-manifest.json`에 출처·해시를, `src/assets/terrain.ts`에 사용 영역을 기록합니다.
+
+```sh
+# 선택적 오프라인 재인코딩 — 일반 빌드에는 필요 없음
+node scripts/prepare-terrain-art.mjs '플랫포머 게임 지형·오브젝트 도감.zip'
+# 빌드/preview 실행 후 Chromium 에뮬레이션 검증
+npx tsx scripts/terrain-qa.ts
+```
