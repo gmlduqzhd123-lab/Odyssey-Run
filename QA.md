@@ -168,3 +168,6 @@ QA_URL=http://localhost:4174/qa-odyssey/ npx tsx scripts/performance-qa.ts
 - 수정 빌드의 전체 브라우저 검증 통과: 해변 4,130점·별빛 93개, 동굴 4,120점·92개, 바람 섬 4,050점·85개. 각 지도 3/3, HP 손실 0, 평점 3개. 지도 9개·순차 해금·이타카 엔딩·숨김/재개·저장/복원·초기화·멀티터치·회전도 통과했으며 오류/HTTP 실패 0건입니다. `wind-result.png`에서 새 도착 항구 그림을 확인했습니다.
 - `npm run typecheck`, `npm test`(23개), `npm run build` 통과. 실제 `/Odyssey-Run/` base의 정적 빌드를 preview에서 실행했습니다. 코드 변경 범위에서 물리·입력·저장·코스 파일이 그대로임을 diff로 확인했습니다.
 - 별도 실시간 측정: Linux Chromium 154.0.8037.57, 960×620 viewport/960×540 논리 해상도, 해변 초반 10.008초, Canvas **60.00fps**, 프레임 간격 p95 **16.7ms**, 전진 **3,205.33px**. 다른 브라우저 검증 프로세스가 종료된 후 측정했습니다. 실제 장치 성능이나 75초 전체 구간 측정으로 확대하지 않습니다.
+- 기능 커밋 `d9c357a`를 main에 푸시했고 [Actions 실행 40259401123](https://github.com/gmlduqzhd123-lab/Odyssey-Run/actions/runs/40259401123)의 build/deploy job이 모두 성공했습니다.
+- **2026-10-26 11:31 한국 시간**, 실제 주소 https://gmlduqzhd123-lab.github.io/Odyssey-Run/ 에서 HTTPS 200을 확인했습니다. 시트 5장의 해시 경로·1536px 디코딩, 세 섬 미리보기, 원화 전체/확대/축소·방향키·목록 복귀, 준비·플레이·점프·일시정지/재개·새로고침, 모바일 가로 터치·세로 확대 도감이 통과했습니다. JavaScript 오류/HTTP 실패 0건. 이미지 실패 주입은 로컬에서만 실행했으며 실제 배포에서는 정상 로딩을 검증했습니다.
+- 실제 배포 자료는 `artifacts/terrain-deployed-results.json`과 `terrain-deployed-*.png`에 보존했습니다. 실제 휴대폰에서 실행한 결과로 표시하지 않습니다.
