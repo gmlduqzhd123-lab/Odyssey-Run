@@ -1,0 +1,2 @@
+export const C = {width:960,height:540,ground:440,speed:320,length:24000,gravity:1800,jump:-720,step:1/60,stand:64,slide:30,bodyWidth:42,maxHp:3,invincible:1.2,coyote:.08,buffer:.1,effect:6,glide:220,magnet:160,windForce:2600,windCap:430,fallBoundary:650} as const;
+export const MAX_SCORE = Math.floor(C.length/10)+100*10+3*100+500;

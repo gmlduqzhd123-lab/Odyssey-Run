@@ -1,0 +1,65 @@
+import {chromium,expect,type Page} from '@playwright/test';
+import {mkdir,writeFile} from 'node:fs/promises';
+import {routeInputs} from './check-routes';
+import {STAGES} from '../src/levels/courses';
+const base=process.env.QA_URL||'http://localhost:5173/';
+await mkdir('artifacts',{recursive:true});
+const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',args:['--no-sandbox']});
+const ctx=await browser.newContext({viewport:{width:960,height:620},acceptDownloads:true});
+const page=await ctx.newPage();const errors:string[]=[];const failures:string[]=[];
+page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400)failures.push(`${r.status()} ${r.url()}`);});
+await page.clock.install();await page.goto(base);await page.waitForSelector('.home');await page.clock.pauseAt((await page.evaluate(()=>Date.now()))+1000);
+await page.screenshot({path:'artifacts/home-desktop.png'});
+await page.locator('[data-action="settings"]').click();await page.locator('[data-setting="music"]').uncheck();await page.locator('[data-setting="sfx"]').uncheck();await page.locator('[data-action="home"]').click();
+await page.locator('[data-action="islands"]').first().click();await expect(page.locator('[data-action="stage:cave"]')).toBeDisabled();await expect(page.locator('[data-action="stage:wind"]')).toBeDisabled();await page.screenshot({path:'artifacts/islands-desktop.png'});
+const distance=async()=>Number(await page.locator('#progress').getAttribute('data-distance'));
+const advanceTo=async(target:number)=>{let tries=0;while((await distance())<target&&tries++<5){const x=await distance();await page.clock.runFor(Math.max(17,Math.ceil((target-x)/320*1000)));}};
+const details:unknown[]=[];
+for(const id of STAGES){
+ console.log('Browser route begins:',id);
+ await page.locator(`[data-action="stage:${id}"]`).click();await page.locator('[data-action="start"]').click();await page.clock.runFor(4000);await expect(page.locator('.countdown')).toHaveCount(0);
+ if(id==='beach'){
+  // A18: hiding the document freezes both game time and countdown, with explicit resume.
+  await page.evaluate("Object.defineProperty(document,'hidden',{configurable:true,get:()=>true});document.dispatchEvent(new Event('visibilitychange'));");
+  const x=await distance();await page.clock.runFor(11000);expect(await distance()).toBe(x);await expect(page.locator('[data-action="resume"]')).toBeVisible();
+  await page.evaluate("Object.defineProperty(document,'hidden',{configurable:true,get:()=>false});document.dispatchEvent(new Event('visibilitychange'));");
+  expect(await distance()).toBe(x);await page.locator('[data-action="resume"]').click();await page.clock.runFor(4000);
+ }
+ const plan=routeInputs(id);
+ const events=[{x:22410,type:'harbor'},...plan.jumps.map(x=>({x,type:'jump'})),...plan.slides.flatMap(s=>[{x:s.start,type:'down'},{x:s.end,type:'up'}])].sort((a,b)=>a.x-b.x);
+ for(const event of events){await advanceTo(event.x);if(event.x>5000&&event.x<5500||event.x>10000&&event.x<10500||event.x>15000&&event.x<15500||event.x>20000&&event.x<20500)console.log(id,'input checkpoint',Math.round(await distance()));if(event.type==='jump'){await page.keyboard.down('Space');await page.keyboard.up('Space');}else if(event.type==='down'){await page.keyboard.down('ArrowDown');}else if(event.type==='harbor')await page.screenshot({path:`artifacts/${id}-harbor.png`});else await page.keyboard.up('ArrowDown');}
+ await advanceTo(23400);await page.screenshot({path:`artifacts/${id}-play.png`});await page.clock.runFor(2200);
+ await expect(page.locator('.result')).toBeVisible();const text=await page.locator('.result').innerText();console.log(id,text.replaceAll('\n',' | '));expect(text).toContain(id==='wind'?'마침내, 이타카!':'멋진 항해였어요!');
+ const data=await page.evaluate(()=>{const key=Object.keys(localStorage).find(k=>k.endsWith(':save')&&k.startsWith('odyssey-run:'))!;return JSON.parse(localStorage.getItem(key)!);});
+ expect(data.stages[id].complete).toBe(true);expect(data.stages[id].maps.length).toBe(3);details.push({stage:id,record:data.stages[id]});
+ await page.screenshot({path:`artifacts/${id}-result.png`});
+ if(id==='wind')await expect(page.getByRole('button',{name:'다음 섬으로'})).toHaveCount(0);
+ if(id!=='wind')await page.locator('[data-action="islands"]').click();
+}
+await page.locator('[data-action="islands"]').click();await page.reload();await page.waitForSelector('.home');await page.locator('[data-action="islands"]').first().click();await expect(page.locator('[data-action="stage:wind"]')).toBeEnabled();
+await page.locator('[data-action="codex"]').click();await expect(page.locator('.fragment.found')).toHaveCount(9);await page.screenshot({path:'artifacts/codex.png'});
+await page.locator('[data-action="home"]').click();await page.locator('[data-action="settings"]').click();
+// Export, reject malformed data, preview a valid file, then atomically replace with backup.
+const dlEvent=page.waitForEvent('download');await page.locator('[data-action="export"]').click();const dl=await dlEvent;await dl.saveAs('artifacts/exported-save.json');
+const before=await page.evaluate(()=>Object.entries(localStorage));
+await page.locator('#import-file').setInputFiles({name:'broken.json',mimeType:'application/json',buffer:Buffer.from('{broken')});await expect(page.locator('#import-error')).toContainText('JSON');expect(await page.evaluate(()=>Object.entries(localStorage))).toEqual(before);
+await page.locator('#import-file').setInputFiles('artifacts/exported-save.json');await expect(page.locator('[data-action="import-confirm"]')).toBeVisible();expect(await page.evaluate(()=>Object.entries(localStorage))).toEqual(before);await page.locator('[data-action="import-confirm"]').click();
+expect(await page.evaluate(()=>Object.keys(localStorage).some(k=>k.endsWith(':backup')))).toBe(true);
+await page.evaluate(()=>localStorage.setItem('other-app-qa','keep'));
+await page.locator('[data-action="reset-confirm"]').click();await page.locator('[data-action="reset"]').click();expect(await page.evaluate(()=>localStorage.getItem('other-app-qa'))).toBe('keep');expect(await page.evaluate(()=>Object.keys(localStorage).some(k=>k.startsWith('odyssey-run:')))).toBe(false);
+// Preserve corrupt original across a played run; never overwrite it silently.
+await page.evaluate(()=>{localStorage.setItem('odyssey-run:'+new URL('.',location.href).pathname+':save','{broken');});await page.reload();await page.waitForSelector('.home');await expect(page.locator('#notice')).toContainText('원본');await page.locator('[data-action="settings"]').click();await expect(page.locator('[data-action="original"]')).toBeVisible();
+expect(errors).toEqual([]);expect(failures).toEqual([]);
+await writeFile('artifacts/browser-results.json',JSON.stringify({base,browser:await browser.version(),viewport:'960x620 desktop Chromium',renderer:'Canvas (game default)',details,errors,failures},null,2));
+await ctx.close();
+// Mobile emulation: independent pointer IDs, outside release, cancel, rotation and minimum CSS targets.
+const mobile=await browser.newContext({viewport:{width:844,height:390},isMobile:true,hasTouch:true,deviceScaleFactor:1});const m=await mobile.newPage();await m.clock.install();await m.goto(base);await m.waitForSelector('.home');await m.clock.pauseAt((await m.evaluate(()=>Date.now()))+1000);
+await m.locator('[data-action="islands"]').first().click();await m.locator('[data-action="stage:beach"]').click();await m.locator('[data-action="start"]').click();await m.clock.runFor(4000);
+const controls=m.locator('[data-control]');for(const b of await controls.all()){const box=await b.boundingBox();expect(box!.width).toBeGreaterThanOrEqual(64);expect(box!.height).toBeGreaterThanOrEqual(64);}
+const session=await mobile.newCDPSession(m);const jb=(await m.locator('[data-control="jump"]').boundingBox())!,sb=(await m.locator('[data-control="slide"]').boundingBox())!;
+const touch=(id:number,b:typeof jb)=>({id,x:b.x+b.width/2,y:b.y+b.height/2});
+await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[touch(11,sb)]});await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[touch(11,sb),touch(22,jb)]});await m.clock.runFor(150);await session.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{id:11,x:420,y:180},{id:22,x:440,y:180}]});await session.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await m.clock.runFor(900);
+await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[touch(33,sb)]});await session.send('Input.dispatchTouchEvent',{type:'touchCancel',touchPoints:[]});
+await m.screenshot({path:'artifacts/mobile-play.png'});const x=Number(await m.locator('#progress').getAttribute('data-distance'));await m.setViewportSize({width:390,height:844});await expect(m.locator('#rotate')).toBeVisible();await m.clock.runFor(10000);expect(Number(await m.locator('#progress').getAttribute('data-distance'))).toBe(x);await m.screenshot({path:'artifacts/mobile-portrait.png'});await m.setViewportSize({width:844,height:390});await expect(m.locator('[data-action="resume"]')).toBeVisible();
+await m.locator('[data-action="islands"]').click();await m.setViewportSize({width:1024,height:768});await m.screenshot({path:'artifacts/tablet-islands.png'});
+await mobile.close();await browser.close();console.log('Browser QA passed. Artifacts written.');

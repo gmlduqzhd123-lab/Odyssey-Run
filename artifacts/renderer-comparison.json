@@ -1,0 +1,30 @@
+[
+  {
+    "renderer": "Canvas",
+    "viewport": "960x620; logical 960x540",
+    "environment": "Linux headless Chromium, software graphics, no physical device",
+    "browser": "154.0.8037.57",
+    "metrics": {
+      "elapsedMs": 10000.90000000014,
+      "frames": 601,
+      "fps": 60.00240009600384,
+      "p95FrameMs": 16.700000000000728,
+      "distance": 3200.000000000024
+    },
+    "errors": []
+  },
+  {
+    "renderer": "WebGL",
+    "viewport": "960x620; logical 960x540",
+    "environment": "Linux headless Chromium, software graphics, no physical device",
+    "browser": "154.0.8037.57",
+    "metrics": {
+      "elapsedMs": 10009.09999999986,
+      "frames": 290,
+      "fps": 28.853257722489566,
+      "p95FrameMs": 50,
+      "distance": 3210.6666666666933
+    },
+    "errors": []
+  }
+]

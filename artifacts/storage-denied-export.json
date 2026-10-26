@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "contentVersion": 1,
+  "settings": {
+    "music": true,
+    "sfx": true,
+    "reducedMotion": false
+  },
+  "tutorialSeen": true,
+  "lastStage": "beach",
+  "stages": {
+    "beach": {
+      "complete": false,
+      "bestScore": 0,
+      "bestRating": 0,
+      "bestStars": 0,
+      "maps": []
+    },
+    "cave": {
+      "complete": false,
+      "bestScore": 0,
+      "bestRating": 0,
+      "bestStars": 0,
+      "maps": []
+    },
+    "wind": {
+      "complete": false,
+      "bestScore": 0,
+      "bestRating": 0,
+      "bestStars": 0,
+      "maps": []
+    }
+  },
+  "savedAt": "2026-10-25T17:08:22.399Z"
+}

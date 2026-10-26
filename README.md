@@ -1,0 +1,90 @@
+# 오디세이 런: 이타카로!
+
+**Odyssey Run: Road to Ithaca** — 오디세우스가 세 섬을 달려 고향으로 돌아가는 2D 러닝게임입니다. 로그인, 외부 서버, DB 없이 PC와 스마트폰 브라우저에서 실행합니다.
+
+출항의 해변 → 키클롭스의 동굴 → 아이올로스의 바람 섬 → 이타카 항구. 한 섬은 24,000px, 피해·추락 없는 플레이는 약 75초입니다. 섬마다 별빛 100개와 지도 3개를 배치했습니다. 자체 SVG 그래픽과 Web Audio 합성 음악을 포함합니다.
+
+## 실행
+
+Node **22.12 이상**(검증 환경: 24.19.0), npm **10 이상**이 필요합니다. 의존성은 `package-lock.json`으로 고정합니다.
+
+```sh
+npm ci
+npm run dev
+```
+
+Vite가 출력한 로컬 주소를 엽니다. 로컬 개발 서버는 운영 배포 서버가 아닙니다.
+
+```sh
+npm run typecheck   # TypeScript 검사
+npm test            # 물리·점수·저장·코스 검증
+npm run build       # 타입 검사 후 dist/ 생성
+npm run preview     # 빌드 산출물 로컬 확인
+npm run test:browser # 실행 중인 로컬 서버에서 Chromium 검증
+npx tsx scripts/edge-qa.ts # QA_URL의 빌드에서 오류·저장 차단·재시작 검증
+npx tsx scripts/performance-qa.ts # QA_URL의 빌드에서 10초 실시간 성능 측정
+```
+
+브라우저 검증은 `/usr/bin/chromium`을 기본 사용합니다. 다른 설치 경로는 `CHROMIUM_PATH`, 검증 주소는 `QA_URL`로 지정합니다. Playwright는 개발 의존성이고 게임 런타임에 포함되지 않습니다. 브라우저 검증은 수 분 걸릴 수 있습니다. 실측에서 Canvas 약 60fps, 관리형 환경의 소프트웨어 WebGL 약 29fps를 확인하여 게임 기본 렌더러로 Canvas를 사용합니다. 전체 코스는 Canvas에서 검증했습니다. 실제 모바일 기기의 성능은 아직 확인하지 않았습니다. `artifacts/`에 스크린샷과 결과를 남깁니다.
+
+## 조작
+
+| 행동 | PC | 터치 |
+|---|---|---|
+| 점프 | Space / ↑ 새로 누르기 | 점프 새로 누르기 |
+| 2단 점프 | 공중에서 다시 누르기 | 공중에서 다시 누르기 |
+| 슬라이드 | ↓ 누르고 유지 | 슬라이드 누르고 유지 |
+| 일시정지 | P / Esc | Ⅱ 버튼 |
+| 메뉴 | Tab / Shift+Tab / Enter | 메뉴 버튼 |
+
+길게 눌러도 점프를 반복하지 않습니다. 점프와 슬라이드를 동시에 입력하면 공간이 있을 때 점프합니다. 낮은 천장 아래에서 슬라이드를 놓아도 안전하게 통과할 때까지 낮은 자세를 유지합니다. 가로 화면을 권장하며, 모바일 세로 화면·탭 숨김·포커스 상실 시 정지합니다. 계속하기를 누르면 3초 카운트다운 후 재개합니다.
+
+## 점수와 진행
+
+`floor(최고 전진거리 / 10) + 별빛 × 10 + 해당 판 지도 × 100 + 완주 시 500` (최대 **4,200점**).
+
+완주 ★, 같은 판의 별빛 70개 이상 ★, 같은 판의 HP 손실 0회 ★입니다. 사과로 회복해도 HP 손실 이력은 남습니다. 방패 방어는 HP 손실이 아닙니다. 다음 섬은 이전 섬을 한 번 완주하면 열립니다. 별빛은 한 판의 점수이며 소비 화폐가 아닙니다.
+
+지도 조각은 기본 이동, 높은 2단 점프, 낮은 슬라이드 경로에서 찾습니다. 지도 도감에서 아홉 개의 짧은 귀환 이야기를 읽을 수 있습니다. 지도 9개 수집과 이타카 귀환은 별도로 표시합니다.
+
+## GitHub Pages
+
+연결 저장소: [gmlduqzhd123-lab/Odyssey-Run](https://github.com/gmlduqzhd123-lab/Odyssey-Run). 기본 브랜치는 `main`이며, 프로젝트 Pages 빌드 경로는 **`/Odyssey-Run/`**입니다. 구현 당시 작업 공간은 빈 프로젝트였으며, 제공된 GitHub 저장소도 기존 커밋이 없는 상태임을 확인했습니다.
+
+- 로컬 기본 `base`는 `./`입니다. 파일 경로가 상대 경로여서 임의의 하위 경로에서도 실행합니다.
+- `.github/workflows/pages.yml`은 `GITHUB_REPOSITORY`에서 실제 저장소 이름을 읽습니다. 프로젝트 Pages는 `/<실제 저장소 이름>/`, `<실제 소유자>.github.io`와 정확히 일치하는 사용자/조직 Pages 저장소는 `/`로 빌드합니다.
+- [저장소 Pages 설정](https://github.com/gmlduqzhd123-lab/Odyssey-Run/settings/pages)에서 **Source: GitHub Actions**를 선택합니다. 현재 연동 토큰은 Pages 활성화 API 권한이 없어 이 설정은 저장소 소유자가 한 번 선택해야 합니다. 이후 main/master 푸시 또는 수동 workflow 실행으로 배포합니다. 워크플로 실행 결과와 실제 접속 검증은 `QA.md`의 GitHub 연동 기록에 별도로 남깁니다.
+- 별도 하위 경로나 사용자 도메인이 필요하면 `PAGES_BASE`와 workflow의 경로 계산을 실제 구성에 맞춰 수정합니다.
+
+```sh
+PAGES_BASE=/Odyssey-Run/ npm run build
+npm run preview
+```
+
+해당 하위 경로의 시작 화면, 전체 메뉴, 자산, 새로고침을 확인하세요. 서버 라우팅이 필요 없는 단일 페이지 장면 전환입니다. JS·CSS·SVG는 같은 base를 사용하며 외부 CDN을 사용하지 않습니다. CI는 설치 → 타입 검사 → 테스트 → 빌드 → 정적 산출물 배포 순서입니다.
+
+## 저장·기록 이동
+
+기록은 이 기기와 브라우저에 저장돼요. 기록 파일로 옮길 수 있어요.
+
+- 저장 키: `odyssey-run:<배포 base 경로>:save`. 백업은 여기에 `:backup`을 붙입니다.
+- 완료·최고 점수·최고 평점·최고 별빛·지도 ID·설정·조작 안내 상태·최근 섬·저장 시각을 localStorage에 저장합니다.
+- 성공/실패 결과가 확정된 판만 반영합니다. 도중에 메뉴로 나가거나 새로고침하면 그 판의 임시 진행은 버립니다.
+- 저장 차단·용량 초과 시 메모리에서 계속 플레이하며 경고를 표시합니다. 설정의 **기록 내보내기**로 현재 유효 진행을 보관하세요.
+- 손상·미지원 버전 원본은 자동으로 덮어쓰지 않습니다. 설정에서 보존된 원본을 내려받거나, 유효 파일을 복원하거나, 초기화를 선택할 수 있습니다.
+
+다른 브라우저로 이동할 때는 설정에서 `odyssey-run-save-YYYYMMDD.json`을 내보내고 대상 브라우저에서 가져옵니다. UTF-8 JSON, 최대 64KiB입니다. 버전·필수 필드·타입·고유 ID·중복·수치·진행 순서를 검사한 후 진행 요약을 보여 줍니다. **이 기록으로 복원**을 눌러야 교체하며 기존 원본은 전용 백업 키에 보관합니다. 저장 실패 시 기존 기록을 유지합니다. 초기화는 확인 후 이 게임의 진행·설정·백업만 제거합니다.
+
+개인정보 입력, 계정, 광고, 분석 SDK, 외부 추적은 없습니다. 기기 간 자동 동기화는 없습니다. 배포 경로를 바꾸면 별도 저장 공간으로 취급하므로 먼저 기록 파일을 내보내세요.
+
+## 구조와 문서
+
+- `src/player/runner.ts`: 고정 간격 물리와 판 상태. Phaser의 물리 플러그인을 중복 실행하지 않습니다.
+- `src/input/controls.ts`: 키보드·pointerId별 터치의 공통 행동.
+- `src/levels/courses.ts`, `src/config.ts`: 고정 코스와 밸런스 값.
+- `src/systems/`: 점수·음향. `src/storage/`: 검증·기록 병합·원본 보존.
+- `src/scenes/World.ts`: Phaser 렌더링·자산 로딩. `src/ui/`: 접근 가능한 DOM 메뉴와 HUD.
+- `public/assets/`: 자체 SVG. `scripts/create-assets.py`: 재생성 스크립트(Python 3, 빌드 필수 아님).
+- `PRD.md`: 구현 기준. `ASSET_CREDITS.md`: 자산·라이선스. `QA.md`: 검증 근거와 제한.
+
+Phaser **3.90.0** 공식 문서의 [Scene](https://docs.phaser.io/api-documentation/3.90.0/class/scene)과 [Arcade Physics](https://docs.phaser.io/api-documentation/3.90.0/class/physics-arcade-arcadephysics)를 확인했습니다. 이 게임은 천장 공간·입력 유예·추락 복구의 재현 가능한 검증을 위해 가벼운 고정 시간 시뮬레이션을 사용하고 Phaser Scene.update를 유일한 게임 루프로 사용합니다. 이 게임에 필요한 2D 그리기 기능은 Canvas에서 모두 동작합니다.

@@ -1,0 +1,9 @@
+{
+  "url": "http://localhost:4174/relative-check/",
+  "base": "./",
+  "browser": "154.0.8037.57",
+  "renderer": "Canvas (game default)",
+  "refresh": true,
+  "errors": [],
+  "failed": []
+}

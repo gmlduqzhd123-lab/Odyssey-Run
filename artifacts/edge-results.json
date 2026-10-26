@@ -1,0 +1,10 @@
+{
+  "url": "http://localhost:4174/qa-odyssey/",
+  "assetErrorRetry": true,
+  "rapidRestartClicks": 9,
+  "oversizedFileRejected": true,
+  "unsupportedVersionRejected": true,
+  "storageDeniedPlayAndExport": true,
+  "audioUnavailablePlay": true,
+  "errors": []
+}

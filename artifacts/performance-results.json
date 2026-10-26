@@ -1,0 +1,17 @@
+[
+  {
+    "renderer": "Canvas",
+    "viewport": "960x620; logical 960x540",
+    "environment": "Linux headless Chromium, software graphics, no physical device",
+    "browser": "154.0.8037.57",
+    "metrics": {
+      "canvas2D": true,
+      "elapsedMs": 10015.700000000139,
+      "frames": 602,
+      "fps": 60.00219641983567,
+      "p95FrameMs": 16.700000000000728,
+      "distance": 3205.3333333333576
+    },
+    "errors": []
+  }
+]

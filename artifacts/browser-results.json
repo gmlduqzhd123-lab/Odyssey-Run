@@ -1,0 +1,52 @@
+{
+  "base": "http://localhost:4174/qa-odyssey/",
+  "browser": "154.0.8037.57",
+  "viewport": "960x620 desktop Chromium",
+  "renderer": "Canvas (game default)",
+  "details": [
+    {
+      "stage": "beach",
+      "record": {
+        "complete": true,
+        "bestScore": 4130,
+        "bestRating": 3,
+        "bestStars": 93,
+        "maps": [
+          "beach-map-1",
+          "beach-map-3",
+          "beach-map-2"
+        ]
+      }
+    },
+    {
+      "stage": "cave",
+      "record": {
+        "complete": true,
+        "bestScore": 4110,
+        "bestRating": 3,
+        "bestStars": 91,
+        "maps": [
+          "cave-map-1",
+          "cave-map-2",
+          "cave-map-3"
+        ]
+      }
+    },
+    {
+      "stage": "wind",
+      "record": {
+        "complete": true,
+        "bestScore": 4050,
+        "bestRating": 3,
+        "bestStars": 85,
+        "maps": [
+          "wind-map-1",
+          "wind-map-2",
+          "wind-map-3"
+        ]
+      }
+    }
+  ],
+  "errors": [],
+  "failures": []
+}
