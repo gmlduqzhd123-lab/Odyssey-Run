@@ -37,3 +37,7 @@
 .home-bottom>[data-action="quit"]{background:#fff3d6e8;color:#315b61;border:1px solid #c8c4a2;border-radius:8px;padding:6px 12px}
 
 .mission-badge{font-size:clamp(11px,1.2cqw,16px);color:#47766a;background:#e3e9d5;padding:5px 8px;border-radius:6px;margin:7px 0}
+/* 📲 앱 설치 · 📱 QR (엽쌤 앱 공통 상단 버튼) */
+.ys-key{display:flex;gap:6px;flex-shrink:0}.ys-chip{min-height:44px;padding:6px 12px;border:1px solid #c6cbb8;border-radius:999px;background:#fcf5e5;color:#274e58;font-size:clamp(11px,1.15cqw,15px);white-space:nowrap}.ys-chip:hover{background:#fff}footer{flex-wrap:wrap}footer .ys-credit{flex-basis:100%;margin-top:8px;letter-spacing:.02em;font-size:11px}footer .ys-credit a{color:inherit;text-decoration:underline;text-underline-offset:3px}
+@media(orientation:portrait) and (max-width:700px){.ys-wide{display:none}.ys-chip{padding:6px 9px;font-size:12px}.ys-key{gap:4px}}
+@media(max-width:950px) and (orientation:landscape){.ys-wide{display:none}.ys-chip{min-height:44px;padding:4px 9px}}

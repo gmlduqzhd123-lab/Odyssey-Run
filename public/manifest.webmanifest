@@ -1,0 +1,18 @@
+{
+  "id": "/Odyssey-Run/",
+  "name": "오디세이 런: 이타카로!",
+  "short_name": "오디세이 런",
+  "description": "세 개의 섬을 달려 이타카로! 오디세우스와 떠나는 작은 귀환의 모험.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#102b3d",
+  "theme_color": "#102f46",
+  "lang": "ko",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
