@@ -1,0 +1,153 @@
+{
+  "comparisons": [
+    {
+      "device": {
+        "name": "desktop-1x",
+        "width": 1280,
+        "height": 800,
+        "dpr": 1,
+        "mobile": false
+      },
+      "sameCssCanvasDistanceAndRunPose": true,
+      "logicalAnchor": [
+        192,
+        440
+      ],
+      "fullView": [
+        960,
+        540
+      ],
+      "beforeBackgroundDelta": {
+        "image-1": 0,
+        "image-2": -2,
+        "image-3": -5.1999969482421875
+      },
+      "afterBackgroundDelta": {
+        "image-1": 0,
+        "image-2": 0,
+        "image-3": 0
+      }
+    },
+    {
+      "device": {
+        "name": "desktop-2x",
+        "width": 1280,
+        "height": 800,
+        "dpr": 2,
+        "mobile": false
+      },
+      "sameCssCanvasDistanceAndRunPose": true,
+      "logicalAnchor": [
+        192,
+        440
+      ],
+      "fullView": [
+        960,
+        540
+      ],
+      "beforeBackgroundDelta": {
+        "image-1": 0,
+        "image-2": -2,
+        "image-3": -5.20001220703125
+      },
+      "afterBackgroundDelta": {
+        "image-1": 0,
+        "image-2": 0,
+        "image-3": 0
+      }
+    },
+    {
+      "device": {
+        "name": "mobile-2x",
+        "width": 844,
+        "height": 390,
+        "dpr": 2,
+        "mobile": true
+      },
+      "sameCssCanvasDistanceAndRunPose": true,
+      "logicalAnchor": [
+        192,
+        440
+      ],
+      "fullView": [
+        960,
+        540
+      ],
+      "beforeBackgroundDelta": {
+        "image-1": 0,
+        "image-2": -1.866668701171875,
+        "image-3": -4.85333251953125
+      },
+      "afterBackgroundDelta": {
+        "image-1": 0,
+        "image-2": 0,
+        "image-3": 0
+      }
+    }
+  ],
+  "beforePerformance": [
+    {
+      "device": {
+        "name": "desktop-2x",
+        "width": 1280,
+        "height": 800,
+        "dpr": 2,
+        "mobile": false
+      },
+      "metrics": {
+        "elapsedMs": 10011.8,
+        "fps": 59.70328068528984,
+        "p95FrameMs": 16.799999999999272,
+        "distance": 3205.3333333333558
+      }
+    },
+    {
+      "device": {
+        "name": "mobile-2x",
+        "width": 844,
+        "height": 390,
+        "dpr": 2,
+        "mobile": true
+      },
+      "metrics": {
+        "elapsedMs": 10015.8,
+        "fps": 59.90235915457804,
+        "p95FrameMs": 16.799999999999272,
+        "distance": 3210.6666666666906
+      }
+    }
+  ],
+  "afterPerformance": [
+    {
+      "device": {
+        "name": "desktop-2x",
+        "width": 1280,
+        "height": 800,
+        "dpr": 2,
+        "mobile": false
+      },
+      "metrics": {
+        "elapsedMs": 10012.89999999851,
+        "fps": 59.90235915457804,
+        "p95FrameMs": 16.799999999999272,
+        "distance": 3205.3333333333553
+      }
+    },
+    {
+      "device": {
+        "name": "mobile-2x",
+        "width": 844,
+        "height": 390,
+        "dpr": 2,
+        "mobile": true
+      },
+      "metrics": {
+        "elapsedMs": 10002.20000000149,
+        "fps": 60.0030001500075,
+        "p95FrameMs": 16.700000000000728,
+        "distance": 3205.3333333333576
+      }
+    }
+  ],
+  "note": "Real-time 10s measurements without video; separate real-time videos use the same input schedule. Human comfort and physical devices not measured."
+}

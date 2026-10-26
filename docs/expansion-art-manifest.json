@@ -1,0 +1,76 @@
+{
+  "created": "2026-10-26",
+  "provenance": "image_gen, referencing the supplied Odysseus portrait and sea monster design sheet. Separate low crouch and six transparent monster designs. No runtime API.",
+  "processing": "Aspect-preserving preparation and lossless WebP after resize; alpha preserved; frame extraction at render time.",
+  "images": [
+    {
+      "name": "crouch",
+      "file": "assets/art/crouch-6dfc7b631076.webp",
+      "bytes": 205450,
+      "sha256": "6dfc7b6310767c21fa2c90babe9c455239bc4e52b35b8c819897656c8ec81ccb",
+      "sourceSha256": "a3ce09b48b024519151b76dad72df1f54fefd19c504f1737744ded37188945ee",
+      "size": "768x512"
+    },
+    {
+      "name": "monsters",
+      "file": "assets/art/monsters-8bf8f8a57de0.webp",
+      "bytes": 1405498,
+      "sha256": "8bf8f8a57de00a706ef6bc6c4176e76ce1c68e251b025aa3f106a4b77c3269ac",
+      "sourceSha256": "390d85c625fdf06ac9a13ceba015ce268b06b55809756f9f16f7faa065e8e58e",
+      "size": "1536x1024"
+    }
+  ],
+  "crouchArt": {
+    "file": "assets/art/crouch-6dfc7b631076.webp",
+    "frame": {
+      "x": 100,
+      "y": 50,
+      "w": 585,
+      "h": 424
+    },
+    "originX": 0.47863247863247865,
+    "originY": 0.9882075471698113,
+    "scale": 0.08685162846803378
+  },
+  "monsterArt": {
+    "file": "assets/art/monsters-8bf8f8a57de0.webp",
+    "frames": {
+      "crab": {
+        "x": 20,
+        "y": 72,
+        "w": 492,
+        "h": 408
+      },
+      "harpy": {
+        "x": 528,
+        "y": 16,
+        "w": 524,
+        "h": 490
+      },
+      "stone": {
+        "x": 1068,
+        "y": 24,
+        "w": 452,
+        "h": 474
+      },
+      "scylla": {
+        "x": 16,
+        "y": 520,
+        "w": 506,
+        "h": 480
+      },
+      "cyclops": {
+        "x": 532,
+        "y": 520,
+        "w": 488,
+        "h": 480
+      },
+      "shade": {
+        "x": 1056,
+        "y": 516,
+        "w": 472,
+        "h": 480
+      }
+    }
+  }
+}

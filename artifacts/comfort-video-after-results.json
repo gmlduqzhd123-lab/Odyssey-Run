@@ -1,0 +1,41 @@
+{
+  "url": "http://localhost:4176/Odyssey-Run/",
+  "checkedAt": "2026-10-26T07:04:22.658Z",
+  "browser": "154.0.8037.57",
+  "environment": "Linux headless Chromium; mobile emulation; real-time recording, no virtual clock; first 10s same viewport/input schedule; includes loading/countdown before gameplay; recording overhead included",
+  "results": [
+    {
+      "device": {
+        "name": "desktop",
+        "width": 1280,
+        "height": 800,
+        "mobile": false
+      },
+      "dpr": 2,
+      "video": "artifacts/comfort-after-desktop.webm",
+      "metrics": {
+        "elapsedMs": 10002.00000000149,
+        "fps": 58.70234809392377,
+        "p95FrameMs": 16.799999999999272,
+        "distance": 3237.3333333333553
+      }
+    },
+    {
+      "device": {
+        "name": "mobile",
+        "width": 844,
+        "height": 390,
+        "mobile": true
+      },
+      "dpr": 2,
+      "video": "artifacts/comfort-after-mobile.webm",
+      "metrics": {
+        "elapsedMs": 10006.50000000149,
+        "fps": 60.002400096003846,
+        "p95FrameMs": 16.700000000000728,
+        "distance": 3317.3333333333576
+      }
+    }
+  ],
+  "errors": []
+}

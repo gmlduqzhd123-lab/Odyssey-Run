@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "contentVersion": 1,
+  "settings": {
+    "music": false,
+    "sfx": false,
+    "reducedMotion": false
+  },
+  "tutorialSeen": true,
+  "lastStage": "wind",
+  "stages": {
+    "beach": {
+      "complete": true,
+      "bestScore": 4130,
+      "bestRating": 3,
+      "bestStars": 93,
+      "maps": [
+        "beach-map-1",
+        "beach-map-3",
+        "beach-map-2"
+      ]
+    },
+    "cave": {
+      "complete": true,
+      "bestScore": 4110,
+      "bestRating": 3,
+      "bestStars": 91,
+      "maps": [
+        "cave-map-1",
+        "cave-map-2",
+        "cave-map-3"
+      ]
+    },
+    "wind": {
+      "complete": true,
+      "bestScore": 4050,
+      "bestRating": 3,
+      "bestStars": 85,
+      "maps": [
+        "wind-map-1",
+        "wind-map-2",
+        "wind-map-3"
+      ]
+    }
+  },
+  "savedAt": "2026-10-26T05:49:02.361Z"
+}

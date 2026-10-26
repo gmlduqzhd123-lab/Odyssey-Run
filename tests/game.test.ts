@@ -63,3 +63,22 @@ test('pause shortcut works during countdown without enabling movement or repeati
  const key=(code:string,repeat=false)=>target.dispatchEvent(Object.assign(new Event('keydown',{cancelable:true}),{code,repeat}));
  try{key('Space');key('Escape');key('Escape',true);key('Escape');assert.equal(jumps,0);assert.equal(pauses,1);canPause=false;key('KeyP');assert.equal(pauses,1);}finally{controls.destroy();if(original)Object.defineProperty(globalThis,'window',original);else Reflect.deleteProperty(globalThis,'window');}
 });
+
+test('expansion leaves score/save v1 compatible; six monsters and all eight items have real placements',()=>{
+ const kinds=new Set<string>();for(const id of STAGES){const c=COURSES[id];assert.equal(c.enemies.length,7);assert.equal(c.items.length,117);for(const e of c.enemies){kinds.add(e.kind);assert.ok(!c.obstacles.some(o=>Math.abs(o.x-e.x)<200));assert.ok(!c.gaps.some(g=>e.x>g.x-250&&e.x<g.x+g.w+250));}for(const kind of ['trident','lantern','compass'])assert.equal(c.items.filter(i=>i.kind===kind).length,2);for(const i of c.items.filter(i=>i.kind==='compass')){assert.ok(i.checkpoint!==undefined&&i.checkpoint<i.x);assert.ok(!c.obstacles.some(o=>o.x>=i.checkpoint!&&o.x<i.checkpoint!+400));assert.ok(!c.enemies.some(e=>e.x>=i.checkpoint!&&e.x<i.checkpoint!+400));}}
+ assert.equal(kinds.size,6);const old=mergeResult(emptySave(),result);assert.deepEqual(validateSave(old),old);assert.equal(old.schemaVersion,1);assert.equal(MAX_SCORE,4200);
+});
+test('trident holds one charge, defeats a monster once and adds no score',()=>{
+ const r=playing(),powers=r.course.items.filter(i=>i.kind==='trident');r.collect(powers[0]);r.collect(powers[1]);assert.equal(r.trident,true);assert.equal(r.points,0);r.x=7300;r.tick();assert.equal(r.trident,false);assert.equal(r.defeated.size,1);assert.equal(r.hpLoss,0);const id=[...r.defeated][0];r.x=7300;r.tick();assert.equal(r.defeated.size,1);assert.ok(r.enemyStates.find(e=>e.id===id)!.defeated);assert.equal(new Runner('beach').defeated.size,0);
+});
+test('lantern refreshes to six seconds, freezes paused, and only repels air threats and thrown rocks',()=>{
+ const r=playing(),p=r.course.items.filter(i=>i.kind==='lantern');r.collect(p[0]);r.lantern=2;r.collect(p[1]);assert.equal(r.lantern,6);r.state='paused';step(r,10);assert.equal(r.lantern,6);r.state='playing';r.x=5700;r.tick();assert.equal(r.hpLoss,0);assert.ok(r.enemyStates.find(e=>e.kind==='harpy')!.repelled);r.x=7400;r.tick();assert.equal(r.hpLoss,1);assert.equal(r.lantern>0,true);
+ const cave=new Runner('cave');cave.state='playing';cave.x=12030;cave.lantern=6;cave.tick();assert.equal(cave.hpLoss,0);assert.ok(!cave.enemyStates.find(e=>e.kind==='cyclops')!.projectile.active);cave.x=12200;cave.tick();assert.equal(cave.hpLoss,1);
+});
+test('compass advances only to a passed safe point and falling keeps collection and score',()=>{
+ const r=playing(),p=r.course.items.find(i=>i.kind==='compass')!;r.x=p.x;r.maxDistance=p.x;r.collect(p);assert.equal(r.safeX,p.checkpoint);const scoreBefore=r.points;r.x=8580;r.y=660;r.grounded=false;r.shield=true;r.lantern=6;r.tick();assert.equal(r.x,p.checkpoint);assert.equal(r.hpLoss,1);assert.ok(r.collected.has(p.id));assert.ok(r.points>=scoreBefore);const fresh=playing();fresh.collect(p);assert.equal(fresh.safeX,0);
+});
+test('six enemy behaviors give warning before activation and use game-time motion',async()=>{
+ const {createEnemyState,updateEnemyState,ENEMY_TYPES}=await import('../src/levels/enemies');
+ for(const kind of Object.keys(ENEMY_TYPES) as (keyof typeof ENEMY_TYPES)[]){const p={id:kind,kind,x:5000},s=createEnemyState(p);updateEnemyState(s,p,4300,0,false,false);assert.equal(s.warning,true,kind);assert.ok((700-ENEMY_TYPES[kind].lead)/C.speed>=1,kind);const x=s.x;updateEnemyState(s,p,4950,2,false,false);if(kind==='crab'||kind==='harpy'||kind==='stone'||kind==='shade')assert.notEqual(s.x,x,kind);if(kind==='cyclops')assert.ok(s.projectile.active);if(kind==='scylla')assert.equal(s.reveal,1);updateEnemyState(s,p,4950,2,true,false);assert.equal(s.repelled,kind==='harpy'||kind==='shade');updateEnemyState(s,p,4950,2,false,true);assert.equal(s.active,false);assert.equal(s.projectile.active,false);}
+});

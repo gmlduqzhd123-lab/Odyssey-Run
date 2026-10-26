@@ -8,6 +8,8 @@ import {Sound} from '../systems/audio';
 import {World} from '../scenes/World';
 import {assetUrl,PEOPLE,RELICS,STAGE_RELIC} from '../assets/catalog';
 import {ART_SHEETS,STAGE_VIEW,regionArt,sheetUrl} from '../assets/terrain';
+import {ENEMY_TYPES,type EnemyKind} from '../levels/enemies';
+import {MONSTER_ART} from '../assets/expansion-art';
 import {displayDensity} from '../rendering/display';
 const asset=assetUrl;
 const icon=(name:string,cls='')=>`<img class="icon ${cls}" src="${asset(name)}" alt="">`;
@@ -46,7 +48,7 @@ export class App {
  private prepare(id:StageId){
   if(!unlocked(this.store.data,id)){this.islands();return;}
   this.selected=id;this.store.data.lastStage=id;this.store.persist();this.world.setStage(id);
-  const c=COURSES[id];this.set(`<div class="veil"><section class="panel prepare">${button('islands','← 항해 지도','text-button back')}<span class="eyebrow">${icon(STAGE_RELIC[id])} ISLAND 0${STAGES.indexOf(id)+1} / ${c.subtitle}</span><h1 tabindex="-1">${c.name}</h1><p>${c.description}</p>${regionArt(STAGE_VIEW[id],'prepare-art',c.name+' 풍경')}<div class="control-guide"><div><kbd>Space / ↑</kbd><b>점프</b><span>공중에서 한 번 더!</span></div><div><kbd>↓ 꾹</kbd><b>슬라이드</b><span>낮은 문을 통과해요</span></div><div><kbd>P / Esc</kbd><b>일시정지</b><span>잠깐 쉬어 가도 돼요</span></div></div><p class="touch-hint">스마트폰에서는 화면의 점프·슬라이드 버튼을 사용해요.</p><div class="goal-line">♡ 체력 3 &nbsp; ✦ 별빛 100 &nbsp; ${icon('map')} 지도 3</div>${button('start','이 섬 달리기 <span>→</span>','primary large')}<small>약 75초의 모험 · 아이템 없이도 완주할 수 있어요</small></section></div>`,'prepare');
+  const c=COURSES[id];this.set(`<div class="veil"><section class="panel prepare">${button('islands','← 항해 지도','text-button back')}<span class="eyebrow">${icon(STAGE_RELIC[id])} ISLAND 0${STAGES.indexOf(id)+1} / ${c.subtitle}</span><h1 tabindex="-1">${c.name}</h1><p>${c.description}</p>${regionArt(STAGE_VIEW[id],'prepare-art',c.name+' 풍경')}<div class="control-guide"><div><kbd>Space / ↑</kbd><b>점프</b><span>공중에서 한 번 더!</span></div><div><kbd>↓ 꾹</kbd><b>슬라이드</b><span>낮은 문을 통과해요</span></div><div><kbd>P / Esc</kbd><b>일시정지</b><span>잠깐 쉬어 가도 돼요</span></div></div><p class="touch-hint">스마트폰에서는 화면의 점프·슬라이드 버튼을 사용해요.</p><div class="goal-line">♡ 체력 3 &nbsp; ✦ 별빛 100 &nbsp; ${icon('map')} 지도 3</div>${button('start','이 섬 달리기 <span>→</span>','primary large')}<small>약 75초 · 몬스터 7마리 · 아이템 8종 · 아이템 없이도 완주 가능</small></section></div>`,'prepare');
  }
  private start(){
   if(!unlocked(this.store.data,this.selected)){this.islands();return;}
@@ -75,7 +77,7 @@ export class App {
   const found=new Set(STAGES.flatMap(id=>this.store.data.stages[id].maps));
   this.set(`<div class="page codex">${this.header('귀환의 지도')}<div class="page-heading"><span class="eyebrow">FRAGMENTS OF THE ODYSSEY</span><h1 tabindex="-1">이야기를 모아, 이타카로</h1><p>${found.size?`아홉 조각 중 ${found.size}개를 찾았어요. 조각을 눌러 이야기를 읽어 보세요.`:'아직 지도가 비어 있어요. 첫 섬으로 탐험을 떠나 보세요!'}</p></div>${this.bookNav('codex')}<div class="fragment-grid">${STAGES.flatMap((id,i)=>[1,2,3].map((n,j)=>{const idx=i*3+j,yes=found.has(`${id}-map-${n}`);return `<button class="fragment ${yes?'found':''}" data-action="story:${idx}" ${yes?'':'disabled'}>${yes?icon('map'):'<span class="unknown">?</span>'}<span class="fragment-number">0${idx+1}</span><b>${yes?MAP_STORIES[idx][0]:'아직 발견하지 못했어요'}</b><small>${COURSES[id].name} · ${n}번 조각</small></button>`;})).join('')}</div><div class="page-foot"><span>${found.size===9?'모든 지도가 모였어요. 당신만의 오디세이가 완성됐네요.':'지도는 기본 경로, 2단 점프 경로, 슬라이드 경로에서 찾을 수 있어요.'}</span>${button('islands','탐험하기 →','text-button')}</div></div>`,'codex');
  }
- private bookNav(active:string){return `<nav class="book-nav" aria-label="도감 종류">${[['codex','지도 조각'],['people','여정의 인물'],['relics','아이템과 상징'],['landscapes','풍경과 원화']].map(([id,label])=>button(id,label,'book-tab',active===id?'aria-current="page"':'')).join('')}</nav>`;}
+ private bookNav(active:string){return `<nav class="book-nav" aria-label="도감 종류">${[['codex','지도 조각'],['people','여정의 인물'],['relics','아이템과 상징'],['bestiary','몬스터'],['landscapes','풍경과 원화']].map(([id,label])=>button(id,label,'book-tab',active===id?'aria-current="page"':'')).join('')}</nav>`;}
  private landscapes(){
   this.set(`<div class="page landscapes">${this.header('항해 도감')}<div class="page-heading"><span class="eyebrow">ISLANDS & LEGENDS</span><h1 tabindex="-1">바다 너머의 풍경과 전설</h1><p>원화를 누르면 크게 볼 수 있어요. 그림 속 다른 섬과 몬스터는 이야기로 만나요.</p></div>${this.bookNav('landscapes')}<div class="sheet-grid">${ART_SHEETS.map(s=>`<button class="sheet-card" data-action="sheet:${s.id}"><img src="${sheetUrl(s.id)}" alt="${s.name} 원화 미리보기" loading="lazy" decoding="async"><span><strong>${s.name}</strong><small>${s.description}</small><b>원화 펼치기 ↗</b></span></button>`).join('')}</div><p class="gallery-note">달리는 항로는 해변·동굴·바람 섬이에요. 원화에 적힌 추가 공격과 효과는 이번 항해에 등장하지 않아요.</p></div>`,'landscapes');
  }
@@ -91,13 +93,17 @@ export class App {
   this.set(`<div class="veil"><section class="panel character-story"><img class="character-portrait" src="${asset(p.id)}" alt="${p.name}"><span class="eyebrow">${p.role}</span><h1 tabindex="-1">${p.name}</h1><p>${p.story}</p>${button('people','인물 도감으로 돌아가기','primary')}</section></div>`,'person');
  }
  private relics(){
-  this.set(`<div class="page relics">${this.header('항해 도감')}<div class="page-heading"><span class="eyebrow">TREASURES OF THE JOURNEY</span><h1 tabindex="-1">모험을 비추는 보물들</h1><p>달리기 아이템 다섯 가지와 항해를 안내하는 상징을 만나 보세요.</p></div>${this.bookNav('relics')}<div class="relic-grid">${RELICS.map(r=>`<article class="relic-card"><img src="${asset(r.id)}" alt="" loading="lazy" decoding="async"><div><span class="relic-kind">${r.kind}</span><h2>${r.name}</h2><p>${r.description}</p></div></article>`).join('')}</div></div>`,'relics');
+  this.set(`<div class="page relics">${this.header('항해 도감')}<div class="page-heading"><span class="eyebrow">TREASURES OF THE JOURNEY</span><h1 tabindex="-1">모험을 비추는 보물들</h1><p>달리기 아이템 여덟 가지와 항해를 안내하는 상징을 만나 보세요.</p></div>${this.bookNav('relics')}<div class="relic-grid">${RELICS.map(r=>`<article class="relic-card"><img src="${asset(r.id)}" alt="" loading="lazy" decoding="async"><div><span class="relic-kind">${r.kind}</span><h2>${r.name}</h2><p>${r.description}</p></div></article>`).join('')}</div></div>`,'relics');
+ }
+ private bestiary(){
+  const cards=(Object.keys(ENEMY_TYPES) as EnemyKind[]).map(id=>{const e=ENEMY_TYPES[id],f=MONSTER_ART.frames[id];const places=STAGES.map(stage=>{const count=COURSES[stage].enemies.filter(m=>m.kind===id).length;return count?`${COURSES[stage].name} ${count}마리`:'';}).filter(Boolean).join(' · ');return `<article class="relic-card monster-card"><svg viewBox="${f.x} ${f.y} ${f.w} ${f.h}" role="img" aria-label="${e.name}"><image href="${import.meta.env.BASE_URL}${MONSTER_ART.file}" width="1536" height="1024"/></svg><div><span class="relic-kind">${e.hint}로 피하기</span><h2>${e.name}</h2><p>${e.behavior}</p><small>${places}</small></div></article>`;}).join('');
+  this.set(`<div class="page bestiary">${this.header('항해 도감')}<div class="page-heading"><span class="eyebrow">CREATURES ON THE ROAD</span><h1 tabindex="-1">항로에서 만나는 여섯 몬스터</h1><p>머리 위 삼각형과 안내를 살펴보세요. 공격을 미리 알면 안전하게 피할 수 있어요.</p></div>${this.bookNav('bestiary')}<div class="relic-grid">${cards}</div></div>`,'bestiary');
  }
  private story(index:number){const id=`${STAGES[Math.floor(index/3)]}-map-${index%3+1}`;if(!STAGES.some(s=>this.store.data.stages[s].maps.includes(id)))return;const [title,text]=MAP_STORIES[index];this.set(`<div class="veil"><section class="panel story">${icon('map')}<span class="eyebrow">FRAGMENT 0${index+1}</span><h1 tabindex="-1">${title}</h1><p>${text}</p>${button('codex','도감으로 돌아가기','primary')}</section></div>`,'story');}
  private settingToggle(key:keyof Settings,label:string){return `<label class="toggle"><span>${label}</span><input type="checkbox" data-setting="${key}" ${this.store.data.settings[key]?'checked':''}><i aria-hidden="true"></i></label>`;}
  private settings(){
   this.returnScreen=this.screen==='islands'?'islands':'home';
-  this.set(`<div class="page settings">${this.header('설정',this.returnScreen)}<div class="settings-layout"><div class="page-heading"><span class="eyebrow">MAKE IT YOUR JOURNEY</span><h1 tabindex="-1">나의 항해 설정</h1><p>기록은 이 기기와 브라우저에 저장돼요.<br>기록 파일로 옮길 수 있어요.</p><div class="save-note">계정 없이, 이 브라우저에만 저장해요.<br>다른 기기와 자동으로 동기화되지는 않아요.</div></div><div class="settings-body"><section><h2>소리와 움직임</h2>${this.settingToggle('music','배경음')}${this.settingToggle('sfx','효과음')}${this.settingToggle('reducedMotion','움직임 줄이기')}<small>배경 스크롤과 장식 움직임을 줄여요. 달리기·점프는 그대로예요.</small></section><section><h2>기록 보관함</h2><div class="backup-row">${button('export',icon('map')+' 기록 내보내기','secondary')}<label class="button secondary file-button">기록 가져오기<input id="import-file" type="file" accept="application/json,.json" aria-label="JSON 기록 파일 가져오기"></label></div><p class="muted">UTF-8 JSON · 최대 64KiB · 복원 전 내용을 확인해요.</p>${this.store.blocked?button('original','보존된 원본 내려받기','text-button'):''}${button('reset-confirm','이 게임의 기록 초기화','danger text-button')}</section><div id="import-error" role="alert"></div></div></div></div>`,'settings');
+  this.set(`<div class="page settings">${this.header('설정',this.returnScreen)}<div class="settings-layout"><div class="page-heading"><span class="eyebrow">MAKE IT YOUR JOURNEY</span><h1 tabindex="-1">나의 항해 설정</h1><p>기록은 이 기기와 브라우저에 저장돼요.<br>기록 파일로 옮길 수 있어요.</p><div class="save-note">계정 없이, 이 브라우저에만 저장해요.<br>다른 기기와 자동으로 동기화되지는 않아요.</div></div><div class="settings-body"><section><h2>소리와 움직임</h2>${this.settingToggle('music','배경음')}${this.settingToggle('sfx','효과음')}${this.settingToggle('reducedMotion','움직임 줄이기')}<small>기본 배경은 고정돼 있어요. 켜면 장식 무늬와 바람 표시를 더 줄여요. 달리기·점프와 위험 신호는 유지돼요.</small></section><section><h2>기록 보관함</h2><div class="backup-row">${button('export',icon('map')+' 기록 내보내기','secondary')}<label class="button secondary file-button">기록 가져오기<input id="import-file" type="file" accept="application/json,.json" aria-label="JSON 기록 파일 가져오기"></label></div><p class="muted">UTF-8 JSON · 최대 64KiB · 복원 전 내용을 확인해요.</p>${this.store.blocked?button('original','보존된 원본 내려받기','text-button'):''}${button('reset-confirm','이 게임의 기록 초기화','danger text-button')}</section><div id="import-error" role="alert"></div></div></div></div>`,'settings');
  }
  private download(data:string,filename:string){const url=URL.createObjectURL(new Blob([data],{type:'application/json;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
  private export(){this.download(JSON.stringify(this.store.data,null,2),`odyssey-run-save-${new Date().toISOString().slice(0,10).replaceAll('-','')}.json`);}
@@ -120,7 +126,7 @@ export class App {
   if(action.startsWith('story:')){this.story(Number(action.slice(6)));return;}
   switch(action){
    case 'home':this.home();break;case 'islands':this.islands();break;case 'codex':this.codex();break;case 'settings':this.settings();break;
-   case 'people':this.people();break;case 'relics':this.relics();break;case 'landscapes':this.landscapes();break;
+   case 'bestiary':this.bestiary();break;case 'people':this.people();break;case 'relics':this.relics();break;case 'landscapes':this.landscapes();break;
    case 'sheet-zoom':if(this.screen==='sheet'){const viewer=this.ui.querySelector('.sheet-viewer')!;const expanded=viewer.classList.toggle('expanded');const b=this.ui.querySelector('[data-action="sheet-zoom"]')!;b.setAttribute('aria-pressed',String(expanded));b.textContent=expanded?'화면에 맞추기':'원본 크기로 확대';}break;
    case 'start':if(this.screen==='prepare')this.start();break;case 'restart':if(['pause','result'].includes(this.screen))this.start();break;
    case 'pause':this.pause();break;case 'resume':if(this.screen==='pause')this.beginCountdown();break;
@@ -142,11 +148,11 @@ export class App {
    if(this.screen==='play')this.updateHud();
   }
  }
- private updateHud(){const r=this.run;if(!r)return;const text=[r.hp,r.points,r.maps.size,r.stars,Math.floor(r.x),Math.ceil(r.wings),Math.ceil(r.magnet),r.shield].join();if(text===this.lastHud)return;this.lastHud=text;
+ private updateHud(){const r=this.run;if(!r)return;const text=[r.hp,r.points,r.maps.size,r.stars,Math.floor(r.x),Math.ceil(r.wings),Math.ceil(r.magnet),r.shield,r.trident,Math.ceil(r.lantern)].join();if(text===this.lastHud)return;this.lastHud=text;
   const hp=document.querySelector('#hp');if(!hp)return;hp.innerHTML=`<span>${'♥'.repeat(Math.max(0,r.hp))}</span><em>${'♡'.repeat(3-Math.max(0,r.hp))}</em>`;hp.setAttribute('aria-label',`체력 ${Math.max(0,r.hp)}`);
   document.querySelector('#score')!.textContent=r.points.toLocaleString();document.querySelector('#stars')!.textContent=`✦ ${r.stars} / 100`;document.querySelector('#maps')!.textContent=`지도 ${r.maps.size} / 3`;
   const progress=document.querySelector<HTMLProgressElement>('#progress')!;progress.value=Math.min(24000,r.x);progress.dataset.distance=String(r.x);document.querySelector('#progress-label')!.textContent=Math.min(100,Math.floor(r.x/240)).toString()+'%';
-  document.querySelector('#effects')!.textContent=[r.shield?'⬡ 방패':'',r.wings>0?`날개 ${Math.ceil(r.wings)}초`:'',r.magnet>0?`자석 ${Math.ceil(r.magnet)}초`:''].filter(Boolean).join(' · ');
+  document.querySelector('#effects')!.textContent=[r.shield?'⬡ 방패':'',r.trident?'⚒ 삼지창 1회':'',r.lantern>0?`등불 ${Math.ceil(r.lantern)}초`:'',r.wings>0?`날개 ${Math.ceil(r.wings)}초`:'',r.magnet>0?`자석 ${Math.ceil(r.magnet)}초`:''].filter(Boolean).join(' · ');
  }
  private orientation(){
   const portrait=innerHeight>innerWidth&&(navigator.maxTouchPoints>0||innerWidth<700);const active=!!this.run&&['play','pause','countdown'].includes(this.screen);

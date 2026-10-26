@@ -1,0 +1,290 @@
+{
+  "units": "logical px",
+  "scoreMax": 4200,
+  "starsPerStage": 100,
+  "mapsPerStage": 3,
+  "stages": [
+    {
+      "id": "beach",
+      "enemies": [
+        {
+          "id": "beach-enemy-ground-1",
+          "kind": "crab",
+          "x": 7400
+        },
+        {
+          "id": "beach-enemy-ground-2",
+          "kind": "scylla",
+          "x": 11800
+        },
+        {
+          "id": "beach-enemy-ground-3",
+          "kind": "crab",
+          "x": 16200
+        },
+        {
+          "id": "beach-enemy-ground-4",
+          "kind": "scylla",
+          "x": 20400
+        },
+        {
+          "id": "beach-enemy-air-1",
+          "kind": "harpy",
+          "x": 5700
+        },
+        {
+          "id": "beach-enemy-air-2",
+          "kind": "harpy",
+          "x": 13900
+        },
+        {
+          "id": "beach-enemy-air-3",
+          "kind": "harpy",
+          "x": 18100
+        }
+      ],
+      "enemyCounts": {
+        "crab": 2,
+        "harpy": 3,
+        "stone": 0,
+        "scylla": 2,
+        "cyclops": 0,
+        "shade": 0
+      },
+      "newItems": [
+        {
+          "id": "beach-trident-extra-1",
+          "kind": "trident",
+          "x": 4200,
+          "y": 395
+        },
+        {
+          "id": "beach-trident-extra-2",
+          "kind": "trident",
+          "x": 15100,
+          "y": 395
+        },
+        {
+          "id": "beach-lantern-extra-1",
+          "kind": "lantern",
+          "x": 12900,
+          "y": 395
+        },
+        {
+          "id": "beach-lantern-extra-2",
+          "kind": "lantern",
+          "x": 17800,
+          "y": 395
+        },
+        {
+          "id": "beach-compass-extra-1",
+          "kind": "compass",
+          "x": 7800,
+          "y": 395,
+          "checkpoint": 7720
+        },
+        {
+          "id": "beach-compass-extra-2",
+          "kind": "compass",
+          "x": 16800,
+          "y": 395,
+          "checkpoint": 16720
+        }
+      ],
+      "checkpoints": [
+        0,
+        3000,
+        6900,
+        12000,
+        23000
+      ]
+    },
+    {
+      "id": "cave",
+      "enemies": [
+        {
+          "id": "cave-enemy-ground-1",
+          "kind": "stone",
+          "x": 7200
+        },
+        {
+          "id": "cave-enemy-ground-2",
+          "kind": "cyclops",
+          "x": 12200
+        },
+        {
+          "id": "cave-enemy-ground-3",
+          "kind": "stone",
+          "x": 18000
+        },
+        {
+          "id": "cave-enemy-ground-4",
+          "kind": "cyclops",
+          "x": 21800
+        },
+        {
+          "id": "cave-enemy-air-1",
+          "kind": "shade",
+          "x": 4500
+        },
+        {
+          "id": "cave-enemy-air-2",
+          "kind": "shade",
+          "x": 12900
+        },
+        {
+          "id": "cave-enemy-air-3",
+          "kind": "shade",
+          "x": 19500
+        }
+      ],
+      "enemyCounts": {
+        "crab": 0,
+        "harpy": 0,
+        "stone": 2,
+        "scylla": 0,
+        "cyclops": 2,
+        "shade": 3
+      },
+      "newItems": [
+        {
+          "id": "cave-trident-extra-1",
+          "kind": "trident",
+          "x": 3500,
+          "y": 395
+        },
+        {
+          "id": "cave-trident-extra-2",
+          "kind": "trident",
+          "x": 16000,
+          "y": 395
+        },
+        {
+          "id": "cave-lantern-extra-1",
+          "kind": "lantern",
+          "x": 11800,
+          "y": 395
+        },
+        {
+          "id": "cave-lantern-extra-2",
+          "kind": "lantern",
+          "x": 19280,
+          "y": 395
+        },
+        {
+          "id": "cave-compass-extra-1",
+          "kind": "compass",
+          "x": 7900,
+          "y": 395,
+          "checkpoint": 7820
+        },
+        {
+          "id": "cave-compass-extra-2",
+          "kind": "compass",
+          "x": 18400,
+          "y": 395,
+          "checkpoint": 18320
+        }
+      ],
+      "checkpoints": [
+        0,
+        17000
+      ]
+    },
+    {
+      "id": "wind",
+      "enemies": [
+        {
+          "id": "wind-enemy-ground-1",
+          "kind": "scylla",
+          "x": 7600
+        },
+        {
+          "id": "wind-enemy-ground-2",
+          "kind": "crab",
+          "x": 12600
+        },
+        {
+          "id": "wind-enemy-ground-3",
+          "kind": "stone",
+          "x": 17600
+        },
+        {
+          "id": "wind-enemy-ground-4",
+          "kind": "scylla",
+          "x": 21000
+        },
+        {
+          "id": "wind-enemy-air-1",
+          "kind": "harpy",
+          "x": 4300
+        },
+        {
+          "id": "wind-enemy-air-2",
+          "kind": "harpy",
+          "x": 12000
+        },
+        {
+          "id": "wind-enemy-air-3",
+          "kind": "harpy",
+          "x": 21600
+        }
+      ],
+      "enemyCounts": {
+        "crab": 1,
+        "harpy": 3,
+        "stone": 1,
+        "scylla": 2,
+        "cyclops": 0,
+        "shade": 0
+      },
+      "newItems": [
+        {
+          "id": "wind-trident-extra-1",
+          "kind": "trident",
+          "x": 4600,
+          "y": 395
+        },
+        {
+          "id": "wind-trident-extra-2",
+          "kind": "trident",
+          "x": 16500,
+          "y": 395
+        },
+        {
+          "id": "wind-lantern-extra-1",
+          "kind": "lantern",
+          "x": 11900,
+          "y": 421
+        },
+        {
+          "id": "wind-lantern-extra-2",
+          "kind": "lantern",
+          "x": 21300,
+          "y": 395
+        },
+        {
+          "id": "wind-compass-extra-1",
+          "kind": "compass",
+          "x": 8000,
+          "y": 395,
+          "checkpoint": 7920
+        },
+        {
+          "id": "wind-compass-extra-2",
+          "kind": "compass",
+          "x": 17900,
+          "y": 395,
+          "checkpoint": 17820
+        }
+      ],
+      "checkpoints": [
+        0,
+        3000,
+        6900,
+        17000,
+        23000
+      ]
+    }
+  ]
+}

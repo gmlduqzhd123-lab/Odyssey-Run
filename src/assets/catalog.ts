@@ -22,9 +22,9 @@ export const RELICS=[
  {id:'apple',name:'황금 사과',kind:'달리기 아이템',description:'체력을 한 칸 회복해요. 최대 체력은 세 칸이에요.'},
  {id:'map',name:'지도 조각',kind:'달리기 아이템',description:'한 조각에 100점! 섬마다 세 조각을 모으면 귀환의 이야기가 완성돼요.'},
  {id:'wind-bag',name:'바람 자루',kind:'항해의 상징',description:'아이올로스의 바람 섬을 상징해요. 바람길은 위를 향한 화살표로도 표시돼요.'},
- {id:'trident',name:'바다의 삼지창',kind:'항해의 상징',description:'넓은 바다와 항해의 시련을 떠올리게 해요. 출항의 해변 안내에 표시돼요.'},
+ {id:'trident',name:'바다의 삼지창',kind:'달리기 아이템',description:'가까운 몬스터 한 마리와 그 공격을 자동으로 격퇴해요. 최대 한 개만 보유하며 추가 점수는 없어요.'},
  {id:'laurel',name:'귀환의 월계관',kind:'항해의 상징',description:'한 섬을 끝까지 달린 용기를 축하해요. 완주 결과 화면에 표시돼요.'},
- {id:'compass',name:'별빛 나침반',kind:'항해의 상징',description:'메뉴에서 귀환의 방향을 알려 주는 표식이에요.'},
- {id:'lantern',name:'동굴의 등불',kind:'항해의 상징',description:'어두운 동굴에서도 길을 찾도록 도와주는 표식이에요. 동굴 안내에 표시돼요.'},
+ {id:'compass',name:'별빛 나침반',kind:'달리기 아이템',description:'방금 지난 평평한 곳을 추락 복귀 지점으로 갱신해요. 추락 피해는 그대로이며 추가 점수는 없어요.'},
+ {id:'lantern',name:'동굴의 등불',kind:'달리기 아이템',description:'6초 동안 하르피아·망령과 날아오는 바위를 막아요. 다시 얻으면 6초로 갱신해요. 다른 장애물과 추락은 막지 못해요.'},
 ] as const;
 export const STAGE_RELIC={beach:'trident',cave:'lantern',wind:'wind-bag'} as const;

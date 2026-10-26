@@ -1,12 +1,13 @@
 import { C } from '../config';
+import type {EnemyKind,EnemyPlacement} from './enemies';
 export const STAGES = ['beach','cave','wind'] as const;
 export type StageId = typeof STAGES[number];
-export type ItemKind = 'star'|'map'|'shield'|'wings'|'magnet'|'apple';
-export interface Collectible {id:string;kind:ItemKind;x:number;y:number;}
+export type ItemKind = 'star'|'map'|'shield'|'wings'|'magnet'|'apple'|'trident'|'lantern'|'compass';
+export interface Collectible {id:string;kind:ItemKind;x:number;y:number;checkpoint?:number;}
 export interface Rect {x:number;y:number;w:number;h:number;}
 export interface Obstacle extends Rect {id:string;kind:'crate'|'pillar'|'gate'|'rock'|'falling';}
 export interface Platform {id:string;x:number;y:number;w:number; moving?:boolean;}
-export interface Course {id:StageId;name:string;subtitle:string;description:string;color:string;gaps:{x:number;w:number}[];obstacles:Obstacle[];platforms:Platform[];winds:Rect[];safe:number[];items:Collectible[];}
+export interface Course {id:StageId;name:string;subtitle:string;description:string;color:string;gaps:{x:number;w:number}[];obstacles:Obstacle[];platforms:Platform[];winds:Rect[];safe:number[];items:Collectible[];enemies:EnemyPlacement[];}
 const meta = {
  beach:{name:'출항의 해변',subtitle:'THE DEPARTURE',description:'푸른 파도를 따라, 귀환의 첫걸음을 내디뎌요.',color:'#79c4c6'},
  cave:{name:'키클롭스의 동굴',subtitle:'THE CYCLOPS',description:'거인의 발소리를 뒤로하고 동굴의 빛을 찾아요.',color:'#aca4cd'},
@@ -47,8 +48,16 @@ function build(id:StageId):Course {
  items.push({id:`${id}-map-1`,kind:'map',x:2700,y:395},{id:`${id}-map-2`,kind:'map',x:highMapX,y:205},{id:`${id}-map-3`,kind:'map',x: p.gates[1]+80,y:421});
  const powers:ItemKind[]=['shield','wings','magnet','apple','shield','wings','magnet','apple'];
  powers.forEach((kind,i)=>items.push({id:`${id}-${kind}-${i}`,kind,x:1900+i*2700,y:395}));
- const safe=[0,3000,6900,9000,12000,14400,17000,20100,23000].filter(x=>!gaps.some(g=>x>=g.x-200&&x<=g.x+g.w+350)&&!obstacles.some(o=>x>=o.x-450&&x<o.x+o.w+80));
- return {id,...meta[id],gaps,obstacles,platforms,winds,safe,items};
+ const groundKinds:Record<StageId,EnemyKind[]>={beach:['crab','scylla','crab','scylla'],cave:['stone','cyclops','stone','cyclops'],wind:['scylla','crab','stone','scylla']};
+ const enemies:EnemyPlacement[]=p.crates.slice(1).map((x,i)=>({id:`${id}-enemy-ground-${i+1}`,kind:groundKinds[id][i],x}));
+ const air=id==='beach'?[5700,13900,18100]:id==='cave'?[4500,12900,19500]:[4300,12000,21600];
+ air.forEach((x,i)=>enemies.push({id:`${id}-enemy-air-${i+1}`,kind:id==='cave'?'shade':'harpy',x}));
+ // Replace four crate encounters, leaving tutorial crate, pillars, gates and gaps.
+ for(let i=obstacles.length-1;i>=0;i--)if(obstacles[i].kind==='crate'&&p.crates.slice(1).includes(obstacles[i].x))obstacles.splice(i,1);
+ const extra:Record<StageId,{trident:number[];lantern:number[];compass:number[]}>={beach:{trident:[4200,15100],lantern:[12900,17800],compass:[7800,16800]},cave:{trident:[3500,16000],lantern:[11800,19280],compass:[7900,18400]},wind:{trident:[4600,16500],lantern:[11900,21300],compass:[8000,17900]}};
+ for(const kind of ['trident','lantern','compass'] as const)extra[id][kind].forEach((x,i)=>items.push({id:`${id}-${kind}-extra-${i+1}`,kind,x,y:id==='wind'&&kind==='lantern'&&i===0?421:395,...(kind==='compass'?{checkpoint:x-80}:{})}));
+ const safe=[0,3000,6900,9000,12000,14400,17000,20100,23000].filter(x=>!gaps.some(g=>x>=g.x-200&&x<=g.x+g.w+350)&&!obstacles.some(o=>x>=o.x-450&&x<o.x+o.w+80)&&!enemies.some(e=>e.x>=x-120&&e.x<x+450));
+ return {id,...meta[id],gaps,obstacles,platforms,winds,safe,items,enemies};
 }
 export const COURSES=Object.fromEntries(STAGES.map(id=>[id,build(id)])) as Record<StageId,Course>;
 export const MAP_STORIES = [

@@ -1,9 +1,9 @@
 {
   "url": "http://localhost:4176/Odyssey-Run/",
-  "checkedAt": "2026-10-26T05:46:12.910Z",
+  "checkedAt": "2026-10-26T07:10:55.791Z",
   "browser": "154.0.8037.57",
   "environment": "Linux Chromium desktop 1280x800 DPR2; real elapsed time; no virtual clock; route uses actual keyboard events and HUD distance only",
-  "elapsedMs": 75143,
+  "elapsedMs": 75021,
   "record": {
     "complete": true,
     "bestScore": 4130,
