@@ -1,14 +1,17 @@
 import {Runner} from '../src/player/runner';
 import {STAGES,COURSES} from '../src/levels/courses';
+import {ADVENTURE_PLANS} from '../src/levels/adventure';
 import {ENEMY_TYPES} from '../src/levels/enemies';
 // Compact authored input fixtures, also used for browser keyboard verification.
-export function routeInputs(id:typeof STAGES[number]){
+export function routeInputs(id:typeof STAGES[number],path:'lower'|'upper'='lower',stories=false){
  const c=COURSES[id];const jumps:number[]=[];
- c.obstacles.forEach(o=>{if(o.kind==='gate')return;if(o.kind==='pillar'){jumps.push(o.x-140,o.x-45);}else jumps.push(o.x-110);});
+ c.obstacles.forEach(o=>{if((o.kind==='gate'||o.kind==='hand'))return;if(o.kind==='pillar'){jumps.push(o.x-140,o.x-45);}else jumps.push(o.x-110);});
  c.gaps.forEach(g=>jumps.push(g.x-95,g.x+10));
  const map=c.items.find(i=>i.id===`${id}-map-2`)!;jumps.push(map.x-180,map.x-90);
- const slides=c.obstacles.filter(o=>o.kind==='gate').map(o=>({start:o.x-70,end:o.x+o.w+70}));
- c.enemies.forEach(e=>{const spec=ENEMY_TYPES[e.kind];if(e.kind==='harpy'||e.kind==='shade')slides.push({start:e.x-spec.lead,end:e.x+160});else{jumps.push(e.x-spec.lead);if(e.kind==='cyclops')jumps.push(e.x-80);}});
+ const slides=c.obstacles.filter(o=>(o.kind==='gate'||o.kind==='hand')).map(o=>({start:o.x-70,end:o.x+o.w+70}));
+ c.enemies.forEach(e=>{if(e.bait||(path==='upper'&&e.kind==='harpy'&&e.x>ADVENTURE_PLANS[id].branch.start&&e.x<ADVENTURE_PLANS[id].branch.end))return;const spec=ENEMY_TYPES[e.kind];if(e.kind==='harpy'||e.kind==='shade')slides.push({start:e.x-spec.lead,end:e.x+160});else{jumps.push(e.x-spec.lead);if(e.kind==='cyclops')jumps.push(e.x-80);}});
+ if(path==='upper')jumps.push(ADVENTURE_PLANS[id].branch.start-100);
+ if(stories){const story=ADVENTURE_PLANS[id].stories[1];slides.push({start:story.x-80,end:story.x+80});}
  return {jumps:jumps.sort((a,b)=>a-b),slides:slides.sort((a,b)=>a.start-b.start)};
 }
 if(process.argv[1]?.includes('check-routes'))for(const id of STAGES){

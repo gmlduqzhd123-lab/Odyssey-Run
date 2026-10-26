@@ -1,18 +1,18 @@
 {
   "url": "http://localhost:4176/Odyssey-Run/",
-  "checkedAt": "2026-10-26T08:36:48.953Z",
+  "checkedAt": "2026-10-26T09:29:50.668Z",
   "browser": "154.0.8037.57",
   "environment": "Linux Chromium mobile emulation 844x390 DPR2; actual taps and held CDP touch; no virtual clock or player-state mutation",
   "frameMetrics": {
     "fps": 60.002400096003846,
     "p95FrameMs": 16.700000000000728
   },
-  "elapsedMs": 75011,
+  "elapsedMs": 75055,
   "record": {
     "complete": true,
-    "bestScore": 4130,
+    "bestScore": 4110,
     "bestRating": 3,
-    "bestStars": 93,
+    "bestStars": 91,
     "maps": [
       "beach-map-1",
       "beach-map-3",

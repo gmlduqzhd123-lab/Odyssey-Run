@@ -24,7 +24,7 @@ export class World extends Phaser.Scene {
   const t=this.add.text(480,250,'항해를 준비하고 있어요…',{fontFamily:'sans-serif',fontSize:'22px',color:'#f6e8c5',resolution:this.host.density()}).setOrigin(.5);
   const bar=this.add.graphics();this.load.on('progress',(n:number)=>{bar.clear().fillStyle(0xe9b957).fillRoundedRect(300,296,360*n,5,3);t.setText(`항해를 준비하고 있어요… ${Math.round(n*100)}%`);});
   this.load.on('loaderror',()=>{this.failed=true;});
-  const names=['star','crate','pillar','gate','rock','boat','giant',...['beach','cave','wind'].flatMap(id=>['sky','far','mid'].map(layer=>`${id}-${layer}`))];
+  const names=['star','crate','pillar','gate','rock','boat','giant','hand',...['beach','cave','wind'].flatMap(id=>['sky','far','mid'].map(layer=>`${id}-${layer}`))];
   names.forEach(n=>this.load.svg(n,`${import.meta.env.BASE_URL}assets/${n}.svg`,{scale:DISPLAY.svgDensity}));
   ['odysseus','map','shield','wings','magnet','apple','trident','lantern','compass'].forEach(n=>this.load.image(n,assetUrl(n)));
   this.load.image('terrain-sheet',sheetUrl('terrain-sheet'));
@@ -47,7 +47,7 @@ export class World extends Phaser.Scene {
   this.boat=this.add.image(744,444,'boat').setDisplaySize(350,230);
   this.hero=this.add.image(744,442,'odysseus').setOrigin(.5,1).setDisplaySize(180,240);
   this.label=this.add.text(480,275,'',{fontFamily:'sans-serif',fontSize:'22px',color:'#fff2d2',stroke:'#223e4b',strokeThickness:5,align:'center',resolution:this.host.density()}).setOrigin(.5);
-  this.warning=this.add.text(590,215,'',{fontFamily:'sans-serif',fontSize:'17px',color:'#f8e8bd',stroke:'#20394b',strokeThickness:4,resolution:this.host.density()}).setOrigin(.5).setDepth(20);
+  this.warning=this.add.text(590,260,'',{fontFamily:'sans-serif',fontSize:'17px',color:'#f8e8bd',stroke:'#20394b',strokeThickness:4,resolution:this.host.density()}).setOrigin(.5).setDepth(20);
   this.syncDisplay();
   this.host.loaded();
  }
@@ -69,18 +69,18 @@ export class World extends Phaser.Scene {
  }
  showRun(run:Runner){
   this.mode='run';this.run=run;this.clearObjects();this.setStage(run.stage);this.boat.setVisible(false);this.hero.setDisplaySize(66,88).setRotation(0);
-  run.course.obstacles.forEach(o=>{this.obstacles.push(this.add.image(o.x,o.y,o.kind==='falling'?'rock':o.kind).setOrigin(0).setDisplaySize(o.w,o.h));});
+  run.course.obstacles.forEach(o=>{this.obstacles.push(this.add.image(o.x,o.y,o.kind==='falling'?'rock':o.kind==='hand'?'hand':o.kind).setOrigin(0).setDisplaySize(o.w,o.h));});
   run.course.items.forEach(i=>this.items.push(this.add.image(i.x,i.y,i.kind).setDisplaySize(i.kind==='star'?24:36,i.kind==='star'?24:36)));
-  run.course.platforms.forEach(p=>this.platforms.push(this.add.image(p.x,p.y,'terrain-sheet','wood-platform').setOrigin(0).setDisplaySize(p.w,20)));
+  run.course.platforms.forEach(p=>this.platforms.push(this.add.image(p.x,p.y,'terrain-sheet','wood-platform').setOrigin(0).setDisplaySize(p.w,20).setTint(p.id.includes('branch')?0xf4d99c:p.id.includes('cloud')?0xe5efdc:0xffffff)));
   run.enemyStates.forEach(e=>{const f=MONSTER_ART.frames[e.kind],scale=Math.min(96/f.w,(e.kind==='cyclops'?108:76)/f.h);this.monsters.push(this.add.image(e.x,e.y,'monster-atlas',e.kind).setOrigin(.5,1).setScale(scale).setFlipX(e.kind==='harpy').setDepth(4));this.projectiles.push(this.add.image(e.x,e.y,'rock').setOrigin(0).setDisplaySize(36,28).setDepth(5).setVisible(false));});
   this.hero.setDepth(10);this.label.setDepth(20);this.fx.setDepth(15);this.drawRun();
  }
  private clearObjects(){this.obstacles.forEach(o=>o.destroy());this.items.forEach(o=>o.destroy());this.platforms.forEach(o=>o.destroy());this.monsters.forEach(o=>o.destroy());this.projectiles.forEach(o=>o.destroy());this.obstacles=[];this.items=[];this.platforms=[];this.monsters=[];this.projectiles=[];this.bursts.forEach(b=>b.text.destroy());this.bursts=[];}
- feedback(kind:string,x:number,y:number){
+ feedback(kind:string,x:number,y:number,message?:string){
   if(kind==='jump'||kind==='star')return;
   this.bursts.forEach(b=>b.text.destroy());this.bursts=[];
   const words:Record<string,string>={map:'지도 발견! +100',shield:'아테나의 방패',wings:'6초간 활공',magnet:'별빛 자석 · 6초',apple:'황금 사과 · 회복',trident:'삼지창 · 다음 몬스터 격퇴',lantern:'등불 · 공중 위협 방어 6초',compass:'나침반 · 안전지점 갱신',strike:'삼지창으로 격퇴!',hurt:'체력 −1',fall:'안전지점으로!',block:'방패가 지켰어요!',finish:'이타카를 향해!'};
-  const text=this.add.text(480,136,words[kind]||'',{fontFamily:'sans-serif',fontStyle:'bold',fontSize:'18px',color:kind==='hurt'?'#ffb8a3':'#ffebae',stroke:'#20394b',strokeThickness:4,resolution:this.host.density()}).setOrigin(.5).setDepth(30);
+  const text=this.add.text(480,180,['near','discovery','constellation','combo','route','highlight','trick','strike'].includes(kind)?message||words[kind]||'새로운 발견!':words[kind]||'',{fontFamily:'sans-serif',fontStyle:'bold',fontSize:'18px',color:kind==='hurt'?'#ffb8a3':'#ffebae',stroke:'#20394b',strokeThickness:4,resolution:this.host.density()}).setOrigin(.5).setDepth(30);
   this.bursts.push({text,life:.9});
  }
  update(_time:number,delta:number){
@@ -102,7 +102,7 @@ export class World extends Phaser.Scene {
   const groundSpan=(a:number,b:number)=>{if(b<=a)return;g.fillStyle(dark?0x505b68:this.stage==='wind'?0x9aaca5:0xcab28c).fillRect(a-cam,440,b-a,100);g.fillStyle(dark?0x465360:0x81988e,.12).fillRect(a-cam,516,b-a,24);const band=this.groundArt[spanIndex++];if(band&&b-a>=1){band.setPosition(a-cam,440).setSize(b-a,16).setAlpha(reduced?.035:.08).setVisible(true);band.tilePositionX=a-cam;}g.lineStyle(2,dark?0xb1bbc1:0xe7d5ac,.8).lineBetween(a-cam,440,b-cam,440);};
   for(const gap of r.course.gaps){if(gap.x+gap.w<start||gap.x>cam+1000)continue;groundSpan(start,gap.x);start=gap.x+gap.w;}
   groundSpan(start,cam+1000);
-  this.obstacles.forEach((s,i)=>{const o=r.course.obstacles[i],x=o.x-cam;s.setVisible(x>-200&&x<1020).setX(x);if(o.kind==='falling'){const d=o.x-r.x;s.y=o.y-Math.max(0,Math.min(290,(d-100)*1.5));}});
+  this.obstacles.forEach((s,i)=>{const o=r.course.obstacles[i],x=o.x-cam;s.setVisible(x>-200&&x<1020).setX(x);if(o.kind==='hand'){const d=o.x-r.x;s.y=o.y-Math.max(0,Math.min(260,(d-150)*.8));}if(o.kind==='falling'){const d=o.x-r.x;s.y=o.y-Math.max(0,Math.min(290,(d-100)*1.5));}});
   this.items.forEach((s,i)=>{const item=r.course.items[i],x=item.x-cam;s.setVisible(!r.collected.has(item.id)&&x>-40&&x<1000).setPosition(x,item.y);});
   this.platforms.forEach((s,i)=>{const p=r.course.platforms[i];s.setPosition(p.x-cam,r.platformY(p)).setVisible(Math.abs(p.x-r.x)<1100);});
   this.monsters.forEach((s,i)=>{const e=r.enemyStates[i],x=e.x-cam,f=MONSTER_ART.frames[e.kind],h=s.displayHeight;s.setVisible(!e.defeated&&e.reveal>0&&x>-150&&x<1050).setPosition(x+e.w/2,e.kind==='harpy'||e.kind==='shade'?e.y+e.h+4:440+h*(1-e.reveal)).setAlpha(e.repelled?.4:e.kind==='shade'&&!e.active?.35:1);if(e.kind==='scylla')s.setCrop(0,0,f.w,Math.max(1,Math.floor(f.h*e.reveal)));const rock=this.projectiles[i];rock.setPosition(e.projectile.x-cam,e.projectile.y).setVisible(e.projectile.active&&x>-200&&x<1050);});
@@ -115,13 +115,27 @@ export class World extends Phaser.Scene {
   });
   r.course.obstacles.filter(o=>o.kind==='falling'&&o.x-r.x<650&&o.x>r.x-70).forEach(o=>{const x=o.x-cam+30;fx.fillStyle(0xe8b04d,.22).fillRect(x-42,340,84,100);fx.fillStyle(0xeab758).fillTriangle(x,310,x-12,332,x+12,332);});
   r.enemyStates.forEach(e=>{if(!e.warning||e.defeated||e.repelled)return;const x=e.x-cam+e.w/2;if(x<50||x>930)return;fx.fillStyle(0xe8be72,.7).fillTriangle(x,300,x-6,310,x+6,310);});
+  this.drawAdventure(r,cam,reduced);
   this.drawHero(r);
   if(r.shield){fx.lineStyle(2,0xffdf85,.8).strokeEllipse(192,r.y-(r.sliding?18:40),r.sliding?66:86,r.sliding?44:96);}
   if(r.wings>0){fx.lineStyle(4,0xf4f3d4,.8);fx.lineBetween(160,r.y-40,132,r.y-63);fx.lineBetween(222,r.y-40,246,r.y-63);}
   this.giant.setVisible(this.stage==='cave').setPosition(r.hp<=0?140:r.hp===3?-45:r.hp===2?15:63,440).setDisplaySize(170,230);
-  if(r.x<3200){this.label.setPosition(590,160).setText(r.x<1000?'이타카로 가는 여정, 출발!':this.stage==='wind'?'↑ 바람길에서 가볍게 뛰어 보세요':r.x<2100?'Space / ↑ · 점프, 한 번 더 누르면 2단 점프':'↓ 꾹 누르기 · 슬라이드');}
-  else if(r.x>22400){this.label.setPosition(650,180).setText(this.stage==='wind'?'이타카 항구가 보여요!':'도착 항구가 보여요!');this.boat.setVisible(true).setPosition(760-(r.x-22400)*.08,370).setDisplaySize(216,142);}
+  if(r.x<3200){this.label.setPosition(590,215).setText(r.x<1000?'이타카로 가는 여정, 출발!':this.stage==='wind'?'↑ 바람길에서 가볍게 뛰어 보세요':r.x<2100?'Space / ↑ · 점프, 한 번 더 누르면 2단 점프':'↓ 꾹 누르기 · 슬라이드');}
+  else if(r.x>22400){this.label.setPosition(650,215).setText(this.stage==='wind'?'이타카 항구가 보여요!':'도착 항구가 보여요!');this.boat.setVisible(true).setPosition(760-(r.x-22400)*.08,370).setDisplaySize(216,142);}
   else{this.label.setText('');this.boat.setVisible(false);}
+  const highlight=r.adventure.highlight,branch=r.adventure.branch;
+  if(r.x>=highlight.start&&r.x<=highlight.end)this.label.setPosition(580,215).setText(`${highlight.name}\n${highlight.hint}`);
+  else if(r.x>=branch.start-700&&r.x<branch.end)this.label.setPosition(620,215).setText('↑ 높은 길: 별자리와 이야기 · 아래: 안전한 길');
+ }
+ private drawAdventure(r:Runner,cam:number,reduced:boolean){
+  const fx=this.fx,branch=r.adventure.branch;
+  if(branch.start-cam<1000&&branch.end-cam>0){fx.lineStyle(2,0xf1cf7b,.7).lineBetween(branch.start-cam,330,branch.end-cam,330);const x=branch.start-cam-65;fx.fillStyle(0xf1cf7b,.8).fillTriangle(x,350,x-10,370,x+10,370);}
+  for(const group of r.adventure.constellations){const points=group.stars.map(id=>r.course.items.find(s=>s.id===id)!);if(points.every(s=>s.x-cam<0||s.x-cam>1000))continue;fx.lineStyle(r.constellations.has(group.id)?3:1,0xf5d88d,r.constellations.has(group.id)?.85:.35);const order=group.shape==='ship'?[0,1,3,4,0,2,3]:[0,1,2,3,4];for(let i=1;i<order.length;i++){const a=points[order[i-1]],b=points[order[i]];fx.lineBetween(a.x-cam,a.y,b.x-cam,b.y);}if(r.constellations.has(group.id)){const mid=points[2];fx.lineStyle(2,0xffe9ae,.8).strokeCircle(mid.x-cam,mid.y,22);}}
+  for(const story of r.adventure.stories){if(r.stories.has(story.id)||Math.abs(story.x-r.x)>1000)continue;const x=story.x-cam,y=story.y-20;fx.fillStyle(0xeee2ba,.95).fillRoundedRect(x-12,y-20,24,24,4);fx.lineStyle(2,0x8d795e,.8).lineBetween(x-7,y-13,x+7,y-13).lineBetween(x-7,y-7,x+4,y-7);if(story.pose==='duck'){fx.lineStyle(2,0xf6d694,.9).lineBetween(x,y-43,x,y-29).lineBetween(x,y-29,x-5,y-35).lineBetween(x,y-29,x+5,y-35);}}
+  const h=r.adventure.highlight;if(this.stage==='beach'&&r.x>h.start&&r.x<h.end){const gap=r.course.gaps[0];for(let i=0;i<4;i++){const fall=reduced?70:Math.max(0,Math.min(110,(r.x-(gap.x-260))*0.5));fx.fillStyle(0x947354,.85).fillRoundedRect(gap.x+i*38-cam,440+fall,31,8,2);}fx.lineStyle(2,0xe2bd72,.8).lineBetween(gap.x-cam-15,433,gap.x-cam-2,420);}
+  if(this.stage==='wind'&&r.x>h.start-700&&r.x<h.end){for(const p of r.course.platforms.filter(p=>p.x>19400)){const x=p.x-cam,y=r.platformY(p);fx.fillStyle(0xe8f1dc,.65).fillEllipse(x+p.w/2,y+10,p.w+18,26);}}
+  if(r.wings>0&&r.magnet>0){fx.lineStyle(2,0xd8eddd,.6).strokeEllipse(192,r.y-35,98,110);}
+  if(r.lantern>0&&r.trident){fx.lineStyle(2,0xffe3a2,.75).strokeCircle(192,r.y-32,54);}
  }
  private drawHero(r:Runner){
   // Use the simulation clock so pause/countdown/tab suspension freeze the pose.

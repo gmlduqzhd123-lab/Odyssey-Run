@@ -1,0 +1,2532 @@
+{
+  "scoreMax": 4200,
+  "goalTypes": {
+    "maps": {
+      "name": "지도 탐험가",
+      "description": "이번 판 지도 2개 찾기",
+      "target": 2
+    },
+    "dodge": {
+      "name": "지혜로운 회피",
+      "description": "몬스터 3마리를 직접 피하기",
+      "target": 3
+    },
+    "sky": {
+      "name": "별자리 항해사",
+      "description": "별자리 1개 완성하기",
+      "target": 1
+    },
+    "story": {
+      "name": "이야기 수집가",
+      "description": "숨은 이야기 1개 발견하기",
+      "target": 1
+    }
+  },
+  "combos": {
+    "glide": {
+      "name": "별빛 활공",
+      "description": "날개 + 자석: 별빛 수집 반경이 160→240px!"
+    },
+    "guardian": {
+      "name": "빛의 삼지창",
+      "description": "등불 + 삼지창: 격퇴 범위가 200→300px!"
+    }
+  },
+  "balance": {
+    "glideMagnet": 240,
+    "guardianRange": 300,
+    "nearDistance": 18
+  },
+  "stages": [
+    {
+      "id": "beach",
+      "plan": {
+        "branch": {
+          "id": "beach-branch",
+          "start": 4140,
+          "end": 4740,
+          "y": 330
+        },
+        "stories": [
+          {
+            "id": "beach-story-1",
+            "x": 4440,
+            "y": 330,
+            "pose": "upper",
+            "title": "나우시카의 리본",
+            "quote": "발견 · 푸른 리본이 귀환의 방향을 알려 줘요.",
+            "story": "나우시카는 도움을 준 뒤 푸른 리본을 남겼어요. 낯선 해변에서도 누군가의 친절은 다음 항해를 시작할 힘이 되었지요."
+          },
+          {
+            "id": "beach-story-2",
+            "x": 16750,
+            "y": 440,
+            "pose": "duck",
+            "title": "선원의 작은 약속",
+            "quote": "발견 · 작은 약속이 먼 바다를 건너게 해요.",
+            "story": "선원은 부두 아래에 약속을 새겼어요. “별을 함께 세면 길을 잃지 않아.” 오디세우스는 고향에서 다시 만나자고 답했어요."
+          }
+        ],
+        "constellations": [
+          {
+            "id": "beach-constellation-1",
+            "name": "귀환의 배",
+            "shape": "ship",
+            "stars": [
+              "beach-star-16",
+              "beach-star-17",
+              "beach-star-18",
+              "beach-star-19",
+              "beach-star-20"
+            ]
+          },
+          {
+            "id": "beach-constellation-2",
+            "name": "아테나의 부엉이",
+            "shape": "owl",
+            "stars": [
+              "beach-star-31",
+              "beach-star-32",
+              "beach-star-33",
+              "beach-star-34",
+              "beach-star-35"
+            ]
+          },
+          {
+            "id": "beach-constellation-3",
+            "name": "이타카의 왕관",
+            "shape": "crown",
+            "stars": [
+              "beach-star-86",
+              "beach-star-87",
+              "beach-star-88",
+              "beach-star-89",
+              "beach-star-90"
+            ]
+          }
+        ],
+        "highlight": {
+          "id": "beach-pier",
+          "start": 7800,
+          "end": 9100,
+          "name": "무너지는 부두",
+          "hint": "갈라진 널빤지를 보고 2단 점프!"
+        }
+      },
+      "platforms": [
+        {
+          "id": "beach-branch",
+          "x": 4140,
+          "y": 330,
+          "w": 600
+        }
+      ],
+      "hand": [],
+      "enemies": [
+        {
+          "id": "beach-enemy-ground-1",
+          "kind": "crab",
+          "x": 7400
+        },
+        {
+          "id": "beach-enemy-ground-2",
+          "kind": "scylla",
+          "x": 11800
+        },
+        {
+          "id": "beach-enemy-ground-3",
+          "kind": "crab",
+          "x": 16200
+        },
+        {
+          "id": "beach-enemy-ground-4",
+          "kind": "scylla",
+          "x": 20400
+        },
+        {
+          "id": "beach-enemy-air-1",
+          "kind": "harpy",
+          "x": 5700
+        },
+        {
+          "id": "beach-enemy-air-2",
+          "kind": "harpy",
+          "x": 13900
+        },
+        {
+          "id": "beach-enemy-air-3",
+          "kind": "harpy",
+          "x": 18100
+        }
+      ],
+      "stars": [
+        {
+          "id": "beach-star-1",
+          "kind": "star",
+          "x": 850,
+          "y": 405
+        },
+        {
+          "id": "beach-star-2",
+          "kind": "star",
+          "x": 915,
+          "y": 405
+        },
+        {
+          "id": "beach-star-3",
+          "kind": "star",
+          "x": 980,
+          "y": 405
+        },
+        {
+          "id": "beach-star-4",
+          "kind": "star",
+          "x": 1045,
+          "y": 405
+        },
+        {
+          "id": "beach-star-5",
+          "kind": "star",
+          "x": 1110,
+          "y": 405
+        },
+        {
+          "id": "beach-star-6",
+          "kind": "star",
+          "x": 2000,
+          "y": 405
+        },
+        {
+          "id": "beach-star-7",
+          "kind": "star",
+          "x": 2065,
+          "y": 405
+        },
+        {
+          "id": "beach-star-8",
+          "kind": "star",
+          "x": 2130,
+          "y": 405
+        },
+        {
+          "id": "beach-star-9",
+          "kind": "star",
+          "x": 2195,
+          "y": 405
+        },
+        {
+          "id": "beach-star-10",
+          "kind": "star",
+          "x": 2260,
+          "y": 405
+        },
+        {
+          "id": "beach-star-11",
+          "kind": "star",
+          "x": 3150,
+          "y": 405
+        },
+        {
+          "id": "beach-star-12",
+          "kind": "star",
+          "x": 3215,
+          "y": 405
+        },
+        {
+          "id": "beach-star-13",
+          "kind": "star",
+          "x": 3280,
+          "y": 405
+        },
+        {
+          "id": "beach-star-14",
+          "kind": "star",
+          "x": 3345,
+          "y": 405
+        },
+        {
+          "id": "beach-star-15",
+          "kind": "star",
+          "x": 3410,
+          "y": 405
+        },
+        {
+          "id": "beach-star-16",
+          "kind": "star",
+          "x": 4310,
+          "y": 285
+        },
+        {
+          "id": "beach-star-17",
+          "kind": "star",
+          "x": 4370,
+          "y": 305
+        },
+        {
+          "id": "beach-star-18",
+          "kind": "star",
+          "x": 4430,
+          "y": 265
+        },
+        {
+          "id": "beach-star-19",
+          "kind": "star",
+          "x": 4490,
+          "y": 305
+        },
+        {
+          "id": "beach-star-20",
+          "kind": "star",
+          "x": 4550,
+          "y": 285
+        },
+        {
+          "id": "beach-star-21",
+          "kind": "star",
+          "x": 5450,
+          "y": 405
+        },
+        {
+          "id": "beach-star-22",
+          "kind": "star",
+          "x": 5515,
+          "y": 405
+        },
+        {
+          "id": "beach-star-23",
+          "kind": "star",
+          "x": 5580,
+          "y": 405
+        },
+        {
+          "id": "beach-star-24",
+          "kind": "star",
+          "x": 5645,
+          "y": 405
+        },
+        {
+          "id": "beach-star-25",
+          "kind": "star",
+          "x": 5710,
+          "y": 405
+        },
+        {
+          "id": "beach-star-26",
+          "kind": "star",
+          "x": 6600,
+          "y": 421
+        },
+        {
+          "id": "beach-star-27",
+          "kind": "star",
+          "x": 6665,
+          "y": 405
+        },
+        {
+          "id": "beach-star-28",
+          "kind": "star",
+          "x": 6730,
+          "y": 405
+        },
+        {
+          "id": "beach-star-29",
+          "kind": "star",
+          "x": 6795,
+          "y": 405
+        },
+        {
+          "id": "beach-star-30",
+          "kind": "star",
+          "x": 6860,
+          "y": 405
+        },
+        {
+          "id": "beach-star-31",
+          "kind": "star",
+          "x": 7680,
+          "y": 405
+        },
+        {
+          "id": "beach-star-32",
+          "kind": "star",
+          "x": 7740,
+          "y": 370
+        },
+        {
+          "id": "beach-star-33",
+          "kind": "star",
+          "x": 7800,
+          "y": 395
+        },
+        {
+          "id": "beach-star-34",
+          "kind": "star",
+          "x": 7860,
+          "y": 370
+        },
+        {
+          "id": "beach-star-35",
+          "kind": "star",
+          "x": 7920,
+          "y": 405
+        },
+        {
+          "id": "beach-star-36",
+          "kind": "star",
+          "x": 8900,
+          "y": 405
+        },
+        {
+          "id": "beach-star-37",
+          "kind": "star",
+          "x": 8965,
+          "y": 405
+        },
+        {
+          "id": "beach-star-38",
+          "kind": "star",
+          "x": 9030,
+          "y": 405
+        },
+        {
+          "id": "beach-star-39",
+          "kind": "star",
+          "x": 9095,
+          "y": 405
+        },
+        {
+          "id": "beach-star-40",
+          "kind": "star",
+          "x": 9160,
+          "y": 405
+        },
+        {
+          "id": "beach-star-41",
+          "kind": "star",
+          "x": 10050,
+          "y": 405
+        },
+        {
+          "id": "beach-star-42",
+          "kind": "star",
+          "x": 10115,
+          "y": 405
+        },
+        {
+          "id": "beach-star-43",
+          "kind": "star",
+          "x": 10180,
+          "y": 405
+        },
+        {
+          "id": "beach-star-44",
+          "kind": "star",
+          "x": 10245,
+          "y": 405
+        },
+        {
+          "id": "beach-star-45",
+          "kind": "star",
+          "x": 10310,
+          "y": 405
+        },
+        {
+          "id": "beach-star-46",
+          "kind": "star",
+          "x": 11200,
+          "y": 405
+        },
+        {
+          "id": "beach-star-47",
+          "kind": "star",
+          "x": 11265,
+          "y": 405
+        },
+        {
+          "id": "beach-star-48",
+          "kind": "star",
+          "x": 11330,
+          "y": 405
+        },
+        {
+          "id": "beach-star-49",
+          "kind": "star",
+          "x": 11395,
+          "y": 405
+        },
+        {
+          "id": "beach-star-50",
+          "kind": "star",
+          "x": 11460,
+          "y": 405
+        },
+        {
+          "id": "beach-star-51",
+          "kind": "star",
+          "x": 12350,
+          "y": 405
+        },
+        {
+          "id": "beach-star-52",
+          "kind": "star",
+          "x": 12415,
+          "y": 405
+        },
+        {
+          "id": "beach-star-53",
+          "kind": "star",
+          "x": 12480,
+          "y": 405
+        },
+        {
+          "id": "beach-star-54",
+          "kind": "star",
+          "x": 12545,
+          "y": 405
+        },
+        {
+          "id": "beach-star-55",
+          "kind": "star",
+          "x": 12610,
+          "y": 405
+        },
+        {
+          "id": "beach-star-56",
+          "kind": "star",
+          "x": 13500,
+          "y": 405
+        },
+        {
+          "id": "beach-star-57",
+          "kind": "star",
+          "x": 13565,
+          "y": 405
+        },
+        {
+          "id": "beach-star-58",
+          "kind": "star",
+          "x": 13630,
+          "y": 405
+        },
+        {
+          "id": "beach-star-59",
+          "kind": "star",
+          "x": 13695,
+          "y": 405
+        },
+        {
+          "id": "beach-star-60",
+          "kind": "star",
+          "x": 13760,
+          "y": 405
+        },
+        {
+          "id": "beach-star-61",
+          "kind": "star",
+          "x": 14650,
+          "y": 225
+        },
+        {
+          "id": "beach-star-62",
+          "kind": "star",
+          "x": 14715,
+          "y": 225
+        },
+        {
+          "id": "beach-star-63",
+          "kind": "star",
+          "x": 14780,
+          "y": 405
+        },
+        {
+          "id": "beach-star-64",
+          "kind": "star",
+          "x": 15460,
+          "y": 260
+        },
+        {
+          "id": "beach-star-65",
+          "kind": "star",
+          "x": 15340,
+          "y": 225
+        },
+        {
+          "id": "beach-star-66",
+          "kind": "star",
+          "x": 15220,
+          "y": 355
+        },
+        {
+          "id": "beach-star-67",
+          "kind": "star",
+          "x": 15280,
+          "y": 290
+        },
+        {
+          "id": "beach-star-68",
+          "kind": "star",
+          "x": 15400,
+          "y": 205
+        },
+        {
+          "id": "beach-star-69",
+          "kind": "star",
+          "x": 15995,
+          "y": 405
+        },
+        {
+          "id": "beach-star-70",
+          "kind": "star",
+          "x": 16060,
+          "y": 320
+        },
+        {
+          "id": "beach-star-71",
+          "kind": "star",
+          "x": 16950,
+          "y": 405
+        },
+        {
+          "id": "beach-star-72",
+          "kind": "star",
+          "x": 17015,
+          "y": 405
+        },
+        {
+          "id": "beach-star-73",
+          "kind": "star",
+          "x": 17080,
+          "y": 405
+        },
+        {
+          "id": "beach-star-74",
+          "kind": "star",
+          "x": 17145,
+          "y": 405
+        },
+        {
+          "id": "beach-star-75",
+          "kind": "star",
+          "x": 17210,
+          "y": 405
+        },
+        {
+          "id": "beach-star-76",
+          "kind": "star",
+          "x": 18100,
+          "y": 405
+        },
+        {
+          "id": "beach-star-77",
+          "kind": "star",
+          "x": 18165,
+          "y": 405
+        },
+        {
+          "id": "beach-star-78",
+          "kind": "star",
+          "x": 18230,
+          "y": 405
+        },
+        {
+          "id": "beach-star-79",
+          "kind": "star",
+          "x": 18295,
+          "y": 405
+        },
+        {
+          "id": "beach-star-80",
+          "kind": "star",
+          "x": 18360,
+          "y": 405
+        },
+        {
+          "id": "beach-star-81",
+          "kind": "star",
+          "x": 19250,
+          "y": 405
+        },
+        {
+          "id": "beach-star-82",
+          "kind": "star",
+          "x": 19315,
+          "y": 405
+        },
+        {
+          "id": "beach-star-83",
+          "kind": "star",
+          "x": 19380,
+          "y": 405
+        },
+        {
+          "id": "beach-star-84",
+          "kind": "star",
+          "x": 19445,
+          "y": 405
+        },
+        {
+          "id": "beach-star-85",
+          "kind": "star",
+          "x": 19510,
+          "y": 405
+        },
+        {
+          "id": "beach-star-86",
+          "kind": "star",
+          "x": 22080,
+          "y": 405
+        },
+        {
+          "id": "beach-star-87",
+          "kind": "star",
+          "x": 22140,
+          "y": 370
+        },
+        {
+          "id": "beach-star-88",
+          "kind": "star",
+          "x": 22200,
+          "y": 405
+        },
+        {
+          "id": "beach-star-89",
+          "kind": "star",
+          "x": 22260,
+          "y": 370
+        },
+        {
+          "id": "beach-star-90",
+          "kind": "star",
+          "x": 22320,
+          "y": 405
+        },
+        {
+          "id": "beach-star-91",
+          "kind": "star",
+          "x": 21550,
+          "y": 421
+        },
+        {
+          "id": "beach-star-92",
+          "kind": "star",
+          "x": 21615,
+          "y": 421
+        },
+        {
+          "id": "beach-star-93",
+          "kind": "star",
+          "x": 21680,
+          "y": 421
+        },
+        {
+          "id": "beach-star-94",
+          "kind": "star",
+          "x": 21745,
+          "y": 421
+        },
+        {
+          "id": "beach-star-95",
+          "kind": "star",
+          "x": 21810,
+          "y": 421
+        },
+        {
+          "id": "beach-star-96",
+          "kind": "star",
+          "x": 22700,
+          "y": 405
+        },
+        {
+          "id": "beach-star-97",
+          "kind": "star",
+          "x": 22765,
+          "y": 405
+        },
+        {
+          "id": "beach-star-98",
+          "kind": "star",
+          "x": 22830,
+          "y": 405
+        },
+        {
+          "id": "beach-star-99",
+          "kind": "star",
+          "x": 22895,
+          "y": 405
+        },
+        {
+          "id": "beach-star-100",
+          "kind": "star",
+          "x": 22960,
+          "y": 405
+        }
+      ],
+      "powerPlacements": [
+        {
+          "id": "beach-shield-0",
+          "kind": "shield",
+          "x": 1900,
+          "y": 395
+        },
+        {
+          "id": "beach-wings-1",
+          "kind": "wings",
+          "x": 4600,
+          "y": 395
+        },
+        {
+          "id": "beach-magnet-2",
+          "kind": "magnet",
+          "x": 4800,
+          "y": 395
+        },
+        {
+          "id": "beach-apple-3",
+          "kind": "apple",
+          "x": 10000,
+          "y": 395
+        },
+        {
+          "id": "beach-shield-4",
+          "kind": "shield",
+          "x": 12700,
+          "y": 395
+        },
+        {
+          "id": "beach-wings-5",
+          "kind": "wings",
+          "x": 15400,
+          "y": 395
+        },
+        {
+          "id": "beach-magnet-6",
+          "kind": "magnet",
+          "x": 18100,
+          "y": 395
+        },
+        {
+          "id": "beach-apple-7",
+          "kind": "apple",
+          "x": 20800,
+          "y": 395
+        },
+        {
+          "id": "beach-trident-extra-1",
+          "kind": "trident",
+          "x": 4200,
+          "y": 395
+        },
+        {
+          "id": "beach-trident-extra-2",
+          "kind": "trident",
+          "x": 15100,
+          "y": 395
+        },
+        {
+          "id": "beach-lantern-extra-1",
+          "kind": "lantern",
+          "x": 4300,
+          "y": 395
+        },
+        {
+          "id": "beach-lantern-extra-2",
+          "kind": "lantern",
+          "x": 17800,
+          "y": 395
+        },
+        {
+          "id": "beach-compass-extra-1",
+          "kind": "compass",
+          "x": 7800,
+          "y": 395,
+          "checkpoint": 7720
+        },
+        {
+          "id": "beach-compass-extra-2",
+          "kind": "compass",
+          "x": 16800,
+          "y": 395,
+          "checkpoint": 16720
+        }
+      ]
+    },
+    {
+      "id": "cave",
+      "plan": {
+        "branch": {
+          "id": "cave-branch",
+          "start": 7540,
+          "end": 8000,
+          "y": 330
+        },
+        "stories": [
+          {
+            "id": "cave-story-1",
+            "x": 7770,
+            "y": 330,
+            "pose": "upper",
+            "title": "아무도 아닌 이름",
+            "quote": "발견 · 아무도 아닌 이름에 지혜가 숨어 있어요.",
+            "story": "오디세우스는 거인에게 자신을 “아무도”라고 소개했어요. 거인이 도움을 청해도 친구들은 누구에게 당했는지 알 수 없었지요. 큰 힘보다 생각이 빛난 순간이에요."
+          },
+          {
+            "id": "cave-story-2",
+            "x": 17300,
+            "y": 440,
+            "pose": "duck",
+            "title": "조언자의 등불",
+            "quote": "발견 · 작은 등불은 위험을 먼저 보여 줘요.",
+            "story": "조언자는 동굴 벽에 적었어요. “앞만 보지 말고, 그림자가 가리키는 곳도 살펴라.” 작은 등불은 두려움을 없애기보다 피할 길을 먼저 보여 주었어요."
+          }
+        ],
+        "constellations": [
+          {
+            "id": "cave-constellation-1",
+            "name": "귀환의 배",
+            "shape": "ship",
+            "stars": [
+              "cave-star-16",
+              "cave-star-17",
+              "cave-star-18",
+              "cave-star-19",
+              "cave-star-20"
+            ]
+          },
+          {
+            "id": "cave-constellation-2",
+            "name": "아테나의 부엉이",
+            "shape": "owl",
+            "stars": [
+              "cave-star-31",
+              "cave-star-32",
+              "cave-star-33",
+              "cave-star-34",
+              "cave-star-35"
+            ]
+          },
+          {
+            "id": "cave-constellation-3",
+            "name": "이타카의 왕관",
+            "shape": "crown",
+            "stars": [
+              "cave-star-86",
+              "cave-star-87",
+              "cave-star-88",
+              "cave-star-89",
+              "cave-star-90"
+            ]
+          }
+        ],
+        "highlight": {
+          "id": "cave-hand",
+          "start": 12700,
+          "end": 14100,
+          "name": "거인의 손을 피해!",
+          "hint": "손 아래로 숙인 뒤 끊어진 길에서 점프!"
+        }
+      },
+      "platforms": [
+        {
+          "id": "cave-branch",
+          "x": 7540,
+          "y": 330,
+          "w": 460
+        }
+      ],
+      "hand": [
+        {
+          "id": "cave-hand-13400",
+          "x": 13400,
+          "y": 365,
+          "w": 140,
+          "h": 39,
+          "kind": "hand"
+        }
+      ],
+      "enemies": [
+        {
+          "id": "cave-enemy-ground-1",
+          "kind": "stone",
+          "x": 7200
+        },
+        {
+          "id": "cave-enemy-ground-2",
+          "kind": "cyclops",
+          "x": 12200
+        },
+        {
+          "id": "cave-enemy-ground-3",
+          "kind": "stone",
+          "x": 18000
+        },
+        {
+          "id": "cave-enemy-ground-4",
+          "kind": "cyclops",
+          "x": 21800
+        },
+        {
+          "id": "cave-enemy-air-1",
+          "kind": "shade",
+          "x": 4500
+        },
+        {
+          "id": "cave-enemy-air-2",
+          "kind": "shade",
+          "x": 12900
+        },
+        {
+          "id": "cave-enemy-air-3",
+          "kind": "shade",
+          "x": 19500
+        },
+        {
+          "id": "cave-bait-0",
+          "kind": "stone",
+          "x": 12095,
+          "bait": true
+        },
+        {
+          "id": "cave-bait-1",
+          "kind": "stone",
+          "x": 21695,
+          "bait": true
+        }
+      ],
+      "stars": [
+        {
+          "id": "cave-star-1",
+          "kind": "star",
+          "x": 850,
+          "y": 405
+        },
+        {
+          "id": "cave-star-2",
+          "kind": "star",
+          "x": 915,
+          "y": 405
+        },
+        {
+          "id": "cave-star-3",
+          "kind": "star",
+          "x": 980,
+          "y": 405
+        },
+        {
+          "id": "cave-star-4",
+          "kind": "star",
+          "x": 1045,
+          "y": 405
+        },
+        {
+          "id": "cave-star-5",
+          "kind": "star",
+          "x": 1110,
+          "y": 405
+        },
+        {
+          "id": "cave-star-6",
+          "kind": "star",
+          "x": 2000,
+          "y": 405
+        },
+        {
+          "id": "cave-star-7",
+          "kind": "star",
+          "x": 2065,
+          "y": 405
+        },
+        {
+          "id": "cave-star-8",
+          "kind": "star",
+          "x": 2130,
+          "y": 405
+        },
+        {
+          "id": "cave-star-9",
+          "kind": "star",
+          "x": 2195,
+          "y": 405
+        },
+        {
+          "id": "cave-star-10",
+          "kind": "star",
+          "x": 2260,
+          "y": 405
+        },
+        {
+          "id": "cave-star-11",
+          "kind": "star",
+          "x": 3150,
+          "y": 320
+        },
+        {
+          "id": "cave-star-12",
+          "kind": "star",
+          "x": 3215,
+          "y": 303.02943725152284
+        },
+        {
+          "id": "cave-star-13",
+          "kind": "star",
+          "x": 3280,
+          "y": 296
+        },
+        {
+          "id": "cave-star-14",
+          "kind": "star",
+          "x": 3345,
+          "y": 303.02943725152284
+        },
+        {
+          "id": "cave-star-15",
+          "kind": "star",
+          "x": 3410,
+          "y": 320
+        },
+        {
+          "id": "cave-star-16",
+          "kind": "star",
+          "x": 7650,
+          "y": 285
+        },
+        {
+          "id": "cave-star-17",
+          "kind": "star",
+          "x": 7710,
+          "y": 305
+        },
+        {
+          "id": "cave-star-18",
+          "kind": "star",
+          "x": 7770,
+          "y": 265
+        },
+        {
+          "id": "cave-star-19",
+          "kind": "star",
+          "x": 7830,
+          "y": 305
+        },
+        {
+          "id": "cave-star-20",
+          "kind": "star",
+          "x": 7890,
+          "y": 285
+        },
+        {
+          "id": "cave-star-21",
+          "kind": "star",
+          "x": 5810,
+          "y": 260
+        },
+        {
+          "id": "cave-star-22",
+          "kind": "star",
+          "x": 5750,
+          "y": 205
+        },
+        {
+          "id": "cave-star-23",
+          "kind": "star",
+          "x": 5690,
+          "y": 225
+        },
+        {
+          "id": "cave-star-24",
+          "kind": "star",
+          "x": 5630,
+          "y": 290
+        },
+        {
+          "id": "cave-star-25",
+          "kind": "star",
+          "x": 5570,
+          "y": 355
+        },
+        {
+          "id": "cave-star-26",
+          "kind": "star",
+          "x": 6600,
+          "y": 405
+        },
+        {
+          "id": "cave-star-27",
+          "kind": "star",
+          "x": 6665,
+          "y": 405
+        },
+        {
+          "id": "cave-star-28",
+          "kind": "star",
+          "x": 6730,
+          "y": 405
+        },
+        {
+          "id": "cave-star-29",
+          "kind": "star",
+          "x": 6795,
+          "y": 405
+        },
+        {
+          "id": "cave-star-30",
+          "kind": "star",
+          "x": 6860,
+          "y": 405
+        },
+        {
+          "id": "cave-star-31",
+          "kind": "star",
+          "x": 9480,
+          "y": 405
+        },
+        {
+          "id": "cave-star-32",
+          "kind": "star",
+          "x": 9540,
+          "y": 370
+        },
+        {
+          "id": "cave-star-33",
+          "kind": "star",
+          "x": 9600,
+          "y": 395
+        },
+        {
+          "id": "cave-star-34",
+          "kind": "star",
+          "x": 9660,
+          "y": 370
+        },
+        {
+          "id": "cave-star-35",
+          "kind": "star",
+          "x": 9720,
+          "y": 405
+        },
+        {
+          "id": "cave-star-36",
+          "kind": "star",
+          "x": 8900,
+          "y": 405
+        },
+        {
+          "id": "cave-star-37",
+          "kind": "star",
+          "x": 8965,
+          "y": 405
+        },
+        {
+          "id": "cave-star-38",
+          "kind": "star",
+          "x": 9030,
+          "y": 296
+        },
+        {
+          "id": "cave-star-39",
+          "kind": "star",
+          "x": 9095,
+          "y": 303.02943725152284
+        },
+        {
+          "id": "cave-star-40",
+          "kind": "star",
+          "x": 9160,
+          "y": 320
+        },
+        {
+          "id": "cave-star-41",
+          "kind": "star",
+          "x": 10050,
+          "y": 225
+        },
+        {
+          "id": "cave-star-42",
+          "kind": "star",
+          "x": 10115,
+          "y": 225
+        },
+        {
+          "id": "cave-star-43",
+          "kind": "star",
+          "x": 10180,
+          "y": 405
+        },
+        {
+          "id": "cave-star-44",
+          "kind": "star",
+          "x": 10245,
+          "y": 405
+        },
+        {
+          "id": "cave-star-45",
+          "kind": "star",
+          "x": 10310,
+          "y": 405
+        },
+        {
+          "id": "cave-star-46",
+          "kind": "star",
+          "x": 11200,
+          "y": 421
+        },
+        {
+          "id": "cave-star-47",
+          "kind": "star",
+          "x": 11265,
+          "y": 421
+        },
+        {
+          "id": "cave-star-48",
+          "kind": "star",
+          "x": 11330,
+          "y": 421
+        },
+        {
+          "id": "cave-star-49",
+          "kind": "star",
+          "x": 11395,
+          "y": 405
+        },
+        {
+          "id": "cave-star-50",
+          "kind": "star",
+          "x": 11460,
+          "y": 405
+        },
+        {
+          "id": "cave-star-51",
+          "kind": "star",
+          "x": 12350,
+          "y": 320
+        },
+        {
+          "id": "cave-star-52",
+          "kind": "star",
+          "x": 12415,
+          "y": 405
+        },
+        {
+          "id": "cave-star-53",
+          "kind": "star",
+          "x": 12480,
+          "y": 405
+        },
+        {
+          "id": "cave-star-54",
+          "kind": "star",
+          "x": 12545,
+          "y": 405
+        },
+        {
+          "id": "cave-star-55",
+          "kind": "star",
+          "x": 12610,
+          "y": 405
+        },
+        {
+          "id": "cave-star-56",
+          "kind": "star",
+          "x": 13500,
+          "y": 405
+        },
+        {
+          "id": "cave-star-57",
+          "kind": "star",
+          "x": 13565,
+          "y": 405
+        },
+        {
+          "id": "cave-star-58",
+          "kind": "star",
+          "x": 13630,
+          "y": 405
+        },
+        {
+          "id": "cave-star-59",
+          "kind": "star",
+          "x": 13695,
+          "y": 405
+        },
+        {
+          "id": "cave-star-60",
+          "kind": "star",
+          "x": 13760,
+          "y": 405
+        },
+        {
+          "id": "cave-star-61",
+          "kind": "star",
+          "x": 14650,
+          "y": 320
+        },
+        {
+          "id": "cave-star-62",
+          "kind": "star",
+          "x": 14715,
+          "y": 303.02943725152284
+        },
+        {
+          "id": "cave-star-63",
+          "kind": "star",
+          "x": 14780,
+          "y": 296
+        },
+        {
+          "id": "cave-star-64",
+          "kind": "star",
+          "x": 14845,
+          "y": 303.02943725152284
+        },
+        {
+          "id": "cave-star-65",
+          "kind": "star",
+          "x": 14910,
+          "y": 320
+        },
+        {
+          "id": "cave-star-66",
+          "kind": "star",
+          "x": 15800,
+          "y": 405
+        },
+        {
+          "id": "cave-star-67",
+          "kind": "star",
+          "x": 15865,
+          "y": 405
+        },
+        {
+          "id": "cave-star-68",
+          "kind": "star",
+          "x": 15930,
+          "y": 405
+        },
+        {
+          "id": "cave-star-69",
+          "kind": "star",
+          "x": 15995,
+          "y": 405
+        },
+        {
+          "id": "cave-star-70",
+          "kind": "star",
+          "x": 16060,
+          "y": 405
+        },
+        {
+          "id": "cave-star-71",
+          "kind": "star",
+          "x": 16950,
+          "y": 405
+        },
+        {
+          "id": "cave-star-72",
+          "kind": "star",
+          "x": 17015,
+          "y": 405
+        },
+        {
+          "id": "cave-star-73",
+          "kind": "star",
+          "x": 17080,
+          "y": 405
+        },
+        {
+          "id": "cave-star-74",
+          "kind": "star",
+          "x": 17145,
+          "y": 405
+        },
+        {
+          "id": "cave-star-75",
+          "kind": "star",
+          "x": 17210,
+          "y": 405
+        },
+        {
+          "id": "cave-star-76",
+          "kind": "star",
+          "x": 18100,
+          "y": 320
+        },
+        {
+          "id": "cave-star-77",
+          "kind": "star",
+          "x": 18165,
+          "y": 303.02943725152284
+        },
+        {
+          "id": "cave-star-78",
+          "kind": "star",
+          "x": 18230,
+          "y": 405
+        },
+        {
+          "id": "cave-star-79",
+          "kind": "star",
+          "x": 18295,
+          "y": 405
+        },
+        {
+          "id": "cave-star-80",
+          "kind": "star",
+          "x": 18360,
+          "y": 405
+        },
+        {
+          "id": "cave-star-81",
+          "kind": "star",
+          "x": 19250,
+          "y": 405
+        },
+        {
+          "id": "cave-star-82",
+          "kind": "star",
+          "x": 19315,
+          "y": 405
+        },
+        {
+          "id": "cave-star-83",
+          "kind": "star",
+          "x": 19380,
+          "y": 405
+        },
+        {
+          "id": "cave-star-84",
+          "kind": "star",
+          "x": 19445,
+          "y": 405
+        },
+        {
+          "id": "cave-star-85",
+          "kind": "star",
+          "x": 19510,
+          "y": 405
+        },
+        {
+          "id": "cave-star-86",
+          "kind": "star",
+          "x": 23180,
+          "y": 405
+        },
+        {
+          "id": "cave-star-87",
+          "kind": "star",
+          "x": 23240,
+          "y": 370
+        },
+        {
+          "id": "cave-star-88",
+          "kind": "star",
+          "x": 23300,
+          "y": 405
+        },
+        {
+          "id": "cave-star-89",
+          "kind": "star",
+          "x": 23360,
+          "y": 370
+        },
+        {
+          "id": "cave-star-90",
+          "kind": "star",
+          "x": 23420,
+          "y": 405
+        },
+        {
+          "id": "cave-star-91",
+          "kind": "star",
+          "x": 21550,
+          "y": 405
+        },
+        {
+          "id": "cave-star-92",
+          "kind": "star",
+          "x": 21615,
+          "y": 405
+        },
+        {
+          "id": "cave-star-93",
+          "kind": "star",
+          "x": 21680,
+          "y": 296
+        },
+        {
+          "id": "cave-star-94",
+          "kind": "star",
+          "x": 21745,
+          "y": 303.02943725152284
+        },
+        {
+          "id": "cave-star-95",
+          "kind": "star",
+          "x": 21810,
+          "y": 320
+        },
+        {
+          "id": "cave-star-96",
+          "kind": "star",
+          "x": 22700,
+          "y": 421
+        },
+        {
+          "id": "cave-star-97",
+          "kind": "star",
+          "x": 22765,
+          "y": 421
+        },
+        {
+          "id": "cave-star-98",
+          "kind": "star",
+          "x": 22830,
+          "y": 421
+        },
+        {
+          "id": "cave-star-99",
+          "kind": "star",
+          "x": 22895,
+          "y": 421
+        },
+        {
+          "id": "cave-star-100",
+          "kind": "star",
+          "x": 22960,
+          "y": 421
+        }
+      ],
+      "powerPlacements": [
+        {
+          "id": "cave-shield-0",
+          "kind": "shield",
+          "x": 1900,
+          "y": 395
+        },
+        {
+          "id": "cave-wings-1",
+          "kind": "wings",
+          "x": 4600,
+          "y": 395
+        },
+        {
+          "id": "cave-magnet-2",
+          "kind": "magnet",
+          "x": 4800,
+          "y": 395
+        },
+        {
+          "id": "cave-apple-3",
+          "kind": "apple",
+          "x": 10000,
+          "y": 395
+        },
+        {
+          "id": "cave-shield-4",
+          "kind": "shield",
+          "x": 12700,
+          "y": 395
+        },
+        {
+          "id": "cave-wings-5",
+          "kind": "wings",
+          "x": 15400,
+          "y": 395
+        },
+        {
+          "id": "cave-magnet-6",
+          "kind": "magnet",
+          "x": 18100,
+          "y": 395
+        },
+        {
+          "id": "cave-apple-7",
+          "kind": "apple",
+          "x": 20800,
+          "y": 395
+        },
+        {
+          "id": "cave-trident-extra-1",
+          "kind": "trident",
+          "x": 3500,
+          "y": 395
+        },
+        {
+          "id": "cave-trident-extra-2",
+          "kind": "trident",
+          "x": 16000,
+          "y": 395
+        },
+        {
+          "id": "cave-lantern-extra-1",
+          "kind": "lantern",
+          "x": 4150,
+          "y": 395
+        },
+        {
+          "id": "cave-lantern-extra-2",
+          "kind": "lantern",
+          "x": 19280,
+          "y": 395
+        },
+        {
+          "id": "cave-compass-extra-1",
+          "kind": "compass",
+          "x": 7900,
+          "y": 395,
+          "checkpoint": 7820
+        },
+        {
+          "id": "cave-compass-extra-2",
+          "kind": "compass",
+          "x": 18400,
+          "y": 395,
+          "checkpoint": 18320
+        }
+      ]
+    },
+    {
+      "id": "wind",
+      "plan": {
+        "branch": {
+          "id": "wind-branch",
+          "start": 4140,
+          "end": 4740,
+          "y": 330
+        },
+        "stories": [
+          {
+            "id": "wind-story-1",
+            "x": 4440,
+            "y": 330,
+            "pose": "upper",
+            "title": "바람의 편지",
+            "quote": "발견 · 바람은 빌려도 방향은 스스로 정해요.",
+            "story": "아이올로스는 순풍을 선물하며 말했어요. “내가 빌려 주는 것은 바람이다. 돌아갈 곳을 기억하는 일은 너의 몫이지.” 오디세우스는 구름 사이로 고향을 떠올렸어요."
+          },
+          {
+            "id": "wind-story-2",
+            "x": 18800,
+            "y": 440,
+            "pose": "duck",
+            "title": "길잡이의 별",
+            "quote": "발견 · 고향의 별은 기다리는 사람을 비춰요.",
+            "story": "길잡이는 낮은 돌에 별 세 개를 새겼어요. 첫 별은 배, 둘째 별은 등대, 셋째 별은 기다리는 가족을 뜻했어요. 항해의 끝에는 장소보다 사람이 기다리고 있었지요."
+          }
+        ],
+        "constellations": [
+          {
+            "id": "wind-constellation-1",
+            "name": "귀환의 배",
+            "shape": "ship",
+            "stars": [
+              "wind-star-16",
+              "wind-star-17",
+              "wind-star-18",
+              "wind-star-19",
+              "wind-star-20"
+            ]
+          },
+          {
+            "id": "wind-constellation-2",
+            "name": "아테나의 부엉이",
+            "shape": "owl",
+            "stars": [
+              "wind-star-31",
+              "wind-star-32",
+              "wind-star-33",
+              "wind-star-34",
+              "wind-star-35"
+            ]
+          },
+          {
+            "id": "wind-constellation-3",
+            "name": "이타카의 왕관",
+            "shape": "crown",
+            "stars": [
+              "wind-star-86",
+              "wind-star-87",
+              "wind-star-88",
+              "wind-star-89",
+              "wind-star-90"
+            ]
+          }
+        ],
+        "highlight": {
+          "id": "wind-clouds",
+          "start": 19200,
+          "end": 20750,
+          "name": "구름 징검다리",
+          "hint": "바람과 2단 점프로 높은 구름길에 도전!"
+        }
+      },
+      "platforms": [
+        {
+          "id": "wind-floating-1",
+          "x": 2300,
+          "y": 330,
+          "w": 230,
+          "moving": true
+        },
+        {
+          "id": "wind-floating-2",
+          "x": 14100,
+          "y": 340,
+          "w": 150,
+          "moving": true
+        },
+        {
+          "id": "wind-floating-3",
+          "x": 19850,
+          "y": 350,
+          "w": 180,
+          "moving": true
+        },
+        {
+          "id": "wind-branch",
+          "x": 4140,
+          "y": 330,
+          "w": 600
+        },
+        {
+          "id": "wind-cloud-1",
+          "x": 20200,
+          "y": 300,
+          "w": 180
+        },
+        {
+          "id": "wind-cloud-2",
+          "x": 20500,
+          "y": 365,
+          "w": 180
+        }
+      ],
+      "hand": [],
+      "enemies": [
+        {
+          "id": "wind-enemy-ground-1",
+          "kind": "scylla",
+          "x": 7600
+        },
+        {
+          "id": "wind-enemy-ground-2",
+          "kind": "crab",
+          "x": 12600
+        },
+        {
+          "id": "wind-enemy-ground-3",
+          "kind": "stone",
+          "x": 17600
+        },
+        {
+          "id": "wind-enemy-ground-4",
+          "kind": "scylla",
+          "x": 21000
+        },
+        {
+          "id": "wind-enemy-air-1",
+          "kind": "harpy",
+          "x": 4300
+        },
+        {
+          "id": "wind-enemy-air-2",
+          "kind": "harpy",
+          "x": 12000
+        },
+        {
+          "id": "wind-enemy-air-3",
+          "kind": "harpy",
+          "x": 21600
+        }
+      ],
+      "stars": [
+        {
+          "id": "wind-star-1",
+          "kind": "star",
+          "x": 850,
+          "y": 405
+        },
+        {
+          "id": "wind-star-2",
+          "kind": "star",
+          "x": 915,
+          "y": 405
+        },
+        {
+          "id": "wind-star-3",
+          "kind": "star",
+          "x": 980,
+          "y": 405
+        },
+        {
+          "id": "wind-star-4",
+          "kind": "star",
+          "x": 1045,
+          "y": 405
+        },
+        {
+          "id": "wind-star-5",
+          "kind": "star",
+          "x": 1110,
+          "y": 405
+        },
+        {
+          "id": "wind-star-6",
+          "kind": "star",
+          "x": 2000,
+          "y": 405
+        },
+        {
+          "id": "wind-star-7",
+          "kind": "star",
+          "x": 2065,
+          "y": 405
+        },
+        {
+          "id": "wind-star-8",
+          "kind": "star",
+          "x": 2130,
+          "y": 405
+        },
+        {
+          "id": "wind-star-9",
+          "kind": "star",
+          "x": 2195,
+          "y": 405
+        },
+        {
+          "id": "wind-star-10",
+          "kind": "star",
+          "x": 2260,
+          "y": 405
+        },
+        {
+          "id": "wind-star-11",
+          "kind": "star",
+          "x": 3150,
+          "y": 405
+        },
+        {
+          "id": "wind-star-12",
+          "kind": "star",
+          "x": 3215,
+          "y": 405
+        },
+        {
+          "id": "wind-star-13",
+          "kind": "star",
+          "x": 3280,
+          "y": 405
+        },
+        {
+          "id": "wind-star-14",
+          "kind": "star",
+          "x": 3345,
+          "y": 405
+        },
+        {
+          "id": "wind-star-15",
+          "kind": "star",
+          "x": 3410,
+          "y": 405
+        },
+        {
+          "id": "wind-star-16",
+          "kind": "star",
+          "x": 4310,
+          "y": 285
+        },
+        {
+          "id": "wind-star-17",
+          "kind": "star",
+          "x": 4370,
+          "y": 305
+        },
+        {
+          "id": "wind-star-18",
+          "kind": "star",
+          "x": 4430,
+          "y": 265
+        },
+        {
+          "id": "wind-star-19",
+          "kind": "star",
+          "x": 4490,
+          "y": 305
+        },
+        {
+          "id": "wind-star-20",
+          "kind": "star",
+          "x": 4550,
+          "y": 285
+        },
+        {
+          "id": "wind-star-21",
+          "kind": "star",
+          "x": 5450,
+          "y": 225
+        },
+        {
+          "id": "wind-star-22",
+          "kind": "star",
+          "x": 5515,
+          "y": 225
+        },
+        {
+          "id": "wind-star-23",
+          "kind": "star",
+          "x": 5580,
+          "y": 405
+        },
+        {
+          "id": "wind-star-24",
+          "kind": "star",
+          "x": 5645,
+          "y": 405
+        },
+        {
+          "id": "wind-star-25",
+          "kind": "star",
+          "x": 5710,
+          "y": 405
+        },
+        {
+          "id": "wind-star-26",
+          "kind": "star",
+          "x": 6600,
+          "y": 421
+        },
+        {
+          "id": "wind-star-27",
+          "kind": "star",
+          "x": 6665,
+          "y": 421
+        },
+        {
+          "id": "wind-star-28",
+          "kind": "star",
+          "x": 6730,
+          "y": 421
+        },
+        {
+          "id": "wind-star-29",
+          "kind": "star",
+          "x": 6795,
+          "y": 405
+        },
+        {
+          "id": "wind-star-30",
+          "kind": "star",
+          "x": 6860,
+          "y": 405
+        },
+        {
+          "id": "wind-star-31",
+          "kind": "star",
+          "x": 7680,
+          "y": 405
+        },
+        {
+          "id": "wind-star-32",
+          "kind": "star",
+          "x": 7740,
+          "y": 370
+        },
+        {
+          "id": "wind-star-33",
+          "kind": "star",
+          "x": 7800,
+          "y": 395
+        },
+        {
+          "id": "wind-star-34",
+          "kind": "star",
+          "x": 7860,
+          "y": 370
+        },
+        {
+          "id": "wind-star-35",
+          "kind": "star",
+          "x": 7920,
+          "y": 405
+        },
+        {
+          "id": "wind-star-36",
+          "kind": "star",
+          "x": 8900,
+          "y": 405
+        },
+        {
+          "id": "wind-star-37",
+          "kind": "star",
+          "x": 9500,
+          "y": 205
+        },
+        {
+          "id": "wind-star-38",
+          "kind": "star",
+          "x": 9440,
+          "y": 225
+        },
+        {
+          "id": "wind-star-39",
+          "kind": "star",
+          "x": 9380,
+          "y": 290
+        },
+        {
+          "id": "wind-star-40",
+          "kind": "star",
+          "x": 9320,
+          "y": 355
+        },
+        {
+          "id": "wind-star-41",
+          "kind": "star",
+          "x": 9560,
+          "y": 260
+        },
+        {
+          "id": "wind-star-42",
+          "kind": "star",
+          "x": 10115,
+          "y": 405
+        },
+        {
+          "id": "wind-star-43",
+          "kind": "star",
+          "x": 10180,
+          "y": 405
+        },
+        {
+          "id": "wind-star-44",
+          "kind": "star",
+          "x": 10245,
+          "y": 405
+        },
+        {
+          "id": "wind-star-45",
+          "kind": "star",
+          "x": 10310,
+          "y": 405
+        },
+        {
+          "id": "wind-star-46",
+          "kind": "star",
+          "x": 11200,
+          "y": 405
+        },
+        {
+          "id": "wind-star-47",
+          "kind": "star",
+          "x": 11265,
+          "y": 405
+        },
+        {
+          "id": "wind-star-48",
+          "kind": "star",
+          "x": 11330,
+          "y": 421
+        },
+        {
+          "id": "wind-star-49",
+          "kind": "star",
+          "x": 11395,
+          "y": 421
+        },
+        {
+          "id": "wind-star-50",
+          "kind": "star",
+          "x": 11460,
+          "y": 421
+        },
+        {
+          "id": "wind-star-51",
+          "kind": "star",
+          "x": 12350,
+          "y": 405
+        },
+        {
+          "id": "wind-star-52",
+          "kind": "star",
+          "x": 12415,
+          "y": 405
+        },
+        {
+          "id": "wind-star-53",
+          "kind": "star",
+          "x": 12480,
+          "y": 296
+        },
+        {
+          "id": "wind-star-54",
+          "kind": "star",
+          "x": 12545,
+          "y": 303.02943725152284
+        },
+        {
+          "id": "wind-star-55",
+          "kind": "star",
+          "x": 12610,
+          "y": 320
+        },
+        {
+          "id": "wind-star-56",
+          "kind": "star",
+          "x": 13500,
+          "y": 405
+        },
+        {
+          "id": "wind-star-57",
+          "kind": "star",
+          "x": 13565,
+          "y": 405
+        },
+        {
+          "id": "wind-star-58",
+          "kind": "star",
+          "x": 13630,
+          "y": 405
+        },
+        {
+          "id": "wind-star-59",
+          "kind": "star",
+          "x": 13695,
+          "y": 405
+        },
+        {
+          "id": "wind-star-60",
+          "kind": "star",
+          "x": 13760,
+          "y": 405
+        },
+        {
+          "id": "wind-star-61",
+          "kind": "star",
+          "x": 14650,
+          "y": 405
+        },
+        {
+          "id": "wind-star-62",
+          "kind": "star",
+          "x": 14715,
+          "y": 405
+        },
+        {
+          "id": "wind-star-63",
+          "kind": "star",
+          "x": 14780,
+          "y": 405
+        },
+        {
+          "id": "wind-star-64",
+          "kind": "star",
+          "x": 14845,
+          "y": 405
+        },
+        {
+          "id": "wind-star-65",
+          "kind": "star",
+          "x": 14910,
+          "y": 405
+        },
+        {
+          "id": "wind-star-66",
+          "kind": "star",
+          "x": 15800,
+          "y": 225
+        },
+        {
+          "id": "wind-star-67",
+          "kind": "star",
+          "x": 15865,
+          "y": 225
+        },
+        {
+          "id": "wind-star-68",
+          "kind": "star",
+          "x": 15930,
+          "y": 225
+        },
+        {
+          "id": "wind-star-69",
+          "kind": "star",
+          "x": 15995,
+          "y": 405
+        },
+        {
+          "id": "wind-star-70",
+          "kind": "star",
+          "x": 16060,
+          "y": 405
+        },
+        {
+          "id": "wind-star-71",
+          "kind": "star",
+          "x": 16950,
+          "y": 405
+        },
+        {
+          "id": "wind-star-72",
+          "kind": "star",
+          "x": 17015,
+          "y": 405
+        },
+        {
+          "id": "wind-star-73",
+          "kind": "star",
+          "x": 17080,
+          "y": 405
+        },
+        {
+          "id": "wind-star-74",
+          "kind": "star",
+          "x": 17145,
+          "y": 405
+        },
+        {
+          "id": "wind-star-75",
+          "kind": "star",
+          "x": 17210,
+          "y": 405
+        },
+        {
+          "id": "wind-star-76",
+          "kind": "star",
+          "x": 18100,
+          "y": 405
+        },
+        {
+          "id": "wind-star-77",
+          "kind": "star",
+          "x": 18165,
+          "y": 405
+        },
+        {
+          "id": "wind-star-78",
+          "kind": "star",
+          "x": 18230,
+          "y": 421
+        },
+        {
+          "id": "wind-star-79",
+          "kind": "star",
+          "x": 18295,
+          "y": 421
+        },
+        {
+          "id": "wind-star-80",
+          "kind": "star",
+          "x": 18360,
+          "y": 421
+        },
+        {
+          "id": "wind-star-81",
+          "kind": "star",
+          "x": 19250,
+          "y": 405
+        },
+        {
+          "id": "wind-star-82",
+          "kind": "star",
+          "x": 19315,
+          "y": 405
+        },
+        {
+          "id": "wind-star-83",
+          "kind": "star",
+          "x": 19380,
+          "y": 405
+        },
+        {
+          "id": "wind-star-84",
+          "kind": "star",
+          "x": 19445,
+          "y": 405
+        },
+        {
+          "id": "wind-star-85",
+          "kind": "star",
+          "x": 19510,
+          "y": 405
+        },
+        {
+          "id": "wind-star-86",
+          "kind": "star",
+          "x": 22980,
+          "y": 405
+        },
+        {
+          "id": "wind-star-87",
+          "kind": "star",
+          "x": 23040,
+          "y": 370
+        },
+        {
+          "id": "wind-star-88",
+          "kind": "star",
+          "x": 23100,
+          "y": 405
+        },
+        {
+          "id": "wind-star-89",
+          "kind": "star",
+          "x": 23160,
+          "y": 370
+        },
+        {
+          "id": "wind-star-90",
+          "kind": "star",
+          "x": 23220,
+          "y": 405
+        },
+        {
+          "id": "wind-star-91",
+          "kind": "star",
+          "x": 21550,
+          "y": 405
+        },
+        {
+          "id": "wind-star-92",
+          "kind": "star",
+          "x": 21615,
+          "y": 405
+        },
+        {
+          "id": "wind-star-93",
+          "kind": "star",
+          "x": 21680,
+          "y": 405
+        },
+        {
+          "id": "wind-star-94",
+          "kind": "star",
+          "x": 21745,
+          "y": 405
+        },
+        {
+          "id": "wind-star-95",
+          "kind": "star",
+          "x": 21810,
+          "y": 405
+        },
+        {
+          "id": "wind-star-96",
+          "kind": "star",
+          "x": 22700,
+          "y": 405
+        },
+        {
+          "id": "wind-star-97",
+          "kind": "star",
+          "x": 22765,
+          "y": 405
+        },
+        {
+          "id": "wind-star-98",
+          "kind": "star",
+          "x": 22830,
+          "y": 405
+        },
+        {
+          "id": "wind-star-99",
+          "kind": "star",
+          "x": 22895,
+          "y": 405
+        },
+        {
+          "id": "wind-star-100",
+          "kind": "star",
+          "x": 22960,
+          "y": 405
+        }
+      ],
+      "powerPlacements": [
+        {
+          "id": "wind-shield-0",
+          "kind": "shield",
+          "x": 1900,
+          "y": 395
+        },
+        {
+          "id": "wind-wings-1",
+          "kind": "wings",
+          "x": 4600,
+          "y": 395
+        },
+        {
+          "id": "wind-magnet-2",
+          "kind": "magnet",
+          "x": 4800,
+          "y": 395
+        },
+        {
+          "id": "wind-apple-3",
+          "kind": "apple",
+          "x": 10000,
+          "y": 395
+        },
+        {
+          "id": "wind-shield-4",
+          "kind": "shield",
+          "x": 12700,
+          "y": 395
+        },
+        {
+          "id": "wind-wings-5",
+          "kind": "wings",
+          "x": 15400,
+          "y": 395
+        },
+        {
+          "id": "wind-magnet-6",
+          "kind": "magnet",
+          "x": 18100,
+          "y": 395
+        },
+        {
+          "id": "wind-apple-7",
+          "kind": "apple",
+          "x": 20800,
+          "y": 395
+        },
+        {
+          "id": "wind-trident-extra-1",
+          "kind": "trident",
+          "x": 4600,
+          "y": 395
+        },
+        {
+          "id": "wind-trident-extra-2",
+          "kind": "trident",
+          "x": 16500,
+          "y": 395
+        },
+        {
+          "id": "wind-lantern-extra-1",
+          "kind": "lantern",
+          "x": 6900,
+          "y": 421
+        },
+        {
+          "id": "wind-lantern-extra-2",
+          "kind": "lantern",
+          "x": 21300,
+          "y": 395
+        },
+        {
+          "id": "wind-compass-extra-1",
+          "kind": "compass",
+          "x": 8000,
+          "y": 395,
+          "checkpoint": 7920
+        },
+        {
+          "id": "wind-compass-extra-2",
+          "kind": "compass",
+          "x": 17900,
+          "y": 395,
+          "checkpoint": 17820
+        }
+      ]
+    }
+  ]
+}

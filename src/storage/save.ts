@@ -1,12 +1,13 @@
+import {emptyJournal,validateJournal,type Journal,type AdventureResult} from './journal';
 import {MAX_SCORE} from '../config';
 import {STAGES,type StageId} from '../levels/courses';
 export interface Settings {music:boolean;sfx:boolean;reducedMotion:boolean;}
 export interface RecordData {complete:boolean;bestScore:number;bestRating:number;bestStars:number;maps:string[];}
-export interface Save {schemaVersion:1;contentVersion:1;settings:Settings;tutorialSeen:boolean;lastStage:StageId;stages:Record<StageId,RecordData>;savedAt:string;}
+export interface Save {schemaVersion:1;contentVersion:1;settings:Settings;tutorialSeen:boolean;lastStage:StageId;stages:Record<StageId,RecordData>;savedAt:string;journal:Journal;}
 export const SAVE_KEY=`odyssey-run:${new URL(import.meta.env?.BASE_URL||'./',typeof location==='undefined'?'http://local/':location.href).pathname}:save`;
 export const BACKUP_KEY=SAVE_KEY+':backup';
 const emptyRecord=():RecordData=>({complete:false,bestScore:0,bestRating:0,bestStars:0,maps:[]});
-export const emptySave=():Save=>({schemaVersion:1,contentVersion:1,settings:{music:true,sfx:true,reducedMotion:false},tutorialSeen:false,lastStage:'beach',stages:{beach:emptyRecord(),cave:emptyRecord(),wind:emptyRecord()},savedAt:new Date().toISOString()});
+export const emptySave=():Save=>({schemaVersion:1,contentVersion:1,settings:{music:true,sfx:true,reducedMotion:false},tutorialSeen:false,lastStage:'beach',stages:{beach:emptyRecord(),cave:emptyRecord(),wind:emptyRecord()},savedAt:new Date().toISOString(),journal:emptyJournal()});
 const obj=(v:unknown):Record<string,unknown>=>{if(!v||typeof v!=='object'||Array.isArray(v))throw Error('기록 형식을 확인해 주세요.');return v as Record<string,unknown>;};
 const bool=(v:unknown)=>{if(typeof v!=='boolean')throw Error('설정과 완료 여부가 올바르지 않아요.');return v;};
 const integer=(v:unknown,max:number)=>{if(typeof v!=='number'||!Number.isSafeInteger(v)||v<0||v>max)throw Error('점수·별빛·평점 범위를 확인해 주세요.');return v;};
@@ -28,12 +29,16 @@ export function validateSave(raw:unknown):Save {
   out.stages[id]=record;
  });
  const index=STAGES.indexOf(out.lastStage); if(index>0&&!out.stages[STAGES[index-1]].complete)throw Error('최근 섬이 아직 잠겨 있어요.');
+ out.journal=validateJournal(v.journal,Object.fromEntries(STAGES.map(id=>[id,out.stages[id].bestScore])));
+ for(const id of [...out.journal.stamps,...out.journal.stories,...out.journal.constellations,...out.journal.routes,...Object.keys(out.journal.ghosts)]){const stage=id.split('-')[0] as StageId;if(!unlocked(out,stage))throw Error('모험 수첩에 아직 잠긴 섬의 발견이 있어요.');}
  return out;
 }
-export interface RunResult {stage:StageId;complete:boolean;score:number;rating:number;stars:number;maps:string[];hpLoss:number;distance:number;}
+export interface RunResult {stage:StageId;complete:boolean;score:number;rating:number;stars:number;maps:string[];hpLoss:number;distance:number;adventure?:AdventureResult;}
 export function mergeResult(save:Save,r:RunResult):Save {
  const out=structuredClone(save); const s=out.stages[r.stage];
- s.complete ||=r.complete;s.bestScore=Math.max(s.bestScore,r.score);s.bestRating=Math.max(s.bestRating,r.rating);s.bestStars=Math.max(s.bestStars,r.stars);s.maps=[...new Set([...s.maps,...r.maps])];out.savedAt=new Date().toISOString();return out;
+ s.complete ||=r.complete;s.bestScore=Math.max(s.bestScore,r.score);s.bestRating=Math.max(s.bestRating,r.rating);s.bestStars=Math.max(s.bestStars,r.stars);s.maps=[...new Set([...s.maps,...r.maps])];out.savedAt=new Date().toISOString();
+ if(r.adventure){const a=r.adventure,j=out.journal;for(const key of ['stamps','stories','constellations','combos','routes'] as const)(j[key] as string[])=[...new Set([...j[key],...a[key]])];const prior=j.ghosts[r.stage];if(!prior||a.ghost.score>prior.score||(a.ghost.score===prior.score&&a.ghost.duration<prior.duration))j.ghosts[r.stage]=structuredClone(a.ghost);}
+ return out;
 }
 export const unlocked=(save:Save,id:StageId)=>STAGES.indexOf(id)===0||save.stages[STAGES[STAGES.indexOf(id)-1]].complete;
 export class SaveStore {

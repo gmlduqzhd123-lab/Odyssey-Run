@@ -1,11 +1,12 @@
 import { C } from '../config';
+import {ADVENTURE_PLANS} from './adventure';
 import type {EnemyKind,EnemyPlacement} from './enemies';
 export const STAGES = ['beach','cave','wind'] as const;
 export type StageId = typeof STAGES[number];
 export type ItemKind = 'star'|'map'|'shield'|'wings'|'magnet'|'apple'|'trident'|'lantern'|'compass';
 export interface Collectible {id:string;kind:ItemKind;x:number;y:number;checkpoint?:number;}
 export interface Rect {x:number;y:number;w:number;h:number;}
-export interface Obstacle extends Rect {id:string;kind:'crate'|'pillar'|'gate'|'rock'|'falling';}
+export interface Obstacle extends Rect {id:string;kind:'crate'|'pillar'|'gate'|'rock'|'falling'|'hand';}
 export interface Platform {id:string;x:number;y:number;w:number; moving?:boolean;}
 export interface Course {id:StageId;name:string;subtitle:string;description:string;color:string;gaps:{x:number;w:number}[];obstacles:Obstacle[];platforms:Platform[];winds:Rect[];safe:number[];items:Collectible[];enemies:EnemyPlacement[];}
 const meta = {
@@ -56,6 +57,18 @@ function build(id:StageId):Course {
  for(let i=obstacles.length-1;i>=0;i--)if(obstacles[i].kind==='crate'&&p.crates.slice(1).includes(obstacles[i].x))obstacles.splice(i,1);
  const extra:Record<StageId,{trident:number[];lantern:number[];compass:number[]}>={beach:{trident:[4200,15100],lantern:[12900,17800],compass:[7800,16800]},cave:{trident:[3500,16000],lantern:[11800,19280],compass:[7900,18400]},wind:{trident:[4600,16500],lantern:[11900,21300],compass:[8000,17900]}};
  for(const kind of ['trident','lantern','compass'] as const)extra[id][kind].forEach((x,i)=>items.push({id:`${id}-${kind}-extra-${i+1}`,kind,x,y:id==='wind'&&kind==='lantern'&&i===0?421:395,...(kind==='compass'?{checkpoint:x-80}:{})}));
+ const adventure=ADVENTURE_PLANS[id];
+ platforms.push({id:adventure.branch.id,x:adventure.branch.start,y:330,w:adventure.branch.end-adventure.branch.start});
+ if(id==='cave'){
+  add(13400,'hand',140,39,365);
+  [12200,21800].forEach((x,i)=>enemies.push({id:`cave-bait-${i}`,kind:'stone',x:x-105,bait:true}));
+ }
+ if(id==='wind')platforms.push({id:'wind-cloud-1',x:20200,y:300,w:180},{id:'wind-cloud-2',x:20500,y:365,w:180});
+ // Keep the original 100 star IDs and score cap; redistribute only three trails.
+ const shapes=[[[-120,-10],[-60,10],[0,-30],[60,10],[120,-10]],[[-120,0],[-60,-35],[0,-10],[60,-35],[120,0]],[[-120,0],[-60,-35],[0,0],[60,-35],[120,0]]];
+ adventure.constellations.forEach((group,index)=>group.stars.forEach((starId,j)=>{const star=items.find(i=>i.id===starId)!;const centers=id==='beach'?[4430,7800,22200]:id==='cave'?[7770,9600,23300]:[4430,7800,23100];star.x=centers[index]+shapes[index][j][0];star.y=(index===0?295:405)+shapes[index][j][1];}));
+ items.find(i=>i.id===`${id}-magnet-2`)!.x=4800;
+ items.find(i=>i.id===`${id}-lantern-extra-1`)!.x=id==='cave'?4150:id==='beach'?4300:6900;
  const safe=[0,3000,6900,9000,12000,14400,17000,20100,23000].filter(x=>!gaps.some(g=>x>=g.x-200&&x<=g.x+g.w+350)&&!obstacles.some(o=>x>=o.x-450&&x<o.x+o.w+80)&&!enemies.some(e=>e.x>=x-120&&e.x<x+450));
  return {id,...meta[id],gaps,obstacles,platforms,winds,safe,items,enemies};
 }
