@@ -1,0 +1,21 @@
+{
+  "resolution": "one logical pixel; alpha >= 96 after inward 3x3 min filter",
+  "sourceSha256": {
+    "assets/art/odysseus-run-native-cc298de34835.webp": "cc298de348358349e0bb0f1315e0c8a8e00c63741db0d843938e297942d56c9d",
+    "assets/art/crouch-6dfc7b631076.webp": "6dfc7b6310767c21fa2c90babe9c455239bc4e52b35b8c819897656c8ec81ccb",
+    "assets/art/odysseus-48c9d109729f.webp": "48c9d109729fd34de7b1e2594c93346ed75173206fb9603cb47fb23975b42387",
+    "assets/art/monsters-8bf8f8a57de0.webp": "8bf8f8a57de00a706ef6bc6c4176e76ce1c68e251b025aa3f106a4b77c3269ac",
+    "assets/star.svg": "e1686999acf8b5543380467571f98b21f0e04270c3ed07128983b53813550b22",
+    "assets/art/shield-460ee6506725.webp": "460ee6506725d4399b92ca16e16a39966b4d3fff938c02ec5e46a321a008e306",
+    "assets/art/wings-8b734790c630.webp": "8b734790c6306fd00cbf8c9a5860f17adf3d2feb6c6b7cb51e63eb59f618fb9a",
+    "assets/art/magnet-e899ce1ab3bf.webp": "e899ce1ab3bfd8204db06304491da9c0334e2936df846937287e5825c304aa94",
+    "assets/art/apple-a178178a9e74.webp": "a178178a9e74ca0eb45e9456b164cfd85839623b9810c598d3bdd21cf9e08d42",
+    "assets/art/map-c87be76009fe.webp": "c87be76009fe180265d2023ec81023df1524e0c26688b16f9eb2bf9ae961f6f2",
+    "assets/art/trident-4bfc90d78eb6.webp": "4bfc90d78eb677f97ea2fcda131c837518d8de509f3b3a3b74e701cf03cbe7c8",
+    "assets/art/compass-0bfa48989ace.webp": "0bfa48989ace00cbd9501db35bbec591454ee6cf882b9fbf9ae2a6b55a135bd7",
+    "assets/art/lantern-92cc051f0c7f.webp": "92cc051f0c7f9a5d008ff0574e725be550fe7b69314c2ff474d077461e466361",
+    "assets/rock.svg": "c1dd97d219a60f720386215efa303ea2b8eea2c9473273c47334b153bbe76641"
+  },
+  "maskCount": 26,
+  "policy": "Keep original movement body; require opaque hero and target contact inside both original bodies for damage. Magnet remains star-only."
+}

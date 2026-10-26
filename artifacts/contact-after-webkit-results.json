@@ -1,0 +1,23 @@
+{
+  "url": "http://localhost:4176/Odyssey-Run/",
+  "phase": "after",
+  "browser": "26.0",
+  "checkedAt": "2026-10-26T12:35:46.786Z",
+  "environment": "Linux Chromium: PC 1280x800 DPR2 keyboard / mobile 844x390 DPR2 emulated multi-pointer touch; virtual game clock; no physical device",
+  "results": [
+    {
+      "mobile": false,
+      "status": 200,
+      "firstStarX": 837.3333333333348,
+      "runs": []
+    },
+    {
+      "mobile": true,
+      "status": 200,
+      "firstStarX": 837.3333333333348,
+      "runs": []
+    }
+  ],
+  "errors": [],
+  "failures": []
+}

@@ -9,7 +9,11 @@ export function routeInputs(id:typeof STAGES[number],path:'lower'|'upper'='lower
  c.gaps.forEach(g=>jumps.push(g.x-95,g.x+10));
  const map=c.items.find(i=>i.id===`${id}-map-2`)!;jumps.push(map.x-180,map.x-90);
  const slides=c.obstacles.filter(o=>(o.kind==='gate'||o.kind==='hand')).map(o=>({start:o.x-70,end:o.x+o.w+70}));
- c.enemies.forEach(e=>{if(e.bait||(path==='upper'&&e.kind==='harpy'&&e.x>ADVENTURE_PLANS[id].branch.start&&e.x<ADVENTURE_PLANS[id].branch.end))return;const spec=ENEMY_TYPES[e.kind];if(e.kind==='harpy'||e.kind==='shade')slides.push({start:e.x-spec.lead,end:e.x+160});else{jumps.push(e.x-spec.lead);if(e.kind==='cyclops')jumps.push(e.x-80);}});
+ c.enemies.forEach(e=>{if(e.bait||(path==='upper'&&e.kind==='harpy'&&e.x>ADVENTURE_PLANS[id].branch.start&&e.x<ADVENTURE_PLANS[id].branch.end))return;const spec=ENEMY_TYPES[e.kind];if(e.kind==='harpy'||e.kind==='shade')slides.push({start:e.x-spec.lead,end:e.x+160});else{
+  // Land just before the wind island's low constellation star; its transparent
+  // margin no longer counts as contact. Course and movement remain unchanged.
+  jumps.push(e.x-(id==='wind'&&e.x===7600?140:spec.lead));if(e.kind==='cyclops')jumps.push(e.x-80);
+ }});
  if(path==='upper')jumps.push(ADVENTURE_PLANS[id].branch.start-100);
  if(stories){const story=ADVENTURE_PLANS[id].stories[1];slides.push({start:story.x-80,end:story.x+80});}
  return {jumps:jumps.sort((a,b)=>a-b),slides:slides.sort((a,b)=>a.start-b.start)};

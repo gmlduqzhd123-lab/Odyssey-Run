@@ -5,6 +5,7 @@ import {COURSES,type StageId,type Rect,type Platform,type Collectible} from '../
 import {score,rating} from '../systems/score';
 import type {RunResult} from '../storage/save';
 import {createEnemyState,updateEnemyState,type EnemyState} from '../levels/enemies';
+import {heroPose,collectibleContact,enemyContact,projectileContact} from '../systems/contact';
 export type RunState='ready'|'playing'|'paused'|'success'|'failure';
 export interface RunnerEvent {kind:'jump'|'star'|'map'|'shield'|'wings'|'magnet'|'apple'|'trident'|'lantern'|'compass'|'strike'|'hurt'|'fall'|'block'|'finish'|'constellation'|'near'|'discovery'|'highlight'|'combo'|'trick'|'route';x:number;y:number;text?:string;}
 const overlap=(a:Rect,b:Rect)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
@@ -78,16 +79,17 @@ export class Runner {
   if(!this.grounded&&this.coyote===0&&this.jumps===0)this.jumps=1;
   this.maxDistance=Math.min(C.length,Math.max(this.maxDistance,this.x));
   if(this.grounded&&!this.sliding&&this.y===C.ground){for(const x of this.course.safe)if(this.x>=x&&x>this.safeX)this.safeX=x;}
+  const pose=heroPose(this),body=this.body;
   for(const item of this.course.items){
    if(this.collected.has(item.id)||Math.abs(item.x-this.x)>(this.wings>0&&this.magnet>0?ADVENTURE_BALANCE.glideMagnet:C.magnet)+40)continue;
-   if((item.kind==='star'&&this.magnet>0&&Math.hypot(item.x-this.x,item.y-(this.y-32))<=(this.wings>0?ADVENTURE_BALANCE.glideMagnet:C.magnet))||overlap(this.body,{x:item.x-15,y:item.y-15,w:30,h:30}))this.collect(item);
+   if((item.kind==='star'&&this.magnet>0&&Math.hypot(item.x-this.x,item.y-(this.y-32))<=(this.wings>0?ADVENTURE_BALANCE.glideMagnet:C.magnet))||collectibleContact(pose,body,item))this.collect(item);
   }
   this.updateAdventure();
   this.updateEnemies();
   for(const source of this.enemyStates){if(!source.projectile.active)continue;for(const target of this.enemyStates){if(target.id===source.id||!target.active||target.kind!=='stone'||!overlap(source.projectile,target))continue;this.defeated.add(target.id);target.defeated=true;target.active=false;source.projectile.active=false;this.spentShots.add(source.id);this.tricked.add(target.id);this.message='거인의 바위로 석상병 격파!';this.emit('trick');break;}}
   if(this.trident){const target=this.enemyStates.find(s=>!s.defeated&&(s.active||s.projectile.active)&&Math.hypot(s.x+s.w/2-this.x,s.y+s.h/2-(this.y-32))<(this.lantern>0?ADVENTURE_BALANCE.guardianRange:200));if(target){this.defeated.add(target.id);target.defeated=true;target.active=false;target.projectile.active=false;this.trident=false;this.message=this.lantern>0?'빛의 삼지창으로 격퇴!':'삼지창으로 격퇴!';this.emit('strike');}}
   for(const o of this.course.obstacles){if(overlap(this.body,o)){this.contacts.add(o.id);this.hurt();}this.observePass(o.id,o,false);}
-  for(const enemy of this.enemyStates){if(enemy.active&&overlap(this.body,enemy)||enemy.projectile.active&&overlap(this.body,enemy.projectile)){this.contacts.add(enemy.id);this.hurt();}if(!enemy.defeated&&!enemy.repelled)this.observePass(enemy.id,enemy,true);}
+  for(const enemy of this.enemyStates){if(enemyContact(pose,body,enemy)||projectileContact(pose,body,enemy.projectile)){this.contacts.add(enemy.id);this.hurt();}if(!enemy.defeated&&!enemy.repelled)this.observePass(enemy.id,enemy,true);}
   if(this.y>C.fallBoundary&&this.recovering<=0){
    this.hurt(true);
    if(this.hp>0){this.x=this.safeX;this.y=C.ground;this.vy=0;this.grounded=true;this.jumps=0;this.sliding=false;this.recovering=.35;this.clearInput();this.updateEnemies();}

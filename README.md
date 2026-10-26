@@ -186,3 +186,11 @@ npx tsx scripts/failure-qa.ts
 사용자 입력으로 오디오를 활성화하고 준비 화면에서 선택한 곡을 비동기로 불러옵니다. 카운트다운에서는 재생하지 않습니다. 일시정지·앱 전환·회전·종료에서 멈추고, 계속하기는 같은 음원 위치에서, 재도전은 처음부터 재생합니다. 곡이 끝나면 반복합니다. 배경음/효과음 설정은 독립적입니다. 로딩·오디오 권한·디코딩 실패가 게임 시작을 막지 않습니다. 선택한 섬의 디코딩 버퍼만 유지하며 늦게 끝난 이전 곡은 재생하지 않습니다.
 
 검증: `npx tsx scripts/music-qa.ts`(PC/모바일 Chromium 에뮬레이션). 브라우저 디코딩·신호·곡 선택·정지/재개·음소거/효과음·재도전·종료를 확인하며 실제 스피커 청취 시험과 구분합니다.
+
+## 그림과 접촉 판정
+
+별빛은 표시 크기 24px, 나머지 아이템은 36px를 기준으로 투명한 영역을 제외한 윤곽과 캐릭터가 직접 접촉해야 획득됩니다. 몬스터 6종과 투척 바위도 캐릭터와 그림의 불투명한 부분이 겹칠 때 접촉 피해를 처리합니다. 발판·점프·천장 통과용 몸체 42×64/42×30은 그대로이며, 장식 무기나 망토로 피해 영역을 넓히지 않습니다. 자석의 별빛 원거리 수집(기본 160px/날개 조합 240px)은 의도된 효과이며 지도·다른 아이템에는 적용하지 않습니다.
+
+`src/rendering/poses.ts`에서 표시/판정의 프레임·크기·기준점을 공유하고 `src/systems/contact.ts`에서 윤곽을 확인합니다. `src/assets/contact-masks.ts`는 원본 알파를 약 1 논리 px 단위로 미리 계산한 데이터이며, 부드러운 외곽을 제외하고 약 1px 안쪽 여유를 둡니다. 런타임 Canvas 픽셀 읽기나 외부 의존성을 추가하지 않습니다. 원화가 바뀌면 `npx tsx scripts/prepare-contact-masks.ts`로 재생성합니다(개발 도구 Chromium/Python Pillow 필요). 원화 파일은 수정하지 않습니다.
+
+검증: `npm test`, `npx tsx scripts/contact-qa.ts`(PC/모바일 터치 세 섬 완주·기록 파일 복원), `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 QA_ENGINE=webkit QA_SMOKE=1 npx tsx scripts/contact-qa.ts`(설치된 Linux WebKit의 첫 수집 경계), `npx tsx scripts/contact-performance.ts`(실제 시간 10초 성능). 실제 기기와 에뮬레이션은 QA.md에서 구분합니다.

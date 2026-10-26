@@ -8,6 +8,7 @@ import {RUN_ART} from '../assets/runner-art';
 import {DISPLAY} from '../rendering/display';
 import {CROUCH_ART,MONSTER_ART} from '../assets/expansion-art';
 import {ENEMY_TYPES} from '../levels/enemies';
+import {heroPose,itemPose,enemyPose} from '../rendering/poses';
 export interface SceneHost {frame(delta:number):void;loaded():void;loadError():void;reduced():boolean;density():number;}
 export class World extends Phaser.Scene {
  private bg:Phaser.GameObjects.Image[][]=[];private ground!:Phaser.GameObjects.Graphics;private fx!:Phaser.GameObjects.Graphics;
@@ -70,9 +71,9 @@ export class World extends Phaser.Scene {
  showRun(run:Runner){
   this.mode='run';this.run=run;this.clearObjects();this.setStage(run.stage);this.boat.setVisible(false);this.hero.setDisplaySize(66,88).setRotation(0);
   run.course.obstacles.forEach(o=>{this.obstacles.push(this.add.image(o.x,o.y,o.kind==='falling'?'rock':o.kind==='hand'?'hand':o.kind).setOrigin(0).setDisplaySize(o.w,o.h));});
-  run.course.items.forEach(i=>this.items.push(this.add.image(i.x,i.y,i.kind).setDisplaySize(i.kind==='star'?24:36,i.kind==='star'?24:36)));
+  run.course.items.forEach(i=>{const p=itemPose(i.kind,i.x,i.y);this.items.push(this.add.image(i.x,i.y,i.kind).setDisplaySize(p.w,p.h));});
   run.course.platforms.forEach(p=>this.platforms.push(this.add.image(p.x,p.y,'terrain-sheet','wood-platform').setOrigin(0).setDisplaySize(p.w,20).setTint(p.id.includes('branch')?0xf4d99c:p.id.includes('cloud')?0xe5efdc:0xffffff)));
-  run.enemyStates.forEach(e=>{const f=MONSTER_ART.frames[e.kind],scale=Math.min(96/f.w,(e.kind==='cyclops'?108:76)/f.h);this.monsters.push(this.add.image(e.x,e.y,'monster-atlas',e.kind).setOrigin(.5,1).setScale(scale).setFlipX(e.kind==='harpy').setDepth(4));this.projectiles.push(this.add.image(e.x,e.y,'rock').setOrigin(0).setDisplaySize(36,28).setDepth(5).setVisible(false));});
+  run.enemyStates.forEach(e=>{const p=enemyPose(e);this.monsters.push(this.add.image(p.anchorX,p.anchorY,p.texture,p.frame).setOrigin(p.originX,p.originY).setScale(p.scale!).setFlipX(!!p.flipX).setDepth(4));this.projectiles.push(this.add.image(e.x,e.y,'rock').setOrigin(0).setDisplaySize(36,28).setDepth(5).setVisible(false));});
   this.hero.setDepth(10);this.label.setDepth(20);this.fx.setDepth(15);this.drawRun();
  }
  private clearObjects(){this.obstacles.forEach(o=>o.destroy());this.items.forEach(o=>o.destroy());this.platforms.forEach(o=>o.destroy());this.monsters.forEach(o=>o.destroy());this.projectiles.forEach(o=>o.destroy());this.obstacles=[];this.items=[];this.platforms=[];this.monsters=[];this.projectiles=[];this.bursts.forEach(b=>b.text.destroy());this.bursts=[];}
@@ -105,7 +106,7 @@ export class World extends Phaser.Scene {
   this.obstacles.forEach((s,i)=>{const o=r.course.obstacles[i],x=o.x-cam;s.setVisible(x>-200&&x<1020).setX(x);if(o.kind==='hand'){const d=o.x-r.x;s.y=o.y-Math.max(0,Math.min(260,(d-150)*.8));}if(o.kind==='falling'){const d=o.x-r.x;s.y=o.y-Math.max(0,Math.min(290,(d-100)*1.5));}});
   this.items.forEach((s,i)=>{const item=r.course.items[i],x=item.x-cam;s.setVisible(!r.collected.has(item.id)&&x>-40&&x<1000).setPosition(x,item.y);});
   this.platforms.forEach((s,i)=>{const p=r.course.platforms[i];s.setPosition(p.x-cam,r.platformY(p)).setVisible(Math.abs(p.x-r.x)<1100);});
-  this.monsters.forEach((s,i)=>{const e=r.enemyStates[i],x=e.x-cam,f=MONSTER_ART.frames[e.kind],h=s.displayHeight;s.setVisible(!e.defeated&&e.reveal>0&&x>-150&&x<1050).setPosition(x+e.w/2,e.kind==='harpy'||e.kind==='shade'?e.y+e.h+4:440+h*(1-e.reveal)).setAlpha(e.repelled?.4:e.kind==='shade'&&!e.active?.35:1);if(e.kind==='scylla')s.setCrop(0,0,f.w,Math.max(1,Math.floor(f.h*e.reveal)));const rock=this.projectiles[i];rock.setPosition(e.projectile.x-cam,e.projectile.y).setVisible(e.projectile.active&&x>-200&&x<1050);});
+  this.monsters.forEach((s,i)=>{const e=r.enemyStates[i],x=e.x-cam,p=enemyPose(e),f=MONSTER_ART.frames[e.kind];s.setVisible(!e.defeated&&e.reveal>0&&x>-150&&x<1050).setPosition(p.anchorX-cam,p.anchorY).setAlpha(e.repelled?.4:e.kind==='shade'&&!e.active?.35:1);if(e.kind==='scylla')s.setCrop(0,0,f.w,Math.max(1,Math.floor(f.h*e.reveal)));const rock=this.projectiles[i];rock.setPosition(e.projectile.x-cam,e.projectile.y).setVisible(e.projectile.active&&x>-200&&x<1050);});
   const incoming=r.enemyStates.filter(e=>e.warning&&!e.defeated&&e.x+e.w>r.x-32).sort((a,b)=>a.x-b.x)[0];this.warning.setText(incoming?(incoming.repelled?'등불이 지켜 주고 있어요':`${ENEMY_TYPES[incoming.kind].name} · ${ENEMY_TYPES[incoming.kind].hint}`):'');
   const fx=this.fx;fx.clear();
   r.course.winds.forEach(w=>{
@@ -138,18 +139,8 @@ export class World extends Phaser.Scene {
   if(r.lantern>0&&r.trident){fx.lineStyle(2,0xffe3a2,.75).strokeCircle(192,r.y-32,54);}
  }
  private drawHero(r:Runner){
-  // Use the simulation clock so pause/countdown/tab suspension freeze the pose.
-  // Individual hip/ground anchors keep each distinct pose in the same place.
-  const alpha=r.invincible>0?.72:1;
-  if(r.sliding){this.hero.setTexture('hero-crouch','crouch').setOrigin(CROUCH_ART.originX,CROUCH_ART.originY).setScale(CROUCH_ART.scale).setPosition(192,r.y).setRotation(0).setAlpha(alpha);return;}
-  if(r.grounded&&!r.sliding&&r.state!=='success'&&r.state!=='failure'){
-   const index=Math.floor(r.time*RUN_ART.fps)%RUN_ART.frames.length,f=RUN_ART.frames[index];
-   this.hero.setTexture('odysseus-run',`run-${index}`).setOrigin(f.originX,f.originY).setScale(RUN_ART.scale).setPosition(192,r.y).setRotation(0).setAlpha(alpha);
-   return;
-  }
-  this.hero.setTexture('odysseus').setOrigin(.5,1);
-  let width=66,height=88,x=192,y=r.y+2,rotation=0;
-  if(r.state==='success'){width=69;height=92;}
-  this.hero.setDisplaySize(width,height).setRotation(rotation).setPosition(x,y).setAlpha(alpha);
+  const p=heroPose(r);
+  this.hero.setTexture(p.texture,p.frame).setOrigin(p.originX,p.originY).setPosition(192,p.anchorY).setRotation(0).setAlpha(r.invincible>0?.72:1);
+  if(p.scale!==undefined)this.hero.setScale(p.scale);else this.hero.setDisplaySize(p.w,p.h);
  }
 }
