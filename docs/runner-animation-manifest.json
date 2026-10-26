@@ -1,0 +1,84 @@
+{
+  "source": "Generated with image_gen using the supplied Odysseus illustration as reference, 2026-10-26",
+  "reference": "assets/art/odysseus-0389a9dc53ed.webp",
+  "sourceSha256": "915cb095d8930916c6790eb9bc34d2ef9623dd0a7e1065ae17615188629512be",
+  "originalSize": [
+    1536,
+    1024
+  ],
+  "preparedSize": [
+    768,
+    512
+  ],
+  "processing": "Aspect-preserving resize and lossless WebP encoding after resize; alpha preserved. No external runtime generation.",
+  "preparedSha256": "fd6ec7426b32d547060bd304aff6c58040f17efbd6e14bef89d24e3475dd38fa",
+  "preparedBytes": 360848,
+  "displayTexture": "assets/art/odysseus-run-fd6ec7426b32.webp",
+  "frames": [
+    {
+      "x": 6,
+      "y": 14,
+      "w": 197,
+      "h": 238,
+      "originX": 0.5279187817258884,
+      "originY": 0.9747899159663865
+    },
+    {
+      "x": 204,
+      "y": 14,
+      "w": 174,
+      "h": 238,
+      "originX": 0.5632183908045977,
+      "originY": 0.9747899159663865
+    },
+    {
+      "x": 391,
+      "y": 12,
+      "w": 186,
+      "h": 240,
+      "originX": 0.5591397849462365,
+      "originY": 0.975
+    },
+    {
+      "x": 581,
+      "y": 13,
+      "w": 181,
+      "h": 239,
+      "originX": 0.580110497237569,
+      "originY": 0.9748953974895398
+    },
+    {
+      "x": 7,
+      "y": 262,
+      "w": 199,
+      "h": 240,
+      "originX": 0.5175879396984925,
+      "originY": 0.975
+    },
+    {
+      "x": 204,
+      "y": 262,
+      "w": 175,
+      "h": 240,
+      "originX": 0.56,
+      "originY": 0.975
+    },
+    {
+      "x": 390,
+      "y": 262,
+      "w": 184,
+      "h": 240,
+      "originX": 0.5706521739130435,
+      "originY": 0.975
+    },
+    {
+      "x": 582,
+      "y": 262,
+      "w": 180,
+      "h": 240,
+      "originX": 0.5777777777777777,
+      "originY": 0.975
+    }
+  ],
+  "fps": 14
+}

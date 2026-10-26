@@ -4,6 +4,7 @@ import {COURSES,type StageId} from '../levels/courses';
 import type {Runner} from '../player/runner';
 import {assetUrl} from '../assets/catalog';
 import {REGIONS,sheetUrl} from '../assets/terrain';
+import {RUN_ART} from '../assets/runner-art';
 export interface SceneHost {frame(delta:number):void;loaded():void;loadError():void;reduced():boolean;}
 export class World extends Phaser.Scene {
  private bg:Phaser.GameObjects.TileSprite[]=[];private ground!:Phaser.GameObjects.Graphics;private fx!:Phaser.GameObjects.Graphics;
@@ -22,11 +23,13 @@ export class World extends Phaser.Scene {
   names.forEach(n=>this.load.svg(n,`${import.meta.env.BASE_URL}assets/${n}.svg`));
   ['odysseus','map','shield','wings','magnet','apple'].forEach(n=>this.load.image(n,assetUrl(n)));
   this.load.image('terrain-sheet',sheetUrl('terrain-sheet'));
+  this.load.image('odysseus-run',`${import.meta.env.BASE_URL}${RUN_ART.file}`);
   this.load.once('complete',()=>{g.destroy();t.destroy();bar.destroy();});
  }
  create(){
   if(this.failed){this.host.loadError();return;}
   Object.entries(REGIONS).filter(([,r])=>r.sheet==='terrain-sheet').forEach(([id,r])=>this.textures.get(r.sheet).add(id,0,r.x,r.y,r.w,r.h));
+  RUN_ART.frames.forEach((f,i)=>this.textures.get('odysseus-run').add(`run-${i}`,0,f.x,f.y,f.w,f.h));
   this.bg=['sky','far','mid'].map(layer=>this.add.tileSprite(0,0,960,540,`beach-${layer}`).setOrigin(0));
   this.giant=this.add.image(-100,440,'giant').setOrigin(.5,1).setAlpha(.8).setVisible(false);
   this.ground=this.add.graphics();this.fx=this.add.graphics();
@@ -36,7 +39,7 @@ export class World extends Phaser.Scene {
   this.label=this.add.text(480,275,'',{fontFamily:'sans-serif',fontSize:'22px',color:'#fff2d2',stroke:'#223e4b',strokeThickness:5,align:'center'}).setOrigin(.5);
   this.host.loaded();
  }
- showHome(){this.mode='home';this.run=null;this.clearObjects();this.setStage('beach');this.boat.setVisible(true).setPosition(744,410).setDisplaySize(350,230);this.hero.setDisplaySize(180,240).setPosition(744,442).setRotation(0).setAlpha(1);this.giant.setVisible(false);this.label.setText('');}
+ showHome(){this.mode='home';this.run=null;this.clearObjects();this.setStage('beach');this.boat.setVisible(true).setPosition(744,410).setDisplaySize(350,230);this.hero.setTexture('odysseus').setOrigin(.5,1).setDisplaySize(180,240).setPosition(744,442).setRotation(0).setAlpha(1);this.giant.setVisible(false);this.label.setText('');}
  setStage(id:StageId){this.stage=id;this.bg.forEach((b,i)=>b.setTexture(`${id}-${['sky','far','mid'][i]}`));this.groundArt.forEach(s=>s.setTexture('terrain-sheet',`ground-${id}`).setVisible(false));}
  showRun(run:Runner){
   this.mode='run';this.run=run;this.clearObjects();this.setStage(run.stage);this.boat.setVisible(false);this.hero.setDisplaySize(66,88).setRotation(0);
@@ -90,14 +93,20 @@ export class World extends Phaser.Scene {
   else{this.label.setText('');this.boat.setVisible(false);}
  }
  private drawHero(r:Runner){
-  // One supplied illustration, four running phases. Only rendering changes;
-  // collision boxes and the fixed game clock remain owned by Runner.
+  // Use the simulation clock so pause/countdown/tab suspension freeze the pose.
+  // Individual hip/ground anchors keep each distinct pose in the same place.
+  const alpha=r.invincible>0?.55+.35*Math.abs(Math.sin(r.time*18)):1;
+  if(r.grounded&&!r.sliding&&r.state!=='success'&&r.state!=='failure'){
+   const index=Math.floor(r.time*RUN_ART.fps)%RUN_ART.frames.length,f=RUN_ART.frames[index];
+   this.hero.setTexture('odysseus-run',`run-${index}`).setOrigin(f.originX,f.originY).setScale(RUN_ART.scale).setPosition(192,r.y).setRotation(r.invincible>1?-.12:0).setAlpha(alpha);
+   return;
+  }
+  this.hero.setTexture('odysseus').setOrigin(.5,1);
   let width=66,height=88,x=192,y=r.y+2,rotation=0;
   if(r.state==='success'){width=69;height=92;rotation=-.045;}
   else if(r.sliding){width=32;height=88;rotation=Math.PI/2;x-=44;y-=17;}
-  else if(r.grounded){const phase=Math.floor(r.time*12)%4;height=[88,90,87,89][phase];width=height*.75;rotation=[-.025,.015,.025,-.01][phase];}
   else rotation=r.vy<0?-.1:.075;
   if(r.invincible>1)rotation-=.12;
-  this.hero.setDisplaySize(width,height).setRotation(rotation).setPosition(x,y).setAlpha(r.invincible>0?.55+.35*Math.abs(Math.sin(r.time*18)):1);
+  this.hero.setDisplaySize(width,height).setRotation(rotation).setPosition(x,y).setAlpha(alpha);
  }
 }
