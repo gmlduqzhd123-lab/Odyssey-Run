@@ -1,0 +1,26 @@
+{
+  "url": "https://gmlduqzhd123-lab.github.io/Odyssey-Run/",
+  "checkedAt": "2026-10-26T03:14:34.468Z",
+  "status": 200,
+  "browser": "154.0.8037.57",
+  "distinctRenderedPoses": [
+    "582,262,180,240",
+    "6,14,197,238",
+    "204,14,174,238",
+    "391,12,186,240",
+    "581,13,181,239",
+    "7,262,199,240",
+    "204,262,175,240",
+    "390,262,184,240"
+  ],
+  "fps": 14,
+  "countdownFrozen": true,
+  "pauseFrozen": true,
+  "resumeCountdownFrozen": true,
+  "jumpSlideReturn": true,
+  "restartHomeTextureReset": true,
+  "mobileEmulation": true,
+  "assetFailureRetry": "not run",
+  "errors": [],
+  "failures": []
+}
