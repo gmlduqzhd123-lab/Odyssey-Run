@@ -415,3 +415,12 @@ QA_URL=http://localhost:4174/qa-odyssey/ npx tsx scripts/performance-qa.ts
 - **실시간 모바일 확인**: 다른 QA 브라우저를 종료하고 844×390 DPR2에서 실제 탭/누르기로 해변을 **75.055초**에 완주했습니다. 4,110점·91별빛·지도 3·HP 손실 0·평점 3. 첫 10초 rAF는 **60.00fps / p95 16.7ms**입니다. 가상 시계/플레이어 상태 변경은 없으며 실제 기기 FPS로 표시하지 않습니다. `mobile-realtime-results.json`과 같은 접두사 캡처.
 
 - 반복 추락/사과 회복으로 길어진 판도 기록할 수 있도록 비교 표본 한도를 512개(511초)로 설정했습니다. 긴 유효 항해의 저장 검증도 통과했습니다.
+
+### 열 가지 요소의 실제 Pages 배포
+
+- 기능 커밋 `571046e`와 긴 항해 기록 보완 `491973f`를 main에 푸시했습니다. [최종 Actions 40301639965](https://github.com/gmlduqzhd123-lab/Odyssey-Run/actions/runs/40301639965)의 Node22 설치·타입 검사·44개 테스트·빌드·Pages 배포가 모두 성공했습니다.
+- **2026-10-26 18:44 한국 시간**, 실제 주소 https://gmlduqzhd123-lab.github.io/Odyssey-Run/ 에서 HTTPS **200**와 로컬 최종 빌드와 동일한 `/Odyssey-Run/assets/index-CbzlSdrb.js`를 확인했습니다.
+- 실제 사이트의 740×300/DPR2 모바일 에뮬레이션에서 종료 후 렌더 멈춤/홈 재구동, 탭 닫기 SecurityError 차단 안내, 실제 획득 기록 UI 복원, 개인 비교 표식, 동굴 상단 경로 터치 무피해 완주, 별자리 9/9·이야기 6/6·별자리 도전·항구 5/5를 확인했습니다.
+- 별도 실제 URL 검증에서 나침반 추락 복귀/중복 점수 방지/재도전 초기화/옛 v1 파일의 정확한 기록·설정 보존/도감도 재확인했습니다. 두 정상 실행의 JS 오류/HTTP 실패는 0건입니다.
+- 세 섬 전체/PC 전체/실시간 FPS는 위 로컬 검증과 구분하며 원격에서 반복 측정하지 않았습니다. 실기 Android/iOS와 사람의 주관적 평가는 미실행입니다. 근거: `adventure-deployment.json`, `adventure-final-deployed-results.json`, 갱신된 `expansion-deployed-results.json` 및 같은 접두사 캡처.
+- 빌드·커밋·푸시·실제 배포·주소 확인을 수행했습니다. 최종 검증 자료/문서는 `[skip ci]` 커밋으로 보존합니다.
