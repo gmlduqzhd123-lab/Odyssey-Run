@@ -1,0 +1,112 @@
+{
+  "url": "http://localhost:4176/Odyssey-Run/",
+  "phase": "after",
+  "browser": "154.0.8037.57",
+  "checkedAt": "2026-10-26T13:46:00.727Z",
+  "environment": "Linux chromium: PC 1280x800 DPR1 / mobile 844x390 DPR2 emulation; virtual game clock; no physical device",
+  "scope": "Three complete routes per profile with keyboard/multi-pointer touch, then save export/restore",
+  "results": [
+    {
+      "mobile": false,
+      "status": 200,
+      "bundle": "/Odyssey-Run/assets/index-BxnVGBfW.js",
+      "firstStarX": 837.3333333333348,
+      "runs": [
+        {
+          "id": "beach",
+          "record": {
+            "complete": true,
+            "bestScore": 4150,
+            "bestRating": 3,
+            "bestStars": 95,
+            "maps": [
+              "beach-map-1",
+              "beach-map-3",
+              "beach-map-2"
+            ]
+          }
+        },
+        {
+          "id": "cave",
+          "record": {
+            "complete": true,
+            "bestScore": 4090,
+            "bestRating": 3,
+            "bestStars": 89,
+            "maps": [
+              "cave-map-1",
+              "cave-map-2",
+              "cave-map-3"
+            ]
+          }
+        },
+        {
+          "id": "wind",
+          "record": {
+            "complete": true,
+            "bestScore": 4080,
+            "bestRating": 3,
+            "bestStars": 88,
+            "maps": [
+              "wind-map-1",
+              "wind-map-2",
+              "wind-map-3"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "mobile": true,
+      "status": 200,
+      "bundle": "/Odyssey-Run/assets/index-BxnVGBfW.js",
+      "firstStarX": 837.3333333333348,
+      "runs": [
+        {
+          "id": "beach",
+          "record": {
+            "complete": true,
+            "bestScore": 4150,
+            "bestRating": 3,
+            "bestStars": 95,
+            "maps": [
+              "beach-map-1",
+              "beach-map-3",
+              "beach-map-2"
+            ]
+          }
+        },
+        {
+          "id": "cave",
+          "record": {
+            "complete": true,
+            "bestScore": 4090,
+            "bestRating": 3,
+            "bestStars": 89,
+            "maps": [
+              "cave-map-1",
+              "cave-map-2",
+              "cave-map-3"
+            ]
+          }
+        },
+        {
+          "id": "wind",
+          "record": {
+            "complete": true,
+            "bestScore": 4080,
+            "bestRating": 3,
+            "bestStars": 88,
+            "maps": [
+              "wind-map-1",
+              "wind-map-2",
+              "wind-map-3"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "failures": []
+}

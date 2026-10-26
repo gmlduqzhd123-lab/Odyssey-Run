@@ -15,11 +15,11 @@ try{
    let serial=0;const ids=new WeakMap<object,number>();const id=(o:object)=>{if(!ids.has(o))ids.set(o,++serial);return ids.get(o)!;};
    const draw=CanvasRenderingContext2D.prototype.drawImage,fill=CanvasRenderingContext2D.prototype.fillRect;
    CanvasRenderingContext2D.prototype.drawImage=function(this:CanvasRenderingContext2D,...a:any[]){
-    const s=a[0],m=this.getTransform(),main=this.canvas.parentElement?.id==='game',density=this.canvas.width/960;
+    const s=a[0],m=this.getTransform(),main=this.canvas.parentElement?.id==='game',rect=this.canvas.getBoundingClientRect(),scale=Math.min(rect.width/960,rect.height/540),density=this.canvas.width/(rect.width/scale),extra=rect.height/scale-540;
     if(main&&s instanceof HTMLImageElement){
      const w=s.naturalWidth,h=s.naturalHeight;
      if(Math.abs(w/h-1600/540)<.001&&h>=540)q.backgrounds['image-'+id(s)]=m.e/density;
-     if((w===768&&h===512||w===1536&&h===1024)&&a[4]>100){q.actor={frame:a.slice(1,5).join(','),anchorX:m.e/density,anchorY:m.f/density,a:m.a/density,d:m.d/density,dx:a[5],dy:a[6]};if(!q.poses.includes(q.actor.frame))q.poses.push(q.actor.frame);}
+     if((w===768&&h===512||w===1536&&h===1024)&&a[4]>100){q.actor={frame:a.slice(1,5).join(','),anchorX:m.e/this.canvas.width*960,anchorY:m.f/density-extra,a:m.a/density,d:m.d/density,dx:a[5],dy:a[6]};if(!q.poses.includes(q.actor.frame))q.poses.push(q.actor.frame);}
     }
     return (draw as Function).apply(this,a);
    } as typeof draw;

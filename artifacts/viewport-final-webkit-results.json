@@ -1,0 +1,55 @@
+{
+  "url": "http://localhost:4176/Odyssey-Run/",
+  "browser": "26.0",
+  "checkedAt": "2026-10-26T13:49:05.127Z",
+  "environment": "Linux webkit, viewport/device emulation, actual browser fullscreen API in Chromium; virtual game clock; no physical device",
+  "results": [
+    {
+      "profile": {
+        "name": "phone",
+        "w": 844,
+        "h": 390,
+        "dpr": 2,
+        "mobile": true
+      },
+      "status": 200,
+      "bundle": "/Odyssey-Run/assets/index-BJFNm2yW.js",
+      "geometry": {
+        "viewport": [
+          844,
+          390
+        ],
+        "shell": {
+          "x": 0,
+          "y": 0,
+          "w": 844,
+          "h": 390
+        },
+        "canvas": {
+          "x": 0,
+          "y": 0,
+          "w": 844,
+          "h": 390
+        },
+        "pixels": [
+          1688,
+          780
+        ],
+        "overflow": [
+          844,
+          390
+        ],
+        "actor": {
+          "x": 168.80001831054688,
+          "y": 317.77777099609375,
+          "scaleX": 0.2787524163722992,
+          "scaleY": 0.2787524163722992
+        }
+      },
+      "firstStar": 837.3333333333348,
+      "fullscreen": {}
+    }
+  ],
+  "errors": [],
+  "failures": []
+}

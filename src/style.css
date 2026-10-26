@@ -54,3 +54,25 @@
 .route-progress>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .course-result-label{font-weight:800;color:#36676b}
 @media(max-width:700px){.course-picker{grid-template-columns:1fr}.course-picker label{min-height:64px}.course-picker label>span{padding-top:8px;padding-bottom:8px}.course-picker label small{line-height:1.4}}
+/* Fill the available browser viewport; keep attribution in menus, off the run. */
+html,body{width:100%;height:100%;min-height:0;overflow:hidden;overscroll-behavior:none}
+#app{position:fixed;inset:0;width:100%;height:100vh;height:100dvh;padding:0;display:block}
+#app #shell{width:100%;height:100%;min-height:0;aspect-ratio:auto;border-radius:0;box-shadow:none}
+#app #game{height:100%;opacity:1;touch-action:none}
+#game canvas{display:block}
+#app>footer{position:absolute;left:max(8px,env(safe-area-inset-left));right:max(8px,env(safe-area-inset-right));bottom:max(3px,env(safe-area-inset-bottom));width:auto;padding:0;display:block;z-index:3;pointer-events:none;font-size:10px;color:#d4e2d5}
+#app>footer>span{display:none}
+#app>footer .ys-credit{display:table;margin:0 auto;padding:3px 9px;border-radius:5px;background:#153647d9;font-size:10px;line-height:1.3;pointer-events:auto}
+#app[data-screen="play"]>footer,#app[data-screen="countdown"]>footer,#app[data-screen="pause"]>footer,#app[data-screen="result"]>footer,#app[data-screen="loading"]>footer{display:none}
+.home-bottom{bottom:calc(24px + env(safe-area-inset-bottom));left:max(3%,env(safe-area-inset-left));right:max(3%,env(safe-area-inset-right))}
+.page-foot{padding-bottom:calc(28px + env(safe-area-inset-bottom))}
+.topbar{min-height:calc(48px + env(safe-area-inset-top));padding-top:env(safe-area-inset-top);padding-left:max(4.4%,env(safe-area-inset-left));padding-right:max(4.4%,env(safe-area-inset-right))}
+.veil{padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(20px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+.hud{min-height:calc(55px + env(safe-area-inset-top));padding-top:max(1.3%,env(safe-area-inset-top));padding-left:max(3%,env(safe-area-inset-left));padding-right:max(3%,env(safe-area-inset-right))}
+.hud-actions{display:flex;gap:8px;pointer-events:auto;flex-shrink:0}
+.fullscreen-button{min-width:44px;min-height:44px;border:1px solid #c2d7cb88;border-radius:50%;background:#173d50b8;color:#fff1cc;font-size:25px;pointer-events:auto}
+.hud-actions .pause-button{min-width:44px;min-height:44px}
+.play-ui:focus{outline:none}
+@media(orientation:landscape) and (max-height:420px){.home-bottom{bottom:calc(22px + env(safe-area-inset-bottom));height:44px}.hud-actions{gap:4px}.hud{gap:2%}.fullscreen-button{font-size:21px}.home-copy{top:18%}}
+.run-details,.adventure-hud{left:max(3%,env(safe-area-inset-left))}
+#notice{bottom:max(7px,env(safe-area-inset-bottom))}

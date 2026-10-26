@@ -19,10 +19,11 @@
     var isIOSSafari = isIOS && /Safari/i.test(ua) && !/CriOS|FxiOS|EdgiOS|Whale|NAVER|DaumApps/i.test(ua) && !isInApp;
 
     function installed() {
-        return (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+        return (window.matchMedia && (matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: fullscreen)').matches)) || navigator.standalone === true;
     }
     function refresh() { root.classList.toggle('can-install', !installed()); }
     refresh();
+    document.addEventListener('fullscreenchange', refresh);
 
     window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferred = e; refresh(); });
     window.addEventListener('appinstalled', function () {

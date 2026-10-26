@@ -1,16 +1,16 @@
 {
   "base": "http://localhost:4176/Odyssey-Run/",
   "browser": "154.0.8037.57",
-  "viewport": "960x620 desktop Chromium, DPR 2",
+  "viewport": "960x620 desktop Chromium, DPR 1",
   "renderer": "Canvas (game default)",
   "details": [
     {
       "stage": "beach",
       "record": {
         "complete": true,
-        "bestScore": 4130,
+        "bestScore": 4100,
         "bestRating": 3,
-        "bestStars": 93,
+        "bestStars": 90,
         "maps": [
           "beach-map-1",
           "beach-map-3",
@@ -22,9 +22,9 @@
       "stage": "cave",
       "record": {
         "complete": true,
-        "bestScore": 4120,
+        "bestScore": 4040,
         "bestRating": 3,
-        "bestStars": 92,
+        "bestStars": 84,
         "maps": [
           "cave-map-1",
           "cave-map-2",
@@ -36,9 +36,9 @@
       "stage": "wind",
       "record": {
         "complete": true,
-        "bestScore": 4050,
+        "bestScore": 4060,
         "bestRating": 3,
-        "bestStars": 85,
+        "bestStars": 86,
         "maps": [
           "wind-map-1",
           "wind-map-2",

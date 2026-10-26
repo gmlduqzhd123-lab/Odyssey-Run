@@ -1,0 +1,100 @@
+{
+  "url": "http://localhost:4177/Odyssey-Run/",
+  "browser": "154.0.8037.57",
+  "checkedAt": "2026-10-26T13:59:59.690Z",
+  "environment": "Linux chromium, viewport/device emulation, actual browser fullscreen API in Chromium; virtual game clock; no physical device",
+  "results": [
+    {
+      "profile": {
+        "name": "desktop",
+        "w": 1280,
+        "h": 800,
+        "dpr": 2,
+        "mobile": false
+      },
+      "status": 200,
+      "bundle": "/Odyssey-Run/assets/index-Bd-E8nyS.js",
+      "geometry": {
+        "viewport": [
+          1280,
+          800
+        ],
+        "shell": {
+          "x": 24,
+          "y": 24,
+          "w": 1232,
+          "h": 693
+        },
+        "canvas": {
+          "x": 24,
+          "y": 24,
+          "w": 1232,
+          "h": 693
+        },
+        "pixels": [
+          2880,
+          1620
+        ],
+        "overflow": [
+          1280,
+          800
+        ],
+        "actor": {
+          "x": 270.4,
+          "y": 588.6666666666666,
+          "scaleX": 0.5789473652839661,
+          "scaleY": 0.5789473652839661
+        }
+      },
+      "firstStar": 837.3333333333348,
+      "fullscreen": {}
+    },
+    {
+      "profile": {
+        "name": "phone",
+        "w": 844,
+        "h": 390,
+        "dpr": 2,
+        "mobile": true
+      },
+      "status": 200,
+      "bundle": "/Odyssey-Run/assets/index-Bd-E8nyS.js",
+      "geometry": {
+        "viewport": [
+          844,
+          390
+        ],
+        "shell": {
+          "x": 75.328125,
+          "y": 0,
+          "w": 693.328125,
+          "h": 389.984375
+        },
+        "canvas": {
+          "x": 75.328125,
+          "y": 0,
+          "w": 693.296875,
+          "h": 389.984375
+        },
+        "pixels": [
+          1440,
+          810
+        ],
+        "overflow": [
+          844,
+          390
+        ],
+        "actor": {
+          "x": 213.9875,
+          "y": 317.7650462962963,
+          "scaleX": 0.28947368264198303,
+          "scaleY": 0.28947368264198303
+        }
+      },
+      "firstStar": 837.3333333333348,
+      "fullscreen": {}
+    }
+  ],
+  "errors": [],
+  "failures": []
+}

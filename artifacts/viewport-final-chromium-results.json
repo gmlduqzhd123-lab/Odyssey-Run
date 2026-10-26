@@ -1,0 +1,329 @@
+{
+  "url": "http://localhost:4176/Odyssey-Run/",
+  "browser": "154.0.8037.57",
+  "checkedAt": "2026-10-26T13:49:42.851Z",
+  "environment": "Linux chromium, viewport/device emulation, actual browser fullscreen API in Chromium; virtual game clock; no physical device",
+  "results": [
+    {
+      "profile": {
+        "name": "desktop",
+        "w": 1280,
+        "h": 800,
+        "dpr": 2,
+        "mobile": false
+      },
+      "status": 200,
+      "bundle": "/Odyssey-Run/assets/index-BJFNm2yW.js",
+      "geometry": {
+        "viewport": [
+          1280,
+          800
+        ],
+        "shell": {
+          "x": 0,
+          "y": 0,
+          "w": 1280,
+          "h": 800
+        },
+        "canvas": {
+          "x": 0,
+          "y": 0,
+          "w": 1280,
+          "h": 800
+        },
+        "pixels": [
+          2560,
+          1600
+        ],
+        "overflow": [
+          1280,
+          800
+        ],
+        "actor": {
+          "x": 255.9999542236328,
+          "y": 666.6666870117188,
+          "scaleX": 0.5146198868751526,
+          "scaleY": 0.5146198868751526
+        }
+      },
+      "firstStar": 837.3333333333348,
+      "fullscreen": {
+        "native": true,
+        "deniedContinues": true,
+        "unsupportedContinues": true
+      }
+    },
+    {
+      "profile": {
+        "name": "wide",
+        "w": 2560,
+        "h": 1080,
+        "dpr": 1,
+        "mobile": false
+      },
+      "status": 200,
+      "bundle": "/Odyssey-Run/assets/index-BJFNm2yW.js",
+      "geometry": {
+        "viewport": [
+          2560,
+          1080
+        ],
+        "shell": {
+          "x": 0,
+          "y": 0,
+          "w": 2560,
+          "h": 1080
+        },
+        "canvas": {
+          "x": 0,
+          "y": 0,
+          "w": 2560,
+          "h": 1080
+        },
+        "pixels": [
+          2560,
+          1080
+        ],
+        "overflow": [
+          2560,
+          1080
+        ],
+        "actor": {
+          "x": 512,
+          "y": 880,
+          "scaleX": 0.38596490025520325,
+          "scaleY": 0.38596490025520325
+        }
+      },
+      "firstStar": 837.3333333333348,
+      "fullscreen": {}
+    },
+    {
+      "profile": {
+        "name": "tablet",
+        "w": 1024,
+        "h": 768,
+        "dpr": 2,
+        "mobile": true
+      },
+      "status": 200,
+      "bundle": "/Odyssey-Run/assets/index-BJFNm2yW.js",
+      "geometry": {
+        "viewport": [
+          1024,
+          768
+        ],
+        "shell": {
+          "x": 0,
+          "y": 0,
+          "w": 1024,
+          "h": 768
+        },
+        "canvas": {
+          "x": 0,
+          "y": 0,
+          "w": 1024,
+          "h": 768
+        },
+        "pixels": [
+          2048,
+          1536
+        ],
+        "overflow": [
+          1024,
+          768
+        ],
+        "actor": {
+          "x": 204.79998779296875,
+          "y": 661.3333740234375,
+          "scaleX": 0.4116959273815155,
+          "scaleY": 0.4116959273815155
+        }
+      },
+      "firstStar": 837.3333333333348,
+      "fullscreen": {}
+    },
+    {
+      "profile": {
+        "name": "phone",
+        "w": 844,
+        "h": 390,
+        "dpr": 2,
+        "mobile": true
+      },
+      "status": 200,
+      "bundle": "/Odyssey-Run/assets/index-BJFNm2yW.js",
+      "geometry": {
+        "viewport": [
+          844,
+          390
+        ],
+        "shell": {
+          "x": 0,
+          "y": 0,
+          "w": 844,
+          "h": 390
+        },
+        "canvas": {
+          "x": 0,
+          "y": 0,
+          "w": 844,
+          "h": 390
+        },
+        "pixels": [
+          1688,
+          780
+        ],
+        "overflow": [
+          844,
+          390
+        ],
+        "actor": {
+          "x": 168.80001831054688,
+          "y": 317.77777099609375,
+          "scaleX": 0.2787524163722992,
+          "scaleY": 0.2787524163722992
+        }
+      },
+      "firstStar": 837.3333333333348,
+      "fullscreen": {}
+    },
+    {
+      "profile": {
+        "name": "small-phone",
+        "w": 568,
+        "h": 320,
+        "dpr": 2,
+        "mobile": true
+      },
+      "status": 200,
+      "bundle": "/Odyssey-Run/assets/index-BJFNm2yW.js",
+      "geometry": {
+        "viewport": [
+          568,
+          320
+        ],
+        "shell": {
+          "x": 0,
+          "y": 0,
+          "w": 568,
+          "h": 320
+        },
+        "canvas": {
+          "x": 0,
+          "y": 0,
+          "w": 568,
+          "h": 320
+        },
+        "pixels": [
+          1136,
+          640
+        ],
+        "overflow": [
+          568,
+          320
+        ],
+        "actor": {
+          "x": 113.60000610351562,
+          "y": 260.8333435058594,
+          "scaleX": 0.2283625602722168,
+          "scaleY": 0.2283625602722168
+        }
+      },
+      "firstStar": 837.3333333333348,
+      "fullscreen": {}
+    },
+    {
+      "profile": {
+        "name": "short-phone",
+        "w": 740,
+        "h": 300,
+        "dpr": 2,
+        "mobile": true
+      },
+      "status": 200,
+      "bundle": "/Odyssey-Run/assets/index-BJFNm2yW.js",
+      "geometry": {
+        "viewport": [
+          740,
+          300
+        ],
+        "shell": {
+          "x": 0,
+          "y": 0,
+          "w": 740,
+          "h": 300
+        },
+        "canvas": {
+          "x": 0,
+          "y": 0,
+          "w": 740,
+          "h": 300
+        },
+        "pixels": [
+          1480,
+          600
+        ],
+        "overflow": [
+          740,
+          300
+        ],
+        "actor": {
+          "x": 147.99998474121094,
+          "y": 244.44444274902344,
+          "scaleX": 0.2144249528646469,
+          "scaleY": 0.2144249528646469
+        }
+      },
+      "firstStar": 837.3333333333348,
+      "fullscreen": {}
+    },
+    {
+      "profile": {
+        "name": "4k",
+        "w": 3840,
+        "h": 2160,
+        "dpr": 1,
+        "mobile": false
+      },
+      "status": 200,
+      "bundle": "/Odyssey-Run/assets/index-BJFNm2yW.js",
+      "geometry": {
+        "viewport": [
+          3840,
+          2160
+        ],
+        "shell": {
+          "x": 0,
+          "y": 0,
+          "w": 3840,
+          "h": 2160
+        },
+        "canvas": {
+          "x": 0,
+          "y": 0,
+          "w": 3840,
+          "h": 2160
+        },
+        "pixels": [
+          3840,
+          2160
+        ],
+        "overflow": [
+          3840,
+          2160
+        ],
+        "actor": {
+          "x": 768,
+          "y": 1760,
+          "scaleX": 0.7719298005104065,
+          "scaleY": 0.7719298005104065
+        }
+      },
+      "firstStar": 837.3333333333348,
+      "fullscreen": {}
+    }
+  ],
+  "errors": [],
+  "failures": []
+}

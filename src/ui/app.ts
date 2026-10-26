@@ -15,7 +15,7 @@ import {assetUrl,PEOPLE,RELICS,STAGE_RELIC} from '../assets/catalog';
 import {ART_SHEETS,STAGE_VIEW,regionArt,sheetUrl} from '../assets/terrain';
 import {ENEMY_TYPES,type EnemyKind} from '../levels/enemies';
 import {MONSTER_ART} from '../assets/expansion-art';
-import {displayDensity} from '../rendering/display';
+import {displayDensity,displayViewport} from '../rendering/display';
 const asset=assetUrl;
 const icon=(name:string,cls='')=>`<img class="icon ${cls}" src="${asset(name)}" alt="">`;
 const button=(action:string,text:string,cls='',extra='')=>`<button class="${cls}" data-action="${action}" ${extra}>${text}</button>`;
@@ -23,14 +23,15 @@ export class App {
  private ui=document.querySelector<HTMLDivElement>('#ui')!;private store:SaveStore;private world:World;private game:Phaser.Game;
  private controls:Controls;private sound:Sound;private run:Runner|null=null;private result:RunResult|null=null;private screen='loading';private returnScreen='home';private selected:StageId='beach';
  private accumulator=0;private countdown=0;private imported:Save|null=null;private lastHud='';private destroyed=false;private abort=new AbortController();
- private renderDensity=displayDensity(document.querySelector('#shell')!.getBoundingClientRect().width,window.devicePixelRatio);private displayObserver:ResizeObserver;
+ private view=displayViewport(document.querySelector('#shell')!.getBoundingClientRect().width,document.querySelector('#shell')!.getBoundingClientRect().height);
+ private renderDensity=displayDensity(document.querySelector('#shell')!.getBoundingClientRect().width,window.devicePixelRatio,document.querySelector('#shell')!.getBoundingClientRect().height);private displayObserver:ResizeObserver;
  private importRequest=0;private selectedGoal:GoalId='maps';private selectedVariant:VariantId='classic';
  constructor(){
   let storage:Storage|null=null;try{storage=localStorage;}catch{}
   this.store=new SaveStore(storage);this.selected=this.store.data.lastStage;this.sound=new Sound(()=>this.store.data.settings);
   this.controls=new Controls({jump:()=>{this.sound.unlock();this.run?.jump();},slide:held=>this.run?.slide(held),pause:()=>this.pause(),active:()=>this.screen==='play'&&this.run?.state==='playing',pauseActive:()=>['play','countdown'].includes(this.screen)});
-  this.world=new World({frame:d=>this.frame(d),loaded:()=>this.home(),loadError:()=>this.error(),reduced:()=>this.store.data.settings.reducedMotion,density:()=>this.renderDensity});
-  this.game=new Phaser.Game({type:Phaser.CANVAS,parent:'game',width:C.width*this.renderDensity,height:C.height*this.renderDensity,backgroundColor:'#102f46',scene:this.world,scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},render:{antialias:true,roundPixels:false,clearBeforeRender:false},audio:{noAudio:true},fps:{smoothStep:false,target:60},banner:false});
+  this.world=new World({frame:d=>this.frame(d),loaded:()=>this.home(),loadError:()=>this.error(),reduced:()=>this.store.data.settings.reducedMotion,density:()=>this.renderDensity,view:()=>this.view});
+  this.game=new Phaser.Game({type:Phaser.CANVAS,parent:'game',width:Math.round(this.view.width*this.renderDensity),height:Math.round(this.view.height*this.renderDensity),backgroundColor:'#102f46',scene:this.world,scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},render:{antialias:true,roundPixels:false,clearBeforeRender:false},audio:{noAudio:true},fps:{smoothStep:false,target:60},banner:false});
   this.displayObserver=new ResizeObserver(()=>this.resizeDisplay());this.displayObserver.observe(document.querySelector('#shell')!);
   this.ui.addEventListener('click',e=>{const b=(e.target as HTMLElement).closest<HTMLElement>('[data-action]');if(b&&!b.hasAttribute('disabled')){this.sound.unlock();this.action(b.dataset.action!);}},{signal:this.abort.signal});
   this.ui.addEventListener('change',e=>this.change(e),{signal:this.abort.signal});
@@ -38,10 +39,17 @@ export class App {
   window.addEventListener('blur',()=>this.suspend(),{signal:this.abort.signal});window.addEventListener('resize',()=>{this.orientation();this.resizeDisplay();},{signal:this.abort.signal});
   document.querySelector('#rotate-menu')!.addEventListener('click',()=>{this.abandon();this.islands();},{signal:this.abort.signal});
   window.addEventListener('pagehide',()=>this.suspend(),{signal:this.abort.signal});
+  document.addEventListener('fullscreenchange',()=>{this.orientation();this.resizeDisplay();},{signal:this.abort.signal});
+  window.visualViewport?.addEventListener('resize',()=>{this.orientation();this.resizeDisplay();},{signal:this.abort.signal});
  }
  private notice(message=this.store.warning){const n=document.querySelector<HTMLElement>('#notice')!;n.textContent=message;n.hidden=!message;}
- private set(html:string,screen:string){this.importRequest++;this.screen=screen;this.controls.clear();this.run?.clearInput();this.ui.innerHTML=html;const play=this.ui.querySelector<HTMLElement>('.play-ui');if(play)play.inert=['pause','countdown'].includes(screen);this.lastHud='';this.orientation();this.notice();queueMicrotask(()=>this.ui.querySelector<HTMLElement>('[autofocus], h1[tabindex], h2[tabindex]')?.focus({preventScroll:true}));}
- private header(label:string,back='home'){return `<header class="topbar">${button(back,'← <span>돌아가기</span>','text-button')}<span class="brand">${icon('compass')} ${label}</span><span class="edition">ODYSSEY RUN / VOL. 01</span><span class="ys-key"><button type="button" class="ys-chip" data-ys-install>📲 <span class="ys-wide">앱 </span>설치</button><button type="button" class="ys-chip" data-qr aria-label="QR 코드로 접속">📱 QR</button></span></header>`;}
+ private set(html:string,screen:string){this.importRequest++;this.screen=screen;document.querySelector<HTMLElement>('#app')!.dataset.screen=screen;this.controls.clear();this.run?.clearInput();this.ui.innerHTML=html;const play=this.ui.querySelector<HTMLElement>('.play-ui');if(play)play.inert=['pause','countdown'].includes(screen);this.lastHud='';this.orientation();this.notice();queueMicrotask(()=>this.ui.querySelector<HTMLElement>('[autofocus], h1[tabindex], h2[tabindex]')?.focus({preventScroll:true}));}
+ private async fullscreen(){
+  try{if(document.fullscreenElement)await document.exitFullscreen();else if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen({navigationUI:'hide'});else{this.notice('브라우저 화면에 맞춰 표시 중이에요. 이 브라우저는 전체 화면 전환을 지원하지 않아요.');}}
+  catch{this.notice('전체 화면으로 전환하지 못했어요. 현재 브라우저 화면으로 계속 플레이할 수 있어요.');}
+  this.resizeDisplay();if(this.screen==='play')this.ui.querySelector<HTMLElement>('.play-ui')?.focus({preventScroll:true});
+ }
+ private header(label:string,back='home'){return `<header class="topbar">${button(back,'← <span>돌아가기</span>','text-button')}<span class="brand">${icon('compass')} ${label}</span><span class="edition">ODYSSEY RUN / VOL. 01</span><span class="ys-key">${button('fullscreen','⛶ <span class="ys-wide">전체 화면</span>','ys-chip','aria-label="전체 화면 전환"')}<button type="button" class="ys-chip" data-ys-install>📲 <span class="ys-wide">앱 </span>설치</button><button type="button" class="ys-chip" data-qr aria-label="QR 코드로 접속">📱 QR</button></span></header>`;}
  home(){
   this.abandon();this.world.showHome();const done=STAGES.every(id=>this.store.data.stages[id].complete);
   this.set(`<div class="home">${this.header('ODYSSEY RUN','home')}<div class="home-copy"><span class="eyebrow"><i></i> 작은 영웅의 긴 귀환</span><h1 tabindex="-1">오디세이 런<span>이타카로!</span></h1><p>별자리를 잇고, 숨은 이야기를 찾고,<br>우리만의 항구를 완성하러 떠나요.</p><div class="home-actions">${button('islands','항해 시작 <span>↗</span>','primary large')}${button('codex',icon('map')+' 지도 도감','secondary')}</div><div class="home-status">${done?'⚑ 귀환 완료 · ':''}도장 ${this.store.data.journal.stamps.length}/12 · 별자리 ${this.store.data.journal.constellations.length}/9 · 이야기 ${this.store.data.journal.stories.length}/6</div></div><div class="hero-caption"><span>ODYSSEUS</span><b>지혜로운 작은 영웅</b><i>“이번에는 꼭, 이타카로!”</i></div><div class="home-bottom">${button('harbor','⚓ 나의 항구','text-button')}${button('journal','✧ 모험 수첩','text-button')}${button('settings','⚙ 설정','text-button')}${button('quit','게임 종료','text-button')}</div></div>`,'home');this.game.loop.wake();
@@ -62,7 +70,7 @@ export class App {
   if(!unlocked(this.store.data,this.selected)){this.islands();return;}
   this.abandon();this.sound.setStage(this.selected,true);this.result=null;this.run=new Runner(this.selected,this.selectedGoal,this.selectedVariant);this.world.showRun(this.run);this.store.data.tutorialSeen=true;this.store.persist();this.beginCountdown();
  }
- private hud(){return `<div class="play-ui"><div class="hud"><div class="hp-block"><span class="hud-caption">오디세우스</span><strong id="hp" aria-label="체력 3"></strong></div><div class="route-progress"><span>${COURSES[this.selected].name} · ${VARIANT_LABELS[this.selected][this.selectedVariant].name}</span><progress id="progress" data-course="${this.selected}/${this.selectedVariant}" max="24000" value="0" aria-label="섬 진행률"></progress><i id="ghost-marker" hidden aria-label="비교 항해 위치"></i><small id="progress-label">0%</small></div><div class="score-block"><span class="hud-caption">SCORE</span><strong id="score">0</strong></div>${button('pause','Ⅱ','pause-button','aria-label="일시정지"')}</div><div class="run-details"><span id="stars">✦ 0 / 100</span><span id="maps">지도 0 / 3</span><span id="effects"></span></div><div class="adventure-hud"><span id="goal-progress"></span><span id="ghost-delta"></span><span id="discovery-progress"></span></div><div class="touch-controls"><button data-control="slide" class="control slide" aria-label="슬라이드, 누르고 유지"><span>⇣</span><b>슬라이드</b><small>↓ 누르기</small></button><button data-control="jump" class="control jump" aria-label="점프, 공중에서 다시 누르면 2단 점프"><span>↟</span><b>점프</b><small>Space / ↑</small></button></div></div>`;}
+ private hud(){return `<div class="play-ui" tabindex="-1" role="group" aria-label="게임 조작"><div class="hud"><div class="hp-block"><span class="hud-caption">오디세우스</span><strong id="hp" aria-label="체력 3"></strong></div><div class="route-progress"><span>${COURSES[this.selected].name} · ${VARIANT_LABELS[this.selected][this.selectedVariant].name}</span><progress id="progress" data-course="${this.selected}/${this.selectedVariant}" max="24000" value="0" aria-label="섬 진행률"></progress><i id="ghost-marker" hidden aria-label="비교 항해 위치"></i><small id="progress-label">0%</small></div><div class="score-block"><span class="hud-caption">SCORE</span><strong id="score">0</strong></div><div class="hud-actions">${button('fullscreen','⛶','fullscreen-button','aria-label="전체 화면 전환"')}${button('pause','Ⅱ','pause-button','aria-label="일시정지"')}</div></div><div class="run-details"><span id="stars">✦ 0 / 100</span><span id="maps">지도 0 / 3</span><span id="effects"></span></div><div class="adventure-hud"><span id="goal-progress"></span><span id="ghost-delta"></span><span id="discovery-progress"></span></div><div class="touch-controls"><button data-control="slide" class="control slide" aria-label="슬라이드, 누르고 유지"><span>⇣</span><b>슬라이드</b><small>↓ 누르기</small></button><button data-control="jump" class="control jump" aria-label="점프, 공중에서 다시 누르면 2단 점프"><span>↟</span><b>점프</b><small>Space / ↑</small></button></div></div>`;}
  private beginCountdown(){
   this.countdown=3;this.accumulator=0;this.sound.setPlaying(false);this.run!.state='ready';
   this.set(this.hud()+`<div class="countdown"><span>준비됐나요?</span><strong id="count">3</strong><small>점프 · 2단 점프 · 슬라이드</small>${button('pause','잠시 멈추기','secondary')}</div>`,'countdown');this.controls.bind(this.ui);this.updateHud();
@@ -141,6 +149,7 @@ export class App {
   if(action.startsWith('story:')){this.story(Number(action.slice(6)));return;}
   switch(action){
    case 'journal':this.journal();break;case 'harbor':this.harbor();break;case 'quit':this.quit();break;case 'close-tab':try{window.close();}catch{}this.notice('이 브라우저에서는 탭을 직접 닫아 주세요. 게임과 소리는 멈춰 있어요.');break;
+   case 'fullscreen':void this.fullscreen();break;
    case 'home':this.home();break;case 'islands':this.islands();break;case 'codex':this.codex();break;case 'settings':this.settings();break;
    case 'bestiary':this.bestiary();break;case 'people':this.people();break;case 'relics':this.relics();break;case 'landscapes':this.landscapes();break;
    case 'sheet-zoom':if(this.screen==='sheet'){const viewer=this.ui.querySelector('.sheet-viewer')!;const expanded=viewer.classList.toggle('expanded');const b=this.ui.querySelector('[data-action="sheet-zoom"]')!;b.setAttribute('aria-pressed',String(expanded));b.textContent=expanded?'화면에 맞추기':'원본 크기로 확대';}break;
@@ -184,9 +193,9 @@ export class App {
  }
  private resizeDisplay(){
   if(!this.game?.isBooted||this.destroyed)return;
-  const density=displayDensity(document.querySelector('#shell')!.getBoundingClientRect().width,window.devicePixelRatio);
-  if(density===this.renderDensity)return;
-  this.renderDensity=density;this.game.scale.setGameSize(C.width*density,C.height*density);this.world.syncDisplay();
+  const rect=document.querySelector('#shell')!.getBoundingClientRect(),view=displayViewport(rect.width,rect.height),density=displayDensity(rect.width,window.devicePixelRatio,rect.height);
+  if(density===this.renderDensity&&Math.abs(view.width-this.view.width)<.01&&Math.abs(view.height-this.view.height)<.01)return;
+  this.view=view;this.renderDensity=density;this.game.scale.setGameSize(Math.round(view.width*density),Math.round(view.height*density));this.game.scale.refresh();this.world.syncDisplay();
  }
  destroy(){this.destroyed=true;this.displayObserver.disconnect();this.abort.abort();this.controls.destroy();this.sound.destroy();this.game.destroy(true);}
 }
