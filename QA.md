@@ -225,3 +225,6 @@ QA_URL=http://localhost:4174/qa-odyssey/ npx tsx scripts/performance-qa.ts
 - 첫 고해상도 구현에서 PC 57.41fps가 나왔습니다. 항상 화면 전체를 덮는 불투명 하늘 배경을 확인하고 중복 clear/fill을 생략해 59.00fps로 개선했습니다. 초기 결과도 `display-after-initial-results.json`에 보존합니다. 최종 측정의 10초 전진거리는 약 3200~3205.33px로, 게임 속도 변경은 없습니다.
 - 실제 Android Chrome·iOS Safari, DPR3 기기, 장시간 발열/배터리 및 **사람의 주관적인 어지러움 평가**는 미실행입니다. 원본 도감 시트의 작은 지형 영역에는 원화 자체의 세부 해상도 한계가 있습니다. 체감 증상 해소를 자동 테스트 결과만으로 보장하지 않습니다.
 - 근거: `artifacts/display-before-results.json`, `display-after-results.json`, `display-comparison.json`, `browser-results.json`, `runner-results.json`, `edge-results.json`과 전후 캡처.
+- 기능 커밋 `1d7eae3`을 main에 푸시했고 [Actions 실행 40269907201](https://github.com/gmlduqzhd123-lab/Odyssey-Run/actions/runs/40269907201)의 build/deploy가 모두 성공했습니다.
+- **2026-10-26 13:37 한국 시간**, 실제 주소 https://gmlduqzhd123-lab.github.io/Odyssey-Run/ 에서 HTTPS 200, 로컬 최종 빌드와 같은 `index-CxQbYj1m.js`를 확인했습니다. PC DPR1/DPR2와 모바일 가로 DPR2에서 각각 1440×810 / 2880×1620 / 1440×810 Canvas, 논리 기준점 x=192, 전진거리 640에서의 화면, 배경 이동률, 축소 모드의 배경 고정·달리기 8개 자세·모바일 회전/재개/점프·기록 유지가 통과했습니다. JavaScript 오류와 HTTP 실패 0건입니다. 실제 배포에서 성능 측정과 오류 주입은 반복하지 않았습니다.
+- 실제 사이트 근거: `artifacts/display-deployed-results.json`, `display-deployed-*.png`. 이는 Linux Chromium의 실제 URL 접속과 모바일 에뮬레이션이며 실제 Android/iOS 장치 결과로 표시하지 않습니다.
