@@ -365,3 +365,11 @@ QA_URL=http://localhost:4174/qa-odyssey/ npx tsx scripts/performance-qa.ts
 실제 Android Chrome/iPhone Safari 장치, 실제 노치/홈 표시줄, 기기 앱 전환과 장시간 발열/배터리·사람의 체감 평가는 미실행입니다. 지원되지 않는 Chromium safe-area override API는 검증에 사용하지 않았습니다. Linux WebKit은 Safari 계열 엔진 검증이며 실제 iPhone 시험은 아닙니다.
 
 - **실시간 모바일 가로 완주**: 다른 QA 브라우저를 종료하고 844×390/DPR2 Chromium에서 실제 탭/슬라이드 누르기로 **75.011초**에 해변 완주했습니다. 4,130점·별빛 93·지도 3·HP 손실 0·평점 3. 가상 시계나 플레이어 상태 변경은 없습니다. 첫 10초 rAF 측정은 **60.00fps / p95 16.7ms**이며 소프트웨어 에뮬레이션 결과입니다. 전체 75초의 최저 FPS나 실제 스마트폰 FPS로 표시하지 않습니다. `mobile-realtime-results.json`, `mobile-realtime-play.png`, `mobile-realtime-result.png`.
+
+### 모바일 수정본 실제 배포 확인
+
+- 기능 커밋 `8a3acd7`을 main에 푸시했고 [Actions 실행 40293654911](https://github.com/gmlduqzhd123-lab/Odyssey-Run/actions/runs/40293654911)의 Node22 설치·타입 검사·30개 테스트·빌드·Pages 배포가 모두 성공했습니다.
+- **2026-10-26 17:40 한국 시간**, 실제 주소 https://gmlduqzhd123-lab.github.io/Odyssey-Run/ 의 HTTPS **200**, 로컬 최종 빌드와 동일한 `/Odyssey-Run/assets/index-BOuDUeJn.js`를 확인했습니다.
+- 실제 URL에서 Chromium 740×300 모바일 에뮬레이션의 시작 버튼/멀티터치/밖 해제·취소/pagehide 정지/회전/크기 변경 후 점프/재도전, WebKit 844×390 모바일 에뮬레이션의 탭/정지/회전/재개/재도전이 모두 통과했습니다. 나침반 추락 복귀/중복 점수 방지/이전 v1 기록 복원/도감도 재확인했습니다. JS 오류/HTTP 실패 0건입니다.
+- 원격에서는 전체 세 섬 터치 완주와 실시간 성능을 반복 측정하지 않았으며 위 로컬 결과와 구분합니다. 실기 Android/iPhone 확인은 미실행입니다.
+- 근거: `mobile-deployment.json`, `mobile-deployed-chromium-740x300-results.json`, `mobile-deployed-webkit-844x390-results.json`, 갱신된 `expansion-deployed-results.json`. 후속 문서·검증 자료는 `[skip ci]` 커밋으로 보존합니다. 빌드·커밋·푸시·실제 배포·주소 확인을 모두 수행했습니다.

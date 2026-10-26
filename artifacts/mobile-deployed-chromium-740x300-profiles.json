@@ -1,0 +1,16 @@
+{
+  "url": "https://gmlduqzhd123-lab.github.io/Odyssey-Run/",
+  "browser": "154.0.8037.57",
+  "results": [
+    {
+      "width": 740,
+      "height": 300,
+      "dpr": 2,
+      "startTouchable": true,
+      "multiTouchOutsideCancel": true,
+      "pagehidePauses": true,
+      "resizeRotationTouch": true,
+      "retry": true
+    }
+  ]
+}

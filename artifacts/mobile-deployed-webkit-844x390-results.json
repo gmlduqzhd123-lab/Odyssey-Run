@@ -1,0 +1,20 @@
+{
+  "url": "https://gmlduqzhd123-lab.github.io/Odyssey-Run/",
+  "browser": "26.0",
+  "checkedAt": "2026-10-26T08:40:49.731Z",
+  "environment": "Linux headless browser mobile emulation; no physical Android/iOS; touch events and virtual game clock; pagehide injected independently of visibility",
+  "results": [
+    {
+      "width": 844,
+      "height": 390,
+      "dpr": 2,
+      "startTouchable": true,
+      "pagehidePauses": true,
+      "resizeRotationTouch": true,
+      "retry": true
+    }
+  ],
+  "routes": [],
+  "errors": [],
+  "failures": []
+}

@@ -1,0 +1,70 @@
+{
+  "featureCommit": "8a3acd7f5a56b83c8291ae774a385c3bb508c2df",
+  "workflowRun": 40293654911,
+  "workflowUrl": "https://github.com/gmlduqzhd123-lab/Odyssey-Run/actions/runs/40293654911",
+  "jobs": {
+    "build": "success",
+    "deploy": "success"
+  },
+  "productionCheck": {
+    "url": "https://gmlduqzhd123-lab.github.io/Odyssey-Run/",
+    "status": 200,
+    "bundle": "/Odyssey-Run/assets/index-BOuDUeJn.js",
+    "browser": "154.0.8037.57",
+    "checkedAt": "2026-10-26T08:40:37.476Z",
+    "environment": "Linux Chromium desktop DPR2, actual keyboard inputs, virtual clock; independent browser storage",
+    "compassCheckpoint": 7720,
+    "observedRecoveryX": 7720,
+    "fallHp": 2,
+    "duplicateScoreAndStarsPrevented": true,
+    "restartClearsEffects": true,
+    "legacyV1ExactRecordsPreserved": true,
+    "bestiaryKinds": 6,
+    "realItemKinds": 8,
+    "errors": [],
+    "failures": []
+  },
+  "mobileChecks": [
+    {
+      "url": "https://gmlduqzhd123-lab.github.io/Odyssey-Run/",
+      "browser": "154.0.8037.57",
+      "checkedAt": "2026-10-26T08:40:12.896Z",
+      "environment": "Linux headless browser mobile emulation; no physical Android/iOS; touch events and virtual game clock; pagehide injected independently of visibility",
+      "results": [
+        {
+          "width": 740,
+          "height": 300,
+          "dpr": 2,
+          "startTouchable": true,
+          "multiTouchOutsideCancel": true,
+          "pagehidePauses": true,
+          "resizeRotationTouch": true,
+          "retry": true
+        }
+      ],
+      "routes": [],
+      "errors": [],
+      "failures": []
+    },
+    {
+      "url": "https://gmlduqzhd123-lab.github.io/Odyssey-Run/",
+      "browser": "26.0",
+      "checkedAt": "2026-10-26T08:40:49.731Z",
+      "environment": "Linux headless browser mobile emulation; no physical Android/iOS; touch events and virtual game clock; pagehide injected independently of visibility",
+      "results": [
+        {
+          "width": 844,
+          "height": 390,
+          "dpr": 2,
+          "startTouchable": true,
+          "pagehidePauses": true,
+          "resizeRotationTouch": true,
+          "retry": true
+        }
+      ],
+      "routes": [],
+      "errors": [],
+      "failures": []
+    }
+  ]
+}
