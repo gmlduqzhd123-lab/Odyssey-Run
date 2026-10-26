@@ -1,0 +1,84 @@
+{
+  "browser": "26.0",
+  "checkedAt": "2026-10-26T10:11:37.908Z",
+  "environment": "Linux WebKit mobile emulation 844x390 DPR2, real game clock, actual AudioBufferSource starts/stops; no speaker listening",
+  "results": [
+    {
+      "id": "beach",
+      "first": {
+        "duration": 162.1439909297052,
+        "offset": 0,
+        "loop": true,
+        "started": 7.244625850340136,
+        "stopped": false
+      },
+      "prior": {
+        "duration": 162.1439909297052,
+        "offset": 0,
+        "loop": true,
+        "started": 7.244625850340136,
+        "stopped": true,
+        "ended": 8.089251700680272
+      },
+      "resumed": {
+        "duration": 162.1439909297052,
+        "offset": 0.8446258503401358,
+        "loop": true,
+        "started": 12.1556462585034,
+        "stopped": false
+      }
+    },
+    {
+      "id": "cave",
+      "first": {
+        "duration": 108,
+        "offset": 0,
+        "loop": true,
+        "started": 17.847437641723356,
+        "stopped": false
+      },
+      "prior": {
+        "duration": 108,
+        "offset": 0,
+        "loop": true,
+        "started": 17.847437641723356,
+        "stopped": true,
+        "ended": 18.96780045351474
+      },
+      "resumed": {
+        "duration": 108,
+        "offset": 1.1203628117913844,
+        "loop": true,
+        "started": 22.69750566893424,
+        "stopped": false
+      }
+    },
+    {
+      "id": "wind",
+      "first": {
+        "duration": 96.91199546485261,
+        "offset": 0,
+        "loop": true,
+        "started": 28.03519274376417,
+        "stopped": false
+      },
+      "prior": {
+        "duration": 96.91199546485261,
+        "offset": 0,
+        "loop": true,
+        "started": 28.03519274376417,
+        "stopped": true,
+        "ended": 29.20780045351474
+      },
+      "resumed": {
+        "duration": 96.91199546485261,
+        "offset": 1.1726077097505687,
+        "loop": true,
+        "started": 33.303219954648526,
+        "stopped": false
+      }
+    }
+  ],
+  "errors": [],
+  "failures": []
+}

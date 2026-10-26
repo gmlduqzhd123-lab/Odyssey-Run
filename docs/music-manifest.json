@@ -1,0 +1,42 @@
+{
+  "provenance": "User uploads, described as Suno AI background music. No inferred license.",
+  "processing": "All MP3 bytes preserved. Runtime gain only, no trim or re-encode.",
+  "tracks": [
+    {
+      "stage": "beach",
+      "sourceName": "Odyssey Run — Road to Ithaca (1).mp3",
+      "file": "assets/audio/beach-78e90c47be32.mp3",
+      "sha256": "78e90c47be32734999de364ad2d370036439db53af9b91b37d1f130d4a86a1e6",
+      "bytes": 4023920,
+      "durationSeconds": 162.144,
+      "codec_name": "mp3",
+      "codec_type": "audio",
+      "sample_rate": "48000",
+      "channels": 2
+    },
+    {
+      "stage": "cave",
+      "sourceName": "Odyssey Run — Road to Ithaca (2).mp3",
+      "file": "assets/audio/cave-3b7dca88f289.mp3",
+      "sha256": "3b7dca88f28932f4390057c9de59faab2c19b52d71c2eee30665998e81b42adc",
+      "bytes": 2607992,
+      "durationSeconds": 108.0,
+      "codec_name": "mp3",
+      "codec_type": "audio",
+      "sample_rate": "48000",
+      "channels": 2
+    },
+    {
+      "stage": "wind",
+      "sourceName": "Odyssey Run — Road to Ithaca (3).mp3",
+      "file": "assets/audio/wind-135cdecfaf1b.mp3",
+      "sha256": "135cdecfaf1b9f31df4780638528b4efe7b9939b4aa1f18dde55659c661df855",
+      "bytes": 2326338,
+      "durationSeconds": 96.912,
+      "codec_name": "mp3",
+      "codec_type": "audio",
+      "sample_rate": "48000",
+      "channels": 2
+    }
+  ]
+}

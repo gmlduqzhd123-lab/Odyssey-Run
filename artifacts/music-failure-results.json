@@ -1,0 +1,22 @@
+{
+  "checkedAt": "2026-10-26T10:10:35.222Z",
+  "browser": "154.0.8037.57",
+  "environment": "Linux Chromium mobile emulation; real clock; deliberate audio failures",
+  "results": [
+    {
+      "mode": "missing",
+      "playAndPauseAndQuit": true,
+      "errors": []
+    },
+    {
+      "mode": "corrupt",
+      "playAndPauseAndQuit": true,
+      "errors": []
+    },
+    {
+      "mode": "blocked-resume",
+      "playAndPauseAndQuit": true,
+      "errors": []
+    }
+  ]
+}
