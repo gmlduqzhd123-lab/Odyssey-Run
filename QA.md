@@ -124,8 +124,12 @@ QA_URL=http://localhost:4174/qa-odyssey/ npx tsx scripts/performance-qa.ts
 
 - 대상: `https://github.com/gmlduqzhd123-lab/Odyssey-Run`.
 - 연결 계정의 push/admin 권한 확인. 원격 저장소는 기본 브랜치 `main`, 기존 커밋이 없는 빈 저장소였습니다. 기존 원격 파일을 덮어쓰지 않습니다.
-- GitHub Actions는 실제 저장소 이름에서 `/Odyssey-Run/` base를 계산합니다. `node_modules/`, `dist/`는 Git에서 제외합니다.
+- 로컬 기본 base도 연결된 저장소에 맞춰 `/Odyssey-Run/`으로 지정했습니다. GitHub Actions는 실제 저장소 이름에서 같은 base를 계산합니다. `node_modules/`, `dist/`는 Git에서 제외합니다.
 - 로컬 타입 검사·자동 테스트 **23개 통과**, `PAGES_BASE=/Odyssey-Run/ npm run build` 성공. 해당 하위 경로의 실행 검증은 `artifacts/github-base-results.json`에 기록합니다.
 - Pages 활성화 API는 현재 연동 토큰의 권한 제한으로 HTTP 403(`Resource not accessible by integration`)을 반환했습니다. 현재 도구에는 인증된 사용자 브라우저를 제어할 수 있는 연결도 없어 Pages 활성화는 저장소의 Settings → Pages에서 사용자가 수행해야 합니다.
 - 빌드 검증/산출물 업로드와 Pages 설정/배포를 별도 job으로 나눴습니다. Pages 활성화 전에도 빌드 결과를 확인할 수 있습니다.
-- 원격 푸시·워크플로 결과는 실행 후 갱신합니다. 실제 배포 주소 접속은 아직 확인하지 않았습니다.
+- 원격 `main` 푸시 성공. [첫 Actions 실행](https://github.com/gmlduqzhd123-lab/Odyssey-Run/actions/runs/40250359504)에서 설치·타입 검사·23개 테스트·빌드·Pages artifact 업로드가 모두 성공했습니다. deploy job은 Pages 사이트 미활성화로 `configure-pages` 단계에서 HTTP 404로 중단됐습니다. 실제 배포 주소 접속은 아직 확인하지 않았습니다.
+- 저장소 소유자가 **Settings → Pages → Source: GitHub Actions**를 선택한 뒤 Actions에서 **Re-run failed jobs** 또는 워크플로 수동 실행으로 배포할 수 있습니다.
+- 저장소의 실제 `/Odyssey-Run/` base에서 Chromium으로 시작·플레이·새로고침·자산 로딩을 확인했습니다. 오류 및 자산 HTTP 실패 0건입니다.
+
+- 초기 커밋 `811ed90`을 `origin/main`에 푸시했고 원격 추적을 설정했습니다. 브라우저 미리보기는 빌드와 서버의 base가 일치해야 하므로, 저장소 연결 후 로컬 기본 base를 `/Odyssey-Run/`으로 맞췄습니다.

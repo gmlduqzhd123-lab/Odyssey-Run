@@ -51,9 +51,9 @@ npx tsx scripts/performance-qa.ts # QA_URL의 빌드에서 10초 실시간 성�
 
 연결 저장소: [gmlduqzhd123-lab/Odyssey-Run](https://github.com/gmlduqzhd123-lab/Odyssey-Run). 기본 브랜치는 `main`이며, 프로젝트 Pages 빌드 경로는 **`/Odyssey-Run/`**입니다. 구현 당시 작업 공간은 빈 프로젝트였으며, 제공된 GitHub 저장소도 기존 커밋이 없는 상태임을 확인했습니다.
 
-- 로컬 기본 `base`는 `./`입니다. 파일 경로가 상대 경로여서 임의의 하위 경로에서도 실행합니다.
+- 기본 `base`는 연결된 저장소에 맞춘 `/Odyssey-Run/`입니다. 개발·미리보기에서도 Vite가 출력하는 이 하위 경로 주소를 엽니다. 다른 경로는 `PAGES_BASE`로 덮어쓸 수 있습니다.
 - `.github/workflows/pages.yml`은 `GITHUB_REPOSITORY`에서 실제 저장소 이름을 읽습니다. 프로젝트 Pages는 `/<실제 저장소 이름>/`, `<실제 소유자>.github.io`와 정확히 일치하는 사용자/조직 Pages 저장소는 `/`로 빌드합니다.
-- [저장소 Pages 설정](https://github.com/gmlduqzhd123-lab/Odyssey-Run/settings/pages)에서 **Source: GitHub Actions**를 선택합니다. 현재 연동 토큰은 Pages 활성화 API 권한이 없어 이 설정은 저장소 소유자가 한 번 선택해야 합니다. 이후 main/master 푸시 또는 수동 workflow 실행으로 배포합니다. 워크플로 실행 결과와 실제 접속 검증은 `QA.md`의 GitHub 연동 기록에 별도로 남깁니다.
+- [저장소 Pages 설정](https://github.com/gmlduqzhd123-lab/Odyssey-Run/settings/pages)에서 **Source: GitHub Actions**를 선택합니다. 현재 연동 토큰은 Pages 활성화 API 권한이 없어 이 설정은 저장소 소유자가 한 번 선택해야 합니다. 이후 main/master 푸시 또는 수동 workflow 실행으로 배포합니다. Pages를 활성화한 뒤 [Actions](https://github.com/gmlduqzhd123-lab/Odyssey-Run/actions)에서 실패한 deploy job을 재실행하거나 워크플로를 수동 실행합니다. 워크플로 실행 결과와 실제 접속 검증은 `QA.md`의 GitHub 연동 기록에 별도로 남깁니다.
 - 별도 하위 경로나 사용자 도메인이 필요하면 `PAGES_BASE`와 workflow의 경로 계산을 실제 구성에 맞춰 수정합니다.
 
 ```sh
@@ -61,7 +61,7 @@ PAGES_BASE=/Odyssey-Run/ npm run build
 npm run preview
 ```
 
-해당 하위 경로의 시작 화면, 전체 메뉴, 자산, 새로고침을 확인하세요. 서버 라우팅이 필요 없는 단일 페이지 장면 전환입니다. JS·CSS·SVG는 같은 base를 사용하며 외부 CDN을 사용하지 않습니다. CI는 설치 → 타입 검사 → 테스트 → 빌드 → 정적 산출물 배포 순서입니다.
+기본 경로 외의 base로 빌드했다면 미리보기에도 동일한 `PAGES_BASE`를 전달하세요. 예: `PAGES_BASE=/다른-경로/ npm run preview`. 해당 하위 경로의 시작 화면, 전체 메뉴, 자산, 새로고침을 확인하세요. 서버 라우팅이 필요 없는 단일 페이지 장면 전환입니다. JS·CSS·SVG는 같은 base를 사용하며 외부 CDN을 사용하지 않습니다. CI는 설치 → 타입 검사 → 테스트 → 빌드 → 정적 산출물 배포 순서입니다.
 
 ## 저장·기록 이동
 
