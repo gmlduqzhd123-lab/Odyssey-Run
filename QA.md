@@ -147,6 +147,8 @@ QA_URL=http://localhost:4174/qa-odyssey/ npx tsx scripts/performance-qa.ts
 - 타입 검사·빌드·기존 순수 로직 테스트 23개 통과. 이미지 교체 후에도 세 섬을 실제 키보드 이벤트로 무피해 완주했고, 지도 총 9개·각 평점 3개·해금·엔딩·저장/복원·멀티터치/회전 검증이 통과했습니다. Chromium 모바일 화면은 에뮬레이션입니다.
 - 변경 이미지의 실제 시간 10초 측정: Canvas 60.00fps, 프레임 간격 p95 16.8ms. 실제 장치 성능을 대신하는 값은 아닙니다.
 - 제목 화면 복귀 때 배의 위치·크기도 초기화해, 앞선 완주 연출이 새 캐릭터와 어긋나지 않게 했습니다.
-- 원격 배포 후 접속 결과는 실행 기록에 추가합니다.
+- 기능 커밋 `d2a88e1`을 main에 푸시했습니다. [GitHub Actions 실행](https://github.com/gmlduqzhd123-lab/Odyssey-Run/actions/runs/40256780276)의 build/deploy job이 모두 성공했습니다.
+- 실제 주소 https://gmlduqzhd123-lab.github.io/Odyssey-Run/ 를 2026-10-26 11:00 한국 시간에 확인했습니다. HTTPS 200, 새 이미지 20장·인물 10명·아이템/상징 10개, 게임 시작·방패 획득·일시정지/재개·새로고침 정상. JavaScript 오류와 HTTP 404는 0건입니다.
+- 배포 검증 자료: `artifacts/art-deployment-results.json`, `art-deployed-home.png`, `art-deployed-people.png`, `art-deployed-play.png`.
 - 자료: `artifacts/art-results.json`, `art-home.png`, `art-people.png`, `art-relics.png`, `art-run.png`, `art-jump.png`, `art-slide.png`, `art-mobile-home.png`, `art-mobile-person.png`, `art-mobile-book.png`.
 - 실제 Android/iOS 기기와 원본에 없는 손그림 동작 프레임은 이번에도 검증/제공 범위에 포함되지 않습니다.
