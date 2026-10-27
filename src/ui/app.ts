@@ -20,6 +20,7 @@ import {
   type RivalLink,
 } from '../systems/share';
 import {Contests, newContestId, rank, type Entry} from '../storage/contests';
+import {classBackup, readClassBackup, restoreClass, CLASS_BACKUP_LIMIT, type ClassBackup} from '../storage/backup';
 import {buildEndless, sectionsPassed, ENDLESS_SECTIONS} from '../levels/endless';
 import type {Course} from '../levels/courses';
 import {harborArt, harborUnlocks, harborRequirements, journalCards} from './adventure-view';
@@ -76,6 +77,7 @@ export class App {
   private accumulator = 0;
   private countdown = 0;
   private imported: Save | null = null;
+  private classImport: ClassBackup | null = null;
   private lastHud = '';
   private destroyed = false;
   private abort = new AbortController();
@@ -1114,10 +1116,10 @@ export class App {
   }
   private settings() {
     // Sub-pages of settings (touch layout, offline, import, reset) keep the original way back.
-    if (!['settings', 'touch-layout', 'offline', 'import', 'reset'].includes(this.screen))
+    if (!['settings', 'touch-layout', 'offline', 'import', 'reset', 'class-import'].includes(this.screen))
       this.returnScreen = this.screen === 'islands' ? 'islands' : 'home';
     this.set(
-      `<div class="page settings">${this.header('설정', this.returnScreen)}<div class="settings-layout"><div class="page-heading"><span class="eyebrow">MAKE IT YOUR JOURNEY</span><h1 tabindex="-1">나의 항해 설정</h1><p>기록은 이 기기와 브라우저에 저장돼요.<br>기록 파일로 옮길 수 있어요.</p><div class="save-note">계정 없이, 이 브라우저에만 저장해요.<br>다른 기기와 자동으로 동기화되지는 않아요.</div></div><div class="settings-body"><section><h2>소리와 움직임</h2>${this.settingToggle('music', '배경음')}${this.settingToggle('sfx', '효과음')}${this.settingToggle('reducedMotion', '움직임 줄이기')}<small>기본 배경은 고정돼 있어요. 켜면 장식 무늬와 바람 표시를 더 줄여요. 달리기·점프와 위험 신호는 유지돼요.</small><label class="toggle"><span>진동 (지원하는 휴대폰)</span><input type="checkbox" data-haptics ${this.store.data.preferences.haptics ? 'checked' : ''}><i aria-hidden="true"></i></label><small>피격·추락·지도 획득·완주 때 짧게 진동해요. 아이폰 사파리는 진동을 지원하지 않아요.</small></section>${this.assistSettings()}<section><h2>화질과 조작</h2><label>그래픽 품질 <select id="quality"><option value="auto" ${this.store.data.preferences.quality === 'auto' ? 'selected' : ''}>자동</option><option value="high" ${this.store.data.preferences.quality === 'high' ? 'selected' : ''}>선명하게</option><option value="low" ${this.store.data.preferences.quality === 'low' ? 'selected' : ''}>가볍게</option></select></label><p class="muted">가볍게는 그림 해상도만 줄여요. 시야·달리기·점프·판정은 같아요.</p>${button('touch-layout', '터치 버튼 맞춤', 'secondary')}</section><section><h2>오프라인과 업데이트</h2>${button('offline', '섬 다운로드·업데이트', 'secondary')}<p class="muted">다운로드한 섬은 오프라인에서도 시작할 수 있어요. 새 버전은 항해를 끝낸 뒤 적용해요.</p></section><section><h2>기록 보관함</h2><div class="backup-row">${button('export', icon('map') + ' 기록 내보내기', 'secondary')}<label class="button secondary file-button">기록 가져오기<input id="import-file" type="file" accept="application/json,.json" aria-label="JSON 기록 파일 가져오기"></label></div><p class="muted">UTF-8 JSON · 최대 64KiB · 복원 전 내용을 확인해요.</p>${this.store.blocked ? button('original', '보존된 원본 내려받기', 'text-button') : ''}${button('reset-confirm', '이 게임의 기록 초기화', 'danger text-button')}</section><div id="import-error" role="alert"></div></div></div></div>`,
+      `<div class="page settings">${this.header('설정', this.returnScreen)}<div class="settings-layout"><div class="page-heading"><span class="eyebrow">MAKE IT YOUR JOURNEY</span><h1 tabindex="-1">나의 항해 설정</h1><p>기록은 이 기기와 브라우저에 저장돼요.<br>기록 파일로 옮길 수 있어요.</p><div class="save-note">계정 없이, 이 브라우저에만 저장해요.<br>다른 기기와 자동으로 동기화되지는 않아요.</div></div><div class="settings-body"><section><h2>소리와 움직임</h2>${this.settingToggle('music', '배경음')}${this.settingToggle('sfx', '효과음')}${this.settingToggle('reducedMotion', '움직임 줄이기')}<small>기본 배경은 고정돼 있어요. 켜면 장식 무늬와 바람 표시를 더 줄여요. 달리기·점프와 위험 신호는 유지돼요.</small><label class="toggle"><span>진동 (지원하는 휴대폰)</span><input type="checkbox" data-haptics ${this.store.data.preferences.haptics ? 'checked' : ''}><i aria-hidden="true"></i></label><small>피격·추락·지도 획득·완주 때 짧게 진동해요. 아이폰 사파리는 진동을 지원하지 않아요.</small></section>${this.assistSettings()}<section><h2>화질과 조작</h2><label>그래픽 품질 <select id="quality"><option value="auto" ${this.store.data.preferences.quality === 'auto' ? 'selected' : ''}>자동</option><option value="high" ${this.store.data.preferences.quality === 'high' ? 'selected' : ''}>선명하게</option><option value="low" ${this.store.data.preferences.quality === 'low' ? 'selected' : ''}>가볍게</option></select></label><p class="muted">가볍게는 그림 해상도만 줄여요. 시야·달리기·점프·판정은 같아요.</p>${button('touch-layout', '터치 버튼 맞춤', 'secondary')}</section><section><h2>오프라인과 업데이트</h2>${button('offline', '섬 다운로드·업데이트', 'secondary')}<p class="muted">다운로드한 섬은 오프라인에서도 시작할 수 있어요. 새 버전은 항해를 끝낸 뒤 적용해요.</p></section><section><h2>기록 보관함</h2><div class="backup-row">${button('export', icon('map') + ' 기록 내보내기', 'secondary')}<label class="button secondary file-button">기록 가져오기<input id="import-file" type="file" accept="application/json,.json" aria-label="JSON 기록 파일 가져오기"></label></div><p class="muted">UTF-8 JSON · 최대 64KiB · 복원 전 내용을 확인해요.</p>${this.store.blocked ? button('original', '보존된 원본 내려받기', 'text-button') : ''}${button('reset-confirm', '이 게임의 기록 초기화', 'danger text-button')}</section><section class="class-backup"><h2>반 전체 백업</h2><div class="backup-row">${button('class-export', '반 전체 내보내기', 'secondary')}<label class="button secondary file-button">반 전체 가져오기<input id="class-import" type="file" accept="application/json,.json" aria-label="반 전체 백업 파일 가져오기"></label></div><p class="muted">모든 항해사의 기록과 대회 순위를 한 파일로 저장해요. 가져오면 이 기기의 기록과 합쳐요. 지우지 않아요.</p></section><div id="import-error" role="alert"></div></div></div></div>`,
       'settings',
     );
   }
@@ -1258,6 +1260,27 @@ export class App {
       this.notice();
       return;
     }
+    if (input.id === 'class-import' && input.files?.[0]) {
+      const box = this.ui.querySelector('#import-error');
+      try {
+        const file = input.files[0];
+        if (file.size > CLASS_BACKUP_LIMIT) throw Error('반 전체 백업 파일은 4MB 이하여야 해요.');
+        let raw: unknown;
+        try {
+          raw = JSON.parse(await file.text());
+        } catch {
+          throw Error('JSON 파일을 읽을 수 없어요. 올바른 기록 파일을 선택해 주세요.');
+        }
+        if (this.screen !== 'settings') return;
+        this.classImport = readClassBackup(raw);
+        this.classPreview();
+      } catch (error) {
+        if (box) box.textContent = (error as Error).message;
+      } finally {
+        input.value = '';
+      }
+      return;
+    }
     if (input.id === 'import-file' && input.files?.[0]) {
       const request = ++this.importRequest;
       const active = () =>
@@ -1284,6 +1307,28 @@ export class App {
         if (active()) input.value = '';
       }
     }
+  }
+  private classPreview() {
+    const b = this.classImport!,
+      known = new Set(this.profiles.book.list.map(p => p.id));
+    this.set(
+      `<div class="veil"><section class="panel"><span class="eyebrow">RESTORE YOUR CLASS</span><h1 tabindex="-1">반 전체 기록을 합칠까요?</h1><p>항해사 ${b.profiles.list.length}명 · 대회 ${b.contests.hosted.length}개</p><div class="import-list" translate="no">${b.profiles.list.map(p => `<p><b>${esc(p.name)}</b><span>${known.has(p.id) ? '합치기' : '새로 추가'}</span></p>`).join('')}</div><p class="muted">같은 항해사는 더 좋은 기록을 남기고, 대회 순위는 이름별 최고 기록을 남겨요. 이 기기의 기록은 지우지 않아요.</p><div class="button-row">${button('settings', '취소', 'secondary')}${button('class-import-confirm', '합쳐서 가져오기', 'primary')}</div></section></div>`,
+      'class-import',
+    );
+  }
+  private classRestore() {
+    if (this.screen !== 'class-import' || !this.classImport || !this.storage) return;
+    const r = restoreClass(this.storage, this.classImport);
+    this.classImport = null;
+    this.profiles = new Profiles(this.storage);
+    this.contests = new Contests(this.storage);
+    this.store = new SaveStore(this.storage, profileKey(this.profiles.active.id));
+    this.selected = this.store.data.lastStage;
+    this.resizeDisplay();
+    this.settings();
+    this.notice(
+      `반 전체 기록을 가져왔어요. 합친 항해사 ${r.merged}명 · 새 항해사 ${r.added}명 · 대회 ${r.contests}개${r.skipped ? ` · 인원 초과로 건너뜀 ${r.skipped}명` : ''}`,
+    );
   }
   private importPreview() {
     const s = this.imported!;
@@ -1491,6 +1536,16 @@ export class App {
         } catch {
           this.notice('원본을 읽지 못했어요.');
         }
+        break;
+      case 'class-export':
+        if (this.storage)
+          this.download(
+            JSON.stringify(classBackup(this.storage)),
+            `odyssey-run-class-${new Date().toISOString().slice(0, 10).replaceAll('-', '')}.json`,
+          );
+        break;
+      case 'class-import-confirm':
+        this.classRestore();
         break;
       case 'import-confirm':
         if (this.screen === 'import' && this.imported) {
