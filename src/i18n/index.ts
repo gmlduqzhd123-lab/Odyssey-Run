@@ -15,7 +15,8 @@ export function initialLang(storage: Pick<Storage, 'getItem'> | null): Lang {
     const saved = storage?.getItem(LANG_KEY);
     if (saved === 'ko' || saved === 'en') return saved;
   } catch {}
-  return typeof navigator !== 'undefined' && navigator.language && !navigator.language.startsWith('ko') ? 'en' : 'ko';
+  // Korean unless chosen: many Korean classrooms run browsers set to English.
+  return 'ko';
 }
 export function setLang(next: Lang, storage?: Pick<Storage, 'setItem'> | null) {
   lang = next;

@@ -66,7 +66,11 @@ try {
       localStorage.getItem(Object.keys(localStorage).find(k => k.endsWith(':save') && k.startsWith('odyssey-run:'))!)!,
     ),
   );
-  expect(current.stages).toEqual(old.stages);
+  // Islands added after the save was written start empty; the original records stay exact.
+  expect(current.stages).toEqual({
+    ...old.stages,
+    sea: {complete: false, bestScore: 0, bestRating: 0, bestStars: 0, maps: []},
+  });
   expect(current.settings).toEqual(old.settings);
   result.legacyCorePreserved = true;
   expect(errors).toEqual([]);
