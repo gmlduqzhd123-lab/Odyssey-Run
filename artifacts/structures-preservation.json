@@ -1,0 +1,17 @@
+{
+  "comparedTo": "5d237a4",
+  "originalMasksUnchanged": 26,
+  "newMasks": 5,
+  "courseGeometryAndItemIdsUnchanged": [
+    "beach/classic",
+    "beach/remix-a",
+    "beach/remix-b",
+    "cave/classic",
+    "cave/remix-a",
+    "cave/remix-b",
+    "wind/classic",
+    "wind/remix-a",
+    "wind/remix-b"
+  ],
+  "physicsConfigUnchanged": true
+}

@@ -1,0 +1,66 @@
+{
+  "url": "https://gmlduqzhd123-lab.github.io/Odyssey-Run/",
+  "checkedAt": "2026-10-27T02:33:06.257Z",
+  "browser": "154.0.8037.57",
+  "environment": "Linux Chromium PC 1280x800 DPR1 keyboard / mobile 844x390 DPR2 actual CDP touch, virtual game clock; no physical device; no player-state overrides",
+  "results": [
+    {
+      "mobile": false,
+      "structures": [
+        {
+          "kind": "crate",
+          "x": 3754.6666666667033,
+          "hp": "체력 3",
+          "shield": true
+        },
+        {
+          "kind": "pillar",
+          "x": 5370.666666666641,
+          "hp": "체력 3",
+          "shield": true
+        }
+      ],
+      "ceilingReleaseAndBlockedJump": true,
+      "fallBypassesShieldAndNoDuplicateScore": {
+        "x": 7720,
+        "score": "1,265",
+        "stars": "✦ 30 / 100"
+      },
+      "monsterShieldAndActualHpLoss": true,
+      "unfinishedRecordsPreserved": true,
+      "fallingRockWarningAndContact": {
+        "firstContact": 3989.3333333333767
+      }
+    },
+    {
+      "mobile": true,
+      "structures": [
+        {
+          "kind": "crate",
+          "x": 3754.6666666667033,
+          "hp": "체력 3",
+          "shield": true
+        },
+        {
+          "kind": "pillar",
+          "x": 5370.666666666641,
+          "hp": "체력 3",
+          "shield": true
+        }
+      ],
+      "ceilingReleaseAndBlockedJump": true,
+      "fallBypassesShieldAndNoDuplicateScore": {
+        "x": 7720,
+        "score": "1,265",
+        "stars": "✦ 30 / 100"
+      },
+      "monsterShieldAndActualHpLoss": true,
+      "unfinishedRecordsPreserved": true,
+      "fallingRockWarningAndContact": {
+        "firstContact": 3989.3333333333767
+      }
+    }
+  ],
+  "errors": [],
+  "failures": []
+}

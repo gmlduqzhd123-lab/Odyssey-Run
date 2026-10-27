@@ -681,3 +681,14 @@ QA_URL=http://localhost:4174/qa-odyssey/ npx tsx scripts/performance-qa.ts
 정상 실행의 JS 오류/예상하지 않은 HTTP 실패는0건입니다. 근거는 `artifacts/structures-results.json`, `structures-*-ceiling/monster/falling.png`, `structures-mobile-webkit-844x390-results.json` 및 공식 browser/expansion 결과입니다. 이번 수정에서 별도 실기기 FPS/발열·주관적인 어지러움은 측정하지 않았습니다. 기존 그래픽 품질별 렌더링 한도와 카메라 설정은 변경하지 않았습니다.
 
 배포 전 CI에도 `test:structures`를 추가했습니다. 최종 배포 및 실제 URL 확인은 아래에 별도로 기록합니다.
+
+거인의 손도 별도 순수 시뮬레이션에서 서 있는 자세로20틱 접촉해 방패가 없으면HP2/손실1, 방패가 있으면HP3/손실0/방패 소모를 확인했습니다. 이 위치 지정 검사는 브라우저 실제 입력 시험과 구분합니다.
+
+### 구조물 접촉 수정의 실제 Pages 배포
+
+- 코드 `8ea50b9`를 main에 푸시했고 [Actions40437946120](https://github.com/gmlduqzhd123-lab/Odyssey-Run/actions/runs/40437946120)의84개 테스트·빌드·PC/모바일 접촉 검사·기존 일반/보스/오늘 항해·기록 복원·오프라인 완주·로딩/업데이트 검사가 모두 성공했습니다. Pages 배포도 성공했습니다.
+- **2026-10-27 11:33 한국 시간**, 실제 https://gmlduqzhd123-lab.github.io/Odyssey-Run/ 의 HTML200과 최종 JS `/Odyssey-Run/assets/index-LVl21Bj5.js`, 오프라인 manifest `900b565df81d89c9`를 확인했습니다.
+- 같은 실제 URL의 PC1280×800 키보드/모바일844×390 DPR2 CDP 멀티터치에서 구조물 무피해·방패 보존, 천장 아래 버튼 해제/점프 차단/공간 확보 후 일어서기, 몬스터의 방패 소모/HP 피해, 낙석의 경고와 실제 접촉, 방패를 지닌 추락/7720px 복구/중복 점수 없음, 정지/재개/재도전 및 미완료 기록 보존을 재확인했습니다. 두 원격 실행의 JS 오류/HTTP 실패0건입니다.
+- 수정 전 `5d237a4`와 직접 비교해 기존26개 수집물/몬스터/영웅 윤곽,9개 코스의 지형/아이템ID/몬스터/안전지점 좌표, `config.ts` 물리 수치가 동일함을 확인했습니다. 추가된 것은5개 윤곽과 역할 분류·위험 경고입니다.
+- 기존 브라우저는 설정 → 섬 다운로드·업데이트 → 업데이트 적용으로 새 버전을 사용할 수 있습니다. 항해 중 강제로 버전을 바꾸지 않는 기존 정책을 유지합니다. 실제 Android/iPhone은 미실행입니다.
+- 빌드·커밋·푸시·실제 배포·주소 확인을 모두 수행했습니다. 근거: `structures-deployment.json`, `structures-deployed-results.json`과 원격 캡처, `structures-preservation.json`. 후속 검증 보고는 `[skip ci]` 문서 커밋으로 보존합니다.
