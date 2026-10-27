@@ -3,6 +3,7 @@ import {emptyExpeditions, readExpeditions, type Expeditions} from './expeditions
 import {defaultPreferences, readPreferences, type Preferences} from './preferences';
 import {emptyJournal, validateJournal, validateGhost, type Ghost, type Journal, type AdventureResult} from './journal';
 import {MAX_SCORE} from '../config';
+import {quizIds} from '../levels/quiz';
 import {STAGES, type StageId} from '../levels/courses';
 import {VARIANTS, courseKey, isVariant, type CourseKey, type VariantId} from '../levels/course-ids';
 export interface Settings {
@@ -32,6 +33,8 @@ export interface Save {
   savedAt: string;
   journal: Journal;
   courses: Partial<Record<CourseKey, CourseRecord>>;
+  // Myth questions answered correctly at least once.
+  quiz: string[];
 }
 export const SAVE_KEY = `odyssey-run:${new URL(import.meta.env?.BASE_URL || './', typeof location === 'undefined' ? 'http://local/' : location.href).pathname}:save`;
 export const BACKUP_KEY = SAVE_KEY + ':backup';
@@ -48,6 +51,7 @@ export const emptySave = (): Save => ({
   savedAt: new Date().toISOString(),
   journal: emptyJournal(),
   courses: {},
+  quiz: [],
 });
 const obj = (v: unknown): Record<string, unknown> => {
   if (!v || typeof v !== 'object' || Array.isArray(v)) throw Error('기록 형식을 확인해 주세요.');
@@ -171,6 +175,15 @@ export function validateSave(raw: unknown): Save {
   }
   for (const id of [out.preferences.cape, out.preferences.emblem, out.preferences.sail])
     if (!cosmeticUnlocked(out, id)) throw Error('아직 열리지 않은 외형이 선택돼 있어요.');
+  if (v.quiz !== undefined) {
+    if (
+      !Array.isArray(v.quiz) ||
+      new Set(v.quiz).size !== v.quiz.length ||
+      v.quiz.some(id => typeof id !== 'string' || !quizIds.includes(id))
+    )
+      throw Error('신화 퀴즈 기록을 확인해 주세요.');
+    out.quiz = [...v.quiz];
+  }
   return out;
 }
 export interface RunResult {

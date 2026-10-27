@@ -2605,3 +2605,21 @@ body {
 #shell .play-ui[data-one-button='true'] .control.slide {
   display: none;
 }
+
+/* Myth quiz */
+.quiz-options {
+  display: grid;
+  gap: 0.6rem;
+  margin: 1rem 0;
+}
+.quiz-options button {
+  text-align: left;
+}
+.quiz-panel[data-correct='true'] h1 {
+  color: #2f7a5b;
+}
+.myth-line b {
+  display: block;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+}

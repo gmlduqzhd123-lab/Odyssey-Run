@@ -7,6 +7,7 @@ import {damageGuidance} from '../systems/damage';
 import {defaultPreferences, PACES, type Assist, type Pace, type Quality} from '../storage/preferences';
 import {ADVENTURE_PLANS, GOALS, type GoalId} from '../levels/adventure';
 import {ghostDistance} from '../storage/journal';
+import {QUIZ, PERSON_MYTHS, type QuizQuestion} from '../levels/quiz';
 import {harborArt, harborUnlocks, harborRequirements, journalCards} from './adventure-view';
 import Phaser from 'phaser';
 import {C} from '../config';
@@ -75,6 +76,8 @@ export class App {
   private importRequest = 0;
   private selectedGoal: GoalId = 'maps';
   private selectedVariant: VariantId = 'classic';
+  private question: QuizQuestion | null = null;
+  private quizReturn = 'islands';
   constructor() {
     let storage: Storage | null = null;
     try {
@@ -426,7 +429,7 @@ export class App {
       last = r.stage === 'wind',
       next = STAGES[STAGES.indexOf(r.stage) + 1];
     this.set(
-      `<div class="veil result-veil"><section class="panel result"><span class="eyebrow">${r.complete ? icon('laurel') : ''} ${r.complete ? 'ISLAND COMPLETE' : 'THE JOURNEY CONTINUES'}</span><h1 tabindex="-1">${r.complete ? (last ? '마침내, 이타카!' : '멋진 항해였어요!') : r.stage === 'cave' ? '거인에게 잡혔어요!' : '다시, 한 걸음 더!'}</h1><p>${r.complete ? (last ? '오디세우스가 고향 항구에 도착했어요. 긴 모험을 함께해 줘서 고마워요.' : COURSES[r.stage].name + ' 완주! 다음 섬의 항로가 열렸어요.') : '괜찮아요. 익숙해질수록 더 멀리 갈 수 있어요.'}</p>${last && r.complete ? regionArt('view-ithaca', 'ending-art', '이타카 도착 항구') : ''}<p class="course-result-label">${VARIANT_LABELS[r.stage][r.variant ?? 'classic'].name}</p><div class="mission-badge">${r.adventure?.stamps.length ? '✓ 도전 도장 · ' + GOALS[this.selectedGoal].name : '◇ 다음 항해에서 도전에 다시 도전해요'}</div><div class="result-stars" aria-label="이번 평점 ${r.rating}점">${'★'.repeat(r.rating)}<em>${'☆'.repeat(3 - r.rating)}</em></div><div class="result-score"><span>이번 항해 점수</span><strong>${r.score.toLocaleString()}</strong><small>코스 최고 ${routeRecord.bestScore.toLocaleString()} ${r.score === routeRecord.bestScore ? '· NEW BEST' : ''}<br>섬 전체 최고 ${record.bestScore.toLocaleString()}</small></div><div class="score-breakdown"><div><span>최고 전진거리</span><b>${Math.floor(r.distance / 10)}</b></div><div><span>별빛 ${r.stars} × 10</span><b>${r.stars * 10}</b></div><div><span>지도 ${r.maps.length} × 100</span><b>${r.maps.length * 100}</b></div><div><span>완주 보너스</span><b>${r.complete ? 500 : 0}</b></div></div><div class="result-summary"><span>♡ HP 손실 ${r.hpLoss}회</span><span>${icon('map')} 영구 지도 ${record.maps.length}/3</span></div>${this.damageSummary()}<small class="rating-help">완주 ★ · 별빛 70개 이상 ★ · HP 손실 0회 ★</small><div class="result-actions">${button('restart', '재도전', 'secondary')}${button('stage:' + r.stage, '다른 코스 고르기', 'secondary')}${r.complete && next ? button('stage:' + next, '다음 섬으로 →', 'primary') : button('islands', '섬 선택 →', 'primary')}</div>${r.complete && next ? button('islands', '섬 선택', 'text-button') : ''}${last && r.complete ? button('codex', '귀환의 지도 보기', 'text-button') : ''}<div class="adventure-result"><b>${r.adventure?.stamps.length ? '✓ 도전 성공! ' + GOALS[this.selectedGoal].name : '이번 도전: ' + GOALS[this.selectedGoal].name}</b><p>아슬아슬 회피 ${r.adventure?.nearMisses || 0} · 몬스터 회피 ${r.adventure?.evaded || 0} · 유도 격파 ${r.adventure?.tricked || 0}<br>별자리 ${r.adventure?.constellations.length || 0} · 이야기 ${r.adventure?.stories.length || 0} · 조합 ${r.adventure?.combos.length || 0}</p>${button('journal', '모험 수첩', 'text-button')}${button('harbor', '달라진 항구 보기', 'text-button')}${button('quit', '게임 종료', 'text-button')}</div></section></div>`,
+      `<div class="veil result-veil"><section class="panel result"><span class="eyebrow">${r.complete ? icon('laurel') : ''} ${r.complete ? 'ISLAND COMPLETE' : 'THE JOURNEY CONTINUES'}</span><h1 tabindex="-1">${r.complete ? (last ? '마침내, 이타카!' : '멋진 항해였어요!') : r.stage === 'cave' ? '거인에게 잡혔어요!' : '다시, 한 걸음 더!'}</h1><p>${r.complete ? (last ? '오디세우스가 고향 항구에 도착했어요. 긴 모험을 함께해 줘서 고마워요.' : COURSES[r.stage].name + ' 완주! 다음 섬의 항로가 열렸어요.') : '괜찮아요. 익숙해질수록 더 멀리 갈 수 있어요.'}</p>${last && r.complete ? regionArt('view-ithaca', 'ending-art', '이타카 도착 항구') : ''}<p class="course-result-label">${VARIANT_LABELS[r.stage][r.variant ?? 'classic'].name}</p><div class="mission-badge">${r.adventure?.stamps.length ? '✓ 도전 도장 · ' + GOALS[this.selectedGoal].name : '◇ 다음 항해에서 도전에 다시 도전해요'}</div><div class="result-stars" aria-label="이번 평점 ${r.rating}점">${'★'.repeat(r.rating)}<em>${'☆'.repeat(3 - r.rating)}</em></div><div class="result-score"><span>이번 항해 점수</span><strong>${r.score.toLocaleString()}</strong><small>코스 최고 ${routeRecord.bestScore.toLocaleString()} ${r.score === routeRecord.bestScore ? '· NEW BEST' : ''}<br>섬 전체 최고 ${record.bestScore.toLocaleString()}</small></div><div class="score-breakdown"><div><span>최고 전진거리</span><b>${Math.floor(r.distance / 10)}</b></div><div><span>별빛 ${r.stars} × 10</span><b>${r.stars * 10}</b></div><div><span>지도 ${r.maps.length} × 100</span><b>${r.maps.length * 100}</b></div><div><span>완주 보너스</span><b>${r.complete ? 500 : 0}</b></div></div><div class="result-summary"><span>♡ HP 손실 ${r.hpLoss}회</span><span>${icon('map')} 영구 지도 ${record.maps.length}/3</span></div>${this.damageSummary()}<small class="rating-help">완주 ★ · 별빛 70개 이상 ★ · HP 손실 0회 ★</small><div class="result-actions">${button('restart', '재도전', 'secondary')}${button('stage:' + r.stage, '다른 코스 고르기', 'secondary')}${r.complete && next ? button('stage:' + next, '다음 섬으로 →', 'primary') : button('islands', '섬 선택 →', 'primary')}</div>${r.complete && next ? button('islands', '섬 선택', 'text-button') : ''}${last && r.complete ? button('codex', '귀환의 지도 보기', 'text-button') : ''}<div class="adventure-result"><b>${r.adventure?.stamps.length ? '✓ 도전 성공! ' + GOALS[this.selectedGoal].name : '이번 도전: ' + GOALS[this.selectedGoal].name}</b><p>아슬아슬 회피 ${r.adventure?.nearMisses || 0} · 몬스터 회피 ${r.adventure?.evaded || 0} · 유도 격파 ${r.adventure?.tricked || 0}<br>별자리 ${r.adventure?.constellations.length || 0} · 이야기 ${r.adventure?.stories.length || 0} · 조합 ${r.adventure?.combos.length || 0}</p>${button('quiz', '신화 퀴즈 한 문제', 'text-button')}${button('journal', '모험 수첩', 'text-button')}${button('harbor', '달라진 항구 보기', 'text-button')}${button('quit', '게임 종료', 'text-button')}</div></section></div>`,
       'result',
     );
   }
@@ -525,7 +528,7 @@ export class App {
     }
     this.store.persist();
     this.set(
-      `<div class="veil"><section class="panel result special-result"><span class="eyebrow">${boss ? 'BOSS ENCOUNTER' : 'TODAY’S VOYAGE · ' + this.daily!.date}</span><h1 tabindex="-1">${passed ? (boss ? '보스의 패턴을 돌파했어요!' : '오늘의 항해 성공!') : r.complete ? '완주했어요! 다음엔 조건도 달성해 봐요' : '다시, 패턴을 읽어 봐요'}</h1><p>${boss ? BOSSES[r.stage].name : this.daily!.name}</p><div class="result-score"><strong>${r.score}</strong><small>이 도전의 최고 ${best}점</small></div><p>HP 손실 ${r.hpLoss}회 · 별빛 ${r.stars}개 · ${Math.floor(r.distance / 10)}m / ${this.run!.length / 10}m</p>${!boss && !passed ? `<p>${this.daily!.description}</p>` : ''}${this.damageSummary()}<p>일반 최고 기록·지도·섬 해금에는 반영하지 않아요.</p><div class="button-row">${button('restart', '재도전', 'primary')}${button('challenges', '특별 항해', 'secondary')}${button('home', '시작 화면', 'secondary')}</div></section></div>`,
+      `<div class="veil"><section class="panel result special-result"><span class="eyebrow">${boss ? 'BOSS ENCOUNTER' : 'TODAY’S VOYAGE · ' + this.daily!.date}</span><h1 tabindex="-1">${passed ? (boss ? '보스의 패턴을 돌파했어요!' : '오늘의 항해 성공!') : r.complete ? '완주했어요! 다음엔 조건도 달성해 봐요' : '다시, 패턴을 읽어 봐요'}</h1><p>${boss ? BOSSES[r.stage].name : this.daily!.name}</p><div class="result-score"><strong>${r.score}</strong><small>이 도전의 최고 ${best}점</small></div><p>HP 손실 ${r.hpLoss}회 · 별빛 ${r.stars}개 · ${Math.floor(r.distance / 10)}m / ${this.run!.length / 10}m</p>${!boss && !passed ? `<p>${this.daily!.description}</p>` : ''}${this.damageSummary()}<p>일반 최고 기록·지도·섬 해금에는 반영하지 않아요.</p><div class="button-row">${button('restart', '재도전', 'primary')}${button('challenges', '특별 항해', 'secondary')}${button('home', '시작 화면', 'secondary')}</div>${button('quiz', '신화 퀴즈 한 문제', 'text-button')}</section></div>`,
       'result',
     );
   }
@@ -580,7 +583,7 @@ export class App {
   }
   private people() {
     this.set(
-      `<div class="page people">${this.header('항해 도감')}<div class="page-heading"><span class="eyebrow">FACES OF THE ODYSSEY</span><h1 tabindex="-1">귀환의 길에서 만난 사람들</h1><p>인물을 누르면 짧은 이야기를 읽을 수 있어요.</p></div>${this.bookNav('people')}<div class="cast-grid">${PEOPLE.map(p => `<button class="person-card" data-action="person:${p.id}"><img src="${asset(p.id)}" alt="" loading="lazy" decoding="async"><strong>${p.name}</strong><small>${p.role}</small></button>`).join('')}</div><div class="page-foot"><span>이 모험은 오디세우스의 귀환을 따라가요.</span>${button('islands', '항해 시작 →', 'text-button')}</div></div>`,
+      `<div class="page people">${this.header('항해 도감')}<div class="page-heading"><span class="eyebrow">FACES OF THE ODYSSEY</span><h1 tabindex="-1">귀환의 길에서 만난 사람들</h1><p>인물을 누르면 짧은 이야기를 읽을 수 있어요.</p></div>${this.bookNav('people')}<div class="cast-grid">${PEOPLE.map(p => `<button class="person-card" data-action="person:${p.id}"><img src="${asset(p.id)}" alt="" loading="lazy" decoding="async"><strong>${p.name}</strong><small>${p.role}</small></button>`).join('')}</div><div class="page-foot"><span>이 모험은 오디세우스의 귀환을 따라가요.</span>${button('quiz', '신화 퀴즈 풀기', 'text-button')}${button('islands', '항해 시작 →', 'text-button')}</div></div>`,
       'people',
     );
   }
@@ -588,7 +591,7 @@ export class App {
     const p = PEOPLE.find(person => person.id === id);
     if (!p) return;
     this.set(
-      `<div class="veil"><section class="panel character-story"><img class="character-portrait" src="${asset(p.id)}" alt="${p.name}"><span class="eyebrow">${p.role}</span><h1 tabindex="-1">${p.name}</h1><p>${p.story}</p>${button('people', '인물 도감으로 돌아가기', 'primary')}</section></div>`,
+      `<div class="veil"><section class="panel character-story"><img class="character-portrait" src="${asset(p.id)}" alt="${p.name}"><span class="eyebrow">${p.role}</span><h1 tabindex="-1">${p.name}</h1><p>${p.story}</p>${PERSON_MYTHS[p.id] ? `<p class="myth-line"><b>『오디세이아』 속 이야기</b>${PERSON_MYTHS[p.id]}</p>` : ''}${button('people', '인물 도감으로 돌아가기', 'primary')}</section></div>`,
       'person',
     );
   }
@@ -622,7 +625,7 @@ export class App {
     this.world.showHome();
     const j = this.store.data.journal;
     this.set(
-      `<div class="page journal">${this.header('모험 수첩')}<div class="page-heading"><span class="eyebrow">YOUR OWN ODYSSEY</span><h1 tabindex="-1">나만의 모험을 채워요</h1><p>도전 도장과 발견은 결과 화면에서 기록돼요. 점수와 별빛을 소비하지 않아요.</p></div>${this.bookNav('journal')}${journalCards(j)}<section class="journal-section"><h2>다시 달릴 항로</h2><p>${STAGES.map(id => `${COURSES[id].name}: ${j.routes.includes(id + '-upper') ? '✓ 높은 길' : '○ 높은 길'} · ${j.routes.includes(id + '-lower') ? '✓ 아래 길' : '○ 아래 길'}`).join('<br>')}</p></section><div class="page-foot">${button('islands', '다음 모험으로 →', 'primary')}</div></div>`,
+      `<div class="page journal">${this.header('모험 수첩')}<div class="page-heading"><span class="eyebrow">YOUR OWN ODYSSEY</span><h1 tabindex="-1">나만의 모험을 채워요</h1><p>도전 도장과 발견은 결과 화면에서 기록돼요. 점수와 별빛을 소비하지 않아요.</p></div>${this.bookNav('journal')}${journalCards(j)}<section class="journal-section"><h2>다시 달릴 항로</h2><p>${STAGES.map(id => `${COURSES[id].name}: ${j.routes.includes(id + '-upper') ? '✓ 높은 길' : '○ 높은 길'} · ${j.routes.includes(id + '-lower') ? '✓ 아래 길' : '○ 아래 길'}`).join('<br>')}</p></section><section class="journal-section"><h2>신화 퀴즈</h2><p>맞힌 문제 ${this.store.data.quiz.length} / ${QUIZ.length}</p>${button('quiz', '한 문제 풀기', 'secondary')}</section><div class="page-foot">${button('islands', '다음 모험으로 →', 'primary')}</div></div>`,
       'journal',
     );
   }
@@ -646,6 +649,33 @@ export class App {
     this.set(
       `<div class="veil"><section class="panel story"><span class="eyebrow">HIDDEN WORDS</span><h1 tabindex="-1">${story.title}</h1><p>${story.story}</p>${button('journal', '모험 수첩으로', 'primary')}</section></div>`,
       'discovery',
+    );
+  }
+  private quiz() {
+    if (this.screen !== 'quiz' && this.screen !== 'quiz-answer')
+      this.quizReturn = ['people', 'journal'].includes(this.screen) ? this.screen : 'islands';
+    this.abandon();
+    const done = this.store.data.quiz,
+      open = QUIZ.filter(q => !done.includes(q.id) && q.id !== this.question?.id),
+      pool = open.length ? open : QUIZ.filter(q => q.id !== this.question?.id);
+    this.question = pool[Math.floor(Math.random() * pool.length)];
+    const q = this.question;
+    this.set(
+      `<div class="veil"><section class="panel quiz-panel"><span class="eyebrow">MYTH QUIZ · 맞힌 문제 ${done.length}/${QUIZ.length}</span><h1 tabindex="-1">${q.question}</h1><div class="quiz-options">${q.options.map((o, i) => button('quiz-answer:' + i, `<b>${'ABC'[i]}</b> ${o}`, 'secondary')).join('')}</div>${button(this.quizReturn, '그만 풀기', 'text-button')}<small>점수·해금과 상관없이 언제든 풀 수 있어요.</small></section></div>`,
+      'quiz',
+    );
+  }
+  private quizAnswer(choice: number) {
+    const q = this.question;
+    if (!q || this.screen !== 'quiz') return;
+    const right = choice === q.answer;
+    if (right && !this.store.data.quiz.includes(q.id)) {
+      this.store.data.quiz.push(q.id);
+      this.store.persist();
+    }
+    this.set(
+      `<div class="veil"><section class="panel quiz-panel" data-correct="${right}"><span class="eyebrow">MYTH QUIZ · 맞힌 문제 ${this.store.data.quiz.length}/${QUIZ.length}</span><h1 tabindex="-1">${right ? '정답이에요!' : '아쉬워요, 다음엔 맞힐 수 있어요'}</h1><p><b>정답: ${q.options[q.answer]}</b></p><p>${q.explain}</p><div class="button-row">${button('quiz', '한 문제 더', 'primary')}${button(this.quizReturn, '돌아가기', 'secondary')}</div></section></div>`,
+      'quiz-answer',
     );
   }
   private quit() {
@@ -870,6 +900,10 @@ export class App {
       this.person(action.slice(7));
       return;
     }
+    if (action.startsWith('quiz-answer:')) {
+      this.quizAnswer(Number(action.slice(12)));
+      return;
+    }
     if (action.startsWith('story:')) {
       this.story(Number(action.slice(6)));
       return;
@@ -887,6 +921,9 @@ export class App {
         break;
       case 'wardrobe':
         this.wardrobe();
+        break;
+      case 'quiz':
+        this.quiz();
         break;
       case 'daily':
         void this.prepareDaily();
