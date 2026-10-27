@@ -327,6 +327,27 @@ export class App {
     this.resizeDisplay();
     if (this.screen === 'play') this.ui.querySelector<HTMLElement>('.play-ui')?.focus({preventScroll: true});
   }
+  // On phones and tablets a run fills the whole screen: the browser's bars are hidden and Android
+  // turns to landscape. Must run inside the tap that starts the run (browsers require a gesture).
+  private immersive() {
+    const p = this.store.data.preferences;
+    if (
+      !p.autoFullscreen ||
+      document.fullscreenElement ||
+      !document.fullscreenEnabled ||
+      !matchMedia('(pointer: coarse)').matches ||
+      matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches
+    )
+      return;
+    document.documentElement
+      .requestFullscreen({navigationUI: 'hide'})
+      .then(() => {
+        const orientation = screen.orientation as ScreenOrientation & {lock?: (o: string) => Promise<void>};
+        orientation.lock?.('landscape').catch(() => {});
+        this.resizeDisplay();
+      })
+      .catch(() => {});
+  }
   private header(label: string, back = 'home') {
     return `<header class="topbar">${button(back, '← <span>돌아가기</span>', 'text-button')}<span class="brand">${icon('compass')} ${label}</span><span class="edition">ODYSSEY RUN / VOL. 01</span><span class="ys-key">${button('lang', getLang() === 'en' ? '한국어' : 'EN', 'ys-chip', `translate="no" aria-label="${getLang() === 'en' ? '한국어로 보기' : 'View in English'}"`)}${button('profiles', `👤 <span class="ys-wide">${esc(this.profiles.active.name)}</span>`, 'ys-chip', `aria-label="항해사 ${esc(this.profiles.active.name)}, 바꾸기"`)}${button('fullscreen', '⛶ <span class="ys-wide">전체 화면</span>', 'ys-chip', 'aria-label="전체 화면 전환"')}<button type="button" class="ys-chip" data-ys-install>📲 <span class="ys-wide">앱 </span>설치</button><button type="button" class="ys-chip" data-qr aria-label="QR 코드로 접속">📱 QR</button></span></header>`;
   }
@@ -618,6 +639,8 @@ export class App {
         this.profiles.book.list.length > 1 || this.contests.book.hosted.length > 0,
       );
       if (message) this.notice(message);
+      else if (iosBrowserTab() && this.weekly('ios-home-hint'))
+        this.notice('아이폰·아이패드는 공유 → 홈 화면에 추가로 설치하면 주소창 없이 화면을 꽉 채워요.');
     }
     this.game.loop.wake();
   }
@@ -1090,6 +1113,16 @@ export class App {
       'story',
     );
   }
+  // True at most once a week per hint, so tips do not repeat every visit.
+  private weekly(name: string) {
+    try {
+      const key = SAVE_KEY + ':' + name,
+        last = Number(this.storage?.getItem(key) ?? 0);
+      if (Date.now() - last < 7 * 86_400_000) return false;
+      this.storage?.setItem(key, String(Date.now()));
+    } catch {}
+    return true;
+  }
   private protect() {
     if (this.protectionAsked || this.protectionState === 'persisted') return;
     this.protectionAsked = true;
@@ -1238,6 +1271,11 @@ export class App {
     }
     if (input.name === 'goal' && Object.hasOwn(GOALS, input.value)) {
       this.selectedGoal = input.value as GoalId;
+      return;
+    }
+    if (input.hasAttribute('data-autofs')) {
+      this.store.data.preferences.autoFullscreen = input.checked;
+      this.store.persist();
       return;
     }
     if (input.hasAttribute('data-haptics')) {
@@ -1406,8 +1444,16 @@ export class App {
     relics: () => this.relics(),
     landscapes: () => this.landscapes(),
     'sheet-zoom': () => this.sheetZoom(),
-    start: () => this.screen === 'prepare' && this.start(),
-    restart: () => ['pause', 'result', 'share'].includes(this.screen) && this.start(),
+    start: () => {
+      if (this.screen !== 'prepare') return;
+      this.immersive();
+      this.start();
+    },
+    restart: () => {
+      if (!['pause', 'result', 'share'].includes(this.screen)) return;
+      this.immersive();
+      this.start();
+    },
     pause: () => this.pause(),
     resume: () => this.screen === 'pause' && this.beginCountdown(),
     export: () => this.export(),

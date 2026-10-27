@@ -2918,3 +2918,33 @@ body {
     font-size: 16px;
   }
 }
+/* Very short landscape phones (browser bars leave about 320px): the home copy tightens and the
+   floating credit steps aside (it stays at the end of settings) so nothing covers the menu. */
+@media (orientation: landscape) and (max-height: 360px) {
+  #app[data-screen='home'] > footer {
+    display: none;
+  }
+  #app[data-screen='home'] .home-bottom {
+    margin-bottom: env(safe-area-inset-bottom);
+  }
+  .home > .topbar {
+    min-height: 44px;
+  }
+  .home {
+    grid-template-rows: auto 1fr auto;
+  }
+  .home h1 {
+    font-size: clamp(22px, min(5cqw, 10vh), 34px);
+    margin: 2px 0;
+  }
+  .home-copy p {
+    line-height: 1.35;
+  }
+  .home-actions {
+    margin-top: 6px;
+  }
+  /* The hero drawn on the canvas reaches up to the caption at this height. */
+  .hero-caption {
+    display: none;
+  }
+}

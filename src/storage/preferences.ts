@@ -18,6 +18,8 @@ export interface Preferences {
   quality: Quality;
   assist: Assist;
   haptics: boolean;
+  // Phones switch to full screen (and landscape where allowed) when a run starts.
+  autoFullscreen: boolean;
   touch: TouchLayout;
   cape: 'classic' | 'sea' | 'royal';
   emblem: 'plain' | 'owl' | 'star';
@@ -27,6 +29,7 @@ export const defaultPreferences = (): Preferences => ({
   quality: 'auto',
   assist: {pace: 1, slideToggle: false, autoSlide: false},
   haptics: true,
+  autoFullscreen: true,
   touch: {size: 80, bottom: 0, inset: 0, opacity: 0.85, swapped: false},
   cape: 'classic',
   emblem: 'plain',
@@ -63,6 +66,10 @@ export function readPreferences(raw: unknown): Preferences {
   if (v.haptics !== undefined) {
     if (typeof v.haptics !== 'boolean') throw Error('진동 설정을 확인해 주세요.');
     out.haptics = v.haptics;
+  }
+  if (v.autoFullscreen !== undefined) {
+    if (typeof v.autoFullscreen !== 'boolean') throw Error('전체 화면 설정을 확인해 주세요.');
+    out.autoFullscreen = v.autoFullscreen;
   }
   // Saves written before easy voyages have no assist block; keep the defaults.
   if (v.assist !== undefined) {

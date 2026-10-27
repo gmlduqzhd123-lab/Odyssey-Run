@@ -21,6 +21,10 @@ const VIEWPORTS = [
   {name: 'phone-844', width: 844, height: 390, touch: true},
   {name: 'phone-740', width: 740, height: 360, touch: true},
   {name: 'phone-667', width: 667, height: 375, touch: true},
+  // Landscape phones with the browser's address and tool bars showing.
+  {name: 'phone-bars-658', width: 658, height: 320, touch: true},
+  {name: 'phone-bars-740', width: 740, height: 300, touch: true},
+  {name: 'phone-portrait-390', width: 390, height: 664, touch: true},
 ];
 // Screens reached by a button on the home page (or a page reached from there).
 const SCREENS: [string, string[]][] = [
