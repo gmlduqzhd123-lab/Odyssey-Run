@@ -1,0 +1,46 @@
+{
+  "url": "https://gmlduqzhd123-lab.github.io/Odyssey-Run/",
+  "checkedAt": "2026-10-27T02:01:27.736Z",
+  "browser": "154.0.8037.57",
+  "environment": "Linux Chromium PC/mobile emulation, actual keyboard/CDP touch events with virtual clock; no physical device",
+  "results": [
+    {
+      "mobile": false,
+      "status": 200,
+      "bundle": "/Odyssey-Run/assets/index-ZEPUfAt0.js",
+      "controlsEditor": true,
+      "quality": true,
+      "offlineUI": true,
+      "wardrobe": true,
+      "legacyCorePreserved": true,
+      "bossKeyboardOrMultiTouch": true,
+      "boss": {
+        "complete": true,
+        "bestScore": 1460,
+        "bestStars": 0,
+        "bestRating": 2
+      },
+      "dailyPreparation": true
+    },
+    {
+      "mobile": true,
+      "status": 200,
+      "bundle": "/Odyssey-Run/assets/index-ZEPUfAt0.js",
+      "controlsEditor": true,
+      "quality": true,
+      "offlineUI": true,
+      "wardrobe": true,
+      "legacyCorePreserved": true,
+      "bossKeyboardOrMultiTouch": true,
+      "boss": {
+        "complete": true,
+        "bestScore": 1460,
+        "bestStars": 0,
+        "bestRating": 2
+      },
+      "dailyPreparation": true
+    }
+  ],
+  "errors": [],
+  "failures": []
+}

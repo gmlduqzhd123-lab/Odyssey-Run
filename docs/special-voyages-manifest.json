@@ -1,0 +1,277 @@
+{
+  "bosses": [
+    {
+      "stage": "beach",
+      "name": "스킬라의 해협",
+      "length": 9600,
+      "seconds": 30,
+      "maxScore": 1460,
+      "phases": [
+        "집게의 순찰 · 점프",
+        "세 머리의 경고 · 점프",
+        "공중 협공 · 숙이기"
+      ],
+      "phaseStarts": [
+        0,
+        3200,
+        5600
+      ],
+      "warningLead": 700,
+      "enemies": [
+        {
+          "id": "beach-boss-1",
+          "kind": "crab",
+          "x": 1500
+        },
+        {
+          "id": "beach-boss-2",
+          "kind": "crab",
+          "x": 2700
+        },
+        {
+          "id": "beach-boss-3",
+          "kind": "scylla",
+          "x": 3900
+        },
+        {
+          "id": "beach-boss-4",
+          "kind": "scylla",
+          "x": 5100
+        },
+        {
+          "id": "beach-boss-5",
+          "kind": "harpy",
+          "x": 6300
+        },
+        {
+          "id": "beach-boss-6",
+          "kind": "harpy",
+          "x": 7500
+        }
+      ],
+      "obstacles": [],
+      "gaps": [],
+      "winds": [],
+      "safe": [
+        0,
+        2800,
+        6000,
+        9000
+      ]
+    },
+    {
+      "stage": "cave",
+      "name": "키클롭스의 결투",
+      "length": 9600,
+      "seconds": 30,
+      "maxScore": 1460,
+      "phases": [
+        "석상병의 돌진 · 점프",
+        "거인의 투척 · 2단 점프",
+        "거인의 손 · 숙이기"
+      ],
+      "phaseStarts": [
+        0,
+        3200,
+        5600
+      ],
+      "warningLead": 700,
+      "enemies": [
+        {
+          "id": "cave-boss-1",
+          "kind": "stone",
+          "x": 1500
+        },
+        {
+          "id": "cave-boss-2",
+          "kind": "stone",
+          "x": 2700
+        },
+        {
+          "id": "cave-boss-3",
+          "kind": "cyclops",
+          "x": 3900
+        },
+        {
+          "id": "cave-boss-4",
+          "kind": "cyclops",
+          "x": 5100
+        },
+        {
+          "id": "cave-boss-5",
+          "kind": "shade",
+          "x": 6300
+        },
+        {
+          "id": "cave-boss-6",
+          "kind": "shade",
+          "x": 7500
+        }
+      ],
+      "obstacles": [
+        {
+          "id": "cave-boss-hand",
+          "kind": "hand",
+          "x": 8400,
+          "y": 365,
+          "w": 180,
+          "h": 39
+        }
+      ],
+      "gaps": [],
+      "winds": [],
+      "safe": [
+        0,
+        2800,
+        6000,
+        9000
+      ]
+    },
+    {
+      "stage": "wind",
+      "name": "폭풍의 수호자",
+      "length": 9600,
+      "seconds": 30,
+      "maxScore": 1460,
+      "phases": [
+        "바람의 하르피아 · 숙이기",
+        "안개 속 수호자 · 숙이기",
+        "폭풍의 틈 · 바람과 점프"
+      ],
+      "phaseStarts": [
+        0,
+        3200,
+        5600
+      ],
+      "warningLead": 700,
+      "enemies": [
+        {
+          "id": "wind-boss-1",
+          "kind": "harpy",
+          "x": 1500
+        },
+        {
+          "id": "wind-boss-2",
+          "kind": "harpy",
+          "x": 2700
+        },
+        {
+          "id": "wind-boss-3",
+          "kind": "shade",
+          "x": 3900
+        },
+        {
+          "id": "wind-boss-4",
+          "kind": "shade",
+          "x": 5100
+        },
+        {
+          "id": "wind-boss-5",
+          "kind": "scylla",
+          "x": 6300
+        },
+        {
+          "id": "wind-boss-6",
+          "kind": "scylla",
+          "x": 7500
+        }
+      ],
+      "obstacles": [],
+      "gaps": [
+        {
+          "x": 8500,
+          "w": 180
+        }
+      ],
+      "winds": [
+        {
+          "x": 8200,
+          "y": 70,
+          "w": 650,
+          "h": 370
+        }
+      ],
+      "safe": [
+        0,
+        2800,
+        6000,
+        9000
+      ]
+    }
+  ],
+  "dailyCycleExample": [
+    {
+      "date": "2026-10-27",
+      "stage": "beach",
+      "variant": "remix-b",
+      "rule": "clean",
+      "name": "상처 없이 귀환",
+      "description": "완주할 때까지 HP 손실 0회를 지켜요. 사과 회복으로 피해 이력을 지울 수 없어요."
+    },
+    {
+      "date": "2026-10-28",
+      "stage": "beach",
+      "variant": "classic",
+      "rule": "no-shield",
+      "name": "방패 없이 귀환",
+      "description": "방패 효과 없이 끝까지 달려요. 다른 아이템은 사용할 수 있어요."
+    },
+    {
+      "date": "2026-10-29",
+      "stage": "beach",
+      "variant": "classic",
+      "rule": "stars",
+      "name": "별빛 70개와 귀환",
+      "description": "완주하면서 별빛을 70개 이상 모아요."
+    },
+    {
+      "date": "2026-10-30",
+      "stage": "beach",
+      "variant": "classic",
+      "rule": "clean",
+      "name": "상처 없이 귀환",
+      "description": "완주할 때까지 HP 손실 0회를 지켜요. 사과 회복으로 피해 이력을 지울 수 없어요."
+    },
+    {
+      "date": "2026-10-31",
+      "stage": "beach",
+      "variant": "remix-a",
+      "rule": "no-shield",
+      "name": "방패 없이 귀환",
+      "description": "방패 효과 없이 끝까지 달려요. 다른 아이템은 사용할 수 있어요."
+    },
+    {
+      "date": "2026-11-01",
+      "stage": "beach",
+      "variant": "remix-a",
+      "rule": "stars",
+      "name": "별빛 70개와 귀환",
+      "description": "완주하면서 별빛을 70개 이상 모아요."
+    },
+    {
+      "date": "2026-11-02",
+      "stage": "beach",
+      "variant": "remix-a",
+      "rule": "clean",
+      "name": "상처 없이 귀환",
+      "description": "완주할 때까지 HP 손실 0회를 지켜요. 사과 회복으로 피해 이력을 지울 수 없어요."
+    },
+    {
+      "date": "2026-11-03",
+      "stage": "beach",
+      "variant": "remix-b",
+      "rule": "no-shield",
+      "name": "방패 없이 귀환",
+      "description": "방패 효과 없이 끝까지 달려요. 다른 아이템은 사용할 수 있어요."
+    },
+    {
+      "date": "2026-11-04",
+      "stage": "beach",
+      "variant": "remix-b",
+      "rule": "stars",
+      "name": "별빛 70개와 귀환",
+      "description": "완주하면서 별빛을 70개 이상 모아요."
+    }
+  ],
+  "normalRecordsAffected": false
+}

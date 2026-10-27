@@ -1,10 +1,14 @@
 {
-  "checkedAt": "2026-10-27T01:43:11.772Z",
+  "checkedAt": "2026-10-27T01:51:00.744Z",
   "browser": "154.0.8037.57",
   "environment": "Linux Chromium mobile emulation; two real service worker revisions served locally on 4181; injected 503 is intentional; no production mutation",
-  "versionA": "9eb4eb0da6305af6",
+  "versionA": "e50e249a497683b3",
   "versionB": "test000000000002",
   "results": [
+    {
+      "legacyAppAssetsRemoved": true,
+      "foreignLegacyCachePreserved": true
+    },
     {
       "failedDownloadPreservesSave": true,
       "partialDownloadNotMarkedComplete": true

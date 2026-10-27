@@ -1,0 +1,32 @@
+{
+  "codeCommit": "46d12a62bbb1dac0b03977eb7df1508b08dc8d71",
+  "localBundle": "/Odyssey-Run/assets/index-ZEPUfAt0.js",
+  "localManifest": "e50e249a497683b3",
+  "tests": {
+    "unit": 77,
+    "typecheck": "passed",
+    "build": "passed",
+    "normalPC": "three stages passed",
+    "normalMobile": "three stages passed",
+    "bossMobile": "three stages passed",
+    "dailyMobile": "2026-10-27 clean challenge passed",
+    "offlineMobile": "three stages passed",
+    "multiTabUpdate": "passed",
+    "assetRetryAndLegacy": "passed",
+    "physicalAndroid": "not run",
+    "physicalIOS": "not run"
+  },
+  "workflowRun": 40434986050,
+  "supersededRuns": [
+    {
+      "id": 40434397292,
+      "conclusion": "cancelled before deployment for boss hint correction"
+    },
+    {
+      "id": 40434743058,
+      "conclusion": "cancelled before deployment for legacy cache migration"
+    }
+  ],
+  "deployment": "success",
+  "productionVerification": "passed PC/mobile"
+}

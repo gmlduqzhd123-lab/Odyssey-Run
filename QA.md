@@ -1,5 +1,7 @@
 # 검증 결과
 
+> 최신 검증: 2026-10-27 고도화·실제 Pages 배포. 테스트77개, 모바일/PC/오프라인/업데이트 검증은 문서 하단에 기록합니다. 실제 Android/iPhone은 미실행입니다.
+
 검증일: **2026-10-25**. 검증한 실행 환경과 자동화 범위 안에서의 결과입니다. 실제 모바일 기기 및 실제 GitHub Pages 운영 주소의 검증과 구분합니다.
 
 ## 환경과 실행 방법
@@ -641,3 +643,13 @@ QA_URL=http://localhost:4174/qa-odyssey/ npx tsx scripts/performance-qa.ts
 - 오늘 항해는 기기 시각의 한국 날짜를 사용하고 최근14일만 보관합니다. 온라인 순위·계정·기기 간 자동 동기화는 없습니다. 보스/오늘 항해는 일반 진행 보상과 합치지 않습니다.
 - 정상 실행의 JavaScript 오류/의도하지 않은 HTTP 실패는0건입니다. 파일 차단/503 주입 시험의 예상 네트워크 오류는 일반 실행 실패와 구분합니다.
 - 근거: `artifacts/roadmap-release-results.json`, `roadmap-offline-results.json`, `roadmap-update-results.json`, `roadmap-loading-results.json`, `roadmap-final-mobile-*`, `roadmap-performance-results.json`, 공식 browser/expansion 결과 및 화면 캡처.
+
+### 고도화 최종 배포와 실제 URL 검증
+
+- 최종 코드 커밋 `46d12a6`(기능 `9d1440e`, 보스 안내 보완 `20c989c` 포함)을 main에 푸시했습니다. [Actions 40434986050](https://github.com/gmlduqzhd123-lab/Odyssey-Run/actions/runs/40434986050)의 Node22 설치·타입 검사·77개 테스트·빌드·모바일 전체 플레이/복원·오프라인 세 섬 완주·자산 실패 복구/옛 기록·다중 탭 업데이트·Pages 배포가 **모두 성공**했습니다.
+- **2026-10-27 11:01 한국 시간**, 실제 https://gmlduqzhd123-lab.github.io/Odyssey-Run/ 에서 HTML **200**, 최종 JS `/Odyssey-Run/assets/index-ZEPUfAt0.js`와 오프라인 manifest `e50e249a497683b3`를 확인했습니다. 오프라인 공통파일52개는 한 shared 캐시에서 재사용합니다.
+- 실제 URL에서 PC1280×800/DPR2와 모바일844×390/DPR2의 전체 Canvas·영웅20% 앵커·균등 배율·첫 수집 경계·모바일 회전11초 정지/재개를 재확인했습니다. PC 전체 화면 진입/종료·거부/미지원 후 키보드 점프도 통과했습니다.
+- 별도 실제 URL 실행으로 두 화면의 그래픽 선택·버튼 크기 편집·오프라인 UI·옷장 해금 선택·옛 v1 복원·오늘 항해 준비와 보스 해변 실제 완주(PC키보드/모바일멀티터치 각각 HP손실0·1,460점)를 확인했습니다. 보스 후에도 옛 일반 섬 기록·소리 설정은 정확히 유지됐습니다. 정상 원격 JS 오류/HTTP 실패0건입니다.
+- 보스 단계 안내는 각 단계 첫 공격의700px 예고와 같은 시점으로 맞췄습니다. 최초 스킬라/하르피아 안내가 늦게 바뀌지 않도록3200/5600px에서 전환합니다. 기존 `odyssey-run-v1` 캐시도 이 앱 경로의 파일만 이관 정리하고 다른 앱 경로의 파일은 유지하는 시험을 추가했습니다. 실제 두 버전 worker 검사와 CI에서 통과했습니다.
+- 최종 보완 전 Actions 두 건은 배포 전에 취소했고, 위 최종 실행이 배포된 버전입니다. 모든 결과/화면은 `roadmap-deployment.json`, `roadmap-deployed-results.json`, `viewport-deployed-roadmap-final-chromium-results.json`과 캡처에 기록했습니다. GitHub의 브라우저 증거는 해당 실행의 `browser-qa` artifact에14일 보관합니다.
+- 실제 Android/iPhone·발열/장시간 기기 성능·OS 설치 UI·주관적 재미/어지러움 평가는 미실행입니다. 빌드·커밋·푸시·실제 Pages 배포·주소 확인을 수행했으며 후속 보고/검증 도구는 `[skip ci]` 문서 커밋으로 보존합니다.
