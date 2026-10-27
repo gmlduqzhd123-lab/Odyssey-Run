@@ -27,7 +27,7 @@ import Phaser from 'phaser';
 import {C} from '../config';
 import {COURSES, STAGES, MAP_STORIES, type StageId} from '../levels/courses';
 import {Runner} from '../player/runner';
-import {Profiles, profileKey, MAX_NAME, MAIN_PROFILE} from '../storage/profiles';
+import {Profiles, profileKey, readBook, PROFILES_KEY, MAX_NAME, MAIN_PROFILE} from '../storage/profiles';
 import {
   SaveStore,
   mergeResult,
@@ -202,6 +202,7 @@ export class App {
       {signal: this.abort.signal},
     );
     window.addEventListener('blur', () => this.suspend(), {signal: this.abort.signal});
+    window.addEventListener('storage', e => this.otherTab(e), {signal: this.abort.signal});
     window.addEventListener(
       'resize',
       () => {
@@ -246,6 +247,23 @@ export class App {
       },
       {signal: this.abort.signal},
     );
+  }
+  private sharedNotice = false;
+  // Another tab saved: fold its progress in now (saving also merges, so nothing is lost either way).
+  private otherTab(e: StorageEvent) {
+    if (e.key === PROFILES_KEY) {
+      const active = this.profiles.active.id;
+      this.profiles.book = readBook(e.newValue);
+      if (this.profiles.book.list.some(p => p.id === active)) this.profiles.book.active = active;
+      return;
+    }
+    if (e.key !== this.store.key || !this.store.adopt(e.newValue)) return;
+    if (this.screen === 'home') this.home();
+    else if (this.screen === 'islands') this.islands();
+    if (!this.sharedNotice) {
+      this.sharedNotice = true;
+      this.notice('같은 항해사가 다른 탭에서도 열려 있어요. 두 탭의 기록은 합쳐서 저장해요.');
+    }
   }
   private notice(message = this.store.warning) {
     const n = document.querySelector<HTMLElement>('#notice')!;

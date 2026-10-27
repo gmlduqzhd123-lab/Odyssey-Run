@@ -4,6 +4,7 @@ import {defaultPreferences, readPreferences, type Preferences} from './preferenc
 import {emptyJournal, validateJournal, validateGhost, type Ghost, type Journal, type AdventureResult} from './journal';
 import {MAX_SCORE} from '../config';
 import {quizIds} from '../levels/quiz';
+import {mergeSaves} from './merge';
 import {endlessLength, ENDLESS_SECTIONS} from '../levels/endless';
 import {STAGES, type StageId} from '../levels/courses';
 import {VARIANTS, courseKey, isVariant, type CourseKey, type VariantId} from '../levels/course-ids';
@@ -267,6 +268,8 @@ export class SaveStore {
   blocked = false;
   warning = '';
   readonly backupKey: string;
+  // The raw text last read or written here; anything else in storage came from another tab.
+  private lastRaw: string | null = null;
   constructor(
     private storage: Pick<Storage, 'getItem' | 'setItem' | 'removeItem'> | null,
     readonly key = SAVE_KEY,
@@ -275,6 +278,7 @@ export class SaveStore {
     try {
       const raw = storage?.getItem(key);
       if (raw !== null && raw !== undefined) this.data = validateSave(JSON.parse(raw));
+      this.lastRaw = raw ?? null;
     } catch {
       this.blocked = true;
       this.warning = '기존 기록을 읽지 못했어요. 원본을 보존했어요. 설정에서 복원하거나 초기화해 주세요.';
@@ -287,12 +291,28 @@ export class SaveStore {
     }
     try {
       if (!this.storage) throw Error();
+      const current = this.storage.getItem(this.key);
+      if (current !== null && current !== this.lastRaw) this.adopt(current);
       this.data.savedAt = new Date().toISOString();
-      this.storage.setItem(this.key, JSON.stringify(this.data));
+      const raw = JSON.stringify(this.data);
+      this.storage.setItem(this.key, raw);
+      this.lastRaw = raw;
       this.warning = '';
       return true;
     } catch {
       this.warning = '이번 기록을 저장하지 못했어요. 기록 파일로 내보낼 수 있어요.';
+      return false;
+    }
+  }
+  // Folds in progress another tab saved for this sailor. Returns whether anything was merged.
+  adopt(raw: string | null) {
+    if (raw === null || raw === this.lastRaw || this.blocked) return false;
+    try {
+      this.data = mergeSaves(this.data, validateSave(JSON.parse(raw)));
+      this.lastRaw = raw;
+      return true;
+    } catch {
+      // An unreadable copy is left for the next write to replace; this tab's progress is kept.
       return false;
     }
   }
@@ -303,7 +323,8 @@ export class SaveStore {
       const old = this.storage.getItem(this.key);
       // Preserve the exact original, including damaged or unsupported data.
       this.storage.setItem(this.backupKey, old ?? JSON.stringify(this.data));
-      this.storage.setItem(this.key, JSON.stringify(clean));
+      this.lastRaw = JSON.stringify(clean);
+      this.storage.setItem(this.key, this.lastRaw);
       this.data = clean;
       this.blocked = false;
       this.warning = '';
@@ -318,6 +339,7 @@ export class SaveStore {
       if (!this.storage) throw Error();
       this.storage.removeItem(this.key);
       this.storage.removeItem(this.backupKey);
+      this.lastRaw = null;
       this.data = emptySave();
       this.blocked = false;
       this.warning = '';
