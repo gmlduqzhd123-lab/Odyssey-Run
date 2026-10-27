@@ -50,9 +50,10 @@ self.addEventListener('install', e =>
 );
 // Downloaded island files whose bytes did not change survive an update instead of being fetched again.
 async function carryOver(m) {
+  // Keyed by group and path: islands may share a file (the Sirens' sea reuses the beach track).
   const next = new Map(
     [['shared', m.shared], ...Object.entries(m.groups)].flatMap(([group, files]) =>
-      files.map(f => [f.path, {group, f}]),
+      files.map(f => [group + '\n' + f.path, f]),
     ),
   );
   for (const name of await caches.keys()) {
@@ -66,15 +67,8 @@ async function carryOver(m) {
       const from = await caches.open(base + group),
         to = await caches.open(cacheName(group));
       for (const f of files) {
-        const want = next.get(f.path);
-        if (
-          !want ||
-          want.group !== group ||
-          want.f.hash !== f.hash ||
-          want.f.bytes !== f.bytes ||
-          (await to.match(key(f.path)))
-        )
-          continue;
+        const want = next.get(group + '\n' + f.path);
+        if (!want || want.hash !== f.hash || want.bytes !== f.bytes || (await to.match(key(f.path)))) continue;
         const hit = await from.match(key(f.path));
         if (hit) await to.put(key(f.path), hit);
       }
