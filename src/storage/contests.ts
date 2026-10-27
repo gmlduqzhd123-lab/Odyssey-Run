@@ -3,6 +3,7 @@ import {STAGES, type StageId} from '../levels/courses';
 import {isVariant, type VariantId} from '../levels/course-ids';
 import {cleanName} from './profiles';
 import type {ContestResult} from '../systems/share';
+import {C} from '../config';
 // Class contests live outside the player save: they never touch normal records or unlocks.
 export const CONTESTS_KEY = SAVE_KEY + ':contests';
 export const MAX_CONTESTS = 20;
@@ -31,6 +32,18 @@ export interface ContestBook {
   best: Record<string, Entry>;
 }
 type Store = Pick<Storage, 'getItem' | 'setItem'>;
+// Result codes carry no signature (there is no server to sign them), so a student who learns the
+// format could type in any score. Contest courses are fixed-length normal courses run at a constant
+// speed, so a real result's parts must add up: this flags codes that could not come from a run.
+export function suspicion(e: Entry): string | null {
+  const distance = e.score - e.stars * 10 - e.maps * 100 - (e.complete ? 500 : 0),
+    full = Math.floor(C.length / 10);
+  if (distance < 0 || distance > full) return '점수가 별빛·지도·완주 보너스와 맞지 않아요';
+  if (e.complete && distance < full) return '완주 기록인데 거리 점수가 모자라요';
+  // The runner covers C.speed px per second of game time; half a second allows for rounding.
+  if (e.time + 0.5 < (distance * 10) / C.speed) return '달린 시간에 비해 거리가 너무 길어요';
+  return null;
+}
 const better = (a: Entry, b: Entry) =>
   a.score - b.score || Number(a.complete) - Number(b.complete) || b.hpLoss - a.hpLoss || b.time - a.time;
 export const rank = (entries: Entry[]) => [...entries].sort((a, b) => better(b, a) || a.name.localeCompare(b.name));
@@ -123,6 +136,11 @@ export class Contests {
   }
   remove(id: string) {
     this.book.hosted = this.book.hosted.filter(c => c.id !== id);
+    this.save();
+  }
+  drop(id: string, name: string) {
+    const c = this.find(id);
+    if (c) c.entries = c.entries.filter(e => e.name !== name);
     this.save();
   }
   clear(id: string) {

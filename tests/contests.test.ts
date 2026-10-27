@@ -87,3 +87,45 @@ test('boards cap entries, sailors keep a personal best, and stored data is sanit
   assert.match(newContestId(), /^[a-z0-9]{6}$/);
   assert.ok(CONTESTS_KEY.endsWith(':contests'));
 });
+
+test('contest results whose parts cannot add up are flagged, real runs are not', async () => {
+  const {suspicion} = await import('../src/storage/contests');
+  const real = {
+    name: '하린',
+    score: 2400 + 80 * 10 + 2 * 100 + 500,
+    complete: true,
+    stars: 80,
+    maps: 2,
+    hpLoss: 0,
+    time: 77.5,
+  };
+  assert.equal(suspicion(real), null);
+  assert.equal(suspicion({...real, complete: false, score: 1200 + 300, stars: 30, time: 40}), null);
+  assert.match(suspicion({...real, score: 4200})!, /맞지 않아요/);
+  assert.match(suspicion({...real, score: 2000 + 800 + 200 + 500})!, /모자라요/);
+  assert.match(suspicion({...real, time: 30})!, /너무 길어요/);
+});
+
+test('a teacher can drop one sailor from a board', async () => {
+  const {Contests} = await import('../src/storage/contests');
+  const m = new Map<string, string>(),
+    c = new Contests({getItem: k => m.get(k) ?? null, setItem: (k, v) => void m.set(k, v)});
+  c.host({id: 'drop01', title: '빼기', stage: 'beach', variant: 'classic', assist: false});
+  for (const name of ['가', '나'])
+    c.add({
+      kind: 'result',
+      contest: 'drop01',
+      name,
+      score: 100,
+      complete: false,
+      stars: 0,
+      maps: 0,
+      hpLoss: 0,
+      time: 40,
+    });
+  c.drop('drop01', '가');
+  assert.deepEqual(
+    c.find('drop01')!.entries.map(e => e.name),
+    ['나'],
+  );
+});

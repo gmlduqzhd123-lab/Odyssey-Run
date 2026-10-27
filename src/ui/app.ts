@@ -20,6 +20,15 @@ import {
   type RivalLink,
 } from '../systems/share';
 import {Contests, newContestId, type Entry} from '../storage/contests';
+import {
+  backupAge,
+  backupReminder,
+  iosBrowserTab,
+  markBackup,
+  protection,
+  requestProtection,
+  type Protection,
+} from '../storage/durability';
 import {classBackup, readClassBackup, restoreClass, CLASS_BACKUP_LIMIT, type ClassBackup} from '../storage/backup';
 import {buildEndless, sectionsPassed, ENDLESS_SECTIONS} from '../levels/endless';
 import type {Course} from '../levels/courses';
@@ -110,6 +119,9 @@ export class App {
   private quizReturn = 'islands';
   private rival: RivalLink | null = null;
   private pendingLink = '';
+  private protectionState: Protection = 'unsupported';
+  private protectionAsked = false;
+  private reminded = false;
   constructor() {
     let storage: Storage | null = null;
     try {
@@ -122,6 +134,7 @@ export class App {
     observe(...roots);
     document.title = translate(document.title);
     this.pendingLink = this.takeLink();
+    void protection().then(p => (this.protectionState = p));
     // A link opened in a tab that already runs the game only changes the fragment.
     window.addEventListener(
       'hashchange',
@@ -502,6 +515,10 @@ export class App {
       } catch (error) {
         say((error as Error).message);
       }
+    } else if (kind === 'drop') {
+      const [contest, name] = id.split('/');
+      this.contests.drop(contest, decodeURIComponent(name ?? ''));
+      this.contestBoard(contest, `‘${decodeURIComponent(name ?? '')}’ 기록을 뺐어요. 다시 찍으면 다시 들어가요.`);
     } else if (kind === 'clear') {
       this.contests.clear(id);
       this.contestBoard(id, '순위를 비웠어요.');
@@ -589,6 +606,14 @@ export class App {
       `<div class="home">${this.header('ODYSSEY RUN', 'home')}<div class="home-copy"><span class="eyebrow"><i></i> 작은 영웅의 긴 귀환</span><h1 tabindex="-1">오디세이 런<span>이타카로!</span></h1><p>별자리를 잇고, 숨은 이야기를 찾고,<br>우리만의 항구를 완성하러 떠나요.</p><div class="home-actions">${button('islands', '항해 시작 <span>↗</span>', 'primary large')}${button('codex', icon('map') + ' 지도 도감', 'secondary')}</div><div class="home-status">${done ? '⚑ 귀환 완료 · ' : ''}도장 ${this.store.data.journal.stamps.length}/${stampIds.length} · 별자리 ${this.store.data.journal.constellations.length}/${constellationIds.length} · 이야기 ${this.store.data.journal.stories.length}/${storyIds.length}</div></div><div class="hero-caption"><span>ODYSSEUS</span><b>지혜로운 작은 영웅</b><i>“이번에는 꼭, 이타카로!”</i></div><div class="home-bottom">${button('challenges', '⚔ 특별 항해', 'text-button')}${button('wardrobe', '♧ 영웅의 옷장', 'text-button')}${button('harbor', '⚓ 나의 항구', 'text-button')}${button('journal', '✧ 모험 수첩', 'text-button')}${button('settings', '⚙ 설정', 'text-button')}${button('quit', '게임 종료', 'text-button')}</div></div>`,
       'home',
     );
+    if (!this.reminded) {
+      this.reminded = true;
+      const message = backupReminder(
+        this.storage,
+        this.profiles.book.list.length > 1 || this.contests.book.hosted.length > 0,
+      );
+      if (message) this.notice(message);
+    }
     this.game.loop.wake();
   }
   private islands() {
@@ -770,6 +795,7 @@ export class App {
     }
     this.store.data = mergeResult(this.store.data, this.result);
     this.store.persist();
+    this.protect();
     this.sound.setPlaying(false);
     this.controls.clear();
     const r = this.result,
@@ -1062,12 +1088,31 @@ export class App {
   private settingToggle(key: keyof Settings, label: string) {
     return `<label class="toggle"><span>${label}</span><input type="checkbox" data-setting="${key}" ${this.store.data.settings[key] ? 'checked' : ''}><i aria-hidden="true"></i></label>`;
   }
+  // Asked once per session, after there is progress worth keeping.
+  private protect() {
+    if (this.protectionAsked || this.protectionState === 'persisted') return;
+    this.protectionAsked = true;
+    void requestProtection().then(p => (this.protectionState = p));
+  }
+  private protectionLine() {
+    const age = backupAge(this.storage),
+      last = age === null ? '아직 없음' : age === 0 ? '오늘' : `${age}일 전`;
+    return [
+      `마지막 반 전체 백업: ${last}`,
+      this.protectionState === 'persisted'
+        ? '이 브라우저는 기록을 지우지 않도록 보호하고 있어요.'
+        : '저장 공간이 부족하거나 오래 열지 않으면 브라우저가 기록을 지울 수 있어요.',
+      iosBrowserTab() ? '아이폰·아이패드는 공유 → 홈 화면에 추가로 설치해야 오래 열지 않아도 기록이 남아요.' : '',
+    ]
+      .filter(Boolean)
+      .join(' · ');
+  }
   private settings() {
     // Sub-pages of settings (touch layout, offline, import, reset) keep the original way back.
     if (!['settings', 'touch-layout', 'offline', 'import', 'reset', 'class-import'].includes(this.screen))
       this.returnScreen = this.screen === 'islands' ? 'islands' : 'home';
     this.set(
-      `<div class="page settings">${this.header('설정', this.returnScreen)}<div class="settings-layout"><div class="page-heading"><span class="eyebrow">MAKE IT YOUR JOURNEY</span><h1 tabindex="-1">나의 항해 설정</h1><p>기록은 이 기기와 브라우저에 저장돼요.<br>기록 파일로 옮길 수 있어요.</p><div class="save-note">계정 없이, 이 브라우저에만 저장해요.<br>다른 기기와 자동으로 동기화되지는 않아요.</div></div><div class="settings-body"><section><h2>소리와 움직임</h2>${this.settingToggle('music', '배경음')}${this.settingToggle('sfx', '효과음')}${this.settingToggle('reducedMotion', '움직임 줄이기')}<small>기본 배경은 고정돼 있어요. 켜면 장식 무늬와 바람 표시를 더 줄여요. 달리기·점프와 위험 신호는 유지돼요.</small><label class="toggle"><span>진동 (지원하는 휴대폰)</span><input type="checkbox" data-haptics ${this.store.data.preferences.haptics ? 'checked' : ''}><i aria-hidden="true"></i></label><small>피격·추락·지도 획득·완주 때 짧게 진동해요. 아이폰 사파리는 진동을 지원하지 않아요.</small></section>${this.assistSettings()}<section><h2>화질과 조작</h2><label>그래픽 품질 <select id="quality"><option value="auto" ${this.store.data.preferences.quality === 'auto' ? 'selected' : ''}>자동</option><option value="high" ${this.store.data.preferences.quality === 'high' ? 'selected' : ''}>선명하게</option><option value="low" ${this.store.data.preferences.quality === 'low' ? 'selected' : ''}>가볍게</option></select></label><p class="muted">가볍게는 그림 해상도만 줄여요. 시야·달리기·점프·판정은 같아요.</p>${button('touch-layout', '터치 버튼 맞춤', 'secondary')}</section><section><h2>오프라인과 업데이트</h2>${button('offline', '섬 다운로드·업데이트', 'secondary')}<p class="muted">다운로드한 섬은 오프라인에서도 시작할 수 있어요. 새 버전은 항해를 끝낸 뒤 적용해요.</p></section><section><h2>기록 보관함</h2><div class="backup-row">${button('export', icon('map') + ' 기록 내보내기', 'secondary')}<label class="button secondary file-button">기록 가져오기<input id="import-file" type="file" accept="application/json,.json" aria-label="JSON 기록 파일 가져오기"></label></div><p class="muted">UTF-8 JSON · 최대 64KiB · 복원 전 내용을 확인해요.</p>${this.store.blocked ? button('original', '보존된 원본 내려받기', 'text-button') : ''}${button('reset-confirm', '이 게임의 기록 초기화', 'danger text-button')}</section><section class="class-backup"><h2>반 전체 백업</h2><div class="backup-row">${button('class-export', '반 전체 내보내기', 'secondary')}<label class="button secondary file-button">반 전체 가져오기<input id="class-import" type="file" accept="application/json,.json" aria-label="반 전체 백업 파일 가져오기"></label></div><p class="muted">모든 항해사의 기록과 대회 순위를 한 파일로 저장해요. 가져오면 이 기기의 기록과 합쳐요. 지우지 않아요.</p></section><div id="import-error" role="alert"></div></div></div></div>`,
+      `<div class="page settings">${this.header('설정', this.returnScreen)}<div class="settings-layout"><div class="page-heading"><span class="eyebrow">MAKE IT YOUR JOURNEY</span><h1 tabindex="-1">나의 항해 설정</h1><p>기록은 이 기기와 브라우저에 저장돼요.<br>기록 파일로 옮길 수 있어요.</p><div class="save-note">계정 없이, 이 브라우저에만 저장해요.<br>다른 기기와 자동으로 동기화되지는 않아요.</div></div><div class="settings-body"><section><h2>소리와 움직임</h2>${this.settingToggle('music', '배경음')}${this.settingToggle('sfx', '효과음')}${this.settingToggle('reducedMotion', '움직임 줄이기')}<small>기본 배경은 고정돼 있어요. 켜면 장식 무늬와 바람 표시를 더 줄여요. 달리기·점프와 위험 신호는 유지돼요.</small><label class="toggle"><span>진동 (지원하는 휴대폰)</span><input type="checkbox" data-haptics ${this.store.data.preferences.haptics ? 'checked' : ''}><i aria-hidden="true"></i></label><small>피격·추락·지도 획득·완주 때 짧게 진동해요. 아이폰 사파리는 진동을 지원하지 않아요.</small></section>${this.assistSettings()}<section><h2>화질과 조작</h2><label>그래픽 품질 <select id="quality"><option value="auto" ${this.store.data.preferences.quality === 'auto' ? 'selected' : ''}>자동</option><option value="high" ${this.store.data.preferences.quality === 'high' ? 'selected' : ''}>선명하게</option><option value="low" ${this.store.data.preferences.quality === 'low' ? 'selected' : ''}>가볍게</option></select></label><p class="muted">가볍게는 그림 해상도만 줄여요. 시야·달리기·점프·판정은 같아요.</p>${button('touch-layout', '터치 버튼 맞춤', 'secondary')}</section><section><h2>오프라인과 업데이트</h2>${button('offline', '섬 다운로드·업데이트', 'secondary')}<p class="muted">다운로드한 섬은 오프라인에서도 시작할 수 있어요. 새 버전은 항해를 끝낸 뒤 적용해요.</p></section><section><h2>기록 보관함</h2><div class="backup-row">${button('export', icon('map') + ' 기록 내보내기', 'secondary')}<label class="button secondary file-button">기록 가져오기<input id="import-file" type="file" accept="application/json,.json" aria-label="JSON 기록 파일 가져오기"></label></div><p class="muted">UTF-8 JSON · 최대 64KiB · 복원 전 내용을 확인해요.</p>${this.store.blocked ? button('original', '보존된 원본 내려받기', 'text-button') : ''}${button('reset-confirm', '이 게임의 기록 초기화', 'danger text-button')}</section><section class="class-backup"><h2>반 전체 백업</h2><div class="backup-row">${button('class-export', '반 전체 내보내기', 'secondary')}<label class="button secondary file-button">반 전체 가져오기<input id="class-import" type="file" accept="application/json,.json" aria-label="반 전체 백업 파일 가져오기"></label></div><p class="muted">모든 항해사의 기록과 대회 순위를 한 파일로 저장해요. 가져오면 이 기기의 기록과 합쳐요. 지우지 않아요.</p><p class="muted" id="protection">${this.protectionLine()}</p>${this.protectionState === 'best-effort' ? button('protect', '기록 보호 요청', 'text-button') : ''}</section><div id="import-error" role="alert"></div></div></div></div>`,
       'settings',
     );
   }
@@ -1486,11 +1531,25 @@ export class App {
         }
         break;
       case 'class-export':
-        if (this.storage)
-          this.download(
-            JSON.stringify(classBackup(this.storage)),
-            `odyssey-run-class-${new Date().toISOString().slice(0, 10).replaceAll('-', '')}.json`,
+        if (!this.storage) break;
+        this.protect();
+        markBackup(this.storage);
+        this.download(
+          JSON.stringify(classBackup(this.storage)),
+          `odyssey-run-class-${new Date().toISOString().slice(0, 10).replaceAll('-', '')}.json`,
+        );
+        this.setText('#protection', this.protectionLine());
+        break;
+      case 'protect':
+        void requestProtection().then(p => {
+          this.protectionState = p;
+          if (this.screen === 'settings') this.settings();
+          this.notice(
+            p === 'persisted'
+              ? '이 브라우저가 기록을 지우지 않도록 보호해요.'
+              : '브라우저가 보호 요청을 받아들이지 않았어요. 반 전체 백업을 자주 해 주세요.',
           );
+        });
         break;
       case 'class-import-confirm':
         this.classRestore();

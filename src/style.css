@@ -2664,6 +2664,20 @@ body {
 .class-board b {
   flex: 1 1 6em;
 }
+.class-board li.doubt {
+  background: rgba(255, 228, 196, 0.85);
+  outline: 2px dashed #b4532a;
+}
+.class-board li em {
+  flex-basis: 100%;
+  font-style: normal;
+  color: #8a3413;
+  font-size: 0.9em;
+}
+.class-board li .text-button {
+  margin-left: auto;
+  min-height: 44px;
+}
 
 /* Sharing and friend races */
 .qr-box {
