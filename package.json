@@ -1,7 +1,33 @@
 {
-  "name": "odyssey-run", "version": "1.0.0", "private": true, "type": "module",
-  "engines": {"node": ">=22.12.0", "npm": ">=10"},
-  "scripts": {"dev": "vite --host 0.0.0.0", "typecheck": "tsc --noEmit", "test": "tsx --test tests/*.test.ts", "test:browser": "tsx scripts/browser-qa.ts", "test:mobile": "tsx scripts/mobile-qa.ts", "build": "npm run typecheck && vite build", "preview": "vite preview --host 0.0.0.0"},
-  "dependencies": {"phaser": "3.90.0"},
-  "devDependencies": {"@playwright/test": "1.56.1", "@types/node": "24.10.0", "tsx": "4.20.6", "typescript": "5.9.3", "vite": "7.2.2"}
+  "name": "odyssey-run",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0",
+    "npm": ">=10"
+  },
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts",
+    "test:browser": "tsx scripts/browser-qa.ts",
+    "test:mobile": "tsx scripts/mobile-qa.ts",
+    "build": "npm run typecheck && vite build && tsx scripts/build-offline.ts",
+    "preview": "vite preview --host 0.0.0.0",
+    "test:release": "tsx scripts/release-qa.ts",
+    "test:offline": "tsx scripts/offline-qa.ts",
+    "test:update": "tsx scripts/update-qa.ts",
+    "test:loading": "tsx scripts/loading-qa.ts"
+  },
+  "dependencies": {
+    "phaser": "3.90.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "@types/node": "24.10.0",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3",
+    "vite": "7.2.2"
+  }
 }

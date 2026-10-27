@@ -12,6 +12,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   build:
+    timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,6 +35,40 @@ jobs:
             echo "PAGES_BASE=/$repository_name/" >> "$GITHUB_ENV"
           fi
       - run: npm run build
+      - name: Install browser test runtime
+        run: npx playwright install --with-deps chromium
+      - name: Serve the built repository subpath
+        run: |
+          npm run preview -- --port 4176 > /tmp/odyssey-preview.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent "http://localhost:4176$PAGES_BASE" > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/odyssey-preview.log
+          exit 1
+        env:
+          PAGES_BASE: ${{ env.PAGES_BASE }}
+      - name: Verify mobile play, bosses, daily challenges and save restore
+        run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:release
+      - name: Verify downloaded islands with network offline
+        run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:offline
+      - name: Verify asset failure recovery and legacy saves
+        run: npm run test:loading
+      - name: Verify safe multi-tab updates and interrupted downloads
+        run: npm run test:update
+      - name: Preserve browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-qa
+          path: |
+            artifacts/roadmap-chromium-*
+            artifacts/roadmap-offline-*
+            artifacts/roadmap-update*
+            artifacts/roadmap-loading*
+            artifacts/roadmap-desktop-home.png
+            /tmp/odyssey-preview.log
+          retention-days: 14
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

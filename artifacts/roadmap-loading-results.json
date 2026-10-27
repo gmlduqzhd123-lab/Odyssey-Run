@@ -1,0 +1,11 @@
+{
+  "checkedAt": "2026-10-27T01:43:58.660Z",
+  "browser": "154.0.8037.57",
+  "environment": "Linux Chromium 1280x800 desktop; real rendering/network, file failure injected; no service worker",
+  "result": {
+    "requiredFileFailureRecoverable": true,
+    "cancelledPreparationDoesNotReopen": true,
+    "legacyCorePreserved": true
+  },
+  "errors": []
+}

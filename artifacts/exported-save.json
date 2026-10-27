@@ -6,6 +6,23 @@
     "sfx": false,
     "reducedMotion": false
   },
+  "preferences": {
+    "quality": "auto",
+    "touch": {
+      "size": 80,
+      "bottom": 0,
+      "inset": 0,
+      "opacity": 0.85,
+      "swapped": false
+    },
+    "cape": "classic",
+    "emblem": "plain",
+    "sail": "plain"
+  },
+  "expeditions": {
+    "bosses": {},
+    "daily": []
+  },
   "tutorialSeen": true,
   "lastStage": "wind",
   "stages": {
@@ -43,7 +60,7 @@
       ]
     }
   },
-  "savedAt": "2026-10-26T13:59:31.063Z",
+  "savedAt": "2026-10-27T01:43:38.133Z",
   "journal": {
     "stamps": [
       "beach-maps",

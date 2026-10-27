@@ -3,7 +3,7 @@ import {mkdir,writeFile} from 'node:fs/promises';
 import {routeInputs} from './check-routes';
 import {STAGES,COURSES} from '../src/levels/courses';
 import {MONSTER_ART} from '../src/assets/expansion-art';
-const base=process.env.QA_URL||'http://localhost:5173/';
+const base=process.env.QA_URL||'http://localhost:4176/Odyssey-Run/';
 await mkdir('artifacts',{recursive:true});
 const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',args:['--no-sandbox']});
 const ctx=await browser.newContext({viewport:{width:960,height:620},deviceScaleFactor:Number(process.env.QA_DPR||1),acceptDownloads:true});

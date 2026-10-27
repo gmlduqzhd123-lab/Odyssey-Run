@@ -65,5 +65,7 @@ test('import refuses invalid variant IDs, cross-stage maps, inflated scores and 
 });
 test('largest supported nine-course traces still fit the 64KiB import limit',()=>{
  let s=emptySave();for(const stage of STAGES)for(const v of VARIANTS){s=mergeResult(s,{stage,variant:v,complete:true,score:4200,rating:3,stars:100,maps:[1,2,3].map(i=>`${stage}-map-${i}`),hpLoss:0,distance:C.length,adventure:{stamps:[],stories:[],constellations:[],combos:[],routes:[],nearMisses:0,evaded:0,tricked:0,ghost:{score:4200,duration:511,samples:Array.from({length:512},(_,i)=>Math.min(24000,i*320))}}});}
+ for(const stage of STAGES)s.expeditions.bosses[stage]={complete:true,bestScore:1460,bestRating:2,bestStars:0};
+ s.expeditions.daily=Array.from({length:14},(_,i)=>({date:`2026-10-${String(i+1).padStart(2,'0')}`,complete:true,bestScore:4200,bestRating:3,bestStars:100}));
  assert.deepEqual(validateSave(s),s);assert.ok(Buffer.byteLength(JSON.stringify(s),'utf8')<65536);
 });

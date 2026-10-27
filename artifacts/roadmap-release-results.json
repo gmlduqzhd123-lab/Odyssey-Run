@@ -1,0 +1,109 @@
+{
+  "url": "http://localhost:4176/Odyssey-Run/",
+  "checkedAt": "2026-10-27T01:35:25.052Z",
+  "browser": "154.0.8037.57",
+  "environment": "Linux chromium; mobile 844x390 DPR2 emulation, actual input events + virtual clock; no physical device",
+  "results": [
+    {
+      "homeDeferredGameplay": true
+    },
+    {
+      "normal": "beach",
+      "record": {
+        "complete": true,
+        "bestScore": 4150,
+        "bestRating": 3,
+        "bestStars": 95,
+        "maps": [
+          "beach-map-1",
+          "beach-map-3",
+          "beach-map-2"
+        ]
+      }
+    },
+    {
+      "normal": "cave",
+      "record": {
+        "complete": true,
+        "bestScore": 4080,
+        "bestRating": 3,
+        "bestStars": 88,
+        "maps": [
+          "cave-map-1",
+          "cave-map-2",
+          "cave-map-3"
+        ]
+      }
+    },
+    {
+      "normal": "wind",
+      "record": {
+        "complete": true,
+        "bestScore": 4080,
+        "bestRating": 3,
+        "bestStars": 88,
+        "maps": [
+          "wind-map-1",
+          "wind-map-2",
+          "wind-map-3"
+        ]
+      }
+    },
+    {
+      "boss": "beach",
+      "record": {
+        "complete": true,
+        "bestScore": 1460,
+        "bestStars": 0,
+        "bestRating": 2
+      }
+    },
+    {
+      "boss": "cave",
+      "record": {
+        "complete": true,
+        "bestScore": 1460,
+        "bestStars": 0,
+        "bestRating": 2
+      }
+    },
+    {
+      "boss": "wind",
+      "record": {
+        "complete": true,
+        "bestScore": 1460,
+        "bestStars": 0,
+        "bestRating": 2
+      }
+    },
+    {
+      "daily": {
+        "date": "2026-10-27",
+        "stage": "beach",
+        "variant": "remix-b",
+        "rule": "clean",
+        "name": "상처 없이 귀환",
+        "description": "완주할 때까지 HP 손실 0회를 지켜요. 사과 회복으로 피해 이력을 지울 수 없어요."
+      },
+      "record": [
+        {
+          "complete": true,
+          "bestScore": 4150,
+          "bestStars": 95,
+          "bestRating": 3,
+          "date": "2026-10-27"
+        }
+      ]
+    },
+    {
+      "touchLayout": true,
+      "graphics": true,
+      "rotation": true,
+      "damageHints": true,
+      "isolatedRecords": true,
+      "saveRestore": true
+    }
+  ],
+  "errors": [],
+  "failures": []
+}

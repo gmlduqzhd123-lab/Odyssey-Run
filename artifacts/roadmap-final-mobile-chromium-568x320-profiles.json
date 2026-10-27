@@ -1,0 +1,16 @@
+{
+  "url": "http://localhost:4176/Odyssey-Run/",
+  "browser": "154.0.8037.57",
+  "results": [
+    {
+      "width": 568,
+      "height": 320,
+      "dpr": 2,
+      "startTouchable": true,
+      "multiTouchOutsideCancel": true,
+      "pagehidePauses": true,
+      "resizeRotationTouch": true,
+      "retry": true
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+import type {DamageEvent,DamageKind} from '../systems/damage';
 import {ADVENTURE_PLANS,ADVENTURE_BALANCE,GOALS,type GoalId,type ComboId} from '../levels/adventure';
 import {GHOST_SECONDS} from '../storage/journal';
 import {C} from '../config';
@@ -17,8 +18,8 @@ export class Runner {
  trident=false;lantern=0;defeated=new Set<string>();readonly enemyStates:EnemyState[];
  readonly adventure;goal:GoalId;constellations=new Set<string>();stories=new Set<string>();combos=new Set<ComboId>();routes=new Set<string>();nearMisses=new Set<string>();evaded=new Set<string>();tricked=new Set<string>();highlightSeen=false;message='';
  private activeCombos=new Set<ComboId>();private contacts=new Set<string>();private closePasses=new Set<string>();private passed=new Set<string>();private spentShots=new Set<string>();private shotHeights=new Map<string,number>();trace:number[]=[0];
- safeX=0;recovering=0;stars=0;maps=new Set<string>();collected=new Set<string>();events:RunnerEvent[]=[];private finalized:RunResult|null=null;private hitbox:Rect={x:-21,y:376,w:42,h:64};
- constructor(readonly stage:StageId,goal:GoalId='maps',readonly variant:VariantId='classic',course=getCourse(stage,variant)){this.goal=goal;this.course=course;this.adventure=course.adventure??ADVENTURE_PLANS[stage];this.enemyStates=this.course.enemies.map(createEnemyState);this.updateEnemies();}
+ damageLog:DamageEvent[]=[];safeX=0;recovering=0;stars=0;maps=new Set<string>();collected=new Set<string>();events:RunnerEvent[]=[];private finalized:RunResult|null=null;private hitbox:Rect={x:-21,y:376,w:42,h:64};
+ constructor(readonly stage:StageId,goal:GoalId='maps',readonly variant:VariantId='classic',course=getCourse(stage,variant),readonly rule:'none'|'no-shield'='none'){this.goal=goal;this.course=course;this.adventure=course.adventure??ADVENTURE_PLANS[stage];this.enemyStates=this.course.enemies.map(createEnemyState);this.updateEnemies();}
  private updateEnemies(){this.enemyStates.forEach((s,i)=>{
   updateEnemyState(s,this.course.enemies[i],this.x,this.time,this.lantern>0,this.defeated.has(s.id));
   if(s.kind==='cyclops'&&s.projectile.active){if(!this.shotHeights.has(s.id))this.shotHeights.set(s.id,Math.max(140,Math.min(372,this.y-68)));s.projectile.y=this.shotHeights.get(s.id)!;if(this.spentShots.has(s.id))s.projectile.active=false;}
@@ -41,19 +42,20 @@ export class Runner {
   this.collected.add(item.id);
   if(item.kind==='star')this.stars++;
   if(item.kind==='map')this.maps.add(item.id);
-  if(item.kind==='shield')this.shield=true;
+  if(item.kind==='shield'&&this.rule!=='no-shield')this.shield=true;
   if(item.kind==='wings')this.wings=C.effect;
   if(item.kind==='magnet')this.magnet=C.effect;
   if(item.kind==='apple')this.hp=Math.min(3,this.hp+1);
   if(item.kind==='trident')this.trident=true;
   if(item.kind==='lantern')this.lantern=C.effect;
   if(item.kind==='compass'&&item.checkpoint!==undefined&&this.x>=item.checkpoint)this.safeX=Math.max(this.safeX,item.checkpoint);
+  if(item.kind==='shield'&&this.rule==='no-shield')return;
   this.emit(item.kind);
  }
- hurt(fall=false){
+ hurt(fall=false,kind:DamageKind=fall?'fall':'contact'){
   if(this.state!=='playing'||(!fall&&this.invincible>0))return;
   if(!fall&&this.shield){this.shield=false;this.emit('block');}
-  else{this.hp--;this.hpLoss++;this.emit(fall?'fall':'hurt');}
+  else{this.hp--;this.hpLoss++;this.damageLog.push({kind,x:this.x,time:this.time});if(this.damageLog.length>12)this.damageLog.shift();this.emit(fall?'fall':'hurt');}
   this.invincible=C.invincible;
  }
  tick(dt:number=C.step){
@@ -79,7 +81,7 @@ export class Runner {
   this.grounded=false;
   if(this.vy>=0&&this.y>=floor){this.y=floor;this.vy=0;this.grounded=true;this.jumps=0;this.coyote=C.coyote;this.sliding=this.slideHeld||(this.sliding&&!this.canStand());this.tryJump();}
   if(!this.grounded&&this.coyote===0&&this.jumps===0)this.jumps=1;
-  this.maxDistance=Math.min(C.length,Math.max(this.maxDistance,this.x));
+  this.maxDistance=Math.min(this.length,Math.max(this.maxDistance,this.x));
   if(this.grounded&&!this.sliding&&this.y===C.ground){for(const x of this.course.safe)if(this.x>=x&&x>this.safeX)this.safeX=x;}
   const pose=heroPose(this),body=this.body;
   for(const item of this.course.items){
@@ -90,15 +92,15 @@ export class Runner {
   this.updateEnemies();
   for(const source of this.enemyStates){if(!source.projectile.active)continue;for(const target of this.enemyStates){if(target.id===source.id||!target.active||target.kind!=='stone'||!overlap(source.projectile,target))continue;this.defeated.add(target.id);target.defeated=true;target.active=false;source.projectile.active=false;this.spentShots.add(source.id);this.tricked.add(target.id);this.message='거인의 바위로 석상병 격파!';this.emit('trick');break;}}
   if(this.trident){const target=this.enemyStates.find(s=>!s.defeated&&(s.active||s.projectile.active)&&Math.hypot(s.x+s.w/2-this.x,s.y+s.h/2-(this.y-32))<(this.lantern>0?ADVENTURE_BALANCE.guardianRange:200));if(target){this.defeated.add(target.id);target.defeated=true;target.active=false;target.projectile.active=false;this.trident=false;this.message=this.lantern>0?'빛의 삼지창으로 격퇴!':'삼지창으로 격퇴!';this.emit('strike');}}
-  for(const o of this.course.obstacles){if(overlap(this.body,o)){this.contacts.add(o.id);this.hurt();}this.observePass(o.id,o,false);}
-  for(const enemy of this.enemyStates){if(enemyContact(pose,body,enemy)||projectileContact(pose,body,enemy.projectile)){this.contacts.add(enemy.id);this.hurt();}if(!enemy.defeated&&!enemy.repelled)this.observePass(enemy.id,enemy,true);}
+  for(const o of this.course.obstacles){if(overlap(this.body,o)){this.contacts.add(o.id);this.hurt(false,o.kind);}this.observePass(o.id,o,false);}
+  for(const enemy of this.enemyStates){if(enemyContact(pose,body,enemy)||projectileContact(pose,body,enemy.projectile)){this.contacts.add(enemy.id);this.hurt(false,projectileContact(pose,body,enemy.projectile)?'projectile':enemy.kind);}if(!enemy.defeated&&!enemy.repelled)this.observePass(enemy.id,enemy,true);}
   if(this.y>C.fallBoundary&&this.recovering<=0){
    this.hurt(true);
    if(this.hp>0){this.x=this.safeX;this.y=C.ground;this.vy=0;this.grounded=true;this.jumps=0;this.sliding=false;this.recovering=.35;this.clearInput();this.updateEnemies();}
   }
   while(this.trace.length<=Math.floor(Math.min(GHOST_SECONDS,this.time)))this.trace.push(Math.floor(this.maxDistance));
   if(this.hp<=0){this.state='failure';this.clearInput();}
-  else if(this.x>=C.length&&this.y<=C.fallBoundary&&this.recovering<=0){this.state='success';this.clearInput();this.emit('finish');}
+  else if(this.x>=this.length&&this.y<=C.fallBoundary&&this.recovering<=0){this.state='success';this.clearInput();this.emit('finish');}
  }
  private observePass(id:string,rect:Rect,enemy:boolean){
   const body=this.body;
@@ -116,6 +118,7 @@ export class Runner {
  }
  get goalProgress(){return this.goal==='maps'?this.maps.size:this.goal==='dodge'?this.evaded.size:this.goal==='sky'?this.constellations.size:this.stories.size;}
  get goalComplete(){return this.goalProgress>=GOALS[this.goal].target;}
+ get length(){return this.course.length??C.length;}
  get points(){return score(this.maxDistance,this.stars,this.maps.size,this.state==='success');}
  result():RunResult {
   if(this.finalized)return this.finalized;

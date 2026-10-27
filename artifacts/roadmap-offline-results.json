@@ -1,0 +1,21 @@
+{
+  "url": "http://localhost:4176/Odyssey-Run/",
+  "checkedAt": "2026-10-27T01:43:01.417Z",
+  "browser": "154.0.8037.57",
+  "environment": "Linux Chromium, mobile emulation, actual service worker and CacheStorage; context offline mode + virtual game clock; no physical device",
+  "downloadedAll": true,
+  "evictionDetected": true,
+  "results": [
+    {
+      "offlineComplete": "beach"
+    },
+    {
+      "offlineComplete": "cave"
+    },
+    {
+      "offlineComplete": "wind"
+    }
+  ],
+  "errors": [],
+  "failures": []
+}

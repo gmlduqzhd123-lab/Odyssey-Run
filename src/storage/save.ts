@@ -1,3 +1,6 @@
+import {cosmeticUnlocked} from '../systems/cosmetics';
+import {emptyExpeditions,readExpeditions,type Expeditions} from './expeditions';
+import {defaultPreferences,readPreferences,type Preferences} from './preferences';
 import {emptyJournal,validateJournal,validateGhost,type Ghost,type Journal,type AdventureResult} from './journal';
 import {MAX_SCORE} from '../config';
 import {STAGES,type StageId} from '../levels/courses';
@@ -5,11 +8,11 @@ import {VARIANTS,courseKey,isVariant,type CourseKey,type VariantId} from '../lev
 export interface Settings {music:boolean;sfx:boolean;reducedMotion:boolean;}
 export interface RecordData {complete:boolean;bestScore:number;bestRating:number;bestStars:number;maps:string[];}
 export interface CourseRecord extends RecordData {ghost?:Ghost;}
-export interface Save {schemaVersion:1;contentVersion:1;settings:Settings;tutorialSeen:boolean;lastStage:StageId;stages:Record<StageId,RecordData>;savedAt:string;journal:Journal;courses:Partial<Record<CourseKey,CourseRecord>>;}
+export interface Save {schemaVersion:1;contentVersion:1;settings:Settings;preferences:Preferences;expeditions:Expeditions;tutorialSeen:boolean;lastStage:StageId;stages:Record<StageId,RecordData>;savedAt:string;journal:Journal;courses:Partial<Record<CourseKey,CourseRecord>>;}
 export const SAVE_KEY=`odyssey-run:${new URL(import.meta.env?.BASE_URL||'./',typeof location==='undefined'?'http://local/':location.href).pathname}:save`;
 export const BACKUP_KEY=SAVE_KEY+':backup';
 const emptyRecord=():RecordData=>({complete:false,bestScore:0,bestRating:0,bestStars:0,maps:[]});
-export const emptySave=():Save=>({schemaVersion:1,contentVersion:1,settings:{music:true,sfx:true,reducedMotion:false},tutorialSeen:false,lastStage:'beach',stages:{beach:emptyRecord(),cave:emptyRecord(),wind:emptyRecord()},savedAt:new Date().toISOString(),journal:emptyJournal(),courses:{}});
+export const emptySave=():Save=>({schemaVersion:1,contentVersion:1,settings:{music:true,sfx:true,reducedMotion:false},preferences:defaultPreferences(),expeditions:emptyExpeditions(),tutorialSeen:false,lastStage:'beach',stages:{beach:emptyRecord(),cave:emptyRecord(),wind:emptyRecord()},savedAt:new Date().toISOString(),journal:emptyJournal(),courses:{}});
 const obj=(v:unknown):Record<string,unknown>=>{if(!v||typeof v!=='object'||Array.isArray(v))throw Error('기록 형식을 확인해 주세요.');return v as Record<string,unknown>;};
 const bool=(v:unknown)=>{if(typeof v!=='boolean')throw Error('설정과 완료 여부가 올바르지 않아요.');return v;};
 const integer=(v:unknown,max:number)=>{if(typeof v!=='number'||!Number.isSafeInteger(v)||v<0||v>max)throw Error('점수·별빛·평점 범위를 확인해 주세요.');return v;};
@@ -26,6 +29,7 @@ export function validateSave(raw:unknown):Save {
  const s=obj(v.settings); const stages=obj(v.stages); const out=emptySave();
  if(Object.keys(stages).some(id=>!STAGES.includes(id as StageId)))throw Error('알 수 없는 섬이 포함돼 있어요.');
  out.settings={music:bool(s.music),sfx:bool(s.sfx),reducedMotion:bool(s.reducedMotion)};
+ out.preferences=readPreferences(v.preferences);out.expeditions=readExpeditions(v.expeditions);
  out.tutorialSeen=bool(v.tutorialSeen);
  if(!STAGES.includes(v.lastStage as StageId))throw Error('최근 섬 정보가 올바르지 않아요.'); out.lastStage=v.lastStage as StageId;
  if(typeof v.savedAt!=='string'||v.savedAt.length>40||!Number.isFinite(Date.parse(v.savedAt)))throw Error('저장 시각이 올바르지 않아요.');out.savedAt=v.savedAt;
@@ -34,6 +38,7 @@ export function validateSave(raw:unknown):Save {
   if(i>0&&(record.complete||record.bestScore>0||record.bestStars>0||record.maps.length>0)&&!out.stages[STAGES[i-1]].complete)throw Error('앞선 섬을 먼저 완주한 기록이 필요해요.');
   out.stages[id]=record;
  });
+ for(const id of STAGES)if(out.expeditions.bosses[id]&&!out.stages[id].complete)throw Error('보스 도전은 해당 섬 완주 후 기록할 수 있어요.');
  const index=STAGES.indexOf(out.lastStage); if(index>0&&!out.stages[STAGES[index-1]].complete)throw Error('최근 섬이 아직 잠겨 있어요.');
  out.journal=validateJournal(v.journal,Object.fromEntries(STAGES.map(id=>[id,out.stages[id].bestScore])));
  for(const id of [...out.journal.stamps,...out.journal.stories,...out.journal.constellations,...out.journal.routes,...Object.keys(out.journal.ghosts)]){const stage=id.split('-')[0] as StageId;if(!unlocked(out,stage))throw Error('모험 수첩에 아직 잠긴 섬의 발견이 있어요.');}
@@ -49,6 +54,7 @@ export function validateSave(raw:unknown):Save {
    const value=obj(raw);out.courses[courseKey(id,variant)]={...r,...(value.ghost===undefined?{}:{ghost:validateGhost(value.ghost,r.bestScore)})};
   }
  }
+ for(const id of [out.preferences.cape,out.preferences.emblem,out.preferences.sail])if(!cosmeticUnlocked(out,id))throw Error('아직 열리지 않은 외형이 선택돼 있어요.');
  return out;
 }
 export interface RunResult {stage:StageId;variant?:VariantId;complete:boolean;score:number;rating:number;stars:number;maps:string[];hpLoss:number;distance:number;adventure?:AdventureResult;}
