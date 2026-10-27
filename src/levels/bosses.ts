@@ -44,6 +44,7 @@ function build(stage: StageId): Course {
     ...base,
     name: BOSSES[stage].name,
     length: BOSS_LENGTH,
+    mode: 'boss',
     adventure: plan,
     routeName: BOSSES[stage].name,
     items: [],

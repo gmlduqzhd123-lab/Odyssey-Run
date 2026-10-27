@@ -427,7 +427,7 @@ export class Runner {
     return this.course.length ?? C.length;
   }
   get points() {
-    return score(this.maxDistance, this.stars, this.maps.size, this.state === 'success');
+    return score(this.maxDistance, this.stars, this.maps.size, this.state === 'success', this.length);
   }
   result(): RunResult {
     if (this.finalized) return this.finalized;

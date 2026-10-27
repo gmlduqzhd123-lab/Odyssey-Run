@@ -2722,3 +2722,19 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* Endless voyage */
+.endless-section > .eyebrow,
+.endless-section > h2,
+.endless-section > p {
+  margin-left: 5%;
+  margin-right: 5%;
+}
+.endless-section > h2 {
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+.endless-section > p {
+  font-size: 14px;
+  margin-bottom: 18px;
+}

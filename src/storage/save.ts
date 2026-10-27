@@ -4,6 +4,7 @@ import {defaultPreferences, readPreferences, type Preferences} from './preferenc
 import {emptyJournal, validateJournal, validateGhost, type Ghost, type Journal, type AdventureResult} from './journal';
 import {MAX_SCORE} from '../config';
 import {quizIds} from '../levels/quiz';
+import {endlessLength, ENDLESS_SECTIONS} from '../levels/endless';
 import {STAGES, type StageId} from '../levels/courses';
 import {VARIANTS, courseKey, isVariant, type CourseKey, type VariantId} from '../levels/course-ids';
 export interface Settings {
@@ -35,6 +36,12 @@ export interface Save {
   courses: Partial<Record<CourseKey, CourseRecord>>;
   // Myth questions answered correctly at least once.
   quiz: string[];
+  // Endless voyage bests, kept apart from course records and unlocks.
+  endless: Partial<Record<StageId, EndlessRecord>>;
+}
+export interface EndlessRecord {
+  bestScore: number;
+  bestDistance: number;
 }
 export const SAVE_KEY = `odyssey-run:${new URL(import.meta.env?.BASE_URL || './', typeof location === 'undefined' ? 'http://local/' : location.href).pathname}:save`;
 export const BACKUP_KEY = SAVE_KEY + ':backup';
@@ -52,6 +59,7 @@ export const emptySave = (): Save => ({
   journal: emptyJournal(),
   courses: {},
   quiz: [],
+  endless: {},
 });
 const obj = (v: unknown): Record<string, unknown> => {
   if (!v || typeof v !== 'object' || Array.isArray(v)) throw Error('기록 형식을 확인해 주세요.');
@@ -183,6 +191,18 @@ export function validateSave(raw: unknown): Save {
     )
       throw Error('신화 퀴즈 기록을 확인해 주세요.');
     out.quiz = [...v.quiz];
+  }
+  if (v.endless !== undefined) {
+    const e = obj(v.endless);
+    for (const [id, raw] of Object.entries(e)) {
+      if (!STAGES.includes(id as StageId) || !out.stages[id as StageId].complete)
+        throw Error('끝없는 항해는 해당 섬을 완주한 뒤에 기록할 수 있어요.');
+      const r = obj(raw),
+        bestDistance = integer(r.bestDistance, endlessLength()),
+        bestScore = integer(r.bestScore, Math.floor(endlessLength() / 10) + 100 * 10 * ENDLESS_SECTIONS);
+      if (bestScore < Math.floor(bestDistance / 10)) throw Error('끝없는 항해의 점수와 거리가 맞지 않아요.');
+      out.endless[id as StageId] = {bestScore, bestDistance};
+    }
   }
   return out;
 }

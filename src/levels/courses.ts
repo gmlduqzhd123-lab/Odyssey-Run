@@ -33,6 +33,8 @@ export interface Platform {
 export interface Course {
   id: StageId;
   length?: number;
+  // Boss and endless courses change captions, scoring length and the harbor ending.
+  mode?: 'boss' | 'endless';
   variant?: VariantId;
   routeName?: string;
   adventure?: AdventurePlan;

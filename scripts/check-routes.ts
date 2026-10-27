@@ -22,8 +22,8 @@ export function routeInputs(
     } else jumps.push(o.x - 110);
   });
   c.gaps.forEach(g => jumps.push(g.x - 95, g.x + 10));
-  const map = c.items.find(i => i.id === `${id}-map-2`)!;
-  jumps.push(map.x - 180, map.x - 90);
+  const map = c.items.find(i => i.id === `${id}-map-2`);
+  if (map) jumps.push(map.x - 180, map.x - 90);
   const slides = c.obstacles
     .filter(o => o.kind === 'gate' || o.kind === 'hand')
     .map(o => ({start: o.x - 70, end: o.x + o.w + 70}));

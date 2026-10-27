@@ -19,6 +19,8 @@ import {
   type RivalLink,
 } from '../systems/share';
 import {Contests, newContestId, rank, type Entry} from '../storage/contests';
+import {buildEndless, sectionsPassed, ENDLESS_SECTIONS} from '../levels/endless';
+import type {Course} from '../levels/courses';
 import {harborArt, harborUnlocks, harborRequirements, journalCards} from './adventure-view';
 import Phaser from 'phaser';
 import {C} from '../config';
@@ -86,7 +88,8 @@ export class App {
   );
   private displayObserver: ResizeObserver;
   private daily: DailySpec | null = null;
-  private special: 'boss' | 'daily' | 'contest' | null = null;
+  private special: 'boss' | 'daily' | 'contest' | 'endless' | null = null;
+  private endless: {course: Course; date: string} | null = null;
   private contests: Contests;
   private contest: ContestLink | null = null;
   private loadRequest = 0;
@@ -329,6 +332,50 @@ export class App {
     this.set(
       `<div class="veil"><section class="panel"><span class="eyebrow">CLASS CONTEST</span><h1 tabindex="-1">${esc(link.title)}</h1><p>${this.contestRules(link)}</p><p>항해사 <b>${esc(this.profiles.active.name)}</b> · 몇 번이든 다시 달릴 수 있고, 가장 좋은 기록을 보여 줄 수 있어요.</p>${button('start', '출발 →', 'primary large')}${button('home', '그만두기', 'secondary')}</section></div>`,
       'prepare',
+    );
+  }
+  private endlessCards() {
+    return `<section class="endless-section"><span class="eyebrow">ENDLESS VOYAGE</span><h2>끝없는 항해</h2><p>섬의 여섯 구간이 날마다 다른 순서로 이어져요. 체력이 다할 때까지 얼마나 멀리 갈 수 있을까요? 지도는 나오지 않고 일반 기록과 따로 남겨요.</p><div class="trial-grid">${STAGES.map(
+      id => {
+        const open = this.store.data.stages[id].complete,
+          r = this.store.data.endless[id];
+        return `<section class="trial-card"><h2>${COURSES[id].name}</h2><p>${r ? `최고 ${Math.floor(r.bestDistance / 10).toLocaleString()}m · ${sectionsPassed(r.bestDistance)}구간 · ${r.bestScore.toLocaleString()}점` : '아직 기록 전'}</p>${button('endless:' + id, open ? '끝없는 항해 출발' : '해당 섬 완주 후 열려요', 'primary', open ? '' : 'disabled')}</section>`;
+      },
+    ).join('')}</div></section>`;
+  }
+  private async prepareEndless(id: StageId) {
+    if (!this.store.data.stages[id].complete) {
+      this.challenges();
+      return;
+    }
+    const date = dailySpec().date;
+    await this.prepare(id);
+    if (this.screen !== 'prepare' || this.selected !== id) return;
+    this.special = 'endless';
+    this.endless = {course: buildEndless(id, `${date}:${id}`), date};
+    const best = this.store.data.endless[id];
+    this.set(
+      `<div class="veil"><section class="panel"><span class="eyebrow">ENDLESS VOYAGE · ${date}</span><h1 tabindex="-1">끝없는 ${COURSES[id].name}</h1><p>여섯 구간이 오늘의 순서로 최대 ${ENDLESS_SECTIONS}번 이어져요. 오늘은 모두 같은 순서를 달려요.</p><p>체력 3 · 사과로 회복 · 지도 없음${best ? ` · 나의 최고 ${Math.floor(best.bestDistance / 10).toLocaleString()}m` : ''}</p>${button('start', '출발 →', 'primary large')}${button('challenges', '돌아가기', 'secondary')}</section></div>`,
+      'prepare',
+    );
+  }
+  private finishEndless() {
+    const r = this.result!,
+      id = r.stage,
+      old = this.store.data.endless[id];
+    this.sound.setPlaying(false);
+    this.controls.clear();
+    const record = {
+      bestScore: Math.max(old?.bestScore ?? 0, r.score),
+      bestDistance: Math.max(old?.bestDistance ?? 0, Math.floor(r.distance)),
+    };
+    this.store.data.endless[id] = record;
+    this.store.persist();
+    const meters = Math.floor(r.distance / 10),
+      fresh = !old || r.distance > old.bestDistance;
+    this.set(
+      `<div class="veil"><section class="panel result special-result"><span class="eyebrow">ENDLESS VOYAGE · ${this.endless!.date}</span><h1 tabindex="-1">${r.complete ? '끝까지 항해했어요!' : fresh ? '새로운 최고 거리!' : '다시, 더 멀리!'}</h1><p>${COURSES[id].name}</p><div class="result-score"><span>이번 항해</span><strong>${meters.toLocaleString()}m</strong><small>${sectionsPassed(r.distance)}구간 · ${r.score.toLocaleString()}점 · 별빛 ${r.stars}</small></div><p>나의 최고 ${Math.floor(record.bestDistance / 10).toLocaleString()}m · ${record.bestScore.toLocaleString()}점</p>${this.damageSummary()}<p class="muted">일반 최고 기록·지도·섬 해금에는 반영하지 않아요.</p><div class="button-row">${button('restart', '다시 출발', 'primary')}${button('challenges', '특별 항해', 'secondary')}${button('home', '시작 화면', 'secondary')}</div>${button('quiz', '신화 퀴즈 한 문제', 'text-button')}</section></div>`,
+      'result',
     );
   }
   private finishContest() {
@@ -602,7 +649,11 @@ export class App {
       this.selected,
       this.selectedGoal,
       this.selectedVariant,
-      this.special === 'boss' ? BOSS_COURSES[this.selected] : undefined,
+      this.special === 'boss'
+        ? BOSS_COURSES[this.selected]
+        : this.special === 'endless' && this.endless
+          ? this.endless.course
+          : undefined,
       this.special === 'daily' && this.daily?.rule === 'no-shield' ? 'no-shield' : 'none',
     );
     this.run.autoSlide = this.assist().autoSlide;
@@ -624,7 +675,7 @@ export class App {
     ].filter(Boolean);
   }
   private hud() {
-    return `<div class="play-ui" tabindex="-1" role="group" aria-label="게임 조작" data-one-button="${this.assist().autoSlide}"><div class="hud"><div class="hp-block"><span class="hud-caption">오디세우스</span><strong id="hp" aria-label="체력 3"></strong></div><div class="route-progress"><span>${this.special === 'boss' ? BOSSES[this.selected].name : this.special === 'daily' ? '오늘의 항해 · ' + this.daily!.name : this.special === 'contest' ? '대회 · ' + esc(this.contest!.title) : COURSES[this.selected].name + ' · ' + VARIANT_LABELS[this.selected][this.selectedVariant].name}</span><progress id="progress" data-course="${this.selected}/${this.selectedVariant}" max="24000" value="0" aria-label="섬 진행률"></progress><i id="ghost-marker" hidden aria-label="비교 항해 위치"></i><small id="progress-label">0%</small></div><div class="score-block"><span class="hud-caption">SCORE</span><strong id="score">0</strong></div><div class="hud-actions">${button('fullscreen', '⛶', 'fullscreen-button', 'aria-label="전체 화면 전환"')}${button('pause', 'Ⅱ', 'pause-button', 'aria-label="일시정지"')}</div></div><div class="run-details"><span id="stars">✦ 0 / 100</span><span id="maps">지도 0 / 3</span><span id="effects"></span>${this.assistLabel().length ? `<span class="assist-chip">쉬운 항해 · ${this.assistLabel().join(' · ')}</span>` : ''}</div><div class="adventure-hud"><span id="goal-progress"></span><span id="ghost-delta"></span><span id="discovery-progress"></span></div><div class="touch-controls"><button data-control="slide" class="control slide" aria-label="슬라이드, 누르고 유지"><span>⇣</span><b>슬라이드</b><small>↓ 누르기</small></button><button data-control="jump" class="control jump" aria-label="점프, 공중에서 다시 누르면 2단 점프"><span>↟</span><b>점프</b><small>Space / ↑</small></button></div></div>`;
+    return `<div class="play-ui" tabindex="-1" role="group" aria-label="게임 조작" data-one-button="${this.assist().autoSlide}"><div class="hud"><div class="hp-block"><span class="hud-caption">오디세우스</span><strong id="hp" aria-label="체력 3"></strong></div><div class="route-progress"><span>${this.special === 'boss' ? BOSSES[this.selected].name : this.special === 'daily' ? '오늘의 항해 · ' + this.daily!.name : this.special === 'contest' ? '대회 · ' + esc(this.contest!.title) : this.special === 'endless' ? '끝없는 항해 · ' + COURSES[this.selected].name : COURSES[this.selected].name + ' · ' + VARIANT_LABELS[this.selected][this.selectedVariant].name}</span><progress id="progress" data-course="${this.selected}/${this.selectedVariant}" max="24000" value="0" aria-label="섬 진행률"></progress><i id="ghost-marker" hidden aria-label="비교 항해 위치"></i><small id="progress-label">0%</small></div><div class="score-block"><span class="hud-caption">SCORE</span><strong id="score">0</strong></div><div class="hud-actions">${button('fullscreen', '⛶', 'fullscreen-button', 'aria-label="전체 화면 전환"')}${button('pause', 'Ⅱ', 'pause-button', 'aria-label="일시정지"')}</div></div><div class="run-details"><span id="stars">✦ 0 / 100</span><span id="maps">지도 0 / 3</span><span id="effects"></span>${this.assistLabel().length ? `<span class="assist-chip">쉬운 항해 · ${this.assistLabel().join(' · ')}</span>` : ''}</div><div class="adventure-hud"><span id="goal-progress"></span><span id="ghost-delta"></span><span id="discovery-progress"></span></div><div class="touch-controls"><button data-control="slide" class="control slide" aria-label="슬라이드, 누르고 유지"><span>⇣</span><b>슬라이드</b><small>↓ 누르기</small></button><button data-control="jump" class="control jump" aria-label="점프, 공중에서 다시 누르면 2단 점프"><span>↟</span><b>점프</b><small>Space / ↑</small></button></div></div>`;
   }
   private beginCountdown() {
     this.countdown = 3;
@@ -739,7 +790,7 @@ export class App {
         },
       ).join(
         '',
-      )}</div>${this.dailyCard()}<section class="daily-card"><span class="eyebrow">FOR TEACHERS</span><h2>교사용 대회</h2><p>코스를 정해 QR로 학생을 초대하고, 결과 QR을 찍어 순위를 모아요.</p>${button('contests', '대회 열기·순위 보기', 'secondary')}</section></div>`,
+      )}</div>${this.endlessCards()}${this.dailyCard()}<section class="daily-card"><span class="eyebrow">FOR TEACHERS</span><h2>교사용 대회</h2><p>코스를 정해 QR로 학생을 초대하고, 결과 QR을 찍어 순위를 모아요.</p>${button('contests', '대회 열기·순위 보기', 'secondary')}</section></div>`,
       'challenges',
     );
   }
@@ -776,6 +827,10 @@ export class App {
   private finishSpecial() {
     if (this.special === 'contest') {
       this.finishContest();
+      return;
+    }
+    if (this.special === 'endless') {
+      this.finishEndless();
       return;
     }
     const r = this.result!,
@@ -1211,6 +1266,11 @@ export class App {
       }
       return;
     }
+    if (action.startsWith('endless:')) {
+      const id = action.slice(8) as StageId;
+      if (STAGES.includes(id)) void this.prepareEndless(id);
+      return;
+    }
     if (action.startsWith('boss:')) {
       const id = action.slice(5) as StageId;
       if (STAGES.includes(id)) void this.prepareBoss(id);
@@ -1490,7 +1550,14 @@ export class App {
     hp.setAttribute('aria-label', `체력 ${Math.max(0, r.hp)}`);
     this.setText('#score', r.points.toLocaleString());
     this.setText('#stars', `✦ ${r.stars} / 100`);
-    this.setText('#maps', this.special === 'boss' ? '⚔ 3단계 돌파' : `지도 ${r.maps.size} / 3`);
+    this.setText(
+      '#maps',
+      this.special === 'boss'
+        ? '⚔ 3단계 돌파'
+        : this.special === 'endless'
+          ? `∞ ${sectionsPassed(r.maxDistance)}구간`
+          : `지도 ${r.maps.size} / 3`,
+    );
     const g = GOALS[r.goal];
     this.setText(
       '#goal-progress',
@@ -1499,7 +1566,9 @@ export class App {
           ? '⚔ 보스 도전 · 예고를 읽어요'
           : this.special === 'contest'
             ? `⚑ 대회 · ${this.contest!.title}`
-            : `◇ 오늘의 항해 · ${this.daily!.name}`
+            : this.special === 'endless'
+              ? `∞ 끝없는 항해 · ${this.endless!.date} 순서`
+              : `◇ 오늘의 항해 · ${this.daily!.name}`
         : `${r.goalComplete ? '✓' : '◇'} ${g.name} ${Math.min(g.target, r.goalProgress)}/${g.target}`,
     );
     this.setText('#discovery-progress', `✧ 별자리 ${r.constellations.size}/3 · 회피 ${r.nearMisses.size}`);

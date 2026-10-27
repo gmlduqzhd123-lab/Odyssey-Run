@@ -538,7 +538,7 @@ export class World extends Phaser.Scene {
             : r.x < 2100
               ? 'Space / ↑ · 점프, 한 번 더 누르면 2단 점프'
               : '↓ 꾹 누르기 · 슬라이드';
-    } else if (r.x > 22400) {
+    } else if (r.x > 22400 && r.course.mode !== 'endless') {
       captionX = 650;
       caption = this.stage === 'wind' ? '이타카 항구가 보여요!' : '도착 항구가 보여요!';
       this.boat
@@ -555,7 +555,7 @@ export class World extends Phaser.Scene {
       captionX = 620;
       caption = '↑ 높은 길: 별자리와 이야기 · 아래: 안전한 길';
     }
-    if (r.course.length) {
+    if (r.course.mode === 'boss') {
       captionX = 576;
       captionY = 210;
       caption = BOSSES[r.stage].phases[bossPhase(r.stage, r.x)];
