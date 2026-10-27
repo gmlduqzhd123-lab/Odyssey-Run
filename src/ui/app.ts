@@ -45,6 +45,7 @@ import {isVariant, type VariantId} from '../levels/course-ids';
 import {Controls} from '../input/controls';
 import {Sound} from '../systems/audio';
 import {vibrate} from '../systems/haptics';
+import {Scanner, toCsv} from '../systems/scanner';
 import {World} from '../scenes/World';
 import {assetUrl, PEOPLE, RELICS, STAGE_RELIC} from '../assets/catalog';
 import {ART_SHEETS, STAGE_VIEW, regionArt, sheetUrl} from '../assets/terrain';
@@ -274,6 +275,7 @@ export class App {
   }
   private set(html: string, screen: string) {
     this.importRequest++;
+    this.stopScanner();
     this.screen = screen;
     document.querySelector<HTMLElement>('#app')!.dataset.screen = screen;
     this.controls.clear();
@@ -461,18 +463,89 @@ export class App {
           )
         : '';
     this.set(
-      `<div class="page contest-board">${this.header(esc(c.title), 'contests')}<div class="contest-layout"><section class="contest-join-box"><h1 tabindex="-1">${esc(c.title)}</h1><p>${this.contestRules(c)}</p>${join ? `<div class="qr-box" role="img" aria-label="대회 참가 QR 코드">${qrSvg(join)}</div><p class="muted">학생은 카메라로 찍어 참가해요.</p><label class="share-url">참가 링크 <input id="share-url" readonly value="${esc(join)}"></label>${button('share-copy', '참가 링크 복사', 'secondary')}<p role="status" id="share-status"></p>` : '<p class="muted">결과만 모으는 순위표예요. 대회를 만든 기기에서 참가 QR을 띄워 주세요.</p>'}</section><section class="class-board"><h2>순위 <small>${c.entries.length}명</small></h2><p role="status" id="contest-message">${esc(message)}</p><ol>${rank(
-        c.entries,
-      )
-        .map(
-          (e, i) =>
-            `<li><span class="rank">${i + 1}</span><b>${esc(e.name)}</b><span>${e.score.toLocaleString()}점</span><span>${e.complete ? '⚑ 완주' : '도전'}</span><span>별빛 ${e.stars}</span><span>HP 손실 ${e.hpLoss}</span></li>`,
-        )
-        .join(
-          '',
-        )}</ol><label>결과 코드 붙여넣기 <input id="contest-code" autocomplete="off"></label><div class="button-row">${button('contest-paste', '결과 추가', 'secondary')}${button('contest-clear:' + c.id, '순위 비우기', 'text-button')}${button('contest-delete:' + c.id, '대회 지우기', 'text-button danger')}</div></section></div></div>`,
+      `<div class="page contest-board">${this.header(esc(c.title), 'contests')}<div class="contest-layout"><section class="contest-join-box"><h1 tabindex="-1">${esc(c.title)}</h1><p>${this.contestRules(c)}</p>${join ? `<div class="qr-box" role="img" aria-label="대회 참가 QR 코드">${qrSvg(join)}</div><p class="muted">학생은 카메라로 찍어 참가해요.</p><label class="share-url">참가 링크 <input id="share-url" readonly value="${esc(join)}"></label>${button('share-copy', '참가 링크 복사', 'secondary')}<p role="status" id="share-status"></p>` : '<p class="muted">결과만 모으는 순위표예요. 대회를 만든 기기에서 참가 QR을 띄워 주세요.</p>'}</section><section class="class-board"><h2>순위 <small id="board-count">${c.entries.length}명</small></h2><p role="status" id="contest-message">${esc(message)}</p><div class="scanner" hidden><video aria-label="결과 QR 카메라"></video><p role="status" id="scan-status">결과 QR을 카메라에 비춰 주세요. 여러 장을 차례로 찍을 수 있어요.</p></div><div class="button-row">${button('contest-scan:' + c.id, '📷 결과 QR 연속 찍기', 'primary')}${button('contest-csv:' + c.id, '순위 CSV 내보내기', 'secondary')}</div><ol id="board-list">${this.boardRows(c.entries)}</ol><label>결과 코드 붙여넣기 <input id="contest-code" autocomplete="off"></label><div class="button-row">${button('contest-paste', '결과 추가', 'secondary')}${button('contest-clear:' + c.id, '순위 비우기', 'text-button')}${button('contest-delete:' + c.id, '대회 지우기', 'text-button danger')}</div></section></div></div>`,
       'contest-board',
     );
+  }
+  private boardRows(entries: Entry[]) {
+    return rank(entries)
+      .map(
+        (e, i) =>
+          `<li><span class="rank">${i + 1}</span><b translate="no">${esc(e.name)}</b><span>${e.score.toLocaleString()}점</span><span>${e.complete ? '⚑ 완주' : '도전'}</span><span>별빛 ${e.stars}</span><span>HP 손실 ${e.hpLoss}</span></li>`,
+      )
+      .join('');
+  }
+  private scanner: Scanner | null = null;
+  private stopScanner() {
+    this.scanner?.stop();
+    this.scanner = null;
+  }
+  // Keeps the camera open and adds each scanned result in place, without re-rendering the page.
+  private async toggleScanner(id: string) {
+    const box = this.ui.querySelector<HTMLElement>('.scanner'),
+      status = this.ui.querySelector('#scan-status'),
+      toggle = this.ui.querySelector(`[data-action="contest-scan:${id}"]`);
+    if (!box || !status || !toggle) return;
+    if (this.scanner) {
+      this.stopScanner();
+      box.hidden = true;
+      toggle.textContent = translate('📷 결과 QR 연속 찍기');
+      return;
+    }
+    const say = (text: string) => (status.textContent = translate(text));
+    box.hidden = false;
+    toggle.textContent = translate('카메라 끄기');
+    const scanner = new Scanner(box.querySelector('video')!, text => {
+      let link;
+      try {
+        link = parseLinkText(text);
+      } catch (error) {
+        say((error as Error).message);
+        return;
+      }
+      if (link?.kind !== 'result') {
+        say('학생 결과 화면의 결과 QR을 찍어 주세요.');
+        return;
+      }
+      const {contest, added} = this.contests.add(link);
+      vibrate('map', this.store.data.preferences.haptics);
+      if (contest.id !== id) {
+        say(`다른 대회(${contest.title})의 결과라 그 순위표에 넣었어요.`);
+        return;
+      }
+      say(added ? `‘${link.name}’ ${link.score.toLocaleString()}점을 넣었어요.` : '순위표가 가득 찼어요(최대 인원).');
+      const list = this.ui.querySelector('#board-list'),
+        count = this.ui.querySelector('#board-count');
+      if (list) list.innerHTML = this.boardRows(contest.entries);
+      if (count) count.textContent = translate(`${contest.entries.length}명`);
+    });
+    this.scanner = scanner;
+    try {
+      await scanner.start();
+    } catch (error) {
+      if (this.scanner === scanner) this.stopScanner();
+      box.hidden = false;
+      say((error as Error).message);
+      toggle.textContent = translate('📷 결과 QR 연속 찍기');
+    }
+  }
+  private contestCsv(id: string) {
+    const c = this.contests.find(id);
+    if (!c) return;
+    const rows: (string | number)[][] = [
+      ['순위', '이름', '점수', '완주', '별빛', '지도', 'HP 손실', '시간(초)'].map(h => translate(h)),
+      ...rank(c.entries).map((e, i) => [
+        i + 1,
+        e.name,
+        e.score,
+        e.complete ? 'O' : 'X',
+        e.stars,
+        e.maps,
+        e.hpLoss,
+        e.time,
+      ]),
+    ];
+    this.download(toCsv(rows), `odyssey-run-contest-${c.id}.csv`, 'text/csv;charset=utf-8');
   }
   private contestAction(kind: string, id = '') {
     const say = (text: string) => {
@@ -488,6 +561,8 @@ export class App {
       const c = this.contests.host({id: newContestId(), title: title.slice(0, 12), stage, variant, assist});
       this.contestBoard(c.id, '대회를 만들었어요. 참가 QR을 띄워 주세요.');
     } else if (kind === 'open') this.contestBoard(id);
+    else if (kind === 'scan') void this.toggleScanner(id);
+    else if (kind === 'csv') this.contestCsv(id);
     else if (kind === 'paste') {
       try {
         const link = parseLinkText(this.ui.querySelector<HTMLInputElement>('#contest-code')?.value ?? '');
@@ -1206,8 +1281,8 @@ export class App {
       'offline',
     );
   }
-  private download(data: string, filename: string) {
-    const url = URL.createObjectURL(new Blob([data], {type: 'application/json;charset=utf-8'}));
+  private download(data: string, filename: string, type = 'application/json;charset=utf-8') {
+    const url = URL.createObjectURL(new Blob([data], {type}));
     const a = document.createElement('a');
     a.href = url;
     a.download = filename;
