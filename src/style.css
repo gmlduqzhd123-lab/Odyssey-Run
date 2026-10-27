@@ -2776,3 +2776,122 @@ body {
   background: #102f46;
   object-fit: cover;
 }
+
+/* Home layout: the top bar, the copy with the hero caption, and the bottom menu stack in rows,
+   so text never runs under the menu whatever the font (Windows, macOS and ChromeOS fonts differ
+   in size) or window height. When everything cannot fit, the home page scrolls instead. */
+.home {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: minmax(14%, auto) 1fr auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.home > .topbar {
+  grid-column: 1 / -1;
+  height: auto;
+}
+.home-copy {
+  position: relative;
+  z-index: 1;
+  grid-row: 2;
+  grid-column: 1;
+  top: auto;
+  left: auto;
+  width: auto;
+  max-width: 52cqw;
+  align-self: center;
+  margin: 2.5cqw 0 2.5cqw max(6.4cqw, env(safe-area-inset-left));
+}
+.hero-caption {
+  position: relative;
+  z-index: 1;
+  grid-row: 2;
+  grid-column: 2;
+  top: auto;
+  right: auto;
+  width: 25cqw;
+  align-self: start;
+  margin: 5cqw max(9cqw, env(safe-area-inset-right)) 0 2cqw;
+  text-align: center;
+  line-height: 1.35;
+}
+.home-bottom {
+  position: relative;
+  z-index: 1;
+  grid-row: 3;
+  grid-column: 1 / -1;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  height: auto;
+  min-height: 44px;
+  margin: 0 max(4.4cqw, env(safe-area-inset-right)) calc(1.6cqw + env(safe-area-inset-bottom))
+    max(4.4cqw, env(safe-area-inset-left));
+  padding-top: 6px;
+  row-gap: 4px;
+}
+.home-status {
+  line-height: 1.5;
+}
+@media (orientation: landscape) and (max-height: 420px) {
+  .home-copy {
+    margin-top: 6px;
+    margin-bottom: 6px;
+    max-width: 58cqw;
+  }
+  .hero-caption {
+    margin-top: 2cqw;
+  }
+  .home-bottom {
+    height: auto;
+    margin-bottom: env(safe-area-inset-bottom);
+  }
+}
+@media (orientation: portrait) and (max-width: 700px) {
+  .home {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .home-copy {
+    max-width: none;
+    margin: 24px 7%;
+    align-self: start;
+  }
+}
+
+/* Artwork cards: picture above, words below (a button lays its children out in a row). */
+.sheet-card {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+}
+/* Island names may wrap on narrow cards instead of running out of them. */
+.card-copy h2 {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+.home h1 {
+  line-height: 1.2;
+}
+.home h1 span {
+  margin-top: 0.06em;
+}
+/* The floating credit sits under the home menu only; other pages scroll under no overlay and
+   show the same credit at the end of the settings page. */
+#app:not([data-screen='home']) > footer {
+  display: none;
+}
+#app[data-screen='home'] .home-bottom {
+  margin-bottom: calc(26px + env(safe-area-inset-bottom));
+}
+.settings-credit {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #6b7e73;
+}
+.settings-credit a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
