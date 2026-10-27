@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   build:
-    timeout-minutes: 20
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -37,6 +37,69 @@ jobs:
             echo "PAGES_BASE=/$repository_name/" >> "$GITHUB_ENV"
           fi
       - run: npm run build
+      - name: Keep the built site for the browser checks
+        uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: dist
+          retention-days: 3
+      - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request'
+        with:
+          path: dist
+  # Browser checks run side by side against the same build; deploy waits for all of them.
+  browser:
+    needs: build
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - suite: structures
+            run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:structures
+          - suite: release
+            run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:release
+          - suite: offline
+            run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:offline
+          - suite: i18n
+            run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:i18n
+          - suite: classroom
+            run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:classroom
+          - suite: loading-update
+            run: npm run test:loading && npm run test:update
+          # Clipped or overlapping text on every menu screen at classroom window sizes.
+          - suite: layout-ko-empty
+            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=ko QA_SAVES=empty npm run test:layout
+          - suite: layout-ko-played
+            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=ko QA_SAVES=played npm run test:layout
+          - suite: layout-en-empty
+            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=en QA_SAVES=empty npm run test:layout
+          - suite: layout-en-played
+            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=en QA_SAVES=played npm run test:layout
+    name: browser (${{ matrix.suite }})
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: site
+          path: dist
+      - name: Derive the actual Pages base
+        shell: bash
+        run: |
+          repository_name="${GITHUB_REPOSITORY#*/}"
+          repository_lower="${repository_name,,}"
+          owner_lower="${GITHUB_REPOSITORY_OWNER,,}"
+          if [[ "$repository_lower" == "$owner_lower.github.io" ]]; then
+            echo 'PAGES_BASE=/' >> "$GITHUB_ENV"
+          else
+            echo "PAGES_BASE=/$repository_name/" >> "$GITHUB_ENV"
+          fi
       - name: Install browser test runtime
         run: npx playwright install --with-deps chromium
       - name: Serve the built repository subpath
@@ -48,25 +111,14 @@ jobs:
           done
           cat /tmp/odyssey-preview.log
           exit 1
-        env:
-          PAGES_BASE: ${{ env.PAGES_BASE }}
-      - name: Verify safe structures and hazardous contact on PC and mobile
-        run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:structures
-      - name: Verify mobile play, bosses, daily challenges and save restore
-        run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:release
-      - name: Verify downloaded islands with network offline
-        run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:offline
-      - name: Verify every screen in English
-        run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:i18n
-      - name: Verify asset failure recovery and legacy saves
-        run: npm run test:loading
-      - name: Verify safe multi-tab updates and interrupted downloads
-        run: npm run test:update
+      - name: Run the ${{ matrix.suite }} browser check
+        run: ${{ matrix.run }}
       - name: Preserve browser evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: browser-qa
+          name: browser-qa-${{ matrix.suite }}
+          if-no-files-found: ignore
           path: |
             artifacts/structures-*
             artifacts/roadmap-chromium-*
@@ -77,10 +129,6 @@ jobs:
             artifacts/i18n-results.json
             /tmp/odyssey-preview.log
           retention-days: 14
-      - uses: actions/upload-pages-artifact@v3
-        if: github.event_name != 'pull_request'
-        with:
-          path: dist
   deploy:
     if: github.event_name != 'pull_request'
     concurrency:
@@ -90,7 +138,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build, browser]
     steps:
       - uses: actions/configure-pages@v5
       - name: Deploy to GitHub Pages

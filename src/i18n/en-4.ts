@@ -294,4 +294,30 @@ export const EN_4: Record<string, string> = {
   별빛: 'Starlight',
   'HP 손실': 'HP lost',
   '시간(초)': 'Time (s)',
+  '이 기기에 반 기록이 있어요. 설정 → 반 전체 내보내기로 백업 파일을 만들어 두세요.':
+    'This device holds class records. Make a backup file with Settings → Export whole class.',
+  '반 전체 백업을 한 지 {n}일이 지났어요. 설정 → 반 전체 내보내기로 기록을 지켜 주세요.':
+    'It has been {n} days since the last whole-class backup. Protect the records with Settings → Export whole class.',
+  '마지막 반 전체 백업': 'Last whole-class backup',
+  '아직 없음': 'none yet',
+  오늘: 'today',
+  '{n}일 전': '{n} days ago',
+  '저장 공간이 부족하거나 오래 열지 않으면 브라우저가 기록을 지울 수 있어요.':
+    'The browser may clear records when storage runs low or the game is not opened for a long time.',
+  '이 브라우저는 기록을 지우지 않도록 보호하고 있어요.': 'This browser is protecting the records from being cleared.',
+  '아이폰·아이패드는 공유 → 홈 화면에 추가로 설치해야 오래 열지 않아도 기록이 남아요.':
+    'On iPhone and iPad, install with Share → Add to Home Screen so records stay even when the game is not opened for a while.',
+  '기록 보호 요청': 'Ask to protect records',
+  '이 브라우저가 기록을 지우지 않도록 보호해요.': 'This browser will now protect the records from being cleared.',
+  '브라우저가 보호 요청을 받아들이지 않았어요. 반 전체 백업을 자주 해 주세요.':
+    "The browser didn't accept the request. Please make whole-class backups often.",
+  '확인 필요': 'Check needed',
+  '점수가 별빛·지도·완주 보너스와 맞지 않아요': "The score doesn't match the starlight, maps and finish bonus",
+  '완주 기록인데 거리 점수가 모자라요': 'Marked finished but the distance points are short',
+  '달린 시간에 비해 거리가 너무 길어요': 'Too much distance for the time run',
+  빼기: 'Remove',
+  '‘{x}’ 기록 빼기': 'Remove ‘{x}’',
+  '‘{x}’ 기록을 뺐어요. 다시 찍으면 다시 들어가요.': 'Removed ‘{x}’. Scanning it again adds it back.',
+  '화면이 끊겨서 그래픽을 가볍게 바꿨어요. 설정 → 그래픽 품질에서 바꿀 수 있어요.':
+    'The screen was stuttering, so graphics switched to light. You can change it in Settings → Graphics quality.',
 };

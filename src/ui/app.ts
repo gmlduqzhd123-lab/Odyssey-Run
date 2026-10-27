@@ -20,6 +20,15 @@ import {
   type RivalLink,
 } from '../systems/share';
 import {Contests, newContestId, type Entry} from '../storage/contests';
+import {
+  backupAge,
+  backupReminder,
+  iosBrowserTab,
+  markBackup,
+  protection,
+  requestProtection,
+  type Protection,
+} from '../storage/durability';
 import {classBackup, readClassBackup, restoreClass, CLASS_BACKUP_LIMIT, type ClassBackup} from '../storage/backup';
 import {buildEndless, sectionsPassed, ENDLESS_SECTIONS} from '../levels/endless';
 import type {Course} from '../levels/courses';
@@ -51,18 +60,22 @@ import {
   type Save,
   type RunResult,
   type Settings,
+  SAVE_KEY,
 } from '../storage/save';
 import {VARIANTS, VARIANT_LABELS} from '../levels/variants';
 import {isVariant, type VariantId} from '../levels/course-ids';
 import {Controls} from '../input/controls';
 import {Sound} from '../systems/audio';
 import {vibrate} from '../systems/haptics';
+import {classPreviewMarkup, importPreviewMarkup, settingToggle, settingsMarkup} from './settings-view';
 import {BoardScanner, boardMarkup, contestCsv, contestsMarkup} from './contest-view';
 import {World} from '../scenes/World';
 import {assetUrl, STAGE_RELIC} from '../assets/catalog';
 import {STAGE_VIEW, regionArt} from '../assets/terrain';
 import {displayDensity, displayViewport} from '../rendering/display';
+import {FrameWatch} from '../rendering/frame-watch';
 const asset = assetUrl;
+const SLOW_KEY = SAVE_KEY + ':slow-device';
 export class App {
   private ui = document.querySelector<HTMLDivElement>('#ui')!;
   private store: SaveStore;
@@ -110,6 +123,10 @@ export class App {
   private quizReturn = 'islands';
   private rival: RivalLink | null = null;
   private pendingLink = '';
+  private protectionState: Protection = 'unsupported';
+  private protectionAsked = false;
+  private reminded = false;
+  private frameWatch = new FrameWatch();
   constructor() {
     let storage: Storage | null = null;
     try {
@@ -122,6 +139,7 @@ export class App {
     observe(...roots);
     document.title = translate(document.title);
     this.pendingLink = this.takeLink();
+    void protection().then(p => (this.protectionState = p));
     // A link opened in a tab that already runs the game only changes the fragment.
     window.addEventListener(
       'hashchange',
@@ -141,7 +159,7 @@ export class App {
       document.querySelector('#shell')!.clientWidth,
       devicePixelRatio,
       document.querySelector('#shell')!.clientHeight,
-      this.store.data.preferences.quality,
+      this.quality(),
     );
     this.selected = this.store.data.lastStage;
     this.sound = new Sound(() => this.store.data.settings);
@@ -502,6 +520,10 @@ export class App {
       } catch (error) {
         say((error as Error).message);
       }
+    } else if (kind === 'drop') {
+      const [contest, name] = id.split('/');
+      this.contests.drop(contest, decodeURIComponent(name ?? ''));
+      this.contestBoard(contest, `‘${decodeURIComponent(name ?? '')}’ 기록을 뺐어요. 다시 찍으면 다시 들어가요.`);
     } else if (kind === 'clear') {
       this.contests.clear(id);
       this.contestBoard(id, '순위를 비웠어요.');
@@ -589,6 +611,14 @@ export class App {
       `<div class="home">${this.header('ODYSSEY RUN', 'home')}<div class="home-copy"><span class="eyebrow"><i></i> 작은 영웅의 긴 귀환</span><h1 tabindex="-1">오디세이 런<span>이타카로!</span></h1><p>별자리를 잇고, 숨은 이야기를 찾고,<br>우리만의 항구를 완성하러 떠나요.</p><div class="home-actions">${button('islands', '항해 시작 <span>↗</span>', 'primary large')}${button('codex', icon('map') + ' 지도 도감', 'secondary')}</div><div class="home-status">${done ? '⚑ 귀환 완료 · ' : ''}도장 ${this.store.data.journal.stamps.length}/${stampIds.length} · 별자리 ${this.store.data.journal.constellations.length}/${constellationIds.length} · 이야기 ${this.store.data.journal.stories.length}/${storyIds.length}</div></div><div class="hero-caption"><span>ODYSSEUS</span><b>지혜로운 작은 영웅</b><i>“이번에는 꼭, 이타카로!”</i></div><div class="home-bottom">${button('challenges', '⚔ 특별 항해', 'text-button')}${button('wardrobe', '♧ 영웅의 옷장', 'text-button')}${button('harbor', '⚓ 나의 항구', 'text-button')}${button('journal', '✧ 모험 수첩', 'text-button')}${button('settings', '⚙ 설정', 'text-button')}${button('quit', '게임 종료', 'text-button')}</div></div>`,
       'home',
     );
+    if (!this.reminded) {
+      this.reminded = true;
+      const message = backupReminder(
+        this.storage,
+        this.profiles.book.list.length > 1 || this.contests.book.hosted.length > 0,
+      );
+      if (message) this.notice(message);
+    }
     this.game.loop.wake();
   }
   private islands() {
@@ -740,7 +770,7 @@ export class App {
     this.run.clearInput();
     this.set(
       this.hud() +
-        `<div class="veil"><section class="panel pause-panel"><span class="eyebrow">TAKE A BREATH</span><h1 tabindex="-1">잠깐, 쉬어 가요</h1><p>이타카는 기다려 줄 거예요.</p>${button('resume', '계속 달리기 →', 'primary large')}<div class="button-row">${button('restart', '다시 시작', 'secondary')}${button('islands', '섬 선택', 'secondary')}</div>${button('touch-layout', '터치 버튼 맞춤', 'secondary')}${button('quit', '게임 종료', 'text-button')}<div class="pause-sound">${this.settingToggle('music', '배경음')}${this.settingToggle('sfx', '효과음')}</div></section></div>`,
+        `<div class="veil"><section class="panel pause-panel"><span class="eyebrow">TAKE A BREATH</span><h1 tabindex="-1">잠깐, 쉬어 가요</h1><p>이타카는 기다려 줄 거예요.</p>${button('resume', '계속 달리기 →', 'primary large')}<div class="button-row">${button('restart', '다시 시작', 'secondary')}${button('islands', '섬 선택', 'secondary')}</div>${button('touch-layout', '터치 버튼 맞춤', 'secondary')}${button('quit', '게임 종료', 'text-button')}<div class="pause-sound">${settingToggle(this.store.data, 'music', '배경음')}${settingToggle(this.store.data, 'sfx', '효과음')}</div></section></div>`,
       'pause',
     );
     this.updateHud();
@@ -770,6 +800,7 @@ export class App {
     }
     this.store.data = mergeResult(this.store.data, this.result);
     this.store.persist();
+    this.protect();
     this.sound.setPlaying(false);
     this.controls.clear();
     const r = this.result,
@@ -1059,21 +1090,39 @@ export class App {
       'story',
     );
   }
-  private settingToggle(key: keyof Settings, label: string) {
-    return `<label class="toggle"><span>${label}</span><input type="checkbox" data-setting="${key}" ${this.store.data.settings[key] ? 'checked' : ''}><i aria-hidden="true"></i></label>`;
+  private protect() {
+    if (this.protectionAsked || this.protectionState === 'persisted') return;
+    this.protectionAsked = true;
+    void requestProtection().then(p => (this.protectionState = p));
+  }
+  private protectionLine() {
+    const age = backupAge(this.storage),
+      last = age === null ? '아직 없음' : age === 0 ? '오늘' : `${age}일 전`;
+    return [
+      `마지막 반 전체 백업: ${last}`,
+      this.protectionState === 'persisted'
+        ? '이 브라우저는 기록을 지우지 않도록 보호하고 있어요.'
+        : '저장 공간이 부족하거나 오래 열지 않으면 브라우저가 기록을 지울 수 있어요.',
+      iosBrowserTab() ? '아이폰·아이패드는 공유 → 홈 화면에 추가로 설치해야 오래 열지 않아도 기록이 남아요.' : '',
+    ]
+      .filter(Boolean)
+      .join(' · ');
   }
   private settings() {
     // Sub-pages of settings (touch layout, offline, import, reset) keep the original way back.
     if (!['settings', 'touch-layout', 'offline', 'import', 'reset', 'class-import'].includes(this.screen))
       this.returnScreen = this.screen === 'islands' ? 'islands' : 'home';
     this.set(
-      `<div class="page settings">${this.header('설정', this.returnScreen)}<div class="settings-layout"><div class="page-heading"><span class="eyebrow">MAKE IT YOUR JOURNEY</span><h1 tabindex="-1">나의 항해 설정</h1><p>기록은 이 기기와 브라우저에 저장돼요.<br>기록 파일로 옮길 수 있어요.</p><div class="save-note">계정 없이, 이 브라우저에만 저장해요.<br>다른 기기와 자동으로 동기화되지는 않아요.</div></div><div class="settings-body"><section><h2>소리와 움직임</h2>${this.settingToggle('music', '배경음')}${this.settingToggle('sfx', '효과음')}${this.settingToggle('reducedMotion', '움직임 줄이기')}<small>기본 배경은 고정돼 있어요. 켜면 장식 무늬와 바람 표시를 더 줄여요. 달리기·점프와 위험 신호는 유지돼요.</small><label class="toggle"><span>진동 (지원하는 휴대폰)</span><input type="checkbox" data-haptics ${this.store.data.preferences.haptics ? 'checked' : ''}><i aria-hidden="true"></i></label><small>피격·추락·지도 획득·완주 때 짧게 진동해요. 아이폰 사파리는 진동을 지원하지 않아요.</small></section>${this.assistSettings()}<section><h2>화질과 조작</h2><label>그래픽 품질 <select id="quality"><option value="auto" ${this.store.data.preferences.quality === 'auto' ? 'selected' : ''}>자동</option><option value="high" ${this.store.data.preferences.quality === 'high' ? 'selected' : ''}>선명하게</option><option value="low" ${this.store.data.preferences.quality === 'low' ? 'selected' : ''}>가볍게</option></select></label><p class="muted">가볍게는 그림 해상도만 줄여요. 시야·달리기·점프·판정은 같아요.</p>${button('touch-layout', '터치 버튼 맞춤', 'secondary')}</section><section><h2>오프라인과 업데이트</h2>${button('offline', '섬 다운로드·업데이트', 'secondary')}<p class="muted">다운로드한 섬은 오프라인에서도 시작할 수 있어요. 새 버전은 항해를 끝낸 뒤 적용해요.</p></section><section><h2>기록 보관함</h2><div class="backup-row">${button('export', icon('map') + ' 기록 내보내기', 'secondary')}<label class="button secondary file-button">기록 가져오기<input id="import-file" type="file" accept="application/json,.json" aria-label="JSON 기록 파일 가져오기"></label></div><p class="muted">UTF-8 JSON · 최대 64KiB · 복원 전 내용을 확인해요.</p>${this.store.blocked ? button('original', '보존된 원본 내려받기', 'text-button') : ''}${button('reset-confirm', '이 게임의 기록 초기화', 'danger text-button')}</section><section class="class-backup"><h2>반 전체 백업</h2><div class="backup-row">${button('class-export', '반 전체 내보내기', 'secondary')}<label class="button secondary file-button">반 전체 가져오기<input id="class-import" type="file" accept="application/json,.json" aria-label="반 전체 백업 파일 가져오기"></label></div><p class="muted">모든 항해사의 기록과 대회 순위를 한 파일로 저장해요. 가져오면 이 기기의 기록과 합쳐요. 지우지 않아요.</p></section><div id="import-error" role="alert"></div></div></div></div>`,
+      settingsMarkup({
+        header: this.header('설정', this.returnScreen),
+        save: this.store.data,
+        assist: this.assist(),
+        blocked: this.store.blocked,
+        protection: this.protectionLine(),
+        canAskProtection: this.protectionState === 'best-effort',
+      }),
       'settings',
     );
-  }
-  private assistSettings() {
-    const a = this.assist();
-    return `<section class="assist-settings"><h2>쉬운 항해</h2><label>게임 속도 <select data-assist="pace">${PACES.map(p => `<option value="${p}" ${a.pace === p ? 'selected' : ''}>${p === 1 ? '보통 (1배)' : p + '배'}</option>`).join('')}</select></label><label class="toggle"><span>슬라이드 한 번 눌러 유지</span><input type="checkbox" data-assist="slideToggle" ${a.slideToggle ? 'checked' : ''}><i aria-hidden="true"></i></label><label class="toggle"><span>버튼 하나로 항해 (자동 슬라이드)</span><input type="checkbox" data-assist="autoSlide" ${a.autoSlide ? 'checked' : ''}><i aria-hidden="true"></i></label><small>느리게 하면 시간 전체가 함께 느려져 점프 거리와 판정은 그대로예요. 점수 계산도 같아요. 슬라이드 토글은 다시 누르거나 점프하면 일어서요. 버튼 하나 모드는 낮은 문 앞에서 저절로 숙여요.</small></section>`;
   }
   private applyLayout() {
     const t = this.store.data.preferences.touch,
@@ -1173,6 +1222,12 @@ export class App {
     if (input.id === 'quality') {
       this.store.data.preferences.quality = input.value as Quality;
       this.store.persist();
+      // Choosing "auto" again gives this device a fresh chance at the sharper renderer.
+      if (input.value === 'auto')
+        try {
+          this.storage?.removeItem(SLOW_KEY);
+          this.frameWatch = new FrameWatch();
+        } catch {}
       this.resizeDisplay();
       this.notice();
       return;
@@ -1208,61 +1263,55 @@ export class App {
       this.notice();
       return;
     }
-    if (input.id === 'class-import' && input.files?.[0]) {
-      const box = this.ui.querySelector('#import-error');
+    if (input.id === 'class-import' && input.files?.[0]) void this.readClassFile(input, input.files[0]);
+    else if (input.id === 'import-file' && input.files?.[0]) void this.readSaveFile(input, input.files[0]);
+  }
+  private async readClassFile(input: HTMLInputElement, file: File) {
+    const box = this.ui.querySelector('#import-error');
+    try {
+      if (file.size > CLASS_BACKUP_LIMIT) throw Error('반 전체 백업 파일은 4MB 이하여야 해요.');
+      let raw: unknown;
       try {
-        const file = input.files[0];
-        if (file.size > CLASS_BACKUP_LIMIT) throw Error('반 전체 백업 파일은 4MB 이하여야 해요.');
-        let raw: unknown;
-        try {
-          raw = JSON.parse(await file.text());
-        } catch {
-          throw Error('JSON 파일을 읽을 수 없어요. 올바른 기록 파일을 선택해 주세요.');
-        }
-        if (this.screen !== 'settings') return;
-        this.classImport = readClassBackup(raw);
-        this.classPreview();
-      } catch (error) {
-        if (box) box.textContent = (error as Error).message;
-      } finally {
-        input.value = '';
+        raw = JSON.parse(await file.text());
+      } catch {
+        throw Error('JSON 파일을 읽을 수 없어요. 올바른 기록 파일을 선택해 주세요.');
       }
-      return;
+      if (this.screen !== 'settings') return;
+      this.classImport = readClassBackup(raw);
+      this.classPreview();
+    } catch (error) {
+      if (box) box.textContent = (error as Error).message;
+    } finally {
+      input.value = '';
     }
-    if (input.id === 'import-file' && input.files?.[0]) {
-      const request = ++this.importRequest;
-      const active = () =>
-        !this.destroyed && request === this.importRequest && this.screen === 'settings' && input.isConnected;
+  }
+  private async readSaveFile(input: HTMLInputElement, file: File) {
+    const request = ++this.importRequest;
+    const active = () =>
+      !this.destroyed && request === this.importRequest && this.screen === 'settings' && input.isConnected;
+    try {
+      if (file.size > 65536) throw Error('기록 파일은 64KiB 이하여야 해요.');
+      const text = await file.text();
+      if (!active()) return;
+      let raw: unknown;
       try {
-        const file = input.files[0];
-        if (file.size > 65536) throw Error('기록 파일은 64KiB 이하여야 해요.');
-        const text = await file.text();
-        if (!active()) return;
-        let raw: unknown;
-        try {
-          raw = JSON.parse(text);
-        } catch {
-          throw Error('JSON 파일을 읽을 수 없어요. 올바른 기록 파일을 선택해 주세요.');
-        }
-        this.imported = validateSave(raw);
-        this.importPreview();
-      } catch (error) {
-        if (active()) {
-          const box = this.ui.querySelector('#import-error');
-          if (box) box.textContent = (error as Error).message;
-        }
-      } finally {
-        if (active()) input.value = '';
+        raw = JSON.parse(text);
+      } catch {
+        throw Error('JSON 파일을 읽을 수 없어요. 올바른 기록 파일을 선택해 주세요.');
       }
+      this.imported = validateSave(raw);
+      this.importPreview();
+    } catch (error) {
+      if (active()) {
+        const box = this.ui.querySelector('#import-error');
+        if (box) box.textContent = (error as Error).message;
+      }
+    } finally {
+      if (active()) input.value = '';
     }
   }
   private classPreview() {
-    const b = this.classImport!,
-      known = new Set(this.profiles.book.list.map(p => p.id));
-    this.set(
-      `<div class="veil"><section class="panel"><span class="eyebrow">RESTORE YOUR CLASS</span><h1 tabindex="-1">반 전체 기록을 합칠까요?</h1><p>항해사 ${b.profiles.list.length}명 · 대회 ${b.contests.hosted.length}개</p><div class="import-list">${b.profiles.list.map(p => `<p><b translate="no">${esc(p.name)}</b><span>${known.has(p.id) ? '합치기' : '새로 추가'}</span></p>`).join('')}</div><p class="muted">같은 항해사는 더 좋은 기록을 남기고, 대회 순위는 이름별 최고 기록을 남겨요. 이 기기의 기록은 지우지 않아요.</p><div class="button-row">${button('settings', '취소', 'secondary')}${button('class-import-confirm', '합쳐서 가져오기', 'primary')}</div></section></div>`,
-      'class-import',
-    );
+    this.set(classPreviewMarkup(this.classImport!, new Set(this.profiles.book.list.map(p => p.id))), 'class-import');
   }
   private classRestore() {
     if (this.screen !== 'class-import' || !this.classImport || !this.storage) return;
@@ -1279,11 +1328,7 @@ export class App {
     );
   }
   private importPreview() {
-    const s = this.imported!;
-    this.set(
-      `<div class="veil"><section class="panel"><span class="eyebrow">RESTORE YOUR JOURNEY</span><h1 tabindex="-1">이 기록으로 바꿀까요?</h1><p>완주한 섬 ${STAGES.filter(id => s.stages[id].complete).length}/${STAGES.length} · 지도 ${STAGES.reduce((a, id) => a + s.stages[id].maps.length, 0)}/${TOTAL_MAPS}</p><p class="muted">모험 도장 ${s.journal.stamps.length}/${stampIds.length} · 별자리 ${s.journal.constellations.length}/${constellationIds.length} · 이야기 ${s.journal.stories.length}/${storyIds.length}<br>완주한 코스 ${Object.values(s.courses).filter(r => r?.complete).length}/${STAGES.length * VARIANTS.length}</p><div class="import-list">${STAGES.map(id => `<p><b>${COURSES[id].name}</b><span>${s.stages[id].bestScore}점 / ${s.stages[id].bestRating}★ / 별빛 ${s.stages[id].bestStars}</span></p>`).join('')}</div><p class="muted">현재 진행과 설정을 교체해요.<br>교체 전 원본은 이 게임 전용 백업에 보관해요.</p><div class="button-row">${button('settings', '취소', 'secondary')}${button('import-confirm', '이 기록으로 복원', 'primary')}</div></section></div>`,
-      'import',
-    );
+    this.set(importPreviewMarkup(this.imported!), 'import');
   }
   private error() {
     this.sound.setPlaying(false);
@@ -1292,237 +1337,154 @@ export class App {
       'error',
     );
   }
-  private action(action: string) {
-    if (action.startsWith('download-stage:')) {
-      const id = action.slice(15) as StageId;
-      if (STAGES.includes(id)) void this.offline.download(id);
-      return;
-    }
-    if (action.startsWith('equip:')) {
-      const [, slot, id] = action.split(':'),
-        entry = COSMETICS.find(c => c.slot === slot && c.id === id);
-      if (entry && cosmeticUnlocked(this.store.data, id)) {
-        this.store.data.preferences[entry.slot] = entry.id as never;
-        this.store.persist();
-        this.wardrobe();
+  // Buttons carry "name" or "name:argument" in data-action. Routes with an argument come first.
+  private readonly argRoutes: [string, (arg: string) => void][] = [
+    ['download-stage:', id => STAGES.includes(id as StageId) && void this.offline.download(id as StageId)],
+    ['equip:', arg => this.equip(arg)],
+    ['endless:', id => STAGES.includes(id as StageId) && void this.prepareEndless(id as StageId)],
+    ['boss:', id => STAGES.includes(id as StageId) && void this.prepareBoss(id as StageId)],
+    ['discovery:', id => this.discovery(id)],
+    ['stage:', id => STAGES.includes(id as StageId) && void this.prepare(id as StageId)],
+    ['sheet:', id => this.sheet(id)],
+    ['person:', id => this.person(id)],
+    ['contest-', arg => this.contestAction(...(arg.split(':') as [string, string]))],
+    ['profile-', arg => this.profileAction(...(arg.split(':') as [string, string]))],
+    ['quiz-answer:', n => this.quizAnswer(Number(n))],
+    ['story:', n => this.story(Number(n))],
+  ];
+  private readonly routes: Record<string, () => void> = {
+    offline: () => {
+      this.offlinePage();
+      void this.offline.refresh();
+    },
+    'offline-refresh': () => void this.offline.refresh(),
+    update: () => void this.offline.update(),
+    wardrobe: () => this.wardrobe(),
+    quiz: () => this.quiz(),
+    share: () => this.screen === 'result' && this.sharePage(),
+    'share-copy': () => void this.shareAction('copy'),
+    'share-native': () => void this.shareAction('native'),
+    'rival-start': () => this.screen === 'rival' && void this.rivalStart(),
+    profiles: () => this.profilesPage(),
+    lang: () => {
+      if (['play', 'countdown', 'pause'].includes(this.screen)) return;
+      setLang(getLang() === 'en' ? 'ko' : 'en', this.storage);
+      location.reload();
+    },
+    contests: () => this.contestsPage(),
+    daily: () => void this.prepareDaily(),
+    challenges: () => this.challenges(),
+    journal: () => this.journal(),
+    harbor: () => this.harbor(),
+    quit: () => this.quit(),
+    'close-tab': () => {
+      try {
+        window.close();
+      } catch {}
+      this.notice('이 브라우저에서는 탭을 직접 닫아 주세요. 게임과 소리는 멈춰 있어요.');
+    },
+    'touch-layout': () => {
+      this.controlsReturn = this.screen === 'pause';
+      this.touchLayout();
+    },
+    'layout-save': () => {
+      this.store.persist();
+      this.notice();
+      this.closeLayout();
+    },
+    'layout-reset': () => {
+      this.store.data.preferences.touch = defaultPreferences().touch;
+      this.touchLayout();
+    },
+    fullscreen: () => void this.fullscreen(),
+    home: () => this.home(),
+    islands: () => this.islands(),
+    codex: () => this.codex(),
+    settings: () => this.settings(),
+    bestiary: () => this.bestiary(),
+    people: () => this.people(),
+    relics: () => this.relics(),
+    landscapes: () => this.landscapes(),
+    'sheet-zoom': () => this.sheetZoom(),
+    start: () => this.screen === 'prepare' && this.start(),
+    restart: () => ['pause', 'result', 'share'].includes(this.screen) && this.start(),
+    pause: () => this.pause(),
+    resume: () => this.screen === 'pause' && this.beginCountdown(),
+    export: () => this.export(),
+    original: () => {
+      try {
+        this.download(localStorage.getItem(this.store.key) || '', `odyssey-run-original.json`);
+      } catch {
+        this.notice('원본을 읽지 못했어요.');
       }
-      return;
-    }
-    if (action.startsWith('endless:')) {
-      const id = action.slice(8) as StageId;
-      if (STAGES.includes(id)) void this.prepareEndless(id);
-      return;
-    }
-    if (action.startsWith('boss:')) {
-      const id = action.slice(5) as StageId;
-      if (STAGES.includes(id)) void this.prepareBoss(id);
-      return;
-    }
-    if (action.startsWith('discovery:')) {
-      this.discovery(action.slice(10));
-      return;
-    }
-    if (action.startsWith('stage:')) {
-      const id = action.slice(6) as StageId;
-      if (STAGES.includes(id)) this.prepare(id);
-      return;
-    }
-    if (action.startsWith('sheet:')) {
-      this.sheet(action.slice(6));
-      return;
-    }
-    if (action.startsWith('person:')) {
-      this.person(action.slice(7));
-      return;
-    }
-    if (action.startsWith('contest-')) {
-      const [kind, id] = action.slice(8).split(':');
-      this.contestAction(kind, id);
-      return;
-    }
-    if (action.startsWith('profile-')) {
-      const [kind, id] = action.slice(8).split(':');
-      this.profileAction(kind, id);
-      return;
-    }
-    if (action.startsWith('quiz-answer:')) {
-      this.quizAnswer(Number(action.slice(12)));
-      return;
-    }
-    if (action.startsWith('story:')) {
-      this.story(Number(action.slice(6)));
-      return;
-    }
-    switch (action) {
-      case 'offline':
-        this.offlinePage();
-        void this.offline.refresh();
-        break;
-      case 'offline-refresh':
-        void this.offline.refresh();
-        break;
-      case 'update':
-        void this.offline.update();
-        break;
-      case 'wardrobe':
-        this.wardrobe();
-        break;
-      case 'quiz':
-        this.quiz();
-        break;
-      case 'share':
-        if (this.screen === 'result') this.sharePage();
-        break;
-      case 'share-copy':
-        void this.shareAction('copy');
-        break;
-      case 'share-native':
-        void this.shareAction('native');
-        break;
-      case 'rival-start':
-        if (this.screen === 'rival') void this.rivalStart();
-        break;
-      case 'profiles':
-        this.profilesPage();
-        break;
-      case 'lang':
-        if (['play', 'countdown', 'pause'].includes(this.screen)) break;
-        setLang(getLang() === 'en' ? 'ko' : 'en', this.storage);
-        location.reload();
-        break;
-      case 'contests':
-        this.contestsPage();
-        break;
-      case 'daily':
-        void this.prepareDaily();
-        break;
-      case 'challenges':
-        this.challenges();
-        break;
-      case 'journal':
-        this.journal();
-        break;
-      case 'harbor':
-        this.harbor();
-        break;
-      case 'quit':
-        this.quit();
-        break;
-      case 'close-tab':
-        try {
-          window.close();
-        } catch {}
-        this.notice('이 브라우저에서는 탭을 직접 닫아 주세요. 게임과 소리는 멈춰 있어요.');
-        break;
-      case 'touch-layout':
-        this.controlsReturn = this.screen === 'pause';
-        this.touchLayout();
-        break;
-      case 'layout-save':
-        this.store.persist();
-        this.notice();
-        this.closeLayout();
-        break;
-      case 'layout-reset':
-        this.store.data.preferences.touch = defaultPreferences().touch;
-        this.touchLayout();
-        break;
-      case 'fullscreen':
-        void this.fullscreen();
-        break;
-      case 'home':
-        this.home();
-        break;
-      case 'islands':
-        this.islands();
-        break;
-      case 'codex':
-        this.codex();
-        break;
-      case 'settings':
-        this.settings();
-        break;
-      case 'bestiary':
-        this.bestiary();
-        break;
-      case 'people':
-        this.people();
-        break;
-      case 'relics':
-        this.relics();
-        break;
-      case 'landscapes':
-        this.landscapes();
-        break;
-      case 'sheet-zoom':
-        if (this.screen === 'sheet') {
-          const viewer = this.ui.querySelector('.sheet-viewer')!;
-          const expanded = viewer.classList.toggle('expanded');
-          const b = this.ui.querySelector('[data-action="sheet-zoom"]')!;
-          b.setAttribute('aria-pressed', String(expanded));
-          b.textContent = expanded ? '화면에 맞추기' : '원본 크기로 확대';
-        }
-        break;
-      case 'start':
-        if (this.screen === 'prepare') this.start();
-        break;
-      case 'restart':
-        if (['pause', 'result', 'share'].includes(this.screen)) this.start();
-        break;
-      case 'pause':
-        this.pause();
-        break;
-      case 'resume':
-        if (this.screen === 'pause') this.beginCountdown();
-        break;
-      case 'export':
-        this.export();
-        break;
-      case 'original':
-        try {
-          this.download(localStorage.getItem(this.store.key) || '', `odyssey-run-original.json`);
-        } catch {
-          this.notice('원본을 읽지 못했어요.');
-        }
-        break;
-      case 'class-export':
-        if (this.storage)
-          this.download(
-            JSON.stringify(classBackup(this.storage)),
-            `odyssey-run-class-${new Date().toISOString().slice(0, 10).replaceAll('-', '')}.json`,
-          );
-        break;
-      case 'class-import-confirm':
-        this.classRestore();
-        break;
-      case 'import-confirm':
-        if (this.screen === 'import' && this.imported) {
-          const ok = this.store.replace(this.imported);
-          this.imported = null;
-          this.settings();
-          if (ok) {
-            this.resizeDisplay();
-            this.notice('기록 파일을 복원했어요.');
-          }
-        }
-        break;
-      case 'reset-confirm':
-        this.set(
-          `<div class="veil"><section class="panel"><span class="eyebrow">START A NEW JOURNEY</span><h1 tabindex="-1">기록을 초기화할까요?</h1><p>이 게임의 섬 완료, 최고 기록, 지도 조각,<br>설정과 백업을 모두 지워요.</p><p class="muted">다른 앱의 데이터는 유지돼요.<br>필요하면 먼저 기록을 내보내세요.</p><div class="button-row">${button('settings', '취소', 'secondary')}${button('reset', '초기화하기', 'danger-button')}</div></section></div>`,
-          'reset',
-        );
-        break;
-      case 'reset':
-        if (this.screen === 'reset') {
-          this.store.reset();
-          this.selected = 'beach';
-          this.resizeDisplay();
-          this.settings();
-        }
-        break;
-      case 'reload':
-        location.reload();
-        break;
+    },
+    'class-export': () => this.classExport(),
+    protect: () => this.askProtection(),
+    'class-import-confirm': () => this.classRestore(),
+    'import-confirm': () => this.importConfirm(),
+    'reset-confirm': () =>
+      this.set(
+        `<div class="veil"><section class="panel"><span class="eyebrow">START A NEW JOURNEY</span><h1 tabindex="-1">기록을 초기화할까요?</h1><p>이 게임의 섬 완료, 최고 기록, 지도 조각,<br>설정과 백업을 모두 지워요.</p><p class="muted">다른 앱의 데이터는 유지돼요.<br>필요하면 먼저 기록을 내보내세요.</p><div class="button-row">${button('settings', '취소', 'secondary')}${button('reset', '초기화하기', 'danger-button')}</div></section></div>`,
+        'reset',
+      ),
+    reset: () => {
+      if (this.screen !== 'reset') return;
+      this.store.reset();
+      this.selected = 'beach';
+      this.resizeDisplay();
+      this.settings();
+    },
+    reload: () => location.reload(),
+  };
+  private action(action: string) {
+    const route = this.argRoutes.find(([prefix]) => action.startsWith(prefix));
+    if (route) route[1](action.slice(route[0].length));
+    else if (Object.hasOwn(this.routes, action)) this.routes[action]();
+  }
+  private equip(arg: string) {
+    const [slot, id] = arg.split(':'),
+      entry = COSMETICS.find(c => c.slot === slot && c.id === id);
+    if (!entry || !cosmeticUnlocked(this.store.data, id)) return;
+    this.store.data.preferences[entry.slot] = entry.id as never;
+    this.store.persist();
+    this.wardrobe();
+  }
+  private sheetZoom() {
+    if (this.screen !== 'sheet') return;
+    const expanded = this.ui.querySelector('.sheet-viewer')!.classList.toggle('expanded'),
+      b = this.ui.querySelector('[data-action="sheet-zoom"]')!;
+    b.setAttribute('aria-pressed', String(expanded));
+    b.textContent = translate(expanded ? '화면에 맞추기' : '원본 크기로 확대');
+  }
+  private classExport() {
+    if (!this.storage) return;
+    this.protect();
+    markBackup(this.storage);
+    this.download(
+      JSON.stringify(classBackup(this.storage)),
+      `odyssey-run-class-${new Date().toISOString().slice(0, 10).replaceAll('-', '')}.json`,
+    );
+    this.setText('#protection', this.protectionLine());
+  }
+  private askProtection() {
+    void requestProtection().then(p => {
+      this.protectionState = p;
+      if (this.screen === 'settings') this.settings();
+      this.notice(
+        p === 'persisted'
+          ? '이 브라우저가 기록을 지우지 않도록 보호해요.'
+          : '브라우저가 보호 요청을 받아들이지 않았어요. 반 전체 백업을 자주 해 주세요.',
+      );
+    });
+  }
+  private importConfirm() {
+    if (this.screen !== 'import' || !this.imported) return;
+    const ok = this.store.replace(this.imported);
+    this.imported = null;
+    this.settings();
+    if (ok) {
+      this.resizeDisplay();
+      this.notice('기록 파일을 복원했어요.');
     }
   }
   private frame(delta: number) {
@@ -1554,7 +1516,26 @@ export class App {
         }
       }
       if (this.screen === 'play') this.updateHud();
+      if (this.frameWatch.add(delta)) this.slowDevice();
     }
+  }
+  // "Auto" quality also steps down for good once this device has struggled to keep up.
+  private quality(): Quality {
+    const q = this.store.data.preferences.quality;
+    try {
+      if (q === 'auto' && this.storage?.getItem(SLOW_KEY)) return 'low';
+    } catch {}
+    return q;
+  }
+  private slowDevice() {
+    if (this.store.data.preferences.quality !== 'auto') return;
+    try {
+      this.storage?.setItem(SLOW_KEY, '1');
+    } catch {}
+    const before = this.renderDensity;
+    this.resizeDisplay();
+    if (this.renderDensity < before)
+      this.notice('화면이 끊겨서 그래픽을 가볍게 바꿨어요. 설정 → 그래픽 품질에서 바꿀 수 있어요.');
   }
   private setText(selector: string, text: string) {
     const el = this.ui.querySelector(selector);
@@ -1660,7 +1641,7 @@ export class App {
     if (!this.game?.isBooted || this.destroyed) return;
     const rect = document.querySelector('#shell')!.getBoundingClientRect(),
       view = displayViewport(rect.width, rect.height),
-      density = displayDensity(rect.width, window.devicePixelRatio, rect.height, this.store.data.preferences.quality);
+      density = displayDensity(rect.width, window.devicePixelRatio, rect.height, this.quality());
     if (
       density === this.renderDensity &&
       Math.abs(view.width - this.view.width) < 0.01 &&
