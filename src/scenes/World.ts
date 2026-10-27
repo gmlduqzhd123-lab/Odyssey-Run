@@ -11,7 +11,7 @@ import {RUN_ART} from '../assets/runner-art';
 import {DISPLAY,type DisplayViewport} from '../rendering/display';
 import {CROUCH_ART,MONSTER_ART} from '../assets/expansion-art';
 import {ENEMY_TYPES} from '../levels/enemies';
-import {heroPose,itemPose,enemyPose} from '../rendering/poses';
+import {heroPose,itemPose,enemyPose,obstaclePose} from '../rendering/poses';
 import {HOME_FILES,GAME_FILES,backgroundFiles} from '../assets/loading';
 export interface SceneHost {frame(delta:number):void;loaded():void;loadError():void;reduced():boolean;density():number;view():DisplayViewport;cosmetics():Preferences;}
 export class World extends Phaser.Scene {
@@ -128,18 +128,19 @@ export class World extends Phaser.Scene {
   const groundSpan=(a:number,b:number)=>{if(b<=a)return;g.fillStyle(dark?0x505b68:this.stage==='wind'?0x9aaca5:0xcab28c).fillRect(a-cam,440,b-a,100);g.fillStyle(dark?0x465360:0x81988e,.12).fillRect(a-cam,516,b-a,24);const band=this.groundArt[spanIndex++];if(band&&b-a>=1){band.setPosition(a-cam,440).setSize(b-a,16).setAlpha(reduced?.035:.08).setVisible(true);band.tilePositionX=a-cam;}g.lineStyle(2,dark?0xb1bbc1:0xe7d5ac,.8).lineBetween(a-cam,440,b-cam,440);};
   for(const gap of r.course.gaps){if(gap.x+gap.w<start||gap.x>cam+this.view.width+40)continue;groundSpan(start,gap.x);start=gap.x+gap.w;}
   groundSpan(start,cam+this.view.width+40);
-  this.obstacles.forEach((s,i)=>{const o=r.course.obstacles[i],x=o.x-cam;s.setVisible(x>-200&&x<this.view.width+60).setX(x);if(o.kind==='hand'){const d=o.x-r.x;s.y=o.y-Math.max(0,Math.min(260,(d-150)*.8));}if(o.kind==='falling'){const d=o.x-r.x;s.y=o.y-Math.max(0,Math.min(290,(d-100)*1.5));}});
+  this.obstacles.forEach((s,i)=>{const o=r.course.obstacles[i],p=obstaclePose(o,r.x),x=p.x-cam;s.setVisible(x>-200&&x<this.view.width+60).setPosition(x,p.y);});
   this.items.forEach((s,i)=>{const item=r.course.items[i],x=item.x-cam;s.setVisible(!(item.kind==='shield'&&r.rule==='no-shield')&&!r.collected.has(item.id)&&x>-40&&x<this.view.width+40).setPosition(x,item.y);});
   this.platforms.forEach((s,i)=>{const p=r.course.platforms[i];s.setPosition(p.x-cam,r.platformY(p)).setVisible(p.x-cam+p.w>0&&p.x-cam<this.view.width);});
   this.monsters.forEach((s,i)=>{const e=r.enemyStates[i],x=e.x-cam,p=enemyPose(e),f=MONSTER_ART.frames[e.kind];s.setVisible(!e.defeated&&e.reveal>0&&x>-150&&x<this.view.width+90).setPosition(p.anchorX-cam,p.anchorY).setAlpha(e.repelled?.4:e.kind==='shade'&&!e.active?.35:1);if(e.kind==='scylla')s.setCrop(0,0,f.w,Math.max(1,Math.floor(f.h*e.reveal)));const rock=this.projectiles[i];rock.setPosition(e.projectile.x-cam,e.projectile.y).setVisible(e.projectile.active&&x>-200&&x<this.view.width+90);});
-  const incoming=r.enemyStates.filter(e=>e.warning&&!e.defeated&&e.x+e.w>r.x-32).sort((a,b)=>a.x-b.x)[0];this.warning.setX(this.view.width*.615).setText(incoming?(incoming.repelled?'등불이 지켜 주고 있어요':`${ENEMY_TYPES[incoming.kind].name} · ${ENEMY_TYPES[incoming.kind].hint}`):'');
+  const incoming=r.enemyStates.filter(e=>e.warning&&!e.defeated&&e.x+e.w>r.x-32).sort((a,b)=>a.x-b.x)[0],hazard=r.course.obstacles.filter(o=>o.role==='hazard'&&o.x-r.x<=700&&o.x+o.w>r.x-32).sort((a,b)=>a.x-b.x)[0];
+  const hazardFirst=hazard&&(!incoming||hazard.x<incoming.x);this.warning.setX(this.view.width*.615).setText(hazardFirst?(hazard.kind==='hand'?'! 거인의 손 · 숙이기':hazard.kind==='falling'?'! 낙석 · 점프':'! 위험 장애물 · 점프'):incoming?(incoming.repelled?'등불이 지켜 주고 있어요':`! ${ENEMY_TYPES[incoming.kind].name} · ${ENEMY_TYPES[incoming.kind].hint}`):'');
   const fx=this.fx;fx.clear();
   r.course.winds.forEach(w=>{
    const x=w.x-cam;if(x+w.w<0||x>this.view.width)return;
    fx.fillStyle(0xc8f0da,.2).fillRect(x,w.y,w.w,w.h);fx.lineStyle(3,0xe1f6ce,.8);
    for(let k=0;k<(reduced?4:8);k++){const xx=x+40+k*80,yy=400-((k*41)%290);fx.lineBetween(xx,yy+12,xx,yy-16);fx.lineBetween(xx,yy-16,xx-8,yy-5);fx.lineBetween(xx,yy-16,xx+8,yy-5);}
   });
-  r.course.obstacles.filter(o=>o.kind==='falling'&&o.x-r.x<650&&o.x>r.x-70).forEach(o=>{const x=o.x-cam+30;fx.fillStyle(0xe8b04d,.22).fillRect(x-42,340,84,100);fx.fillStyle(0xeab758).fillTriangle(x,310,x-12,332,x+12,332);});
+  r.course.obstacles.filter(o=>o.role==='hazard'&&o.x-r.x<=700&&o.x+o.w>r.x-32).forEach(o=>{const x=o.x-cam+o.w/2;fx.fillStyle(0xe8b04d,.18).fillRect(o.x-cam-8,340,o.w+16,100);fx.fillStyle(0xeab758).fillTriangle(x,300,x-12,322,x+12,322);fx.lineStyle(2,0x624c32,1).lineBetween(x,305,x,312);fx.fillStyle(0x624c32).fillCircle(x,317,1.5);});
   r.enemyStates.forEach(e=>{if(!e.warning||e.defeated||e.repelled)return;const x=e.x-cam+e.w/2;if(x<50||x>this.view.width-30)return;fx.fillStyle(0xe8be72,.7).fillTriangle(x,300,x-6,310,x+6,310);});
   this.drawAdventure(r,cam,reduced);
   this.drawHero(r);this.drawCostume(this.view.heroX,r.y,r.sliding,false);

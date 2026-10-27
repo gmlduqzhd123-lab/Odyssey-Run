@@ -48,6 +48,8 @@ jobs:
           exit 1
         env:
           PAGES_BASE: ${{ env.PAGES_BASE }}
+      - name: Verify safe structures and hazardous contact on PC and mobile
+        run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:structures
       - name: Verify mobile play, bosses, daily challenges and save restore
         run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:release
       - name: Verify downloaded islands with network offline
@@ -62,6 +64,7 @@ jobs:
         with:
           name: browser-qa
           path: |
+            artifacts/structures-*
             artifacts/roadmap-chromium-*
             artifacts/roadmap-offline-*
             artifacts/roadmap-update*

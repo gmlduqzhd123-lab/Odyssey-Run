@@ -71,7 +71,7 @@ test('normal magnet and wings combination remain star-only remote collection',()
 });
 test('contact mask source hashes and interval bounds match all committed artwork',()=>{
  const manifest=JSON.parse(readFileSync('docs/contact-mask-manifest.json','utf8'));
- assert.equal(Object.keys(CONTACT_MASKS).length,26);
+ assert.equal(Object.keys(CONTACT_MASKS).length,31);
  for(const [file,sha] of Object.entries(manifest.sourceSha256))assert.equal(createHash('sha256').update(readFileSync('public/'+file)).digest('hex'),sha,file);
  for(const [name,m] of Object.entries(CONTACT_MASKS)){
   assert.equal(m.rows.length,m.h,name);assert.ok(m.rows.some(row=>row.length>0),name);

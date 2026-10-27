@@ -1,6 +1,6 @@
 import {CONTACT_MASKS} from '../assets/contact-masks';
-import {heroPose,itemPose,enemyPose,type HeroPoseState,type SpritePose} from '../rendering/poses';
-import type {Collectible,Rect} from '../levels/courses';
+import {heroPose,itemPose,enemyPose,obstaclePose,type HeroPoseState,type SpritePose} from '../rendering/poses';
+import type {Collectible,Rect,Obstacle} from '../levels/courses';
 import type {EnemyState} from '../levels/enemies';
 
 export const overlaps=(a:Rect,b:Rect)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
@@ -23,6 +23,11 @@ export function inkOverlap(a:Shape,b:Shape,clipA:Rect=a,clipB:Rect=b){
  return false;
 }
 export function collectibleContact(hero:SpritePose,body:Rect,item:Collectible){return inkOverlap(hero,{...itemPose(item.kind,item.x,item.y),mask:item.kind},body);}
+export function obstacleContact(hero:SpritePose,body:Rect,obstacle:Obstacle,playerX:number){
+ if(obstacle.role!=='hazard')return false;
+ const pose=obstaclePose(obstacle,playerX);
+ return overlaps(body,pose)&&inkOverlap(hero,pose,body);
+}
 export function enemyContact(hero:SpritePose,body:Rect,enemy:EnemyState){return enemy.active&&overlaps(body,enemy)&&inkOverlap(hero,enemyPose(enemy),body,enemy);}
 export function projectileContact(hero:SpritePose,body:Rect,shot:EnemyState['projectile']){return shot.active&&overlaps(body,shot)&&inkOverlap(hero,{...shot,mask:'projectile'},body);}
 export {heroPose};

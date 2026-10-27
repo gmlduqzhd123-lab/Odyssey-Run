@@ -1,0 +1,20 @@
+{
+  "url": "http://localhost:4176/Odyssey-Run/",
+  "browser": "26.0",
+  "checkedAt": "2026-10-27T02:18:03.486Z",
+  "environment": "Linux headless browser mobile emulation; no physical Android/iOS; touch events and virtual game clock; pagehide injected independently of visibility",
+  "results": [
+    {
+      "width": 844,
+      "height": 390,
+      "dpr": 2,
+      "startTouchable": true,
+      "pagehidePauses": true,
+      "resizeRotationTouch": true,
+      "retry": true
+    }
+  ],
+  "routes": [],
+  "errors": [],
+  "failures": []
+}

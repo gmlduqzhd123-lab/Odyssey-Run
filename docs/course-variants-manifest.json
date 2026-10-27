@@ -47,7 +47,8 @@
           "y": 392,
           "w": 70,
           "h": 48,
-          "kind": "crate"
+          "kind": "crate",
+          "role": "structure"
         },
         {
           "id": "beach-pillar-5200",
@@ -55,7 +56,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "beach-pillar-9700",
@@ -63,7 +65,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "beach-pillar-14600",
@@ -71,7 +74,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "beach-pillar-18700",
@@ -79,7 +83,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "beach-gate-6400",
@@ -87,7 +92,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         },
         {
           "id": "beach-gate-10800",
@@ -95,7 +101,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         },
         {
           "id": "beach-gate-17400",
@@ -103,7 +110,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         },
         {
           "id": "beach-gate-21600",
@@ -111,7 +119,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         }
       ],
       "enemies": [
@@ -1137,7 +1146,8 @@
           "y": 392,
           "w": 70,
           "h": 48,
-          "kind": "crate"
+          "kind": "crate",
+          "role": "structure"
         },
         {
           "id": "beach-pillar-5200",
@@ -1145,7 +1155,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "beach-pillar-9700",
@@ -1153,7 +1164,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "beach-pillar-14600",
@@ -1161,7 +1173,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "beach-pillar-18700",
@@ -1169,7 +1182,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "beach-gate-6400",
@@ -1177,7 +1191,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         },
         {
           "id": "beach-gate-10800",
@@ -1185,7 +1200,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         },
         {
           "id": "beach-gate-17400",
@@ -1193,7 +1209,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         },
         {
           "id": "beach-gate-21600",
@@ -1201,7 +1218,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         }
       ],
       "enemies": [
@@ -2226,7 +2244,8 @@
           "y": 392,
           "w": 70,
           "h": 48,
-          "kind": "crate"
+          "kind": "crate",
+          "role": "structure"
         },
         {
           "id": "beach-pillar-5200",
@@ -2234,7 +2253,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "beach-pillar-9700",
@@ -2242,7 +2262,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "beach-pillar-14600",
@@ -2250,7 +2271,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "beach-pillar-18700",
@@ -2258,7 +2280,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "beach-gate-6400",
@@ -2266,7 +2289,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         },
         {
           "id": "beach-gate-10800",
@@ -2274,7 +2298,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         },
         {
           "id": "beach-gate-17400",
@@ -2282,7 +2307,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         },
         {
           "id": "beach-gate-21600",
@@ -2290,7 +2316,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         }
       ],
       "enemies": [
@@ -3315,7 +3342,8 @@
           "y": 392,
           "w": 70,
           "h": 48,
-          "kind": "crate"
+          "kind": "crate",
+          "role": "structure"
         },
         {
           "id": "cave-pillar-5000",
@@ -3323,7 +3351,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "cave-pillar-10000",
@@ -3331,7 +3360,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "cave-pillar-15500",
@@ -3339,7 +3369,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "cave-pillar-20200",
@@ -3347,7 +3378,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "cave-gate-6200",
@@ -3355,7 +3387,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         },
         {
           "id": "cave-gate-11100",
@@ -3363,7 +3396,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         },
         {
           "id": "cave-gate-16600",
@@ -3371,7 +3405,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         },
         {
           "id": "cave-gate-22800",
@@ -3379,7 +3414,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         },
         {
           "id": "cave-falling-4000",
@@ -3387,7 +3423,8 @@
           "y": 376,
           "w": 60,
           "h": 64,
-          "kind": "falling"
+          "kind": "falling",
+          "role": "hazard"
         },
         {
           "id": "cave-falling-9200",
@@ -3395,7 +3432,8 @@
           "y": 376,
           "w": 60,
           "h": 64,
-          "kind": "falling"
+          "kind": "falling",
+          "role": "hazard"
         },
         {
           "id": "cave-falling-14800",
@@ -3403,7 +3441,8 @@
           "y": 376,
           "w": 60,
           "h": 64,
-          "kind": "falling"
+          "kind": "falling",
+          "role": "hazard"
         },
         {
           "id": "cave-falling-21000",
@@ -3411,7 +3450,8 @@
           "y": 376,
           "w": 60,
           "h": 64,
-          "kind": "falling"
+          "kind": "falling",
+          "role": "hazard"
         },
         {
           "id": "cave-hand-13400",
@@ -3419,7 +3459,8 @@
           "y": 365,
           "w": 140,
           "h": 39,
-          "kind": "hand"
+          "kind": "hand",
+          "role": "hazard"
         }
       ],
       "enemies": [
@@ -4474,7 +4515,8 @@
           "y": 392,
           "w": 70,
           "h": 48,
-          "kind": "crate"
+          "kind": "crate",
+          "role": "structure"
         },
         {
           "id": "cave-pillar-5000",
@@ -4482,7 +4524,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "cave-pillar-10000",
@@ -4490,7 +4533,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "cave-pillar-15500",
@@ -4498,7 +4542,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "cave-pillar-20200",
@@ -4506,7 +4551,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "cave-gate-6200",
@@ -4514,7 +4560,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         },
         {
           "id": "cave-gate-11100",
@@ -4522,7 +4569,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         },
         {
           "id": "cave-gate-16600",
@@ -4530,7 +4578,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         },
         {
           "id": "cave-gate-22800",
@@ -4538,7 +4587,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         },
         {
           "id": "cave-falling-4000",
@@ -4546,7 +4596,8 @@
           "y": 376,
           "w": 60,
           "h": 64,
-          "kind": "falling"
+          "kind": "falling",
+          "role": "hazard"
         },
         {
           "id": "cave-falling-9200",
@@ -4554,7 +4605,8 @@
           "y": 376,
           "w": 60,
           "h": 64,
-          "kind": "falling"
+          "kind": "falling",
+          "role": "hazard"
         },
         {
           "id": "cave-falling-14800",
@@ -4562,7 +4614,8 @@
           "y": 376,
           "w": 60,
           "h": 64,
-          "kind": "falling"
+          "kind": "falling",
+          "role": "hazard"
         },
         {
           "id": "cave-falling-21000",
@@ -4570,7 +4623,8 @@
           "y": 376,
           "w": 60,
           "h": 64,
-          "kind": "falling"
+          "kind": "falling",
+          "role": "hazard"
         },
         {
           "id": "cave-hand-13400",
@@ -4578,7 +4632,8 @@
           "y": 365,
           "w": 140,
           "h": 39,
-          "kind": "hand"
+          "kind": "hand",
+          "role": "hazard"
         }
       ],
       "enemies": [
@@ -5633,7 +5688,8 @@
           "y": 392,
           "w": 70,
           "h": 48,
-          "kind": "crate"
+          "kind": "crate",
+          "role": "structure"
         },
         {
           "id": "cave-pillar-5000",
@@ -5641,7 +5697,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "cave-pillar-10000",
@@ -5649,7 +5706,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "cave-pillar-15500",
@@ -5657,7 +5715,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "cave-pillar-20200",
@@ -5665,7 +5724,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "cave-gate-6200",
@@ -5673,7 +5733,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         },
         {
           "id": "cave-gate-11100",
@@ -5681,7 +5742,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         },
         {
           "id": "cave-gate-16600",
@@ -5689,7 +5751,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         },
         {
           "id": "cave-gate-22800",
@@ -5697,7 +5760,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         },
         {
           "id": "cave-falling-4000",
@@ -5705,7 +5769,8 @@
           "y": 376,
           "w": 60,
           "h": 64,
-          "kind": "falling"
+          "kind": "falling",
+          "role": "hazard"
         },
         {
           "id": "cave-falling-9200",
@@ -5713,7 +5778,8 @@
           "y": 376,
           "w": 60,
           "h": 64,
-          "kind": "falling"
+          "kind": "falling",
+          "role": "hazard"
         },
         {
           "id": "cave-falling-14800",
@@ -5721,7 +5787,8 @@
           "y": 376,
           "w": 60,
           "h": 64,
-          "kind": "falling"
+          "kind": "falling",
+          "role": "hazard"
         },
         {
           "id": "cave-falling-21000",
@@ -5729,7 +5796,8 @@
           "y": 376,
           "w": 60,
           "h": 64,
-          "kind": "falling"
+          "kind": "falling",
+          "role": "hazard"
         },
         {
           "id": "cave-hand-13400",
@@ -5737,7 +5805,8 @@
           "y": 365,
           "w": 140,
           "h": 39,
-          "kind": "hand"
+          "kind": "hand",
+          "role": "hazard"
         }
       ],
       "enemies": [
@@ -6792,7 +6861,8 @@
           "y": 392,
           "w": 70,
           "h": 48,
-          "kind": "crate"
+          "kind": "crate",
+          "role": "structure"
         },
         {
           "id": "wind-pillar-5400",
@@ -6800,7 +6870,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "wind-pillar-10600",
@@ -6808,7 +6879,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "wind-pillar-15800",
@@ -6816,7 +6888,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "wind-pillar-22300",
@@ -6824,7 +6897,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "wind-gate-6500",
@@ -6832,7 +6906,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         },
         {
           "id": "wind-gate-11500",
@@ -6840,7 +6915,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         },
         {
           "id": "wind-gate-18400",
@@ -6848,7 +6924,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         }
       ],
       "enemies": [
@@ -7920,7 +7997,8 @@
           "y": 392,
           "w": 70,
           "h": 48,
-          "kind": "crate"
+          "kind": "crate",
+          "role": "structure"
         },
         {
           "id": "wind-pillar-5400",
@@ -7928,7 +8006,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "wind-pillar-10600",
@@ -7936,7 +8015,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "wind-pillar-15800",
@@ -7944,7 +8024,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "wind-pillar-22300",
@@ -7952,7 +8033,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "wind-gate-6500",
@@ -7960,7 +8042,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         },
         {
           "id": "wind-gate-11500",
@@ -7968,7 +8051,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         },
         {
           "id": "wind-gate-18400",
@@ -7976,7 +8060,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         }
       ],
       "enemies": [
@@ -9048,7 +9133,8 @@
           "y": 392,
           "w": 70,
           "h": 48,
-          "kind": "crate"
+          "kind": "crate",
+          "role": "structure"
         },
         {
           "id": "wind-pillar-5400",
@@ -9056,7 +9142,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "wind-pillar-10600",
@@ -9064,7 +9151,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "wind-pillar-15800",
@@ -9072,7 +9160,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "wind-pillar-22300",
@@ -9080,7 +9169,8 @@
           "y": 320,
           "w": 65,
           "h": 120,
-          "kind": "pillar"
+          "kind": "pillar",
+          "role": "structure"
         },
         {
           "id": "wind-gate-6500",
@@ -9088,7 +9178,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         },
         {
           "id": "wind-gate-11500",
@@ -9096,7 +9187,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         },
         {
           "id": "wind-gate-18400",
@@ -9104,7 +9196,8 @@
           "y": 279,
           "w": 160,
           "h": 125,
-          "kind": "gate"
+          "kind": "gate",
+          "role": "structure"
         }
       ],
       "enemies": [

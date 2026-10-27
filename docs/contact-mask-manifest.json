@@ -14,8 +14,12 @@
     "assets/art/trident-4bfc90d78eb6.webp": "4bfc90d78eb677f97ea2fcda131c837518d8de509f3b3a3b74e701cf03cbe7c8",
     "assets/art/compass-0bfa48989ace.webp": "0bfa48989ace00cbd9501db35bbec591454ee6cf882b9fbf9ae2a6b55a135bd7",
     "assets/art/lantern-92cc051f0c7f.webp": "92cc051f0c7f9a5d008ff0574e725be550fe7b69314c2ff474d077461e466361",
-    "assets/rock.svg": "c1dd97d219a60f720386215efa303ea2b8eea2c9473273c47334b153bbe76641"
+    "assets/rock.svg": "c1dd97d219a60f720386215efa303ea2b8eea2c9473273c47334b153bbe76641",
+    "assets/crate.svg": "9702b5cc9ff415f393291ed9ad60ebe6da9cf382e5d3abe8304c8bc5206dae7d",
+    "assets/pillar.svg": "ce1f19fc9c8fdffde6d247ca79984229e7604bea6a553b51ec2902cf62bc13cb",
+    "assets/gate.svg": "f60b86741fcc408ae1846e14e61566a920c9e77e1cc4592c9227bf5a81d2290a",
+    "assets/hand.svg": "074e6a6b988f13c3ae53c03e87c5a757735d98b9e59ee1351c0c3de11033f658"
   },
-  "maskCount": 26,
+  "maskCount": 31,
   "policy": "Keep original movement body; require opaque hero and target contact inside both original bodies for damage. Magnet remains star-only."
 }

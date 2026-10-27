@@ -1,0 +1,1736 @@
+{
+  "policy": {
+    "structures": "No HP loss, shield consumption, invincibility or hurt effects; retain existing ceiling/landing physics",
+    "hazards": "Opaque visible contact only; shield or one HP, 1.2s invincibility; advance warning at 700px",
+    "monsters": "Existing opaque contact and active-state rules",
+    "falls": "One HP despite shield/invincibility; existing safe recovery and score IDs"
+  },
+  "courses": [
+    {
+      "key": "beach/classic",
+      "counts": {
+        "structures": 9,
+        "hazards": 0,
+        "monsters": 7,
+        "platforms": 1
+      },
+      "objects": [
+        {
+          "id": "beach-crate-3600",
+          "x": 3600,
+          "y": 392,
+          "w": 70,
+          "h": 48,
+          "kind": "crate",
+          "role": "structure"
+        },
+        {
+          "id": "beach-pillar-5200",
+          "x": 5200,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "beach-pillar-9700",
+          "x": 9700,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "beach-pillar-14600",
+          "x": 14600,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "beach-pillar-18700",
+          "x": 18700,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "beach-gate-6400",
+          "x": 6400,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "beach-gate-10800",
+          "x": 10800,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "beach-gate-17400",
+          "x": 17400,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "beach-gate-21600",
+          "x": 21600,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        }
+      ],
+      "monsters": [
+        {
+          "id": "beach-enemy-ground-1",
+          "kind": "crab",
+          "x": 7400,
+          "role": "monster"
+        },
+        {
+          "id": "beach-enemy-ground-2",
+          "kind": "scylla",
+          "x": 11800,
+          "role": "monster"
+        },
+        {
+          "id": "beach-enemy-ground-3",
+          "kind": "crab",
+          "x": 16200,
+          "role": "monster"
+        },
+        {
+          "id": "beach-enemy-ground-4",
+          "kind": "scylla",
+          "x": 20400,
+          "role": "monster"
+        },
+        {
+          "id": "beach-enemy-air-1",
+          "kind": "harpy",
+          "x": 5700,
+          "role": "monster"
+        },
+        {
+          "id": "beach-enemy-air-2",
+          "kind": "harpy",
+          "x": 13900,
+          "role": "monster"
+        },
+        {
+          "id": "beach-enemy-air-3",
+          "kind": "harpy",
+          "x": 18100,
+          "role": "monster"
+        }
+      ],
+      "platforms": [
+        {
+          "id": "beach-branch",
+          "x": 4140,
+          "y": 330,
+          "w": 600,
+          "role": "structure"
+        }
+      ]
+    },
+    {
+      "key": "beach/remix-a",
+      "counts": {
+        "structures": 9,
+        "hazards": 0,
+        "monsters": 7,
+        "platforms": 1
+      },
+      "objects": [
+        {
+          "id": "beach-crate-3600",
+          "x": 6800,
+          "y": 392,
+          "w": 70,
+          "h": 48,
+          "kind": "crate",
+          "role": "structure"
+        },
+        {
+          "id": "beach-pillar-5200",
+          "x": 8400,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "beach-pillar-9700",
+          "x": 3300,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "beach-pillar-14600",
+          "x": 17800,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "beach-pillar-18700",
+          "x": 15500,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "beach-gate-6400",
+          "x": 9600,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "beach-gate-10800",
+          "x": 4400,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "beach-gate-17400",
+          "x": 14200,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "beach-gate-21600",
+          "x": 21600,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        }
+      ],
+      "monsters": [
+        {
+          "id": "beach-enemy-ground-1",
+          "kind": "crab",
+          "x": 10600,
+          "role": "monster"
+        },
+        {
+          "id": "beach-enemy-ground-2",
+          "kind": "scylla",
+          "x": 5400,
+          "role": "monster"
+        },
+        {
+          "id": "beach-enemy-ground-3",
+          "kind": "crab",
+          "x": 13000,
+          "role": "monster"
+        },
+        {
+          "id": "beach-enemy-ground-4",
+          "kind": "scylla",
+          "x": 20400,
+          "role": "monster"
+        },
+        {
+          "id": "beach-enemy-air-1",
+          "kind": "harpy",
+          "x": 8900,
+          "role": "monster"
+        },
+        {
+          "id": "beach-enemy-air-2",
+          "kind": "harpy",
+          "x": 17100,
+          "role": "monster"
+        },
+        {
+          "id": "beach-enemy-air-3",
+          "kind": "harpy",
+          "x": 14900,
+          "role": "monster"
+        }
+      ],
+      "platforms": [
+        {
+          "id": "beach-branch",
+          "x": 7340,
+          "y": 330,
+          "w": 600,
+          "role": "structure"
+        }
+      ]
+    },
+    {
+      "key": "beach/remix-b",
+      "counts": {
+        "structures": 9,
+        "hazards": 0,
+        "monsters": 7,
+        "platforms": 1
+      },
+      "objects": [
+        {
+          "id": "beach-crate-3600",
+          "x": 6800,
+          "y": 392,
+          "w": 70,
+          "h": 48,
+          "kind": "crate",
+          "role": "structure"
+        },
+        {
+          "id": "beach-pillar-5200",
+          "x": 8400,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "beach-pillar-9700",
+          "x": 9700,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "beach-pillar-14600",
+          "x": 14600,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "beach-pillar-18700",
+          "x": 21900,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "beach-gate-6400",
+          "x": 3200,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "beach-gate-10800",
+          "x": 10800,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "beach-gate-17400",
+          "x": 20600,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "beach-gate-21600",
+          "x": 18400,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        }
+      ],
+      "monsters": [
+        {
+          "id": "beach-enemy-ground-1",
+          "kind": "crab",
+          "x": 4200,
+          "role": "monster"
+        },
+        {
+          "id": "beach-enemy-ground-2",
+          "kind": "scylla",
+          "x": 11800,
+          "role": "monster"
+        },
+        {
+          "id": "beach-enemy-ground-3",
+          "kind": "crab",
+          "x": 19400,
+          "role": "monster"
+        },
+        {
+          "id": "beach-enemy-ground-4",
+          "kind": "scylla",
+          "x": 17200,
+          "role": "monster"
+        },
+        {
+          "id": "beach-enemy-air-1",
+          "kind": "harpy",
+          "x": 8900,
+          "role": "monster"
+        },
+        {
+          "id": "beach-enemy-air-2",
+          "kind": "harpy",
+          "x": 13900,
+          "role": "monster"
+        },
+        {
+          "id": "beach-enemy-air-3",
+          "kind": "harpy",
+          "x": 21300,
+          "role": "monster"
+        }
+      ],
+      "platforms": [
+        {
+          "id": "beach-branch",
+          "x": 7340,
+          "y": 330,
+          "w": 600,
+          "role": "structure"
+        }
+      ]
+    },
+    {
+      "key": "beach/boss",
+      "counts": {
+        "structures": 0,
+        "hazards": 0,
+        "monsters": 6,
+        "platforms": 0
+      },
+      "objects": [],
+      "monsters": [
+        {
+          "id": "beach-boss-1",
+          "kind": "crab",
+          "x": 1500,
+          "role": "monster"
+        },
+        {
+          "id": "beach-boss-2",
+          "kind": "crab",
+          "x": 2700,
+          "role": "monster"
+        },
+        {
+          "id": "beach-boss-3",
+          "kind": "scylla",
+          "x": 3900,
+          "role": "monster"
+        },
+        {
+          "id": "beach-boss-4",
+          "kind": "scylla",
+          "x": 5100,
+          "role": "monster"
+        },
+        {
+          "id": "beach-boss-5",
+          "kind": "harpy",
+          "x": 6300,
+          "role": "monster"
+        },
+        {
+          "id": "beach-boss-6",
+          "kind": "harpy",
+          "x": 7500,
+          "role": "monster"
+        }
+      ],
+      "platforms": []
+    },
+    {
+      "key": "cave/classic",
+      "counts": {
+        "structures": 9,
+        "hazards": 5,
+        "monsters": 9,
+        "platforms": 1
+      },
+      "objects": [
+        {
+          "id": "cave-crate-3300",
+          "x": 3300,
+          "y": 392,
+          "w": 70,
+          "h": 48,
+          "kind": "crate",
+          "role": "structure"
+        },
+        {
+          "id": "cave-pillar-5000",
+          "x": 5000,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "cave-pillar-10000",
+          "x": 10000,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "cave-pillar-15500",
+          "x": 15500,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "cave-pillar-20200",
+          "x": 20200,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "cave-gate-6200",
+          "x": 6200,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "cave-gate-11100",
+          "x": 11100,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "cave-gate-16600",
+          "x": 16600,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "cave-gate-22800",
+          "x": 22800,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "cave-falling-4000",
+          "x": 4000,
+          "y": 376,
+          "w": 60,
+          "h": 64,
+          "kind": "falling",
+          "role": "hazard"
+        },
+        {
+          "id": "cave-falling-9200",
+          "x": 9200,
+          "y": 376,
+          "w": 60,
+          "h": 64,
+          "kind": "falling",
+          "role": "hazard"
+        },
+        {
+          "id": "cave-falling-14800",
+          "x": 14800,
+          "y": 376,
+          "w": 60,
+          "h": 64,
+          "kind": "falling",
+          "role": "hazard"
+        },
+        {
+          "id": "cave-falling-21000",
+          "x": 21000,
+          "y": 376,
+          "w": 60,
+          "h": 64,
+          "kind": "falling",
+          "role": "hazard"
+        },
+        {
+          "id": "cave-hand-13400",
+          "x": 13400,
+          "y": 365,
+          "w": 140,
+          "h": 39,
+          "kind": "hand",
+          "role": "hazard"
+        }
+      ],
+      "monsters": [
+        {
+          "id": "cave-enemy-ground-1",
+          "kind": "stone",
+          "x": 7200,
+          "role": "monster"
+        },
+        {
+          "id": "cave-enemy-ground-2",
+          "kind": "cyclops",
+          "x": 12200,
+          "role": "monster"
+        },
+        {
+          "id": "cave-enemy-ground-3",
+          "kind": "stone",
+          "x": 18000,
+          "role": "monster"
+        },
+        {
+          "id": "cave-enemy-ground-4",
+          "kind": "cyclops",
+          "x": 21800,
+          "role": "monster"
+        },
+        {
+          "id": "cave-enemy-air-1",
+          "kind": "shade",
+          "x": 4500,
+          "role": "monster"
+        },
+        {
+          "id": "cave-enemy-air-2",
+          "kind": "shade",
+          "x": 12900,
+          "role": "monster"
+        },
+        {
+          "id": "cave-enemy-air-3",
+          "kind": "shade",
+          "x": 19500,
+          "role": "monster"
+        },
+        {
+          "id": "cave-bait-0",
+          "kind": "stone",
+          "x": 12095,
+          "bait": true,
+          "role": "monster"
+        },
+        {
+          "id": "cave-bait-1",
+          "kind": "stone",
+          "x": 21695,
+          "bait": true,
+          "role": "monster"
+        }
+      ],
+      "platforms": [
+        {
+          "id": "cave-branch",
+          "x": 7540,
+          "y": 330,
+          "w": 460,
+          "role": "structure"
+        }
+      ]
+    },
+    {
+      "key": "cave/remix-a",
+      "counts": {
+        "structures": 9,
+        "hazards": 5,
+        "monsters": 9,
+        "platforms": 1
+      },
+      "objects": [
+        {
+          "id": "cave-crate-3300",
+          "x": 6500,
+          "y": 392,
+          "w": 70,
+          "h": 48,
+          "kind": "crate",
+          "role": "structure"
+        },
+        {
+          "id": "cave-pillar-5000",
+          "x": 8200,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "cave-pillar-10000",
+          "x": 13200,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "cave-pillar-15500",
+          "x": 5900,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "cave-pillar-20200",
+          "x": 20200,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "cave-gate-6200",
+          "x": 9400,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "cave-gate-11100",
+          "x": 14300,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "cave-gate-16600",
+          "x": 16600,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "cave-gate-22800",
+          "x": 22800,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "cave-falling-4000",
+          "x": 7200,
+          "y": 376,
+          "w": 60,
+          "h": 64,
+          "kind": "falling",
+          "role": "hazard"
+        },
+        {
+          "id": "cave-falling-9200",
+          "x": 12400,
+          "y": 376,
+          "w": 60,
+          "h": 64,
+          "kind": "falling",
+          "role": "hazard"
+        },
+        {
+          "id": "cave-falling-14800",
+          "x": 5200,
+          "y": 376,
+          "w": 60,
+          "h": 64,
+          "kind": "falling",
+          "role": "hazard"
+        },
+        {
+          "id": "cave-falling-21000",
+          "x": 21000,
+          "y": 376,
+          "w": 60,
+          "h": 64,
+          "kind": "falling",
+          "role": "hazard"
+        },
+        {
+          "id": "cave-hand-13400",
+          "x": 3800,
+          "y": 365,
+          "w": 140,
+          "h": 39,
+          "kind": "hand",
+          "role": "hazard"
+        }
+      ],
+      "monsters": [
+        {
+          "id": "cave-enemy-ground-1",
+          "kind": "stone",
+          "x": 10400,
+          "role": "monster"
+        },
+        {
+          "id": "cave-enemy-ground-2",
+          "kind": "cyclops",
+          "x": 15400,
+          "role": "monster"
+        },
+        {
+          "id": "cave-enemy-ground-3",
+          "kind": "stone",
+          "x": 18000,
+          "role": "monster"
+        },
+        {
+          "id": "cave-enemy-ground-4",
+          "kind": "cyclops",
+          "x": 21800,
+          "role": "monster"
+        },
+        {
+          "id": "cave-enemy-air-1",
+          "kind": "shade",
+          "x": 7700,
+          "role": "monster"
+        },
+        {
+          "id": "cave-enemy-air-2",
+          "kind": "shade",
+          "x": 3300,
+          "role": "monster"
+        },
+        {
+          "id": "cave-enemy-air-3",
+          "kind": "shade",
+          "x": 19500,
+          "role": "monster"
+        },
+        {
+          "id": "cave-bait-0",
+          "kind": "stone",
+          "x": 15295,
+          "bait": true,
+          "role": "monster"
+        },
+        {
+          "id": "cave-bait-1",
+          "kind": "stone",
+          "x": 21695,
+          "bait": true,
+          "role": "monster"
+        }
+      ],
+      "platforms": [
+        {
+          "id": "cave-branch",
+          "x": 10740,
+          "y": 330,
+          "w": 460,
+          "role": "structure"
+        }
+      ]
+    },
+    {
+      "key": "cave/remix-b",
+      "counts": {
+        "structures": 9,
+        "hazards": 5,
+        "monsters": 9,
+        "platforms": 1
+      },
+      "objects": [
+        {
+          "id": "cave-crate-3300",
+          "x": 9700,
+          "y": 392,
+          "w": 70,
+          "h": 48,
+          "kind": "crate",
+          "role": "structure"
+        },
+        {
+          "id": "cave-pillar-5000",
+          "x": 11400,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "cave-pillar-10000",
+          "x": 16400,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "cave-pillar-15500",
+          "x": 21900,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "cave-pillar-20200",
+          "x": 7400,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "cave-gate-6200",
+          "x": 12600,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "cave-gate-11100",
+          "x": 17500,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "cave-gate-16600",
+          "x": 3800,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "cave-gate-22800",
+          "x": 22800,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "cave-falling-4000",
+          "x": 10400,
+          "y": 376,
+          "w": 60,
+          "h": 64,
+          "kind": "falling",
+          "role": "hazard"
+        },
+        {
+          "id": "cave-falling-9200",
+          "x": 15600,
+          "y": 376,
+          "w": 60,
+          "h": 64,
+          "kind": "falling",
+          "role": "hazard"
+        },
+        {
+          "id": "cave-falling-14800",
+          "x": 21200,
+          "y": 376,
+          "w": 60,
+          "h": 64,
+          "kind": "falling",
+          "role": "hazard"
+        },
+        {
+          "id": "cave-falling-21000",
+          "x": 8200,
+          "y": 376,
+          "w": 60,
+          "h": 64,
+          "kind": "falling",
+          "role": "hazard"
+        },
+        {
+          "id": "cave-hand-13400",
+          "x": 19800,
+          "y": 365,
+          "w": 140,
+          "h": 39,
+          "kind": "hand",
+          "role": "hazard"
+        }
+      ],
+      "monsters": [
+        {
+          "id": "cave-enemy-ground-1",
+          "kind": "stone",
+          "x": 13600,
+          "role": "monster"
+        },
+        {
+          "id": "cave-enemy-ground-2",
+          "kind": "cyclops",
+          "x": 18600,
+          "role": "monster"
+        },
+        {
+          "id": "cave-enemy-ground-3",
+          "kind": "stone",
+          "x": 5200,
+          "role": "monster"
+        },
+        {
+          "id": "cave-enemy-ground-4",
+          "kind": "cyclops",
+          "x": 9000,
+          "role": "monster"
+        },
+        {
+          "id": "cave-enemy-air-1",
+          "kind": "shade",
+          "x": 10900,
+          "role": "monster"
+        },
+        {
+          "id": "cave-enemy-air-2",
+          "kind": "shade",
+          "x": 19300,
+          "role": "monster"
+        },
+        {
+          "id": "cave-enemy-air-3",
+          "kind": "shade",
+          "x": 6700,
+          "role": "monster"
+        },
+        {
+          "id": "cave-bait-0",
+          "kind": "stone",
+          "x": 18495,
+          "bait": true,
+          "role": "monster"
+        },
+        {
+          "id": "cave-bait-1",
+          "kind": "stone",
+          "x": 8895,
+          "bait": true,
+          "role": "monster"
+        }
+      ],
+      "platforms": [
+        {
+          "id": "cave-branch",
+          "x": 13940,
+          "y": 330,
+          "w": 460,
+          "role": "structure"
+        }
+      ]
+    },
+    {
+      "key": "cave/boss",
+      "counts": {
+        "structures": 0,
+        "hazards": 1,
+        "monsters": 6,
+        "platforms": 0
+      },
+      "objects": [
+        {
+          "id": "cave-boss-hand",
+          "kind": "hand",
+          "role": "hazard",
+          "x": 8400,
+          "y": 365,
+          "w": 180,
+          "h": 39
+        }
+      ],
+      "monsters": [
+        {
+          "id": "cave-boss-1",
+          "kind": "stone",
+          "x": 1500,
+          "role": "monster"
+        },
+        {
+          "id": "cave-boss-2",
+          "kind": "stone",
+          "x": 2700,
+          "role": "monster"
+        },
+        {
+          "id": "cave-boss-3",
+          "kind": "cyclops",
+          "x": 3900,
+          "role": "monster"
+        },
+        {
+          "id": "cave-boss-4",
+          "kind": "cyclops",
+          "x": 5100,
+          "role": "monster"
+        },
+        {
+          "id": "cave-boss-5",
+          "kind": "shade",
+          "x": 6300,
+          "role": "monster"
+        },
+        {
+          "id": "cave-boss-6",
+          "kind": "shade",
+          "x": 7500,
+          "role": "monster"
+        }
+      ],
+      "platforms": []
+    },
+    {
+      "key": "wind/classic",
+      "counts": {
+        "structures": 8,
+        "hazards": 0,
+        "monsters": 7,
+        "platforms": 6
+      },
+      "objects": [
+        {
+          "id": "wind-crate-3700",
+          "x": 3700,
+          "y": 392,
+          "w": 70,
+          "h": 48,
+          "kind": "crate",
+          "role": "structure"
+        },
+        {
+          "id": "wind-pillar-5400",
+          "x": 5400,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "wind-pillar-10600",
+          "x": 10600,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "wind-pillar-15800",
+          "x": 15800,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "wind-pillar-22300",
+          "x": 22300,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "wind-gate-6500",
+          "x": 6500,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "wind-gate-11500",
+          "x": 11500,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "wind-gate-18400",
+          "x": 18400,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        }
+      ],
+      "monsters": [
+        {
+          "id": "wind-enemy-ground-1",
+          "kind": "scylla",
+          "x": 7600,
+          "role": "monster"
+        },
+        {
+          "id": "wind-enemy-ground-2",
+          "kind": "crab",
+          "x": 12600,
+          "role": "monster"
+        },
+        {
+          "id": "wind-enemy-ground-3",
+          "kind": "stone",
+          "x": 17600,
+          "role": "monster"
+        },
+        {
+          "id": "wind-enemy-ground-4",
+          "kind": "scylla",
+          "x": 21000,
+          "role": "monster"
+        },
+        {
+          "id": "wind-enemy-air-1",
+          "kind": "harpy",
+          "x": 4300,
+          "role": "monster"
+        },
+        {
+          "id": "wind-enemy-air-2",
+          "kind": "harpy",
+          "x": 12000,
+          "role": "monster"
+        },
+        {
+          "id": "wind-enemy-air-3",
+          "kind": "harpy",
+          "x": 21600,
+          "role": "monster"
+        }
+      ],
+      "platforms": [
+        {
+          "id": "wind-floating-1",
+          "x": 2300,
+          "y": 330,
+          "w": 230,
+          "moving": true,
+          "role": "structure"
+        },
+        {
+          "id": "wind-floating-2",
+          "x": 14100,
+          "y": 340,
+          "w": 150,
+          "moving": true,
+          "role": "structure"
+        },
+        {
+          "id": "wind-floating-3",
+          "x": 19850,
+          "y": 350,
+          "w": 180,
+          "moving": true,
+          "role": "structure"
+        },
+        {
+          "id": "wind-branch",
+          "x": 4140,
+          "y": 330,
+          "w": 600,
+          "role": "structure"
+        },
+        {
+          "id": "wind-cloud-1",
+          "x": 20200,
+          "y": 300,
+          "w": 180,
+          "role": "structure"
+        },
+        {
+          "id": "wind-cloud-2",
+          "x": 20500,
+          "y": 365,
+          "w": 180,
+          "role": "structure"
+        }
+      ]
+    },
+    {
+      "key": "wind/remix-a",
+      "counts": {
+        "structures": 8,
+        "hazards": 0,
+        "monsters": 7,
+        "platforms": 6
+      },
+      "objects": [
+        {
+          "id": "wind-crate-3700",
+          "x": 13300,
+          "y": 392,
+          "w": 70,
+          "h": 48,
+          "kind": "crate",
+          "role": "structure"
+        },
+        {
+          "id": "wind-pillar-5400",
+          "x": 15000,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "wind-pillar-10600",
+          "x": 20200,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "wind-pillar-15800",
+          "x": 6200,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "wind-pillar-22300",
+          "x": 12700,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "wind-gate-6500",
+          "x": 16100,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "wind-gate-11500",
+          "x": 21100,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "wind-gate-18400",
+          "x": 8800,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        }
+      ],
+      "monsters": [
+        {
+          "id": "wind-enemy-ground-1",
+          "kind": "scylla",
+          "x": 17200,
+          "role": "monster"
+        },
+        {
+          "id": "wind-enemy-ground-2",
+          "kind": "crab",
+          "x": 22200,
+          "role": "monster"
+        },
+        {
+          "id": "wind-enemy-ground-3",
+          "kind": "stone",
+          "x": 8000,
+          "role": "monster"
+        },
+        {
+          "id": "wind-enemy-ground-4",
+          "kind": "scylla",
+          "x": 11400,
+          "role": "monster"
+        },
+        {
+          "id": "wind-enemy-air-1",
+          "kind": "harpy",
+          "x": 13900,
+          "role": "monster"
+        },
+        {
+          "id": "wind-enemy-air-2",
+          "kind": "harpy",
+          "x": 21600,
+          "role": "monster"
+        },
+        {
+          "id": "wind-enemy-air-3",
+          "kind": "harpy",
+          "x": 12000,
+          "role": "monster"
+        }
+      ],
+      "platforms": [
+        {
+          "id": "wind-floating-1",
+          "x": 2300,
+          "y": 330,
+          "w": 230,
+          "moving": true,
+          "role": "structure"
+        },
+        {
+          "id": "wind-floating-2",
+          "x": 4500,
+          "y": 340,
+          "w": 150,
+          "moving": true,
+          "role": "structure"
+        },
+        {
+          "id": "wind-floating-3",
+          "x": 10250,
+          "y": 350,
+          "w": 180,
+          "moving": true,
+          "role": "structure"
+        },
+        {
+          "id": "wind-branch",
+          "x": 13740,
+          "y": 330,
+          "w": 600,
+          "role": "structure"
+        },
+        {
+          "id": "wind-cloud-1",
+          "x": 10600,
+          "y": 300,
+          "w": 180,
+          "role": "structure"
+        },
+        {
+          "id": "wind-cloud-2",
+          "x": 10900,
+          "y": 365,
+          "w": 180,
+          "role": "structure"
+        }
+      ]
+    },
+    {
+      "key": "wind/remix-b",
+      "counts": {
+        "structures": 8,
+        "hazards": 0,
+        "monsters": 7,
+        "platforms": 6
+      },
+      "objects": [
+        {
+          "id": "wind-crate-3700",
+          "x": 6900,
+          "y": 392,
+          "w": 70,
+          "h": 48,
+          "kind": "crate",
+          "role": "structure"
+        },
+        {
+          "id": "wind-pillar-5400",
+          "x": 8600,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "wind-pillar-10600",
+          "x": 13800,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "wind-pillar-15800",
+          "x": 19000,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "wind-pillar-22300",
+          "x": 6300,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "wind-gate-6500",
+          "x": 9700,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "wind-gate-11500",
+          "x": 14700,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "wind-gate-18400",
+          "x": 21600,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        }
+      ],
+      "monsters": [
+        {
+          "id": "wind-enemy-ground-1",
+          "kind": "scylla",
+          "x": 10800,
+          "role": "monster"
+        },
+        {
+          "id": "wind-enemy-ground-2",
+          "kind": "crab",
+          "x": 15800,
+          "role": "monster"
+        },
+        {
+          "id": "wind-enemy-ground-3",
+          "kind": "stone",
+          "x": 20800,
+          "role": "monster"
+        },
+        {
+          "id": "wind-enemy-ground-4",
+          "kind": "scylla",
+          "x": 5000,
+          "role": "monster"
+        },
+        {
+          "id": "wind-enemy-air-1",
+          "kind": "harpy",
+          "x": 7500,
+          "role": "monster"
+        },
+        {
+          "id": "wind-enemy-air-2",
+          "kind": "harpy",
+          "x": 15200,
+          "role": "monster"
+        },
+        {
+          "id": "wind-enemy-air-3",
+          "kind": "harpy",
+          "x": 5600,
+          "role": "monster"
+        }
+      ],
+      "platforms": [
+        {
+          "id": "wind-floating-1",
+          "x": 2300,
+          "y": 330,
+          "w": 230,
+          "moving": true,
+          "role": "structure"
+        },
+        {
+          "id": "wind-floating-2",
+          "x": 17300,
+          "y": 340,
+          "w": 150,
+          "moving": true,
+          "role": "structure"
+        },
+        {
+          "id": "wind-floating-3",
+          "x": 3850,
+          "y": 350,
+          "w": 180,
+          "moving": true,
+          "role": "structure"
+        },
+        {
+          "id": "wind-branch",
+          "x": 7340,
+          "y": 330,
+          "w": 600,
+          "role": "structure"
+        },
+        {
+          "id": "wind-cloud-1",
+          "x": 4200,
+          "y": 300,
+          "w": 180,
+          "role": "structure"
+        },
+        {
+          "id": "wind-cloud-2",
+          "x": 4500,
+          "y": 365,
+          "w": 180,
+          "role": "structure"
+        }
+      ]
+    },
+    {
+      "key": "wind/boss",
+      "counts": {
+        "structures": 0,
+        "hazards": 0,
+        "monsters": 6,
+        "platforms": 0
+      },
+      "objects": [],
+      "monsters": [
+        {
+          "id": "wind-boss-1",
+          "kind": "harpy",
+          "x": 1500,
+          "role": "monster"
+        },
+        {
+          "id": "wind-boss-2",
+          "kind": "harpy",
+          "x": 2700,
+          "role": "monster"
+        },
+        {
+          "id": "wind-boss-3",
+          "kind": "shade",
+          "x": 3900,
+          "role": "monster"
+        },
+        {
+          "id": "wind-boss-4",
+          "kind": "shade",
+          "x": 5100,
+          "role": "monster"
+        },
+        {
+          "id": "wind-boss-5",
+          "kind": "scylla",
+          "x": 6300,
+          "role": "monster"
+        },
+        {
+          "id": "wind-boss-6",
+          "kind": "scylla",
+          "x": 7500,
+          "role": "monster"
+        }
+      ],
+      "platforms": []
+    }
+  ]
+}

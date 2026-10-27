@@ -18,7 +18,8 @@
     "test:release": "tsx scripts/release-qa.ts",
     "test:offline": "tsx scripts/offline-qa.ts",
     "test:update": "tsx scripts/update-qa.ts",
-    "test:loading": "tsx scripts/loading-qa.ts"
+    "test:loading": "tsx scripts/loading-qa.ts",
+    "test:structures": "tsx scripts/structures-qa.ts"
   },
   "dependencies": {
     "phaser": "3.90.0"

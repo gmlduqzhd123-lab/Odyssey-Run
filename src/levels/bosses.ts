@@ -8,7 +8,7 @@ function build(stage:StageId):Course {
  const base=COURSES[stage],plan=structuredClone(ADVENTURE_PLANS[stage]);
  plan.branch={...plan.branch,start:30000,end:31000};plan.stories=[];plan.constellations=[];plan.highlight={id:stage+'-boss-final',start:6300,end:8900,name:BOSSES[stage].name,hint:BOSSES[stage].phases[2]};
  const kinds:Record<StageId,EnemyKind[]>={beach:['crab','crab','scylla','scylla','harpy','harpy'],cave:['stone','stone','cyclops','cyclops','shade','shade'],wind:['harpy','harpy','shade','shade','scylla','scylla']};
- const obstacles:Obstacle[]=stage==='cave'?[{id:'cave-boss-hand',kind:'hand',x:8400,y:365,w:180,h:39}]:[];
+ const obstacles:Obstacle[]=stage==='cave'?[{id:'cave-boss-hand',kind:'hand',role:'hazard',x:8400,y:365,w:180,h:39}]:[];
  return {...base,name:BOSSES[stage].name,length:BOSS_LENGTH,adventure:plan,routeName:BOSSES[stage].name,items:[],platforms:[],obstacles,gaps:stage==='wind'?[{x:8500,w:180}]:[],winds:stage==='wind'?[{x:8200,y:70,w:650,h:370}]:[],safe:[0,2800,6000,9000],enemies:kinds[stage].map((kind,i)=>({id:`${stage}-boss-${i+1}`,kind,x:1500+i*1200}))};
 }
 export const BOSS_COURSES=Object.fromEntries(STAGES.map(id=>[id,build(id)])) as Record<StageId,Course>;

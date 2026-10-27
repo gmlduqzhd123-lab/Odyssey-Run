@@ -6,7 +6,8 @@ import {type StageId,type Rect,type Platform,type Collectible} from '../levels/c
 import {score,rating} from '../systems/score';
 import type {RunResult} from '../storage/save';
 import {createEnemyState,updateEnemyState,type EnemyState} from '../levels/enemies';
-import {heroPose,collectibleContact,enemyContact,projectileContact} from '../systems/contact';
+import {heroPose,collectibleContact,enemyContact,projectileContact,obstacleContact} from '../systems/contact';
+import {obstaclePose} from '../rendering/poses';
 import {getCourse} from '../levels/variants';
 import type {VariantId} from '../levels/course-ids';
 export type RunState='ready'|'playing'|'paused'|'success'|'failure';
@@ -92,7 +93,7 @@ export class Runner {
   this.updateEnemies();
   for(const source of this.enemyStates){if(!source.projectile.active)continue;for(const target of this.enemyStates){if(target.id===source.id||!target.active||target.kind!=='stone'||!overlap(source.projectile,target))continue;this.defeated.add(target.id);target.defeated=true;target.active=false;source.projectile.active=false;this.spentShots.add(source.id);this.tricked.add(target.id);this.message='거인의 바위로 석상병 격파!';this.emit('trick');break;}}
   if(this.trident){const target=this.enemyStates.find(s=>!s.defeated&&(s.active||s.projectile.active)&&Math.hypot(s.x+s.w/2-this.x,s.y+s.h/2-(this.y-32))<(this.lantern>0?ADVENTURE_BALANCE.guardianRange:200));if(target){this.defeated.add(target.id);target.defeated=true;target.active=false;target.projectile.active=false;this.trident=false;this.message=this.lantern>0?'빛의 삼지창으로 격퇴!':'삼지창으로 격퇴!';this.emit('strike');}}
-  for(const o of this.course.obstacles){if(overlap(this.body,o)){this.contacts.add(o.id);this.hurt(false,o.kind);}this.observePass(o.id,o,false);}
+  for(const o of this.course.obstacles){if(o.role!=='hazard')continue;if(obstacleContact(pose,body,o,this.x)){this.contacts.add(o.id);this.hurt(false,o.kind);}this.observePass(o.id,obstaclePose(o,this.x),false);}
   for(const enemy of this.enemyStates){if(enemyContact(pose,body,enemy)||projectileContact(pose,body,enemy.projectile)){this.contacts.add(enemy.id);this.hurt(false,projectileContact(pose,body,enemy.projectile)?'projectile':enemy.kind);}if(!enemy.defeated&&!enemy.repelled)this.observePass(enemy.id,enemy,true);}
   if(this.y>C.fallBoundary&&this.recovering<=0){
    this.hurt(true);

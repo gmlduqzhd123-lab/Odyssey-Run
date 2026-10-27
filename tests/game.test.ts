@@ -21,7 +21,7 @@ test('A09 vertical wind and wings cap, timers and jumps are independent',()=>{co
 test('A10 magnet only attracts stars and not maps',()=>{const r=playing();const star=r.course.items[0];r.x=star.x-130;r.magnet=6;r.tick();assert.ok(r.collected.has(star.id));const map=r.course.items.find(i=>i.kind==='map')!;r.x=map.x-130;r.tick();assert.ok(!r.maps.has(map.id));});
 test('A11 effect refreshes instead of stacking, pause freezes all game time',()=>{const r=playing();const wings=r.course.items.find(i=>i.kind==='wings')!;r.wings=3;r.collect(wings);assert.equal(r.wings,6);r.state='paused';const x=r.x;step(r,10);assert.equal(r.wings,6);assert.equal(r.x,x);});
 test('A12 fatal obstacle collision at finish takes priority; result is stable',()=>{
- const r=playing();const obstacle={id:'test-finish-crate',kind:'crate' as const,x:23980,y:392,w:90,h:48};r.course.obstacles.push(obstacle);
+ const r=playing();const obstacle={id:'test-finish-rock',kind:'rock' as const,role:'hazard' as const,x:23980,y:392,w:90,h:48};r.course.obstacles.push(obstacle);
  try{r.x=23999;r.hp=1;r.tick();assert.equal(r.state,'failure');assert.equal(r.result().complete,false);assert.equal(r.result().score,2400);assert.equal(r.result(),r.result());}finally{r.course.obstacles.pop();}
 });
 test('arrival uses current location, and fall recovery never counts as completion',()=>{

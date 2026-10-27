@@ -7,7 +7,7 @@ export type StageId = typeof STAGES[number];
 export type ItemKind = 'star'|'map'|'shield'|'wings'|'magnet'|'apple'|'trident'|'lantern'|'compass';
 export interface Collectible {id:string;kind:ItemKind;x:number;y:number;checkpoint?:number;}
 export interface Rect {x:number;y:number;w:number;h:number;}
-export interface Obstacle extends Rect {id:string;kind:'crate'|'pillar'|'gate'|'rock'|'falling'|'hand';}
+export interface Obstacle extends Rect {id:string;kind:'crate'|'pillar'|'gate'|'rock'|'falling'|'hand';role:'structure'|'hazard';}
 export interface Platform {id:string;x:number;y:number;w:number; moving?:boolean;}
 export interface Course {id:StageId;length?:number;variant?:VariantId;routeName?:string;adventure?:AdventurePlan;name:string;subtitle:string;description:string;color:string;gaps:{x:number;w:number}[];obstacles:Obstacle[];platforms:Platform[];winds:Rect[];safe:number[];items:Collectible[];enemies:EnemyPlacement[];}
 const meta = {
@@ -24,9 +24,9 @@ const plans:Record<StageId,{crates:number[];pillars:number[];gates:number[];gaps
 function build(id:StageId):Course {
  const p=plans[id];
  const obstacles:Obstacle[]=[];
- const add=(x:number,kind:Obstacle['kind'],w:number,h:number,y=C.ground-h)=>obstacles.push({id:`${id}-${kind}-${x}`,x,y,w,h,kind});
- p.crates.forEach(x=>add(x,'crate',70,48)); p.pillars.forEach(x=>add(x,'pillar',65,120));
- p.gates.forEach(x=>add(x,'gate',160,125,279)); p.rocks.forEach(x=>add(x,'falling',60,64));
+ const add=(x:number,kind:Obstacle['kind'],role:Obstacle['role'],w:number,h:number,y=C.ground-h)=>obstacles.push({id:`${id}-${kind}-${x}`,x,y,w,h,kind,role});
+ p.crates.forEach(x=>add(x,'crate','structure',70,48)); p.pillars.forEach(x=>add(x,'pillar','structure',65,120));
+ p.gates.forEach(x=>add(x,'gate','structure',160,125,279)); p.rocks.forEach(x=>add(x,'falling','hazard',60,64));
  const gaps=p.gaps.map(x=>({x,w:id==='wind'?210:150}));
  const winds:Rect[]=id==='wind'?[{x:1200,y:80,w:420,h:360},{x:8200,y:60,w:740,h:400},{x:13600,y:40,w:800,h:410},{x:19500,y:40,w:850,h:410}]:[];
  const platforms:Platform[]=id==='wind'?[{id:'wind-floating-1',x:2300,y:330,w:230,moving:true},{id:'wind-floating-2',x:14100,y:340,w:150,moving:true},{id:'wind-floating-3',x:19850,y:350,w:180,moving:true}]:[];
@@ -61,7 +61,7 @@ function build(id:StageId):Course {
  const adventure=ADVENTURE_PLANS[id];
  platforms.push({id:adventure.branch.id,x:adventure.branch.start,y:330,w:adventure.branch.end-adventure.branch.start});
  if(id==='cave'){
-  add(13400,'hand',140,39,365);
+  add(13400,'hand','hazard',140,39,365);
   [12200,21800].forEach((x,i)=>enemies.push({id:`cave-bait-${i}`,kind:'stone',x:x-105,bait:true}));
  }
  if(id==='wind')platforms.push({id:'wind-cloud-1',x:20200,y:300,w:180},{id:'wind-cloud-2',x:20500,y:365,w:180});
