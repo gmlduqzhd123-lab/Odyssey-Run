@@ -39,6 +39,7 @@ export interface RunnerEvent {
   y: number;
   text?: string;
 }
+export const AUTO_SLIDE_LEAD = 70;
 const overlap = (a: Rect, b: Rect) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
 export class Runner {
   readonly course;
@@ -56,6 +57,8 @@ export class Runner {
   coyote: number = C.coyote;
   buffer = 0;
   slideHeld = false;
+  // One-button voyages duck automatically just before a low ceiling on the ground.
+  autoSlide = false;
   invincible = 0;
   shield = false;
   wings = 0;
@@ -134,6 +137,16 @@ export class Runner {
   platformY(p: Platform) {
     return p.y + (p.moving ? Math.sin(this.time * 1.6) * 22 : 0);
   }
+  private wantsSlide() {
+    if (this.slideHeld) return true;
+    if (!this.autoSlide || this.y !== C.ground) return false;
+    return this.course.obstacles.some(
+      o =>
+        (o.kind === 'gate' || o.kind === 'hand') &&
+        o.x - (this.x + C.bodyWidth / 2) < AUTO_SLIDE_LEAD &&
+        this.x - C.bodyWidth / 2 < o.x + o.w,
+    );
+  }
   private canStand(x = this.x, y = this.y) {
     return !this.course.obstacles.some(
       o => (o.kind === 'gate' || o.kind === 'hand') && overlap({x: x - 21, y: y - C.stand, w: 42, h: C.stand}, o),
@@ -200,7 +213,7 @@ export class Runner {
     const oldY = this.y,
       oldTop = this.body.y;
     this.x += C.speed * dt;
-    this.sliding = this.grounded && (this.slideHeld || (this.sliding && !this.canStand()));
+    this.sliding = this.grounded && (this.wantsSlide() || (this.sliding && !this.canStand()));
     this.vy += C.gravity * dt;
     const inWind = this.course.winds.some(w => overlap(this.body, w));
     if (inWind) {
@@ -230,7 +243,7 @@ export class Runner {
       this.grounded = true;
       this.jumps = 0;
       this.coyote = C.coyote;
-      this.sliding = this.slideHeld || (this.sliding && !this.canStand());
+      this.sliding = this.wantsSlide() || (this.sliding && !this.canStand());
       this.tryJump();
     }
     if (!this.grounded && this.coyote === 0 && this.jumps === 0) this.jumps = 1;

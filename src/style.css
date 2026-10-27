@@ -2591,3 +2591,17 @@ body {
   margin-top: 14px;
   font-size: 12px;
 }
+
+/* Easy voyage */
+.assist-chip {
+  background: rgba(255, 242, 210, 0.18);
+  border-radius: 999px;
+  padding: 0 0.6em;
+}
+.assist-note {
+  font-size: 0.9rem;
+  color: #9a6614;
+}
+#shell .play-ui[data-one-button='true'] .control.slide {
+  display: none;
+}

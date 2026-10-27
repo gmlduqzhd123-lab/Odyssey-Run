@@ -4,11 +4,14 @@ export interface Actions {
   pause(): void;
   active(): boolean;
   pauseActive?(): boolean;
+  // Toggle mode: one press ducks until the next slide press or a jump.
+  slideToggle?(): boolean;
 }
 export class Controls {
   private keys = new Set<string>();
   private pointers = new Map<number, 'jump' | 'slide'>();
   private buttonKeys = new Map<string, 'jump' | 'slide'>();
+  private latched = false;
   private abort = new AbortController();
   private buttonAbort = new AbortController();
   constructor(private actions: Actions) {
@@ -33,8 +36,8 @@ export class Controls {
         if (['Space', 'ArrowUp', 'ArrowDown'].includes(e.code)) e.preventDefault();
         if (e.repeat || this.keys.has(e.code)) return;
         this.keys.add(e.code);
-        if (e.code === 'Space' || e.code === 'ArrowUp') actions.jump();
-        if (e.code === 'ArrowDown') actions.slide(true);
+        if (e.code === 'Space' || e.code === 'ArrowUp') this.jump();
+        if (e.code === 'ArrowDown') this.press();
       },
       options,
     );
@@ -66,8 +69,8 @@ export class Controls {
           const type = button.dataset.control as 'jump' | 'slide';
           this.pointers.set(e.pointerId, type);
           button.setPointerCapture?.(e.pointerId);
-          if (type === 'jump') this.actions.jump();
-          else this.syncSlide();
+          if (type === 'jump') this.jump();
+          else this.press();
         },
         {signal: this.buttonAbort.signal},
       );
@@ -88,14 +91,29 @@ export class Controls {
           if (!this.actions.active() || e.repeat || this.buttonKeys.has(e.code)) return;
           const type = button.dataset.control as 'jump' | 'slide';
           this.buttonKeys.set(e.code, type);
-          if (type === 'jump') this.actions.jump();
-          else this.syncSlide();
+          if (type === 'jump') this.jump();
+          else this.press();
         },
         {signal: this.buttonAbort.signal},
       );
     });
   }
+  private jump() {
+    if (this.latched) {
+      this.latched = false;
+      this.syncSlide();
+    }
+    this.actions.jump();
+  }
+  private press() {
+    if (this.actions.slideToggle?.()) this.latched = !this.latched;
+    this.syncSlide();
+  }
   private syncSlide() {
+    if (this.actions.slideToggle?.()) {
+      this.actions.slide(this.latched);
+      return;
+    }
     this.actions.slide(
       this.keys.has('ArrowDown') ||
         [...this.pointers.values()].includes('slide') ||
@@ -107,6 +125,7 @@ export class Controls {
     this.keys.clear();
     this.pointers.clear();
     this.buttonKeys.clear();
+    this.latched = false;
     this.actions.slide(false);
   }
   destroy() {

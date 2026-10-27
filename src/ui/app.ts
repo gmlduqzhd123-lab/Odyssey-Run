@@ -4,7 +4,7 @@ import {COSMETICS, cosmeticUnlocked} from '../systems/cosmetics';
 import {BOSSES, BOSS_COURSES} from '../levels/bosses';
 import {mergeTrial} from '../storage/expeditions';
 import {damageGuidance} from '../systems/damage';
-import {defaultPreferences, type Quality} from '../storage/preferences';
+import {defaultPreferences, PACES, type Assist, type Pace, type Quality} from '../storage/preferences';
 import {ADVENTURE_PLANS, GOALS, type GoalId} from '../levels/adventure';
 import {ghostDistance} from '../storage/journal';
 import {harborArt, harborUnlocks, harborRequirements, journalCards} from './adventure-view';
@@ -97,6 +97,7 @@ export class App {
       pause: () => this.pause(),
       active: () => this.screen === 'play' && this.run?.state === 'playing',
       pauseActive: () => ['play', 'countdown'].includes(this.screen),
+      slideToggle: () => this.assist().slideToggle,
     });
     this.world = new World({
       frame: d => this.frame(d),
@@ -299,7 +300,7 @@ export class App {
     this.world.setStage(id);
     const c = COURSES[id];
     this.set(
-      `<div class="veil"><section class="panel prepare">${button('islands', '← 항해 지도', 'text-button back')}<span class="eyebrow">${icon(STAGE_RELIC[id])} ISLAND 0${STAGES.indexOf(id) + 1} / ${c.subtitle}</span><h1 tabindex="-1">${c.name}</h1><p>${c.description}</p>${regionArt(STAGE_VIEW[id], 'prepare-art', c.name + ' 풍경')}<div class="control-guide"><div><kbd>Space / ↑</kbd><b>점프</b><span>공중에서 한 번 더!</span></div><div><kbd>↓ 꾹</kbd><b>슬라이드</b><span>낮은 문을 통과해요</span></div><div><kbd>P / Esc</kbd><b>일시정지</b><span>잠깐 쉬어 가도 돼요</span></div></div><p class="touch-hint">스마트폰에서는 화면의 점프·슬라이드 버튼을 사용해요.<br>상자·기둥·문은 닿아도 안전해요. ! 표시 위험물·몬스터와 낭떠러지를 조심하세요.</p><div class="goal-line">♡ 체력 3 &nbsp; ✦ 별빛 100 &nbsp; ${icon('map')} 지도 3</div>${this.coursePicker(id)}<fieldset class="challenge-picker"><legend>이번 항해의 도전 · 하나를 골라요</legend>${Object.entries(
+      `<div class="veil"><section class="panel prepare">${button('islands', '← 항해 지도', 'text-button back')}<span class="eyebrow">${icon(STAGE_RELIC[id])} ISLAND 0${STAGES.indexOf(id) + 1} / ${c.subtitle}</span><h1 tabindex="-1">${c.name}</h1><p>${c.description}</p>${regionArt(STAGE_VIEW[id], 'prepare-art', c.name + ' 풍경')}<div class="control-guide"><div><kbd>Space / ↑</kbd><b>점프</b><span>공중에서 한 번 더!</span></div><div><kbd>↓ 꾹</kbd><b>슬라이드</b><span>낮은 문을 통과해요</span></div><div><kbd>P / Esc</kbd><b>일시정지</b><span>잠깐 쉬어 가도 돼요</span></div></div><p class="touch-hint">스마트폰에서는 화면의 점프·슬라이드 버튼을 사용해요.<br>상자·기둥·문은 닿아도 안전해요. ! 표시 위험물·몬스터와 낭떠러지를 조심하세요.</p>${this.assistLabel().length ? `<p class="assist-note">쉬운 항해 사용 중 · ${this.assistLabel().join(' · ')} · 설정에서 바꿀 수 있어요</p>` : ''}<div class="goal-line">♡ 체력 3 &nbsp; ✦ 별빛 100 &nbsp; ${icon('map')} 지도 3</div>${this.coursePicker(id)}<fieldset class="challenge-picker"><legend>이번 항해의 도전 · 하나를 골라요</legend>${Object.entries(
         GOALS,
       )
         .map(
@@ -336,13 +337,25 @@ export class App {
       this.special === 'boss' ? BOSS_COURSES[this.selected] : undefined,
       this.special === 'daily' && this.daily?.rule === 'no-shield' ? 'no-shield' : 'none',
     );
+    this.run.autoSlide = this.assist().autoSlide;
     this.world.showRun(this.run);
     this.store.data.tutorialSeen = true;
     this.store.persist();
     this.beginCountdown();
   }
+  private assist(): Assist {
+    return this.store.data.preferences.assist;
+  }
+  private assistLabel() {
+    const a = this.assist();
+    return [
+      a.pace < 1 ? `속도 ${a.pace}배` : '',
+      a.slideToggle ? '슬라이드 토글' : '',
+      a.autoSlide ? '버튼 하나' : '',
+    ].filter(Boolean);
+  }
   private hud() {
-    return `<div class="play-ui" tabindex="-1" role="group" aria-label="게임 조작"><div class="hud"><div class="hp-block"><span class="hud-caption">오디세우스</span><strong id="hp" aria-label="체력 3"></strong></div><div class="route-progress"><span>${this.special === 'boss' ? BOSSES[this.selected].name : this.special === 'daily' ? '오늘의 항해 · ' + this.daily!.name : COURSES[this.selected].name + ' · ' + VARIANT_LABELS[this.selected][this.selectedVariant].name}</span><progress id="progress" data-course="${this.selected}/${this.selectedVariant}" max="24000" value="0" aria-label="섬 진행률"></progress><i id="ghost-marker" hidden aria-label="비교 항해 위치"></i><small id="progress-label">0%</small></div><div class="score-block"><span class="hud-caption">SCORE</span><strong id="score">0</strong></div><div class="hud-actions">${button('fullscreen', '⛶', 'fullscreen-button', 'aria-label="전체 화면 전환"')}${button('pause', 'Ⅱ', 'pause-button', 'aria-label="일시정지"')}</div></div><div class="run-details"><span id="stars">✦ 0 / 100</span><span id="maps">지도 0 / 3</span><span id="effects"></span></div><div class="adventure-hud"><span id="goal-progress"></span><span id="ghost-delta"></span><span id="discovery-progress"></span></div><div class="touch-controls"><button data-control="slide" class="control slide" aria-label="슬라이드, 누르고 유지"><span>⇣</span><b>슬라이드</b><small>↓ 누르기</small></button><button data-control="jump" class="control jump" aria-label="점프, 공중에서 다시 누르면 2단 점프"><span>↟</span><b>점프</b><small>Space / ↑</small></button></div></div>`;
+    return `<div class="play-ui" tabindex="-1" role="group" aria-label="게임 조작" data-one-button="${this.assist().autoSlide}"><div class="hud"><div class="hp-block"><span class="hud-caption">오디세우스</span><strong id="hp" aria-label="체력 3"></strong></div><div class="route-progress"><span>${this.special === 'boss' ? BOSSES[this.selected].name : this.special === 'daily' ? '오늘의 항해 · ' + this.daily!.name : COURSES[this.selected].name + ' · ' + VARIANT_LABELS[this.selected][this.selectedVariant].name}</span><progress id="progress" data-course="${this.selected}/${this.selectedVariant}" max="24000" value="0" aria-label="섬 진행률"></progress><i id="ghost-marker" hidden aria-label="비교 항해 위치"></i><small id="progress-label">0%</small></div><div class="score-block"><span class="hud-caption">SCORE</span><strong id="score">0</strong></div><div class="hud-actions">${button('fullscreen', '⛶', 'fullscreen-button', 'aria-label="전체 화면 전환"')}${button('pause', 'Ⅱ', 'pause-button', 'aria-label="일시정지"')}</div></div><div class="run-details"><span id="stars">✦ 0 / 100</span><span id="maps">지도 0 / 3</span><span id="effects"></span>${this.assistLabel().length ? `<span class="assist-chip">쉬운 항해 · ${this.assistLabel().join(' · ')}</span>` : ''}</div><div class="adventure-hud"><span id="goal-progress"></span><span id="ghost-delta"></span><span id="discovery-progress"></span></div><div class="touch-controls"><button data-control="slide" class="control slide" aria-label="슬라이드, 누르고 유지"><span>⇣</span><b>슬라이드</b><small>↓ 누르기</small></button><button data-control="jump" class="control jump" aria-label="점프, 공중에서 다시 누르면 2단 점프"><span>↟</span><b>점프</b><small>Space / ↑</small></button></div></div>`;
   }
   private beginCountdown() {
     this.countdown = 3;
@@ -658,9 +671,13 @@ export class App {
   private settings() {
     this.returnScreen = this.screen === 'islands' ? 'islands' : 'home';
     this.set(
-      `<div class="page settings">${this.header('설정', this.returnScreen)}<div class="settings-layout"><div class="page-heading"><span class="eyebrow">MAKE IT YOUR JOURNEY</span><h1 tabindex="-1">나의 항해 설정</h1><p>기록은 이 기기와 브라우저에 저장돼요.<br>기록 파일로 옮길 수 있어요.</p><div class="save-note">계정 없이, 이 브라우저에만 저장해요.<br>다른 기기와 자동으로 동기화되지는 않아요.</div></div><div class="settings-body"><section><h2>소리와 움직임</h2>${this.settingToggle('music', '배경음')}${this.settingToggle('sfx', '효과음')}${this.settingToggle('reducedMotion', '움직임 줄이기')}<small>기본 배경은 고정돼 있어요. 켜면 장식 무늬와 바람 표시를 더 줄여요. 달리기·점프와 위험 신호는 유지돼요.</small></section><section><h2>화질과 조작</h2><label>그래픽 품질 <select id="quality"><option value="auto" ${this.store.data.preferences.quality === 'auto' ? 'selected' : ''}>자동</option><option value="high" ${this.store.data.preferences.quality === 'high' ? 'selected' : ''}>선명하게</option><option value="low" ${this.store.data.preferences.quality === 'low' ? 'selected' : ''}>가볍게</option></select></label><p class="muted">가볍게는 그림 해상도만 줄여요. 시야·달리기·점프·판정은 같아요.</p>${button('touch-layout', '터치 버튼 맞춤', 'secondary')}</section><section><h2>오프라인과 업데이트</h2>${button('offline', '섬 다운로드·업데이트', 'secondary')}<p class="muted">다운로드한 섬은 오프라인에서도 시작할 수 있어요. 새 버전은 항해를 끝낸 뒤 적용해요.</p></section><section><h2>기록 보관함</h2><div class="backup-row">${button('export', icon('map') + ' 기록 내보내기', 'secondary')}<label class="button secondary file-button">기록 가져오기<input id="import-file" type="file" accept="application/json,.json" aria-label="JSON 기록 파일 가져오기"></label></div><p class="muted">UTF-8 JSON · 최대 64KiB · 복원 전 내용을 확인해요.</p>${this.store.blocked ? button('original', '보존된 원본 내려받기', 'text-button') : ''}${button('reset-confirm', '이 게임의 기록 초기화', 'danger text-button')}</section><div id="import-error" role="alert"></div></div></div></div>`,
+      `<div class="page settings">${this.header('설정', this.returnScreen)}<div class="settings-layout"><div class="page-heading"><span class="eyebrow">MAKE IT YOUR JOURNEY</span><h1 tabindex="-1">나의 항해 설정</h1><p>기록은 이 기기와 브라우저에 저장돼요.<br>기록 파일로 옮길 수 있어요.</p><div class="save-note">계정 없이, 이 브라우저에만 저장해요.<br>다른 기기와 자동으로 동기화되지는 않아요.</div></div><div class="settings-body"><section><h2>소리와 움직임</h2>${this.settingToggle('music', '배경음')}${this.settingToggle('sfx', '효과음')}${this.settingToggle('reducedMotion', '움직임 줄이기')}<small>기본 배경은 고정돼 있어요. 켜면 장식 무늬와 바람 표시를 더 줄여요. 달리기·점프와 위험 신호는 유지돼요.</small></section>${this.assistSettings()}<section><h2>화질과 조작</h2><label>그래픽 품질 <select id="quality"><option value="auto" ${this.store.data.preferences.quality === 'auto' ? 'selected' : ''}>자동</option><option value="high" ${this.store.data.preferences.quality === 'high' ? 'selected' : ''}>선명하게</option><option value="low" ${this.store.data.preferences.quality === 'low' ? 'selected' : ''}>가볍게</option></select></label><p class="muted">가볍게는 그림 해상도만 줄여요. 시야·달리기·점프·판정은 같아요.</p>${button('touch-layout', '터치 버튼 맞춤', 'secondary')}</section><section><h2>오프라인과 업데이트</h2>${button('offline', '섬 다운로드·업데이트', 'secondary')}<p class="muted">다운로드한 섬은 오프라인에서도 시작할 수 있어요. 새 버전은 항해를 끝낸 뒤 적용해요.</p></section><section><h2>기록 보관함</h2><div class="backup-row">${button('export', icon('map') + ' 기록 내보내기', 'secondary')}<label class="button secondary file-button">기록 가져오기<input id="import-file" type="file" accept="application/json,.json" aria-label="JSON 기록 파일 가져오기"></label></div><p class="muted">UTF-8 JSON · 최대 64KiB · 복원 전 내용을 확인해요.</p>${this.store.blocked ? button('original', '보존된 원본 내려받기', 'text-button') : ''}${button('reset-confirm', '이 게임의 기록 초기화', 'danger text-button')}</section><div id="import-error" role="alert"></div></div></div></div>`,
       'settings',
     );
+  }
+  private assistSettings() {
+    const a = this.assist();
+    return `<section class="assist-settings"><h2>쉬운 항해</h2><label>게임 속도 <select data-assist="pace">${PACES.map(p => `<option value="${p}" ${a.pace === p ? 'selected' : ''}>${p === 1 ? '보통 (1배)' : p + '배'}</option>`).join('')}</select></label><label class="toggle"><span>슬라이드 한 번 눌러 유지</span><input type="checkbox" data-assist="slideToggle" ${a.slideToggle ? 'checked' : ''}><i aria-hidden="true"></i></label><label class="toggle"><span>버튼 하나로 항해 (자동 슬라이드)</span><input type="checkbox" data-assist="autoSlide" ${a.autoSlide ? 'checked' : ''}><i aria-hidden="true"></i></label><small>느리게 하면 시간 전체가 함께 느려져 점프 거리와 판정은 그대로예요. 점수 계산도 같아요. 슬라이드 토글은 다시 누르거나 점프하면 일어서요. 버튼 하나 모드는 낮은 문 앞에서 저절로 숙여요.</small></section>`;
   }
   private applyLayout() {
     const t = this.store.data.preferences.touch,
@@ -748,6 +765,15 @@ export class App {
     }
     if (input.name === 'goal' && Object.hasOwn(GOALS, input.value)) {
       this.selectedGoal = input.value as GoalId;
+      return;
+    }
+    if (input.dataset.assist) {
+      const a = this.store.data.preferences.assist,
+        key = input.dataset.assist;
+      if (key === 'pace' && PACES.includes(Number(input.value) as Pace)) a.pace = Number(input.value) as Pace;
+      if (key === 'slideToggle' || key === 'autoSlide') a[key] = input.checked;
+      this.store.persist();
+      this.notice();
       return;
     }
     if (input.dataset.setting) {
@@ -990,7 +1016,7 @@ export class App {
       if (n) n.textContent = String(Math.max(1, Math.ceil(this.countdown)));
       if (this.countdown <= 0) this.play();
     } else if (this.screen === 'play' && this.run?.state === 'playing') {
-      this.accumulator += Math.min(delta, 0.1);
+      this.accumulator += Math.min(delta, 0.1) * this.assist().pace;
       while (this.accumulator >= C.step) {
         this.run.tick();
         this.accumulator -= C.step;

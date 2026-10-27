@@ -6,8 +6,17 @@ export interface TouchLayout {
   opacity: number;
   swapped: boolean;
 }
+export const PACES = [1, 0.9, 0.8, 0.7] as const;
+export type Pace = (typeof PACES)[number];
+// Easy-voyage assists slow game time uniformly, so every jump and gap stays reachable.
+export interface Assist {
+  pace: Pace;
+  slideToggle: boolean;
+  autoSlide: boolean;
+}
 export interface Preferences {
   quality: Quality;
+  assist: Assist;
   touch: TouchLayout;
   cape: 'classic' | 'sea' | 'royal';
   emblem: 'plain' | 'owl' | 'star';
@@ -15,6 +24,7 @@ export interface Preferences {
 }
 export const defaultPreferences = (): Preferences => ({
   quality: 'auto',
+  assist: {pace: 1, slideToggle: false, autoSlide: false},
   touch: {size: 80, bottom: 0, inset: 0, opacity: 0.85, swapped: false},
   cape: 'classic',
   emblem: 'plain',
@@ -48,5 +58,14 @@ export function readPreferences(raw: unknown): Preferences {
   }
   if (typeof t.swapped !== 'boolean') throw Error('버튼 좌우 설정을 확인해 주세요.');
   out.touch.swapped = t.swapped;
+  // Saves written before easy voyages have no assist block; keep the defaults.
+  if (v.assist !== undefined) {
+    const a = v.assist as Record<string, unknown>;
+    if (!a || typeof a !== 'object' || Array.isArray(a) || !PACES.includes(a.pace as Pace))
+      throw Error('쉬운 항해 속도를 확인해 주세요.');
+    if (typeof a.slideToggle !== 'boolean' || typeof a.autoSlide !== 'boolean')
+      throw Error('쉬운 항해 조작 설정을 확인해 주세요.');
+    out.assist = {pace: a.pace as Pace, slideToggle: a.slideToggle, autoSlide: a.autoSlide};
+  }
   return out;
 }
