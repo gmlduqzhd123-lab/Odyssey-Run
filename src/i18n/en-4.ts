@@ -320,4 +320,10 @@ export const EN_4: Record<string, string> = {
   '‘{x}’ 기록을 뺐어요. 다시 찍으면 다시 들어가요.': 'Removed ‘{x}’. Scanning it again adds it back.',
   '화면이 끊겨서 그래픽을 가볍게 바꿨어요. 설정 → 그래픽 품질에서 바꿀 수 있어요.':
     'The screen was stuttering, so graphics switched to light. You can change it in Settings → Graphics quality.',
+  '출발할 때 전체 화면 (휴대폰·태블릿)': 'Full screen when a run starts (phones and tablets)',
+  '주소창을 숨기고 화면을 꽉 채워요. 안드로이드는 가로로 고정해요. 아이폰은 공유 → 홈 화면에 추가로 설치하면 꽉 차요.':
+    'Hides the address bar and fills the screen. Android also locks to landscape. On iPhone, install with Share → Add to Home Screen to fill the screen.',
+  '아이폰·아이패드는 공유 → 홈 화면에 추가로 설치하면 주소창 없이 화면을 꽉 채워요.':
+    'On iPhone and iPad, install with Share → Add to Home Screen to fill the screen without the address bar.',
+  '전체 화면 설정을 확인해 주세요.': 'Check the full screen setting.',
 };

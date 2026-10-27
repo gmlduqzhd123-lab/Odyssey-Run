@@ -21,6 +21,10 @@ const VIEWPORTS = [
   {name: 'phone-844', width: 844, height: 390, touch: true},
   {name: 'phone-740', width: 740, height: 360, touch: true},
   {name: 'phone-667', width: 667, height: 375, touch: true},
+  // Landscape phones with the browser's address and tool bars showing.
+  {name: 'phone-bars-658', width: 658, height: 320, touch: true},
+  {name: 'phone-bars-740', width: 740, height: 300, touch: true},
+  {name: 'phone-portrait-390', width: 390, height: 664, touch: true},
 ];
 // Screens reached by a button on the home page (or a page reached from there).
 const SCREENS: [string, string[]][] = [
@@ -109,7 +113,9 @@ const found = new Map<string, Set<string>>(),
 try {
   for (const lang of (process.env.QA_LANGS || 'ko,en').split(','))
     for (const played of (process.env.QA_SAVES || 'empty,played').split(',').map(v => v === 'played'))
-      for (const v of VIEWPORTS) {
+      for (const v of VIEWPORTS.filter(
+        v => !process.env.QA_VIEWPORTS || process.env.QA_VIEWPORTS.split(',').includes(v.name),
+      )) {
         const ctx = await b.newContext({
           viewport: {width: v.width, height: v.height},
           hasTouch: !!v.touch,
