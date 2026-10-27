@@ -16,6 +16,7 @@ npm run dev
 Vite가 출력한 로컬 주소를 엽니다. 로컬 개발 서버는 운영 배포 서버가 아닙니다.
 
 ```sh
+npm run format      # 코드 자동 정렬 (CI는 format:check로 확인)
 npm run typecheck   # TypeScript 검사
 npm test            # 물리·점수·저장·코스 검증
 npm run build       # 타입 검사 후 dist/ 생성

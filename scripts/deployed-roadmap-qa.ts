@@ -1,10 +1,157 @@
-import {chromium,expect} from '@playwright/test';import {readFile,writeFile} from 'node:fs/promises';import {bossInputs} from '../src/levels/bosses';
-const url='https://gmlduqzhd123-lab.github.io/Odyssey-Run/',b=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--no-sandbox'],proxy:{server:process.env.HTTPS_PROXY||process.env.HTTP_PROXY!}}),results:any[]=[],errors:string[]=[],failures:string[]=[];
-try{for(const mobile of [false,true]){const c=await b.newContext({viewport:mobile?{width:844,height:390}:{width:1280,height:800},isMobile:mobile,hasTouch:mobile,deviceScaleFactor:2}),p=await c.newPage();p.on('pageerror',e=>errors.push(e.message));p.on('response',r=>{if(r.status()>=400)failures.push(`${r.status()} ${r.url()}`);});const response=await p.goto(url);await p.waitForSelector('.home');await p.evaluate(async()=>{await navigator.serviceWorker.ready;});await p.clock.install();await p.clock.pauseAt((await p.evaluate(()=>Date.now()))+1000);const bundle=await p.locator('script[type="module"]').getAttribute('src');expect(bundle).toBe((await readFile('dist/index.html','utf8')).match(/<script(?=[^>]*type="module")[^>]*src="([^"]+)"/)![1]);const click=async(s:string)=>mobile?p.locator(s).first().tap():p.locator(s).first().click();const countdown=async()=>{while(await p.locator('.countdown').count())await p.clock.runFor(17);};
- await click('[data-action="settings"]');await p.locator('#quality').selectOption('low');await click('[data-action="touch-layout"]');await p.locator('[data-layout="size"]').fill('96');await p.locator('[data-layout="size"]').dispatchEvent('input');await click('[data-action="layout-save"]');await click('[data-action="offline"]');await expect(p.locator('.offline-page')).toContainText('다운로드 준비됨',{timeout:30000});await click('[data-action="settings"]');await p.locator('#import-file').setInputFiles('artifacts/legacy-v1-save.json');await click('[data-action="import-confirm"]');const old=JSON.parse(await readFile('artifacts/legacy-v1-save.json','utf8'));await click('[data-action="home"]');await click('[data-action="wardrobe"]');await click('[data-action="equip:cape:sea"]');await expect(p.locator('[data-action="equip:cape:sea"]')).toHaveAttribute('aria-pressed','true');await click('[data-action="home"]');await click('[data-action="challenges"]');await expect(p.locator('[data-action="boss:beach"]')).toBeEnabled();await click('[data-action="boss:beach"]');await click('[data-action="start"]');await countdown();const session=mobile?await c.newCDPSession(p):null;let held:any=null;
- const point=async(type:string,id:number)=>{const q=(await p.locator(`[data-control="${type}"]`).boundingBox())!;return{id,x:q.x+q.width/2,y:q.y+q.height/2};};const x=async()=>Number(await p.locator('#progress').getAttribute('data-distance'));const advance=async(target:number)=>{while(await x()<target){await expect(p.locator('.result')).toHaveCount(0);await p.clock.runFor(Math.max(17,Math.ceil((target-await x())/320*1000)));}};
- const plan=bossInputs('beach'),events=[...plan.jumps.map(x=>({x,type:'jump'})),...plan.slides.flatMap(s=>[{x:s.start,type:'down'},{x:s.end,type:'up'}])].sort((a,b)=>a.x-b.x);
- for(const e of events){await advance(e.x);if(!session){if(e.type==='jump')await p.keyboard.press('Space');else if(e.type==='down')await p.keyboard.down('ArrowDown');else await p.keyboard.up('ArrowDown');}else if(e.type==='jump'){const j=await point('jump',22);await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:held?[held,j]:[j]});await session.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:held?[held]:[]});}else if(e.type==='down'){held=await point('slide',11);await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[held]});}else{held=null;await session.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});}}
- await advance(9300);await p.clock.runFor(1800);await expect(p.locator('.result')).toContainText('HP 손실 0회');const save=await p.evaluate(()=>JSON.parse(localStorage.getItem(Object.keys(localStorage).find(k=>k.startsWith('odyssey-run:')&&k.endsWith(':save'))!)!));expect(save.stages).toEqual(old.stages);expect(save.settings).toEqual(old.settings);expect(save.expeditions.bosses.beach.bestScore).toBe(1460);await p.screenshot({path:`artifacts/roadmap-deployed-${mobile?'mobile':'desktop'}-boss.png`});await click('[data-action="home"]');await click('[data-action="challenges"]');await click('[data-action="daily"]');await expect(p.locator('[data-action="start"]')).toBeVisible();results.push({mobile,status:response?.status(),bundle,controlsEditor:true,quality:true,offlineUI:true,wardrobe:true,legacyCorePreserved:true,bossKeyboardOrMultiTouch:true,boss:save.expeditions.bosses.beach,dailyPreparation:true});await c.close();console.log('deployed roadmap',mobile?'mobile':'desktop','passed');}
- expect(errors).toEqual([]);expect(failures).toEqual([]);await writeFile('artifacts/roadmap-deployed-results.json',JSON.stringify({url,checkedAt:new Date().toISOString(),browser:await b.version(),environment:'Linux Chromium PC/mobile emulation, actual keyboard/CDP touch events with virtual clock; no physical device',results,errors,failures},null,2));
-}finally{await b.close();}
+import {chromium, expect} from '@playwright/test';
+import {readFile, writeFile} from 'node:fs/promises';
+import {bossInputs} from '../src/levels/bosses';
+const url = 'https://gmlduqzhd123-lab.github.io/Odyssey-Run/',
+  b = await chromium.launch({
+    executablePath: '/usr/bin/chromium',
+    args: ['--no-sandbox'],
+    proxy: {server: process.env.HTTPS_PROXY || process.env.HTTP_PROXY!},
+  }),
+  results: any[] = [],
+  errors: string[] = [],
+  failures: string[] = [];
+try {
+  for (const mobile of [false, true]) {
+    const c = await b.newContext({
+        viewport: mobile ? {width: 844, height: 390} : {width: 1280, height: 800},
+        isMobile: mobile,
+        hasTouch: mobile,
+        deviceScaleFactor: 2,
+      }),
+      p = await c.newPage();
+    p.on('pageerror', e => errors.push(e.message));
+    p.on('response', r => {
+      if (r.status() >= 400) failures.push(`${r.status()} ${r.url()}`);
+    });
+    const response = await p.goto(url);
+    await p.waitForSelector('.home');
+    await p.evaluate(async () => {
+      await navigator.serviceWorker.ready;
+    });
+    await p.clock.install();
+    await p.clock.pauseAt((await p.evaluate(() => Date.now())) + 1000);
+    const bundle = await p.locator('script[type="module"]').getAttribute('src');
+    expect(bundle).toBe(
+      (await readFile('dist/index.html', 'utf8')).match(/<script(?=[^>]*type="module")[^>]*src="([^"]+)"/)![1],
+    );
+    const click = async (s: string) => (mobile ? p.locator(s).first().tap() : p.locator(s).first().click());
+    const countdown = async () => {
+      while (await p.locator('.countdown').count()) await p.clock.runFor(17);
+    };
+    await click('[data-action="settings"]');
+    await p.locator('#quality').selectOption('low');
+    await click('[data-action="touch-layout"]');
+    await p.locator('[data-layout="size"]').fill('96');
+    await p.locator('[data-layout="size"]').dispatchEvent('input');
+    await click('[data-action="layout-save"]');
+    await click('[data-action="offline"]');
+    await expect(p.locator('.offline-page')).toContainText('다운로드 준비됨', {timeout: 30000});
+    await click('[data-action="settings"]');
+    await p.locator('#import-file').setInputFiles('artifacts/legacy-v1-save.json');
+    await click('[data-action="import-confirm"]');
+    const old = JSON.parse(await readFile('artifacts/legacy-v1-save.json', 'utf8'));
+    await click('[data-action="home"]');
+    await click('[data-action="wardrobe"]');
+    await click('[data-action="equip:cape:sea"]');
+    await expect(p.locator('[data-action="equip:cape:sea"]')).toHaveAttribute('aria-pressed', 'true');
+    await click('[data-action="home"]');
+    await click('[data-action="challenges"]');
+    await expect(p.locator('[data-action="boss:beach"]')).toBeEnabled();
+    await click('[data-action="boss:beach"]');
+    await click('[data-action="start"]');
+    await countdown();
+    const session = mobile ? await c.newCDPSession(p) : null;
+    let held: any = null;
+    const point = async (type: string, id: number) => {
+      const q = (await p.locator(`[data-control="${type}"]`).boundingBox())!;
+      return {id, x: q.x + q.width / 2, y: q.y + q.height / 2};
+    };
+    const x = async () => Number(await p.locator('#progress').getAttribute('data-distance'));
+    const advance = async (target: number) => {
+      while ((await x()) < target) {
+        await expect(p.locator('.result')).toHaveCount(0);
+        await p.clock.runFor(Math.max(17, Math.ceil(((target - (await x())) / 320) * 1000)));
+      }
+    };
+    const plan = bossInputs('beach'),
+      events = [
+        ...plan.jumps.map(x => ({x, type: 'jump'})),
+        ...plan.slides.flatMap(s => [
+          {x: s.start, type: 'down'},
+          {x: s.end, type: 'up'},
+        ]),
+      ].sort((a, b) => a.x - b.x);
+    for (const e of events) {
+      await advance(e.x);
+      if (!session) {
+        if (e.type === 'jump') await p.keyboard.press('Space');
+        else if (e.type === 'down') await p.keyboard.down('ArrowDown');
+        else await p.keyboard.up('ArrowDown');
+      } else if (e.type === 'jump') {
+        const j = await point('jump', 22);
+        await session.send('Input.dispatchTouchEvent', {type: 'touchStart', touchPoints: held ? [held, j] : [j]});
+        await session.send('Input.dispatchTouchEvent', {type: 'touchEnd', touchPoints: held ? [held] : []});
+      } else if (e.type === 'down') {
+        held = await point('slide', 11);
+        await session.send('Input.dispatchTouchEvent', {type: 'touchStart', touchPoints: [held]});
+      } else {
+        held = null;
+        await session.send('Input.dispatchTouchEvent', {type: 'touchEnd', touchPoints: []});
+      }
+    }
+    await advance(9300);
+    await p.clock.runFor(1800);
+    await expect(p.locator('.result')).toContainText('HP 손실 0회');
+    const save = await p.evaluate(() =>
+      JSON.parse(
+        localStorage.getItem(
+          Object.keys(localStorage).find(k => k.startsWith('odyssey-run:') && k.endsWith(':save'))!,
+        )!,
+      ),
+    );
+    expect(save.stages).toEqual(old.stages);
+    expect(save.settings).toEqual(old.settings);
+    expect(save.expeditions.bosses.beach.bestScore).toBe(1460);
+    await p.screenshot({path: `artifacts/roadmap-deployed-${mobile ? 'mobile' : 'desktop'}-boss.png`});
+    await click('[data-action="home"]');
+    await click('[data-action="challenges"]');
+    await click('[data-action="daily"]');
+    await expect(p.locator('[data-action="start"]')).toBeVisible();
+    results.push({
+      mobile,
+      status: response?.status(),
+      bundle,
+      controlsEditor: true,
+      quality: true,
+      offlineUI: true,
+      wardrobe: true,
+      legacyCorePreserved: true,
+      bossKeyboardOrMultiTouch: true,
+      boss: save.expeditions.bosses.beach,
+      dailyPreparation: true,
+    });
+    await c.close();
+    console.log('deployed roadmap', mobile ? 'mobile' : 'desktop', 'passed');
+  }
+  expect(errors).toEqual([]);
+  expect(failures).toEqual([]);
+  await writeFile(
+    'artifacts/roadmap-deployed-results.json',
+    JSON.stringify(
+      {
+        url,
+        checkedAt: new Date().toISOString(),
+        browser: await b.version(),
+        environment:
+          'Linux Chromium PC/mobile emulation, actual keyboard/CDP touch events with virtual clock; no physical device',
+        results,
+        errors,
+        failures,
+      },
+      null,
+      2,
+    ),
+  );
+} finally {
+  await b.close();
+}

@@ -19,7 +19,9 @@
     "test:offline": "tsx scripts/offline-qa.ts",
     "test:update": "tsx scripts/update-qa.ts",
     "test:loading": "tsx scripts/loading-qa.ts",
-    "test:structures": "tsx scripts/structures-qa.ts"
+    "test:structures": "tsx scripts/structures-qa.ts",
+    "format": "prettier --write src tests scripts public/sw.js vite.config.ts",
+    "format:check": "prettier --check src tests scripts public/sw.js vite.config.ts"
   },
   "dependencies": {
     "phaser": "3.90.0"
@@ -27,6 +29,7 @@
   "devDependencies": {
     "@playwright/test": "1.56.1",
     "@types/node": "24.10.0",
+    "prettier": "3.9.9",
     "tsx": "4.20.6",
     "typescript": "5.9.3",
     "vite": "7.3.7"

@@ -1,15 +1,153 @@
-import {chromium,expect} from '@playwright/test';
-import {readFile,writeFile} from 'node:fs/promises';
+import {chromium, expect} from '@playwright/test';
+import {readFile, writeFile} from 'node:fs/promises';
 import {routeInputs} from './check-routes';
-const url=process.env.QA_URL||'http://localhost:4176/Odyssey-Run/',production=url.startsWith('https:'),prefix=production?'adventure-final-deployed':'adventure-final';
-const b=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--no-sandbox'],...(production?{proxy:{server:process.env.HTTPS_PROXY||process.env.HTTP_PROXY!}}:{})});const errors:string[]=[],failures:string[]=[];
-try{
- const c=await b.newContext({viewport:{width:740,height:300},deviceScaleFactor:2,isMobile:true,hasTouch:true,acceptDownloads:true});await c.addInitScript(()=>{(window as any).__draws=0;const draw=CanvasRenderingContext2D.prototype.drawImage;CanvasRenderingContext2D.prototype.drawImage=function(this:CanvasRenderingContext2D,...a:any[]){if(this.canvas.parentElement?.id==='game')(window as any).__draws++;return (draw as Function).apply(this,a);} as typeof draw;});const p=await c.newPage();p.on('pageerror',e=>errors.push(e.message));p.on('response',r=>{if(r.status()>=400)failures.push(`${r.status()} ${r.url()}`);});await p.clock.install();const response=await p.goto(url);await p.waitForSelector('.home');const bundle=await p.locator('script[type="module"]').getAttribute('src');expect(bundle).toBe((await readFile('dist/index.html','utf8')).match(/<script(?=[^>]*type="module")[^>]*src="([^"]+)"/)![1]);await p.clock.pauseAt((await p.evaluate(()=>Date.now()))+1000);
- await p.locator('[data-action="quit"]').tap();await p.clock.runFor(1000);const draws=await p.evaluate(()=>(window as any).__draws);await p.clock.runFor(11000);expect(await p.evaluate(()=>(window as any).__draws)).toBe(draws);await p.evaluate(()=>{window.close=()=>{throw new DOMException('blocked','SecurityError');};});await p.locator('[data-action="close-tab"]').tap();await expect(p.locator('#notice')).toContainText('직접 닫아');await p.locator('[data-action="home"]').tap();await p.clock.runFor(100);expect(await p.evaluate(()=>(window as any).__draws)).toBeGreaterThan(draws);
- await p.locator('[data-action="settings"]').tap();await p.locator('#import-file').setInputFiles('artifacts/adventure-mobile-save.json');await p.locator('[data-action="import-confirm"]').tap();await p.locator('[data-action="home"]').tap();await p.locator('[data-action="harbor"]').tap();await p.clock.runFor(34);await expect(p.locator('.harbor-art .built')).toHaveCount(5);await p.screenshot({path:`artifacts/${prefix}-harbor.png`});await p.locator('[data-action="home"]').tap();await p.locator('[data-action="islands"]').first().tap();await p.locator('[data-action="stage:cave"]').tap();await p.locator('input[name="goal"][value="sky"]').check();await p.locator('[data-action="start"]').tap();while(await p.locator('.countdown').count())await p.clock.runFor(17);await expect(p.locator('#ghost-marker')).toBeVisible();
- const session=await c.newCDPSession(p);let held:any=null;const point=async(type:string,id:number)=>{const rect=(await p.locator(`[data-control="${type}"]`).boundingBox())!;return {id,x:rect.x+rect.width/2,y:rect.y+rect.height/2};};const distance=async()=>Number(await p.locator('#progress').getAttribute('data-distance'));const advance=async(x:number)=>{while(await distance()<x)await p.clock.runFor(Math.max(17,Math.ceil((x-await distance())/320*1000)));};
- const plan=routeInputs('cave','upper',true),events=[...plan.jumps.map(x=>({x,type:'jump'})),...plan.slides.flatMap(s=>[{x:s.start,type:'down'},{x:s.end,type:'up'}])].sort((a,b)=>a.x-b.x);
- for(const e of events){await advance(e.x);if(e.type==='jump'){const jump=await point('jump',22);await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:held?[held,jump]:[jump]});await session.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:held?[held]:[]});}else if(e.type==='down'){held=await point('slide',11);await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[held]});}else{held=null;await session.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});}}
- await advance(23400);await p.clock.runFor(2500);await expect(p.locator('.result')).toContainText('HP 손실 0회');await expect(p.locator('.adventure-result')).toContainText('도전 성공');const save=await p.evaluate(()=>{const k=Object.keys(localStorage).find(k=>k.startsWith('odyssey-run:')&&k.endsWith(':save'))!;return JSON.parse(localStorage.getItem(k)!);});expect(save.journal.constellations.length).toBe(9);expect(save.journal.stories.length).toBe(6);expect(save.journal.stamps).toContain('cave-sky');
- await p.locator('[data-action="quit"]').tap();await p.clock.runFor(1000);const stopped=await p.evaluate(()=>(window as any).__draws);await p.clock.runFor(5000);expect(await p.evaluate(()=>(window as any).__draws)).toBe(stopped);await p.screenshot({path:`artifacts/${prefix}-quit.png`});expect(errors).toEqual([]);expect(failures).toEqual([]);await writeFile(`artifacts/${prefix}-results.json`,JSON.stringify({url,status:response?.status(),bundle,browser:await b.version(),checkedAt:new Date().toISOString(),environment:'Linux Chromium mobile emulation 740x300 DPR2; actual touch with virtual clock; import earlier real-play earned save',engineSleepsOnQuit:true,homeWakesEngine:true,harborBuilt:5,constellations:9,stories:6,record:save.stages.cave,save,errors,failures},null,2));console.log(prefix,'engine quit/wake, 9 constellations, 6 stories, sky challenge and harbor passed');
-}finally{await b.close();}
+const url = process.env.QA_URL || 'http://localhost:4176/Odyssey-Run/',
+  production = url.startsWith('https:'),
+  prefix = production ? 'adventure-final-deployed' : 'adventure-final';
+const b = await chromium.launch({
+  executablePath: '/usr/bin/chromium',
+  args: ['--no-sandbox'],
+  ...(production ? {proxy: {server: process.env.HTTPS_PROXY || process.env.HTTP_PROXY!}} : {}),
+});
+const errors: string[] = [],
+  failures: string[] = [];
+try {
+  const c = await b.newContext({
+    viewport: {width: 740, height: 300},
+    deviceScaleFactor: 2,
+    isMobile: true,
+    hasTouch: true,
+    acceptDownloads: true,
+  });
+  await c.addInitScript(() => {
+    (window as any).__draws = 0;
+    const draw = CanvasRenderingContext2D.prototype.drawImage;
+    CanvasRenderingContext2D.prototype.drawImage = function (this: CanvasRenderingContext2D, ...a: any[]) {
+      if (this.canvas.parentElement?.id === 'game') (window as any).__draws++;
+      return (draw as Function).apply(this, a);
+    } as typeof draw;
+  });
+  const p = await c.newPage();
+  p.on('pageerror', e => errors.push(e.message));
+  p.on('response', r => {
+    if (r.status() >= 400) failures.push(`${r.status()} ${r.url()}`);
+  });
+  await p.clock.install();
+  const response = await p.goto(url);
+  await p.waitForSelector('.home');
+  const bundle = await p.locator('script[type="module"]').getAttribute('src');
+  expect(bundle).toBe(
+    (await readFile('dist/index.html', 'utf8')).match(/<script(?=[^>]*type="module")[^>]*src="([^"]+)"/)![1],
+  );
+  await p.clock.pauseAt((await p.evaluate(() => Date.now())) + 1000);
+  await p.locator('[data-action="quit"]').tap();
+  await p.clock.runFor(1000);
+  const draws = await p.evaluate(() => (window as any).__draws);
+  await p.clock.runFor(11000);
+  expect(await p.evaluate(() => (window as any).__draws)).toBe(draws);
+  await p.evaluate(() => {
+    window.close = () => {
+      throw new DOMException('blocked', 'SecurityError');
+    };
+  });
+  await p.locator('[data-action="close-tab"]').tap();
+  await expect(p.locator('#notice')).toContainText('직접 닫아');
+  await p.locator('[data-action="home"]').tap();
+  await p.clock.runFor(100);
+  expect(await p.evaluate(() => (window as any).__draws)).toBeGreaterThan(draws);
+  await p.locator('[data-action="settings"]').tap();
+  await p.locator('#import-file').setInputFiles('artifacts/adventure-mobile-save.json');
+  await p.locator('[data-action="import-confirm"]').tap();
+  await p.locator('[data-action="home"]').tap();
+  await p.locator('[data-action="harbor"]').tap();
+  await p.clock.runFor(34);
+  await expect(p.locator('.harbor-art .built')).toHaveCount(5);
+  await p.screenshot({path: `artifacts/${prefix}-harbor.png`});
+  await p.locator('[data-action="home"]').tap();
+  await p.locator('[data-action="islands"]').first().tap();
+  await p.locator('[data-action="stage:cave"]').tap();
+  await p.locator('input[name="goal"][value="sky"]').check();
+  await p.locator('[data-action="start"]').tap();
+  while (await p.locator('.countdown').count()) await p.clock.runFor(17);
+  await expect(p.locator('#ghost-marker')).toBeVisible();
+  const session = await c.newCDPSession(p);
+  let held: any = null;
+  const point = async (type: string, id: number) => {
+    const rect = (await p.locator(`[data-control="${type}"]`).boundingBox())!;
+    return {id, x: rect.x + rect.width / 2, y: rect.y + rect.height / 2};
+  };
+  const distance = async () => Number(await p.locator('#progress').getAttribute('data-distance'));
+  const advance = async (x: number) => {
+    while ((await distance()) < x)
+      await p.clock.runFor(Math.max(17, Math.ceil(((x - (await distance())) / 320) * 1000)));
+  };
+  const plan = routeInputs('cave', 'upper', true),
+    events = [
+      ...plan.jumps.map(x => ({x, type: 'jump'})),
+      ...plan.slides.flatMap(s => [
+        {x: s.start, type: 'down'},
+        {x: s.end, type: 'up'},
+      ]),
+    ].sort((a, b) => a.x - b.x);
+  for (const e of events) {
+    await advance(e.x);
+    if (e.type === 'jump') {
+      const jump = await point('jump', 22);
+      await session.send('Input.dispatchTouchEvent', {type: 'touchStart', touchPoints: held ? [held, jump] : [jump]});
+      await session.send('Input.dispatchTouchEvent', {type: 'touchEnd', touchPoints: held ? [held] : []});
+    } else if (e.type === 'down') {
+      held = await point('slide', 11);
+      await session.send('Input.dispatchTouchEvent', {type: 'touchStart', touchPoints: [held]});
+    } else {
+      held = null;
+      await session.send('Input.dispatchTouchEvent', {type: 'touchEnd', touchPoints: []});
+    }
+  }
+  await advance(23400);
+  await p.clock.runFor(2500);
+  await expect(p.locator('.result')).toContainText('HP 손실 0회');
+  await expect(p.locator('.adventure-result')).toContainText('도전 성공');
+  const save = await p.evaluate(() => {
+    const k = Object.keys(localStorage).find(k => k.startsWith('odyssey-run:') && k.endsWith(':save'))!;
+    return JSON.parse(localStorage.getItem(k)!);
+  });
+  expect(save.journal.constellations.length).toBe(9);
+  expect(save.journal.stories.length).toBe(6);
+  expect(save.journal.stamps).toContain('cave-sky');
+  await p.locator('[data-action="quit"]').tap();
+  await p.clock.runFor(1000);
+  const stopped = await p.evaluate(() => (window as any).__draws);
+  await p.clock.runFor(5000);
+  expect(await p.evaluate(() => (window as any).__draws)).toBe(stopped);
+  await p.screenshot({path: `artifacts/${prefix}-quit.png`});
+  expect(errors).toEqual([]);
+  expect(failures).toEqual([]);
+  await writeFile(
+    `artifacts/${prefix}-results.json`,
+    JSON.stringify(
+      {
+        url,
+        status: response?.status(),
+        bundle,
+        browser: await b.version(),
+        checkedAt: new Date().toISOString(),
+        environment:
+          'Linux Chromium mobile emulation 740x300 DPR2; actual touch with virtual clock; import earlier real-play earned save',
+        engineSleepsOnQuit: true,
+        homeWakesEngine: true,
+        harborBuilt: 5,
+        constellations: 9,
+        stories: 6,
+        record: save.stages.cave,
+        save,
+        errors,
+        failures,
+      },
+      null,
+      2,
+    ),
+  );
+  console.log(prefix, 'engine quit/wake, 9 constellations, 6 stories, sky challenge and harbor passed');
+} finally {
+  await b.close();
+}

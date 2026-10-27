@@ -1,25 +1,219 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {Runner} from '../src/player/runner';
-import {C,MAX_SCORE} from '../src/config';
-import {COURSES,STAGES} from '../src/levels/courses';
-import {ADVENTURE_PLANS,GOALS} from '../src/levels/adventure';
-import {emptySave,mergeResult,validateSave} from '../src/storage/save';
+import {C, MAX_SCORE} from '../src/config';
+import {COURSES, STAGES} from '../src/levels/courses';
+import {ADVENTURE_PLANS, GOALS} from '../src/levels/adventure';
+import {emptySave, mergeResult, validateSave} from '../src/storage/save';
 import {ghostDistance} from '../src/storage/journal';
 import {harborUnlocks} from '../src/ui/adventure-view';
 import {routeInputs} from '../scripts/check-routes';
-function play(id:typeof STAGES[number],path:'lower'|'upper',goal:keyof typeof GOALS='story',powers=true){const r=new Runner(id,goal);r.state='playing';if(!powers){const collect=r.collect.bind(r);r.collect=i=>{if(i.kind==='star'||i.kind==='map')collect(i);};}const input=routeInputs(id,path,true);let i=0;while(r.state==='playing'&&r.time<100){while(i<input.jumps.length&&r.x>=input.jumps[i]){r.jump();i++;}r.slide(input.slides.some(s=>r.x>=s.start&&r.x<s.end));r.tick();}return r;}
-test('all three lower/upper courses complete without powers, and both stories can be discovered',()=>{for(const id of STAGES)for(const path of ['lower','upper'] as const){const r=play(id,path,'story',false);assert.equal(r.state,'success',id+'/'+path);assert.equal(r.hpLoss,0,id+'/'+path);assert.equal(r.maps.size,3,id+'/'+path);assert.ok(r.routes.has(`${id}-${path}`),id+'/'+path);assert.ok(r.stories.has(`${id}-story-2`),id+'/'+path);if(path==='upper'){assert.ok(r.stories.has(`${id}-story-1`),id);assert.ok(r.constellations.has(`${id}-constellation-1`),id);}assert.ok(r.goalComplete);}});
-test('same terminal result merges journal idempotently and preserves v1 core score',()=>{const r=play('beach','upper'),result=r.result();assert.equal(r.result(),result);let s=mergeResult(emptySave(),result);assert.deepEqual(mergeResult(s,result).journal,s.journal);assert.deepEqual(mergeResult(s,result).stages,s.stages);assert.ok(s.journal.stamps.includes('beach-story'));assert.ok(s.journal.stories.length===2);assert.equal(MAX_SCORE,4200);assert.deepEqual(validateSave(s),s);});
-test('legacy v1 without journal upgrades with core fields intact',()=>{const s=emptySave();const legacy:any=structuredClone(s);delete legacy.journal;const restored=validateSave(legacy);assert.deepEqual(restored.stages,s.stages);assert.deepEqual(restored.settings,s.settings);assert.equal(restored.journal.stories.length,0);});
-test('journal import rejects duplicates, invalid IDs, locked islands and malformed ghosts',()=>{const s=emptySave();for(const patch of [{stories:['unknown']},{stamps:['beach-maps','beach-maps']},{stories:['wind-story-1']},{ghosts:{beach:{score:0,duration:1,samples:[0,10000]}}},{ghosts:{beach:{score:0,duration:Infinity,samples:[0]}}}]){const v=structuredClone(s);Object.assign(v.journal,patch);assert.throws(()=>validateSave(v));}});
-test('combination expands star magnet range but never attracts maps',()=>{const r=new Runner('beach');r.state='playing';r.x=650;r.wings=6;r.magnet=6;r.tick();assert.ok(r.combos.has('glide'));const star=r.course.items.find(i=>i.kind==='star'&&i.x>r.x+180&&i.x<r.x+250);assert.ok(star&&r.collected.has(star.id));const map=r.course.items.find(i=>i.kind==='map')!;r.x=map.x-200;r.tick();assert.ok(!r.maps.has(map.id));});
-test('guardian combination has a distinct range and consumes one trident only',()=>{const r=new Runner('beach');r.state='playing';r.x=7140;r.trident=true;r.lantern=6;r.tick();assert.ok(r.combos.has('guardian'));assert.ok(r.defeated.size===1);assert.equal(r.trident,false);assert.equal(r.hpLoss,0);});
-test('cyclops rock hits bait stone first, once, and does not award score',()=>{const r=new Runner('cave');r.state='playing';r.x=11870;r.tick();for(let i=0;i<25;i++)r.tick();assert.ok(r.tricked.has('cave-bait-0'));assert.ok(r.defeated.has('cave-bait-0'));const count=r.tricked.size;for(let i=0;i<10;i++)r.tick();assert.equal(r.tricked.size,count);assert.equal(r.stars,0);});
-test('hazard near misses require a close safe pass, never a shield block or duplicate after return',()=>{const r=new Runner('cave');r.state='playing';r.x=13350;r.slide(true);for(let i=0;i<55;i++)r.tick();assert.ok(r.nearMisses.has('cave-hand-13400'));const n=r.nearMisses.size;r.x=13350;for(let i=0;i<55;i++)r.tick();assert.equal(r.nearMisses.size,n);const hit=new Runner('cave');hit.state='playing';hit.x=13400;hit.shield=true;for(let i=0;i<45;i++)hit.tick();assert.ok(!hit.nearMisses.has('cave-hand-13400'));});
-test('pause freezes new systems and restart discards temporary achievements',()=>{const r=play('beach','upper');const fresh=new Runner('beach');assert.equal(fresh.stories.size,0);fresh.state='paused';fresh.wings=6;fresh.magnet=6;fresh.tick();assert.equal(fresh.time,0);assert.equal(fresh.combos.size,0);assert.ok(r.stories.size>0);assert.equal(emptySave().journal.stories.length,0);});
-test('ghost uses completed result samples and highest score, while harbor derives five visible upgrades',()=>{const r=play('beach','upper');let s=mergeResult(emptySave(),r.result());const ghost=s.journal.ghosts.beach!;assert.equal(ghost.samples[0],0);assert.ok(ghostDistance(ghost,1)!>0);assert.equal(ghostDistance(ghost,999),ghost.samples.at(-1));const before=structuredClone(ghost);s=mergeResult(s,{...r.result(),score:100,adventure:{...r.result().adventure!,ghost:{score:100,duration:0,samples:[0]}}});assert.deepEqual(s.journal.ghosts.beach,before);s.journal.constellations=['beach-constellation-1','beach-constellation-2','beach-constellation-3'];s.journal.stamps=['beach-story','beach-maps','beach-sky'];assert.deepEqual(harborUnlocks(s.journal,3,9),[true,true,true,true,true]);});
-test('course additions keep 100 unique stars and all maps, with a warned hand and three distinct highlights',()=>{for(const id of STAGES){assert.equal(COURSES[id].items.filter(i=>i.kind==='star').length,100);assert.equal(COURSES[id].items.filter(i=>i.kind==='map').length,3);assert.equal(ADVENTURE_PLANS[id].constellations.length,3);assert.ok(COURSES[id].platforms.some(p=>p.id===ADVENTURE_PLANS[id].branch.id));}assert.ok(COURSES.cave.obstacles.some(o=>o.kind==='hand'));assert.equal(C.speed,320);});
-test('jumping before a cyclops release changes shot height, allowing different lures',()=>{const r=new Runner('cave');r.state='playing';r.x=11650;r.jump();for(let i=0;i<40;i++)r.tick();assert.equal(r.tricked.size,0);const shot=r.enemyStates.find(e=>e.kind==='cyclops')!.projectile;assert.ok(shot.y<350);});
-test('all twelve selectable stage challenges can be earned by actual route inputs',()=>{let save=emptySave();for(const stage of STAGES)for(const goal of Object.keys(GOALS) as (keyof typeof GOALS)[]){const r=play(stage,'upper',goal,true);assert.equal(r.state,'success');assert.ok(r.goalComplete,stage+'/'+goal);save=mergeResult(save,r.result());assert.deepEqual(validateSave(save),save);}assert.equal(save.journal.stamps.length,12);assert.equal(save.journal.constellations.length,9);assert.equal(save.journal.stories.length,6);});
-test('long valid return runs retain full comparison traces after repeated recoveries',()=>{const s=emptySave();s.stages.beach={complete:true,bestScore:4200,bestRating:3,bestStars:100,maps:[]};s.journal.ghosts.beach={score:4200,duration:370,samples:Array.from({length:371},(_,i)=>Math.min(24000,i*320))};assert.deepEqual(validateSave(s),s);const oversized=structuredClone(s);oversized.journal.ghosts.beach!.duration=512;oversized.journal.ghosts.beach!.samples=Array.from({length:513},(_,i)=>Math.min(24000,i*320));assert.throws(()=>validateSave(oversized));});
+function play(id: (typeof STAGES)[number], path: 'lower' | 'upper', goal: keyof typeof GOALS = 'story', powers = true) {
+  const r = new Runner(id, goal);
+  r.state = 'playing';
+  if (!powers) {
+    const collect = r.collect.bind(r);
+    r.collect = i => {
+      if (i.kind === 'star' || i.kind === 'map') collect(i);
+    };
+  }
+  const input = routeInputs(id, path, true);
+  let i = 0;
+  while (r.state === 'playing' && r.time < 100) {
+    while (i < input.jumps.length && r.x >= input.jumps[i]) {
+      r.jump();
+      i++;
+    }
+    r.slide(input.slides.some(s => r.x >= s.start && r.x < s.end));
+    r.tick();
+  }
+  return r;
+}
+test('all three lower/upper courses complete without powers, and both stories can be discovered', () => {
+  for (const id of STAGES)
+    for (const path of ['lower', 'upper'] as const) {
+      const r = play(id, path, 'story', false);
+      assert.equal(r.state, 'success', id + '/' + path);
+      assert.equal(r.hpLoss, 0, id + '/' + path);
+      assert.equal(r.maps.size, 3, id + '/' + path);
+      assert.ok(r.routes.has(`${id}-${path}`), id + '/' + path);
+      assert.ok(r.stories.has(`${id}-story-2`), id + '/' + path);
+      if (path === 'upper') {
+        assert.ok(r.stories.has(`${id}-story-1`), id);
+        assert.ok(r.constellations.has(`${id}-constellation-1`), id);
+      }
+      assert.ok(r.goalComplete);
+    }
+});
+test('same terminal result merges journal idempotently and preserves v1 core score', () => {
+  const r = play('beach', 'upper'),
+    result = r.result();
+  assert.equal(r.result(), result);
+  let s = mergeResult(emptySave(), result);
+  assert.deepEqual(mergeResult(s, result).journal, s.journal);
+  assert.deepEqual(mergeResult(s, result).stages, s.stages);
+  assert.ok(s.journal.stamps.includes('beach-story'));
+  assert.ok(s.journal.stories.length === 2);
+  assert.equal(MAX_SCORE, 4200);
+  assert.deepEqual(validateSave(s), s);
+});
+test('legacy v1 without journal upgrades with core fields intact', () => {
+  const s = emptySave();
+  const legacy: any = structuredClone(s);
+  delete legacy.journal;
+  const restored = validateSave(legacy);
+  assert.deepEqual(restored.stages, s.stages);
+  assert.deepEqual(restored.settings, s.settings);
+  assert.equal(restored.journal.stories.length, 0);
+});
+test('journal import rejects duplicates, invalid IDs, locked islands and malformed ghosts', () => {
+  const s = emptySave();
+  for (const patch of [
+    {stories: ['unknown']},
+    {stamps: ['beach-maps', 'beach-maps']},
+    {stories: ['wind-story-1']},
+    {ghosts: {beach: {score: 0, duration: 1, samples: [0, 10000]}}},
+    {ghosts: {beach: {score: 0, duration: Infinity, samples: [0]}}},
+  ]) {
+    const v = structuredClone(s);
+    Object.assign(v.journal, patch);
+    assert.throws(() => validateSave(v));
+  }
+});
+test('combination expands star magnet range but never attracts maps', () => {
+  const r = new Runner('beach');
+  r.state = 'playing';
+  r.x = 650;
+  r.wings = 6;
+  r.magnet = 6;
+  r.tick();
+  assert.ok(r.combos.has('glide'));
+  const star = r.course.items.find(i => i.kind === 'star' && i.x > r.x + 180 && i.x < r.x + 250);
+  assert.ok(star && r.collected.has(star.id));
+  const map = r.course.items.find(i => i.kind === 'map')!;
+  r.x = map.x - 200;
+  r.tick();
+  assert.ok(!r.maps.has(map.id));
+});
+test('guardian combination has a distinct range and consumes one trident only', () => {
+  const r = new Runner('beach');
+  r.state = 'playing';
+  r.x = 7140;
+  r.trident = true;
+  r.lantern = 6;
+  r.tick();
+  assert.ok(r.combos.has('guardian'));
+  assert.ok(r.defeated.size === 1);
+  assert.equal(r.trident, false);
+  assert.equal(r.hpLoss, 0);
+});
+test('cyclops rock hits bait stone first, once, and does not award score', () => {
+  const r = new Runner('cave');
+  r.state = 'playing';
+  r.x = 11870;
+  r.tick();
+  for (let i = 0; i < 25; i++) r.tick();
+  assert.ok(r.tricked.has('cave-bait-0'));
+  assert.ok(r.defeated.has('cave-bait-0'));
+  const count = r.tricked.size;
+  for (let i = 0; i < 10; i++) r.tick();
+  assert.equal(r.tricked.size, count);
+  assert.equal(r.stars, 0);
+});
+test('hazard near misses require a close safe pass, never a shield block or duplicate after return', () => {
+  const r = new Runner('cave');
+  r.state = 'playing';
+  r.x = 13350;
+  r.slide(true);
+  for (let i = 0; i < 55; i++) r.tick();
+  assert.ok(r.nearMisses.has('cave-hand-13400'));
+  const n = r.nearMisses.size;
+  r.x = 13350;
+  for (let i = 0; i < 55; i++) r.tick();
+  assert.equal(r.nearMisses.size, n);
+  const hit = new Runner('cave');
+  hit.state = 'playing';
+  hit.x = 13400;
+  hit.shield = true;
+  for (let i = 0; i < 45; i++) hit.tick();
+  assert.ok(!hit.nearMisses.has('cave-hand-13400'));
+});
+test('pause freezes new systems and restart discards temporary achievements', () => {
+  const r = play('beach', 'upper');
+  const fresh = new Runner('beach');
+  assert.equal(fresh.stories.size, 0);
+  fresh.state = 'paused';
+  fresh.wings = 6;
+  fresh.magnet = 6;
+  fresh.tick();
+  assert.equal(fresh.time, 0);
+  assert.equal(fresh.combos.size, 0);
+  assert.ok(r.stories.size > 0);
+  assert.equal(emptySave().journal.stories.length, 0);
+});
+test('ghost uses completed result samples and highest score, while harbor derives five visible upgrades', () => {
+  const r = play('beach', 'upper');
+  let s = mergeResult(emptySave(), r.result());
+  const ghost = s.journal.ghosts.beach!;
+  assert.equal(ghost.samples[0], 0);
+  assert.ok(ghostDistance(ghost, 1)! > 0);
+  assert.equal(ghostDistance(ghost, 999), ghost.samples.at(-1));
+  const before = structuredClone(ghost);
+  s = mergeResult(s, {
+    ...r.result(),
+    score: 100,
+    adventure: {...r.result().adventure!, ghost: {score: 100, duration: 0, samples: [0]}},
+  });
+  assert.deepEqual(s.journal.ghosts.beach, before);
+  s.journal.constellations = ['beach-constellation-1', 'beach-constellation-2', 'beach-constellation-3'];
+  s.journal.stamps = ['beach-story', 'beach-maps', 'beach-sky'];
+  assert.deepEqual(harborUnlocks(s.journal, 3, 9), [true, true, true, true, true]);
+});
+test('course additions keep 100 unique stars and all maps, with a warned hand and three distinct highlights', () => {
+  for (const id of STAGES) {
+    assert.equal(COURSES[id].items.filter(i => i.kind === 'star').length, 100);
+    assert.equal(COURSES[id].items.filter(i => i.kind === 'map').length, 3);
+    assert.equal(ADVENTURE_PLANS[id].constellations.length, 3);
+    assert.ok(COURSES[id].platforms.some(p => p.id === ADVENTURE_PLANS[id].branch.id));
+  }
+  assert.ok(COURSES.cave.obstacles.some(o => o.kind === 'hand'));
+  assert.equal(C.speed, 320);
+});
+test('jumping before a cyclops release changes shot height, allowing different lures', () => {
+  const r = new Runner('cave');
+  r.state = 'playing';
+  r.x = 11650;
+  r.jump();
+  for (let i = 0; i < 40; i++) r.tick();
+  assert.equal(r.tricked.size, 0);
+  const shot = r.enemyStates.find(e => e.kind === 'cyclops')!.projectile;
+  assert.ok(shot.y < 350);
+});
+test('all twelve selectable stage challenges can be earned by actual route inputs', () => {
+  let save = emptySave();
+  for (const stage of STAGES)
+    for (const goal of Object.keys(GOALS) as (keyof typeof GOALS)[]) {
+      const r = play(stage, 'upper', goal, true);
+      assert.equal(r.state, 'success');
+      assert.ok(r.goalComplete, stage + '/' + goal);
+      save = mergeResult(save, r.result());
+      assert.deepEqual(validateSave(save), save);
+    }
+  assert.equal(save.journal.stamps.length, 12);
+  assert.equal(save.journal.constellations.length, 9);
+  assert.equal(save.journal.stories.length, 6);
+});
+test('long valid return runs retain full comparison traces after repeated recoveries', () => {
+  const s = emptySave();
+  s.stages.beach = {complete: true, bestScore: 4200, bestRating: 3, bestStars: 100, maps: []};
+  s.journal.ghosts.beach = {
+    score: 4200,
+    duration: 370,
+    samples: Array.from({length: 371}, (_, i) => Math.min(24000, i * 320)),
+  };
+  assert.deepEqual(validateSave(s), s);
+  const oversized = structuredClone(s);
+  oversized.journal.ghosts.beach!.duration = 512;
+  oversized.journal.ghosts.beach!.samples = Array.from({length: 513}, (_, i) => Math.min(24000, i * 320));
+  assert.throws(() => validateSave(oversized));
+});
