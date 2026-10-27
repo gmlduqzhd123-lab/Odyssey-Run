@@ -107,8 +107,8 @@ const b = await chromium.launch({
 const found = new Map<string, Set<string>>(),
   errors: string[] = [];
 try {
-  for (const lang of ['ko', 'en'])
-    for (const played of [false, true])
+  for (const lang of (process.env.QA_LANGS || 'ko,en').split(','))
+    for (const played of (process.env.QA_SAVES || 'empty,played').split(',').map(v => v === 'played'))
       for (const v of VIEWPORTS) {
         const ctx = await b.newContext({
           viewport: {width: v.width, height: v.height},

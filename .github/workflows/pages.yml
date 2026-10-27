@@ -68,6 +68,15 @@ jobs:
             run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:classroom
           - suite: loading-update
             run: npm run test:loading && npm run test:update
+          # Clipped or overlapping text on every menu screen at classroom window sizes.
+          - suite: layout-ko-empty
+            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=ko QA_SAVES=empty npm run test:layout
+          - suite: layout-ko-played
+            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=ko QA_SAVES=played npm run test:layout
+          - suite: layout-en-empty
+            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=en QA_SAVES=empty npm run test:layout
+          - suite: layout-en-played
+            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=en QA_SAVES=played npm run test:layout
     name: browser (${{ matrix.suite }})
     steps:
       - uses: actions/checkout@v4
