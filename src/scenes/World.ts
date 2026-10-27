@@ -399,12 +399,16 @@ export class World extends Phaser.Scene {
       g.fillStyle(dark ? 0x465360 : 0x81988e, 0.12).fillRect(a - cam, 516, b - a, 24);
       const band = this.groundArt[spanIndex++];
       if (band && b - a >= 1) {
+        // A fixed canvas width avoids reallocating the tile canvas every frame; the crop hides the gap side.
+        const width = Math.ceil(this.view.width) + 80;
+        if (band.width !== width) band.setSize(width, 16);
         band
           .setPosition(a - cam, 440)
-          .setSize(b - a, 16)
+          .setCrop(0, 0, Math.min(width, b - a), 16)
           .setAlpha(reduced ? 0.035 : 0.08)
           .setVisible(true);
-        band.tilePositionX = a - cam;
+        // Anchor the pattern to the world so the ground visibly scrolls with the run.
+        band.tilePositionX = a;
       }
       g.lineStyle(2, dark ? 0xb1bbc1 : 0xe7d5ac, 0.8).lineBetween(a - cam, 440, b - cam, 440);
     };
@@ -520,40 +524,44 @@ export class World extends Phaser.Scene {
       .setVisible(this.stage === 'cave')
       .setPosition(this.view.heroX - 192 + (r.hp <= 0 ? 140 : r.hp === 3 ? -45 : r.hp === 2 ? 15 : 63), 440)
       .setDisplaySize(170, 230);
+    // Pick the final caption first: Text.setText re-renders whenever the value changes.
+    let caption = '',
+      captionX = 0,
+      captionY = 215;
     if (r.x < 3200) {
-      this.label
-        .setPosition((this.view.width * 590) / 960, 215)
-        .setText(
-          r.x < 1000
-            ? '이타카로 가는 여정, 출발!'
-            : this.stage === 'wind'
-              ? '↑ 바람길에서 가볍게 뛰어 보세요'
-              : r.x < 2100
-                ? 'Space / ↑ · 점프, 한 번 더 누르면 2단 점프'
-                : '↓ 꾹 누르기 · 슬라이드',
-        );
+      captionX = 590;
+      caption =
+        r.x < 1000
+          ? '이타카로 가는 여정, 출발!'
+          : this.stage === 'wind'
+            ? '↑ 바람길에서 가볍게 뛰어 보세요'
+            : r.x < 2100
+              ? 'Space / ↑ · 점프, 한 번 더 누르면 2단 점프'
+              : '↓ 꾹 누르기 · 슬라이드';
     } else if (r.x > 22400) {
-      this.label
-        .setPosition((this.view.width * 650) / 960, 215)
-        .setText(this.stage === 'wind' ? '이타카 항구가 보여요!' : '도착 항구가 보여요!');
+      captionX = 650;
+      caption = this.stage === 'wind' ? '이타카 항구가 보여요!' : '도착 항구가 보여요!';
       this.boat
         .setVisible(true)
         .setPosition((this.view.width * 760) / 960 - (r.x - 22400) * 0.08, 370)
         .setDisplaySize(216, 142);
-    } else {
-      this.label.setText('');
-      this.boat.setVisible(false);
-    }
+    } else this.boat.setVisible(false);
     const highlight = r.adventure.highlight,
       branch = r.adventure.branch;
-    if (r.x >= highlight.start && r.x <= highlight.end)
-      this.label.setPosition((this.view.width * 580) / 960, 215).setText(`${highlight.name}\n${highlight.hint}`);
-    else if (r.x >= branch.start - 700 && r.x < branch.end)
-      this.label
-        .setPosition((this.view.width * 620) / 960, 215)
-        .setText('↑ 높은 길: 별자리와 이야기 · 아래: 안전한 길');
-    if (r.course.length)
-      this.label.setPosition(this.view.width * 0.6, 210).setText(BOSSES[r.stage].phases[bossPhase(r.stage, r.x)]);
+    if (r.x >= highlight.start && r.x <= highlight.end) {
+      captionX = 580;
+      caption = `${highlight.name}\n${highlight.hint}`;
+    } else if (r.x >= branch.start - 700 && r.x < branch.end) {
+      captionX = 620;
+      caption = '↑ 높은 길: 별자리와 이야기 · 아래: 안전한 길';
+    }
+    if (r.course.length) {
+      captionX = 576;
+      captionY = 210;
+      caption = BOSSES[r.stage].phases[bossPhase(r.stage, r.x)];
+    }
+    this.label.setPosition((this.view.width * captionX) / 960, captionY);
+    if (this.label.text !== caption) this.label.setText(caption);
   }
   private drawAdventure(r: Runner, cam: number, reduced: boolean) {
     const fx = this.fx,
