@@ -2623,3 +2623,44 @@ body {
   font-size: 0.85rem;
   letter-spacing: 0.04em;
 }
+
+/* Profiles and class board */
+.profile-form,
+.class-board {
+  max-width: 760px;
+  margin: 1rem auto;
+  width: 100%;
+}
+.profile-form input {
+  font: inherit;
+  padding: 0.45rem 0.6rem;
+  border-radius: 10px;
+  border: 1px solid #c9bba0;
+  margin-left: 0.4rem;
+  max-width: 12em;
+}
+.class-board ol {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+.class-board li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.9rem;
+  padding: 0.5rem 0.8rem;
+  border-radius: 12px;
+  background: rgba(255, 250, 238, 0.7);
+}
+.class-board li.active {
+  outline: 2px solid #3f7f7b;
+}
+.class-board .rank {
+  font-weight: 700;
+  min-width: 1.6em;
+}
+.class-board b {
+  flex: 1 1 6em;
+}

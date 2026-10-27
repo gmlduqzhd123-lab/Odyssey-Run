@@ -244,9 +244,14 @@ export class SaveStore {
   data = emptySave();
   blocked = false;
   warning = '';
-  constructor(private storage: Pick<Storage, 'getItem' | 'setItem' | 'removeItem'> | null) {
+  readonly backupKey: string;
+  constructor(
+    private storage: Pick<Storage, 'getItem' | 'setItem' | 'removeItem'> | null,
+    readonly key = SAVE_KEY,
+  ) {
+    this.backupKey = key + ':backup';
     try {
-      const raw = storage?.getItem(SAVE_KEY);
+      const raw = storage?.getItem(key);
       if (raw !== null && raw !== undefined) this.data = validateSave(JSON.parse(raw));
     } catch {
       this.blocked = true;
@@ -261,7 +266,7 @@ export class SaveStore {
     try {
       if (!this.storage) throw Error();
       this.data.savedAt = new Date().toISOString();
-      this.storage.setItem(SAVE_KEY, JSON.stringify(this.data));
+      this.storage.setItem(this.key, JSON.stringify(this.data));
       this.warning = '';
       return true;
     } catch {
@@ -273,10 +278,10 @@ export class SaveStore {
     const clean = validateSave(candidate);
     try {
       if (!this.storage) throw Error();
-      const old = this.storage.getItem(SAVE_KEY);
+      const old = this.storage.getItem(this.key);
       // Preserve the exact original, including damaged or unsupported data.
-      this.storage.setItem(BACKUP_KEY, old ?? JSON.stringify(this.data));
-      this.storage.setItem(SAVE_KEY, JSON.stringify(clean));
+      this.storage.setItem(this.backupKey, old ?? JSON.stringify(this.data));
+      this.storage.setItem(this.key, JSON.stringify(clean));
       this.data = clean;
       this.blocked = false;
       this.warning = '';
@@ -289,8 +294,8 @@ export class SaveStore {
   reset() {
     try {
       if (!this.storage) throw Error();
-      this.storage.removeItem(SAVE_KEY);
-      this.storage.removeItem(BACKUP_KEY);
+      this.storage.removeItem(this.key);
+      this.storage.removeItem(this.backupKey);
       this.data = emptySave();
       this.blocked = false;
       this.warning = '';
