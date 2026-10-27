@@ -2689,3 +2689,36 @@ body {
 .rival-result {
   font-size: 1rem;
 }
+
+/* Class contests */
+.contest-form,
+.contest-list {
+  max-width: 760px;
+  margin: 1rem auto;
+  width: 100%;
+  display: grid;
+  gap: 0.6rem;
+}
+.contest-form input,
+.contest-form select,
+.contest-list input,
+.contest-board input#contest-code {
+  font: inherit;
+  padding: 0.4rem 0.6rem;
+  border-radius: 10px;
+  border: 1px solid #c9bba0;
+  margin-left: 0.4rem;
+}
+.contest-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 1.2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+}
+@media (max-width: 760px) {
+  .contest-layout {
+    grid-template-columns: 1fr;
+  }
+}
