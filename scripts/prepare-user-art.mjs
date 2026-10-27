@@ -1,42 +1,121 @@
 // Optional offline preparation; npm build uses the committed WebP files.
 // node scripts/prepare-user-art.mjs '캐릭터 이미지.zip' '아이템 이미지.zip'
 // Requires ImageMagick (convert) and unzip. Never executes archive contents.
-import {readFileSync,writeFileSync,mkdirSync,renameSync,mkdtempSync,rmSync} from 'node:fs';
+import {readFileSync, writeFileSync, mkdirSync, renameSync, mkdtempSync, rmSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {spawnSync} from 'node:child_process';
 import {join} from 'node:path';
 import {tmpdir} from 'node:os';
-const [characterZip,itemZip]=process.argv.slice(2);
-if(!characterZip||!itemZip)throw Error('Pass the character ZIP and item ZIP paths.');
-const names={characters:['odysseus','penelope','telemachus','athena','hermes','aeolus','nausicaa','sailor','counsellor','navigator'],items:['shield','wings','magnet','apple','map','wind-bag','trident','laurel','compass','lantern']};
-const digest=bytes=>createHash('sha256').update(bytes).digest('hex');
-const temporaryDirectory=mkdtempSync(join(tmpdir(),'odyssey-art-'));
-const files={},manifest=[];
-try{
- mkdirSync('public/assets/art',{recursive:true});mkdirSync('docs',{recursive:true});
- for(const [category,archive] of [['characters',characterZip],['items',itemZip]]){
-  const listing=spawnSync('unzip',['-Z1',archive],{encoding:'utf8'});if(listing.status!==0)throw Error('Could not read ZIP directory.');
-  const entries=listing.stdout.split('\n').filter(name=>/\.png$/i.test(name)&&!name.includes('__MACOSX')&&!name.split('/').at(-1).startsWith('._'));
-  const used=new Set();
-  for(const original of entries){
-   const number=Number(original.match(/-(\d+)\.png$/i)?.[1]);
-   if(!Number.isInteger(number)||number<1||number>10||used.has(number))throw Error('Expected unique numbered PNGs 1–10.');used.add(number);
-   const unpack=spawnSync('unzip',['-p',archive,original],{maxBuffer:40*1024*1024});if(unpack.status!==0)throw Error('Could not extract PNG.');
-   const bytes=unpack.stdout;if(!bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])))throw Error('Invalid PNG signature.');
-   const originalSize=[bytes.readUInt32BE(16),bytes.readUInt32BE(20)];if(originalSize.some(n=>n<1||n>4096))throw Error('Unsupported source size.');
-   const name=names[category][number-1],source=join(temporaryDirectory,`${category}-${number}.png`);writeFileSync(source,bytes);
-   const dimensions=category==='items'?'256x256':name==='odysseus'?'576x768':'288x384';
-   const temporary=`public/assets/art/${name}.tmp.webp`;
-   const result=spawnSync('convert',[source,'-resize',dimensions,'-strip','-define','webp:lossless=true',temporary],{encoding:'utf8'});
-   if(result.status!==0)throw Error(result.stderr||'Image encoding failed');
-   const encoded=readFileSync(temporary),outputHash=digest(encoded),filename=`${name}-${outputHash.slice(0,12)}.webp`;
-   renameSync(temporary,`public/assets/art/${filename}`);files[name]=`assets/art/${filename}`;
-   manifest.push({name,category,sourceFile:original,sourceSha256:digest(bytes),sourceBytes:bytes.length,originalSize,displayTexture:files[name],preparedSize:dimensions,preparedBytes:encoded.length,preparedSha256:outputHash});
+const [characterZip, itemZip] = process.argv.slice(2);
+if (!characterZip || !itemZip) throw Error('Pass the character ZIP and item ZIP paths.');
+const names = {
+  characters: [
+    'odysseus',
+    'penelope',
+    'telemachus',
+    'athena',
+    'hermes',
+    'aeolus',
+    'nausicaa',
+    'sailor',
+    'counsellor',
+    'navigator',
+  ],
+  items: ['shield', 'wings', 'magnet', 'apple', 'map', 'wind-bag', 'trident', 'laurel', 'compass', 'lantern'],
+};
+const digest = bytes => createHash('sha256').update(bytes).digest('hex');
+const temporaryDirectory = mkdtempSync(join(tmpdir(), 'odyssey-art-'));
+const files = {},
+  manifest = [];
+try {
+  mkdirSync('public/assets/art', {recursive: true});
+  mkdirSync('docs', {recursive: true});
+  for (const [category, archive] of [
+    ['characters', characterZip],
+    ['items', itemZip],
+  ]) {
+    const listing = spawnSync('unzip', ['-Z1', archive], {encoding: 'utf8'});
+    if (listing.status !== 0) throw Error('Could not read ZIP directory.');
+    const entries = listing.stdout
+      .split('\n')
+      .filter(name => /\.png$/i.test(name) && !name.includes('__MACOSX') && !name.split('/').at(-1).startsWith('._'));
+    const used = new Set();
+    for (const original of entries) {
+      const number = Number(original.match(/-(\d+)\.png$/i)?.[1]);
+      if (!Number.isInteger(number) || number < 1 || number > 10 || used.has(number))
+        throw Error('Expected unique numbered PNGs 1–10.');
+      used.add(number);
+      const unpack = spawnSync('unzip', ['-p', archive, original], {maxBuffer: 40 * 1024 * 1024});
+      if (unpack.status !== 0) throw Error('Could not extract PNG.');
+      const bytes = unpack.stdout;
+      if (!bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])))
+        throw Error('Invalid PNG signature.');
+      const originalSize = [bytes.readUInt32BE(16), bytes.readUInt32BE(20)];
+      if (originalSize.some(n => n < 1 || n > 4096)) throw Error('Unsupported source size.');
+      const name = names[category][number - 1],
+        source = join(temporaryDirectory, `${category}-${number}.png`);
+      writeFileSync(source, bytes);
+      const dimensions = category === 'items' ? '256x256' : name === 'odysseus' ? '576x768' : '288x384';
+      const temporary = `public/assets/art/${name}.tmp.webp`;
+      const result = spawnSync(
+        'convert',
+        [source, '-resize', dimensions, '-strip', '-define', 'webp:lossless=true', temporary],
+        {encoding: 'utf8'},
+      );
+      if (result.status !== 0) throw Error(result.stderr || 'Image encoding failed');
+      const encoded = readFileSync(temporary),
+        outputHash = digest(encoded),
+        filename = `${name}-${outputHash.slice(0, 12)}.webp`;
+      renameSync(temporary, `public/assets/art/${filename}`);
+      files[name] = `assets/art/${filename}`;
+      manifest.push({
+        name,
+        category,
+        sourceFile: original,
+        sourceSha256: digest(bytes),
+        sourceBytes: bytes.length,
+        originalSize,
+        displayTexture: files[name],
+        preparedSize: dimensions,
+        preparedBytes: encoded.length,
+        preparedSha256: outputHash,
+      });
+    }
+    if (used.size !== 10) throw Error('This asset set requires ten character images and ten item images.');
   }
-  if(used.size!==10)throw Error('This asset set requires ten character images and ten item images.');
- }
- writeFileSync('src/assets/files.ts',`// Generated by scripts/prepare-user-art.mjs.\nexport const ART_FILES = ${JSON.stringify(files,null,2)} as const;\n`);
- writeFileSync('docs/user-art-manifest.json',JSON.stringify({providedArchives:['캐릭터 이미지.zip','아이템 이미지.zip'],processing:'Aspect-preserving downsampling; original transparency; lossless WebP encoding after resize; no redraw.',images:manifest},null,2)+'\n');
- const index=readFileSync('index.html','utf8');writeFileSync('index.html',index.replace(/<link rel="icon"[^>]+>/,`<link rel="icon" href="./${files.compass}" type="image/webp">`));
- console.log(JSON.stringify({images:manifest.length,originalBytes:manifest.reduce((n,a)=>n+a.sourceBytes,0),preparedBytes:manifest.reduce((n,a)=>n+a.preparedBytes,0)},null,2));
-}finally{rmSync(temporaryDirectory,{recursive:true,force:true});}
+  writeFileSync(
+    'src/assets/files.ts',
+    `// Generated by scripts/prepare-user-art.mjs.\nexport const ART_FILES = ${JSON.stringify(files, null, 2)} as const;\n`,
+  );
+  writeFileSync(
+    'docs/user-art-manifest.json',
+    JSON.stringify(
+      {
+        providedArchives: ['캐릭터 이미지.zip', '아이템 이미지.zip'],
+        processing:
+          'Aspect-preserving downsampling; original transparency; lossless WebP encoding after resize; no redraw.',
+        images: manifest,
+      },
+      null,
+      2,
+    ) + '\n',
+  );
+  const index = readFileSync('index.html', 'utf8');
+  writeFileSync(
+    'index.html',
+    index.replace(/<link rel="icon"[^>]+>/, `<link rel="icon" href="./${files.compass}" type="image/webp">`),
+  );
+  console.log(
+    JSON.stringify(
+      {
+        images: manifest.length,
+        originalBytes: manifest.reduce((n, a) => n + a.sourceBytes, 0),
+        preparedBytes: manifest.reduce((n, a) => n + a.preparedBytes, 0),
+      },
+      null,
+      2,
+    ),
+  );
+} finally {
+  rmSync(temporaryDirectory, {recursive: true, force: true});
+}

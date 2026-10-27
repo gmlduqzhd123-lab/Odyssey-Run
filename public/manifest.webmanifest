@@ -2,7 +2,7 @@
   "id": "/Odyssey-Run/",
   "name": "오디세이 런: 이타카로!",
   "short_name": "오디세이 런",
-  "description": "세 개의 섬을 달려 이타카로! 오디세우스와 떠나는 작은 귀환의 모험.",
+  "description": "네 개의 섬을 달려 이타카로! 오디세우스와 떠나는 작은 귀환의 모험.",
   "start_url": "./",
   "scope": "./",
   "display": "fullscreen",

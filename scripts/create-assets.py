@@ -30,7 +30,7 @@ svg('rock','<path d="m22 44 39-33 54 11 36 62-25 53-94 9-25-55Z" fill="#767c83" 
 svg('boat','<path d="M23 119Q132 144 264 116l-28 44Q110 189 38 150Z" fill="#a56c43" stroke="#5c5140" stroke-width="5"/><path d="M35 128q115 26 216-1" stroke="#e4ba72" stroke-width="7" fill="none"/><path d="M147 19v113" stroke="#735d40" stroke-width="7"/><path d="M139 22Q62 53 61 111l77-9Z" fill="#fae7b6" stroke="#cda76e" stroke-width="3"/><path d="M155 38q56 38 63 76l-63-12Z" fill="#d78a62"/><path d="m162 13 29 5-29 10Z" fill="#d8a74b"/>',290,190)
 svg('giant','<path d="M30 234Q0 148 51 109L36 50Q30 2 90 4t58 46l-10 59q55 44 31 125Z" fill="#5b5c73"/><ellipse cx="91" cy="60" rx="27" ry="20" fill="#dfcfac"/><circle cx="97" cy="61" r="12" fill="#b97a4a"/><circle cx="99" cy="62" r="6" fill="#25374a"/><path d="M65 103q29 15 56-3" stroke="#292d46" stroke-width="7" fill="none"/><path d="M42 144 5 183m136-37 38 40" stroke="#5b5c73" stroke-width="28" stroke-linecap="round"/>',185,240)
 # Three complete original palettes and three parallax layers per stage.
-for stage,top,bottom,sea,mountain in [('beach','#bdded9','#f6edd4','#378c98','#79afad'),('cave','#181f3b','#4d4c67','#3c6276','#53536e'),('wind','#9cbdce','#e4dfc3','#5f96ac','#87a5b2')]:
+for stage,top,bottom,sea,mountain in [('beach','#bdded9','#f6edd4','#378c98','#79afad'),('cave','#181f3b','#4d4c67','#3c6276','#53536e'),('wind','#9cbdce','#e4dfc3','#5f96ac','#87a5b2'),('sea','#a9d5ec','#f4eedb','#2c7ba4','#86a8b8')]:
  sky=f'<defs><linearGradient id="s" x2="0" y2="1"><stop stop-color="{top}"/><stop offset="1" stop-color="{bottom}"/></linearGradient></defs><path fill="url(#s)" d="M0 0h1600v540H0Z"/>'
  if stage!='cave':sky+='<circle cx="1130" cy="138" r="63" fill="#fff4d2"/><circle cx="1130" cy="138" r="86" fill="#fff4d2" opacity=".16"/>'
  else: sky+='<g fill="#b2afbe" opacity=".5">'+''.join(f'<circle cx="{i*137%1600}" cy="{30+i*39%240}" r="2"/>' for i in range(30))+'</g>'
@@ -39,6 +39,15 @@ for stage,top,bottom,sea,mountain in [('beach','#bdded9','#f6edd4','#378c98','#7
  if stage=='cave':
   far=f'<path d="M0 0h1600v127l-100-65-80 127-130-139-120 201-160-164-109 103-120-150-100 116L500 38 410 193 300 45 190 149 72 78 0 153Z" fill="{mountain}"/>'
   far+='<path d="m0 440 90-135 130 59 90-176 150 155 150-80 130 100 150-163 200 160 90-130 180 70 110-132v267Z" fill="#393f5b"/>'
+ elif stage=='sea':
+  # The Sirens' sea: distant rocky islets with winged statues and open water.
+  for x,w,h in [(60,260,120),(520,180,90),(900,320,140),(1360,210,100)]:
+   far+=f'<path d="M{x} 363q{w*.2:.0f}-{h} {w*.45:.0f}-{h*.9:.0f} {w*.3:.0f}-{h*.25:.0f} {w*.55:.0f} {h*.9:.0f}Z" fill="{mountain}" opacity=".7"/>'
+   cx=x+w*.45
+   top=363-h*.9
+   far+=f'<path d="M{cx-16:.0f} {top:.0f}v-22m11 22v-22m11 22v-22m11 22v-22M{cx-21:.0f} {top-22:.0f}h42" stroke="#eef0e6" stroke-width="4" fill="none" opacity=".5"/>'
+  for x,y in [(240,110),(760,70),(1180,140)]:far+=f'<path d="M{x} {y}q25-28 57-10 29-26 52 9 32-2 38 13H{x}Z" fill="#f8f3dd" opacity=".6"/>'
+  far+=f'<path d="M0 363h1600v177H0Z" fill="{sea}"/>'
  else:
   far=f'<path d="M0 352Q75 321 155 341l103-90 108 34 120-107 161 115 100-23 118 69 130-126 162 91 151-123 132 103 160 62v80H0Z" fill="{mountain}" opacity=".65"/>'
   for x,y in [(110,90),(480,150),(880,75),(1380,162)]:far+=f'<path d="M{x} {y}q25-28 57-10 29-26 52 9 32-2 38 13H{x}Z" fill="#f8f3dd" opacity=".6"/>'
@@ -47,6 +56,12 @@ for stage,top,bottom,sea,mountain in [('beach','#bdded9','#f6edd4','#378c98','#7
  mid=''
  if stage=='cave':
   for x in [100,430,810,1210,1480]:mid+=f'<path d="m{x} 425 28-139 65-32 37 171Z" fill="#484a60"/><path d="m{x+38} 318 17-36 17 36-17 15Z" fill="#eab467"/><path d="m{x+43} 316 12-22 11 22-12 8Z" fill="#fff0b0"/>'
+ elif stage=='sea':
+  mid='<path d="M0 430q90-24 180-6 110 20 210-8l160 18 150-22 160 24 170-26 150 20 180-16 240 22v104H0Z" fill="#2a6f8f" opacity=".6"/>'
+  for x in [60,640,1240]:
+   mid+=f'<path d="M{x} 425v-95h40v-30h120v30h40v95h-55v-55a45 45 0 0 0-90 0v55Z" fill="#d9d6c2" stroke="#9ea79c" stroke-width="3"/>'
+   mid+=f'<path d="M{x+108} 300h24l-4-30h-16Z" fill="#e9e8da" stroke="#a9b0a4" stroke-width="2"/><circle cx="{x+120}" cy="262" r="8" fill="#e9e8da" stroke="#a9b0a4" stroke-width="2"/><path d="M{x+112} 278q-34-6-44-34 22 6 40 24M{x+128} 278q34-6 44-34-22 6-40 24" fill="#e9e8da" stroke="#a9b0a4" stroke-width="2"/>'
+  mid+='<g stroke="#bfe0ea" fill="none" stroke-width="2" opacity=".45">'+''.join(f'<path d="M{x} {y}q20-8 40 0t40 0"/>' for y in [395,452,488] for x in range(30,1600,260))+'</g>'
  else:
   mid='<path d="M0 425q60-28 127-10 60 8 100-17l88 27 130-20 100 25 100-37 137 33 143-13 170 17 115-35 180 35 210-21v131H0Z" fill="#327789" opacity=".55"/>'
   for x in [70,670,1280]:

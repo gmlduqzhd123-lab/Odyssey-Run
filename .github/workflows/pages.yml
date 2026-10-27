@@ -2,14 +2,15 @@ name: Build and deploy GitHub Pages
 on:
   push:
     branches: [main, master]
+  pull_request:
   workflow_dispatch:
 permissions:
   contents: read
   pages: write
   id-token: write
 concurrency:
-  group: pages
-  cancel-in-progress: false
+  group: pages-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   build:
     timeout-minutes: 20
@@ -21,6 +22,7 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
+      - run: npm run format:check
       - run: npm run typecheck
       - run: npm test
       - name: Derive the actual Pages base
@@ -54,6 +56,8 @@ jobs:
         run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:release
       - name: Verify downloaded islands with network offline
         run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:offline
+      - name: Verify every screen in English
+        run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:i18n
       - name: Verify asset failure recovery and legacy saves
         run: npm run test:loading
       - name: Verify safe multi-tab updates and interrupted downloads
@@ -70,12 +74,18 @@ jobs:
             artifacts/roadmap-update*
             artifacts/roadmap-loading*
             artifacts/roadmap-desktop-home.png
+            artifacts/i18n-results.json
             /tmp/odyssey-preview.log
           retention-days: 14
       - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request'
         with:
           path: dist
   deploy:
+    if: github.event_name != 'pull_request'
+    concurrency:
+      group: pages-deploy
+      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
