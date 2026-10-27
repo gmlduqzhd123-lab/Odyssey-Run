@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {C,MAX_SCORE} from '../src/config';
-import {STAGES,COURSES} from '../src/levels/courses';
+import {STAGES,COURSES,SAFE_LEAD} from '../src/levels/courses';
 import {VARIANTS,getCourse,COURSE_ORDERS,rearrangeCourse} from '../src/levels/variants';
 import {courseKey,type VariantId} from '../src/levels/course-ids';
 import {Runner} from '../src/player/runner';
@@ -68,4 +68,9 @@ test('largest supported nine-course traces still fit the 64KiB import limit',()=
  for(const stage of STAGES)s.expeditions.bosses[stage]={complete:true,bestScore:1460,bestRating:2,bestStars:0};
  s.expeditions.daily=Array.from({length:14},(_,i)=>({date:`2026-10-${String(i+1).padStart(2,'0')}`,complete:true,bestScore:4200,bestRating:3,bestStars:100}));
  assert.deepEqual(validateSave(s),s);assert.ok(Buffer.byteLength(JSON.stringify(s),'utf8')<65536);
+});
+test('every gap on every course has clear respawn ground 600-2400px before it',()=>{
+ for(const stage of STAGES)for(const v of VARIANTS){const c=getCourse(stage,v);
+  for(const g of c.gaps){const back=c.safe.filter(x=>x<g.x).at(-1)!;assert.ok(g.x-back<=SAFE_LEAD.max,`${stage}/${v} gap ${g.x} returns to ${back}`);assert.ok(g.x-back>=200,`${stage}/${v} gap ${g.x} respawn too close`);}}
+ const r=new Runner('cave');r.state='playing';r.x=13300;for(let i=0;i<20;i++)r.tick();r.x=13950;r.y=660;r.grounded=false;r.tick();assert.ok(r.x>=13900-SAFE_LEAD.max,'cave fall at 13900 returns near the gap');
 });

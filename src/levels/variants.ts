@@ -1,5 +1,5 @@
 import {C} from '../config';
-import {COURSES,STAGES,type StageId,type Course} from './courses';
+import {COURSES,STAGES,safePoints,type StageId,type Course} from './courses';
 import {ADVENTURE_PLANS} from './adventure';
 import {VARIANTS,type VariantId} from './course-ids';
 
@@ -24,7 +24,7 @@ export function rearrangeCourse(stage:StageId,variant:Exclude<VariantId,'classic
  for(const objects of [out.obstacles,out.enemies,out.platforms,out.winds,out.gaps])for(const o of objects)o.x=move(o.x);
  for(const i of out.items){i.x=move(i.x);if(i.checkpoint!==undefined)i.checkpoint=move(i.checkpoint);}
  out.gaps.sort((a,b)=>a.x-b.x);
- out.safe=[...new Set([0,...out.safe.map(move)])].sort((a,b)=>a-b).filter(x=>!out.gaps.some(g=>x>=g.x-200&&x<=g.x+g.w+350)&&!out.obstacles.some(o=>x>=o.x-450&&x<o.x+o.w+80)&&!out.enemies.some(e=>e.x>=x-120&&e.x<x+450));
+ out.safe=safePoints(out,[0,...out.safe.map(move)]);
  const plan=structuredClone(ADVENTURE_PLANS[stage]),branch=plan.branch,branchDelta=move(branch.start)-branch.start;
  branch.start+=branchDelta;branch.end+=branchDelta;
  plan.stories.forEach(s=>{s.x=move(s.x);});
