@@ -113,7 +113,9 @@ const found = new Map<string, Set<string>>(),
 try {
   for (const lang of (process.env.QA_LANGS || 'ko,en').split(','))
     for (const played of (process.env.QA_SAVES || 'empty,played').split(',').map(v => v === 'played'))
-      for (const v of VIEWPORTS) {
+      for (const v of VIEWPORTS.filter(
+        v => !process.env.QA_VIEWPORTS || process.env.QA_VIEWPORTS.split(',').includes(v.name),
+      )) {
         const ctx = await b.newContext({
           viewport: {width: v.width, height: v.height},
           hasTouch: !!v.touch,

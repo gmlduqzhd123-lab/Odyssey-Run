@@ -2948,3 +2948,22 @@ body {
     display: none;
   }
 }
+/* Portrait phones: the page title and the way back keep one line; the chip row moves below. */
+@media (orientation: portrait) and (max-width: 700px) {
+  .page > .topbar {
+    height: auto;
+    min-height: 64px;
+    flex-wrap: wrap;
+    row-gap: 6px;
+    padding-top: max(8px, env(safe-area-inset-top));
+    padding-bottom: 8px;
+  }
+  .page > .topbar > .text-button,
+  .page > .topbar .brand {
+    white-space: nowrap;
+  }
+  .page > .topbar .ys-key {
+    flex: 1 0 100%;
+    justify-content: flex-end;
+  }
+}
