@@ -9,16 +9,20 @@ export const REGIONS = {
   'ground-beach': {sheet: 'terrain-sheet', x: 46, y: 153, w: 239, h: 33},
   'ground-cave': {sheet: 'terrain-sheet', x: 42, y: 317, w: 241, h: 42},
   'ground-wind': {sheet: 'terrain-sheet', x: 36, y: 394, w: 255, h: 25},
+  // The Sirens' sea reuses the beach sand band; its landscape is panel 07 of the sheet.
+  'ground-sea': {sheet: 'terrain-sheet', x: 46, y: 153, w: 239, h: 33},
   'wood-platform': {sheet: 'terrain-sheet', x: 693, y: 207, w: 161, h: 15},
   'view-beach': {sheet: 'landscape-sheet', x: 8, y: 49, w: 750, h: 140},
   'view-cave': {sheet: 'landscape-sheet', x: 8, y: 245, w: 750, h: 147},
   'view-wind': {sheet: 'landscape-sheet', x: 779, y: 245, w: 749, h: 147},
+  'view-sea': {sheet: 'landscape-sheet', x: 8, y: 648, w: 750, h: 158},
   'view-ithaca': {sheet: 'landscape-sheet', x: 8, y: 869, w: 750, h: 145},
 } satisfies Record<string, Region>;
 export const STAGE_VIEW: Record<StageId, keyof typeof REGIONS> = {
   beach: 'view-beach',
   cave: 'view-cave',
   wind: 'view-wind',
+  sea: 'view-sea',
 };
 export function regionArt(name: keyof typeof REGIONS, className: string, label = '') {
   const r = REGIONS[name];
@@ -34,7 +38,7 @@ export const ART_SHEETS = [
     id: 'landscape-sheet',
     name: '신화의 섬과 항구',
     description:
-      '출항의 해변, 키클롭스의 동굴, 바람 섬과 도착 항구의 풍경이에요. 이번 항로는 세 섬을 지나 이타카로 이어져요.',
+      '출항의 해변, 키클롭스의 동굴, 바람 섬, 세이렌의 절벽과 도착 항구의 풍경이에요. 이번 항로는 네 섬을 지나 이타카로 이어져요.',
   },
   {
     id: 'enemy-sheet',

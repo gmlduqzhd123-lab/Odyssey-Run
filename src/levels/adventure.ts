@@ -53,6 +53,7 @@ export function adventurePlan(stage: StageId): AdventurePlan {
     beach: ['나우시카의 리본', '선원의 작은 약속'],
     cave: ['아무도 아닌 이름', '조언자의 등불'],
     wind: ['바람의 편지', '길잡이의 별'],
+    sea: ['밀랍 귀마개', '돛대의 약속'],
   }[stage];
   const words = {
     beach: [
@@ -85,6 +86,16 @@ export function adventurePlan(stage: StageId): AdventurePlan {
         '길잡이는 낮은 돌에 별 세 개를 새겼어요. 첫 별은 배, 둘째 별은 등대, 셋째 별은 기다리는 가족을 뜻했어요. 항해의 끝에는 장소보다 사람이 기다리고 있었지요.',
       ],
     ],
+    sea: [
+      [
+        '귀를 막으면 마음의 방향을 지킬 수 있어요.',
+        '세이렌의 노래는 듣는 사람을 바위섬으로 끌어당겼어요. 오디세우스는 선원들의 귀를 밀랍으로 막아 주었어요. 함께 정한 약속이 모두를 지켜 주었지요.',
+      ],
+      [
+        '스스로를 묶는 용기도 있어요.',
+        '오디세우스는 노래를 듣고 싶었지만 자신을 돛대에 단단히 묶어 달라고 부탁했어요. “내가 풀어 달라고 하면 더 꽁꽁 묶어 주게.” 배는 노래를 지나 무사히 나아갔어요.',
+      ],
+    ],
   }[stage];
   const stories = [
     {
@@ -98,7 +109,7 @@ export function adventurePlan(stage: StageId): AdventurePlan {
     },
     {
       id: `${stage}-story-2`,
-      x: stage === 'beach' ? 16750 : stage === 'cave' ? 17300 : 18800,
+      x: stage === 'beach' ? 16750 : stage === 'cave' ? 17300 : stage === 'sea' ? 16850 : 18800,
       y: 440,
       pose: 'duck' as const,
       title: titles[1],
@@ -128,19 +139,28 @@ export function adventurePlan(stage: StageId): AdventurePlan {
               name: '거인의 손을 피해!',
               hint: '손 아래로 숙인 뒤 끊어진 길에서 점프!',
             }
-          : {
-              id: 'wind-clouds',
-              start: 19200,
-              end: 20750,
-              name: '구름 징검다리',
-              hint: '바람과 2단 점프로 높은 구름길에 도전!',
-            },
+          : stage === 'sea'
+            ? {
+                id: 'sea-sirens',
+                start: 12700,
+                end: 14200,
+                name: '세이렌의 노래',
+                hint: '노래에 끌리지 말고 2단 점프로 바다를 건너요!',
+              }
+            : {
+                id: 'wind-clouds',
+                start: 19200,
+                end: 20750,
+                name: '구름 징검다리',
+                hint: '바람과 2단 점프로 높은 구름길에 도전!',
+              },
   };
 }
 export const ADVENTURE_PLANS = {
   beach: adventurePlan('beach'),
   cave: adventurePlan('cave'),
   wind: adventurePlan('wind'),
+  sea: adventurePlan('sea'),
 };
 export const storyIds = Object.values(ADVENTURE_PLANS).flatMap(p => p.stories.map(s => s.id));
 export const constellationIds = Object.values(ADVENTURE_PLANS).flatMap(p => p.constellations.map(s => s.id));

@@ -5,7 +5,7 @@ import {BOSSES, BOSS_COURSES} from '../levels/bosses';
 import {mergeTrial} from '../storage/expeditions';
 import {damageGuidance} from '../systems/damage';
 import {defaultPreferences, PACES, type Assist, type Pace, type Quality} from '../storage/preferences';
-import {ADVENTURE_PLANS, GOALS, type GoalId} from '../levels/adventure';
+import {ADVENTURE_PLANS, GOALS, stampIds, constellationIds, storyIds, type GoalId} from '../levels/adventure';
 import {ghostDistance} from '../storage/journal';
 import {QUIZ, PERSON_MYTHS, type QuizQuestion} from '../levels/quiz';
 import {
@@ -50,6 +50,7 @@ import {ENEMY_TYPES, type EnemyKind} from '../levels/enemies';
 import {MONSTER_ART} from '../assets/expansion-art';
 import {displayDensity, displayViewport} from '../rendering/display';
 const asset = assetUrl;
+const TOTAL_MAPS = STAGES.length * 3;
 const icon = (name: string, cls = '') => `<img class="icon ${cls}" src="${asset(name)}" alt="">`;
 const esc = (text: string) =>
   text.replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'})[c]!);
@@ -335,7 +336,7 @@ export class App {
     );
   }
   private endlessCards() {
-    return `<section class="endless-section"><span class="eyebrow">ENDLESS VOYAGE</span><h2>끝없는 항해</h2><p>섬의 여섯 구간이 날마다 다른 순서로 이어져요. 체력이 다할 때까지 얼마나 멀리 갈 수 있을까요? 지도는 나오지 않고 일반 기록과 따로 남겨요.</p><div class="trial-grid">${STAGES.map(
+    return `<section class="endless-section"><span class="eyebrow">ENDLESS VOYAGE</span><h2>끝없는 항해</h2><p>섬의 여섯 구간이 날마다 다른 순서로 이어져요. 체력이 다할 때까지 얼마나 멀리 갈 수 있을까요? 지도는 나오지 않고 일반 기록과 따로 남겨요.</p><div class="trial-grid stages">${STAGES.map(
       id => {
         const open = this.store.data.stages[id].complete,
           r = this.store.data.endless[id];
@@ -553,7 +554,7 @@ export class App {
     this.world.showHome();
     const done = STAGES.every(id => this.store.data.stages[id].complete);
     this.set(
-      `<div class="home">${this.header('ODYSSEY RUN', 'home')}<div class="home-copy"><span class="eyebrow"><i></i> 작은 영웅의 긴 귀환</span><h1 tabindex="-1">오디세이 런<span>이타카로!</span></h1><p>별자리를 잇고, 숨은 이야기를 찾고,<br>우리만의 항구를 완성하러 떠나요.</p><div class="home-actions">${button('islands', '항해 시작 <span>↗</span>', 'primary large')}${button('codex', icon('map') + ' 지도 도감', 'secondary')}</div><div class="home-status">${done ? '⚑ 귀환 완료 · ' : ''}도장 ${this.store.data.journal.stamps.length}/12 · 별자리 ${this.store.data.journal.constellations.length}/9 · 이야기 ${this.store.data.journal.stories.length}/6</div></div><div class="hero-caption"><span>ODYSSEUS</span><b>지혜로운 작은 영웅</b><i>“이번에는 꼭, 이타카로!”</i></div><div class="home-bottom">${button('challenges', '⚔ 특별 항해', 'text-button')}${button('wardrobe', '♧ 영웅의 옷장', 'text-button')}${button('harbor', '⚓ 나의 항구', 'text-button')}${button('journal', '✧ 모험 수첩', 'text-button')}${button('settings', '⚙ 설정', 'text-button')}${button('quit', '게임 종료', 'text-button')}</div></div>`,
+      `<div class="home">${this.header('ODYSSEY RUN', 'home')}<div class="home-copy"><span class="eyebrow"><i></i> 작은 영웅의 긴 귀환</span><h1 tabindex="-1">오디세이 런<span>이타카로!</span></h1><p>별자리를 잇고, 숨은 이야기를 찾고,<br>우리만의 항구를 완성하러 떠나요.</p><div class="home-actions">${button('islands', '항해 시작 <span>↗</span>', 'primary large')}${button('codex', icon('map') + ' 지도 도감', 'secondary')}</div><div class="home-status">${done ? '⚑ 귀환 완료 · ' : ''}도장 ${this.store.data.journal.stamps.length}/${stampIds.length} · 별자리 ${this.store.data.journal.constellations.length}/${constellationIds.length} · 이야기 ${this.store.data.journal.stories.length}/${storyIds.length}</div></div><div class="hero-caption"><span>ODYSSEUS</span><b>지혜로운 작은 영웅</b><i>“이번에는 꼭, 이타카로!”</i></div><div class="home-bottom">${button('challenges', '⚔ 특별 항해', 'text-button')}${button('wardrobe', '♧ 영웅의 옷장', 'text-button')}${button('harbor', '⚓ 나의 항구', 'text-button')}${button('journal', '✧ 모험 수첩', 'text-button')}${button('settings', '⚙ 설정', 'text-button')}${button('quit', '게임 종료', 'text-button')}</div></div>`,
       'home',
     );
     this.game.loop.wake();
@@ -564,7 +565,7 @@ export class App {
     const save = this.store.data;
     const count = STAGES.reduce((n, id) => n + save.stages[id].maps.length, 0);
     this.set(
-      `<div class="page islands">${this.header('항해 지도')}<div class="page-heading"><span class="eyebrow">YOUR JOURNEY HOME</span><h1 tabindex="-1">어느 섬으로 떠날까요?</h1><p>앞선 섬을 완주하면 다음 항로가 열려요.</p><span class="map-total">${icon('map')} ${count} / 9 발견 ${count === 9 ? '· 지도 완성!' : ''}</span></div><div class="island-grid">${STAGES.map(
+      `<div class="page islands">${this.header('항해 지도')}<div class="page-heading"><span class="eyebrow">YOUR JOURNEY HOME</span><h1 tabindex="-1">어느 섬으로 떠날까요?</h1><p>앞선 섬을 완주하면 다음 항로가 열려요.</p><span class="map-total">${icon('map')} ${count} / ${TOTAL_MAPS} 발견 ${count === TOTAL_MAPS ? '· 지도 완성!' : ''}</span></div><div class="island-grid">${STAGES.map(
         (id, i) => {
           const c = COURSES[id],
             r = save.stages[id],
@@ -742,7 +743,7 @@ export class App {
     const r = this.result,
       record = this.store.data.stages[r.stage],
       routeRecord = courseRecord(this.store.data, r.stage, r.variant ?? 'classic'),
-      last = r.stage === 'wind',
+      last = r.stage === STAGES.at(-1),
       next = STAGES[STAGES.indexOf(r.stage) + 1];
     this.set(
       `<div class="veil result-veil"><section class="panel result"><span class="eyebrow">${r.complete ? icon('laurel') : ''} ${r.complete ? 'ISLAND COMPLETE' : 'THE JOURNEY CONTINUES'}</span><h1 tabindex="-1">${r.complete ? (last ? '마침내, 이타카!' : '멋진 항해였어요!') : r.stage === 'cave' ? '거인에게 잡혔어요!' : '다시, 한 걸음 더!'}</h1><p>${r.complete ? (last ? '오디세우스가 고향 항구에 도착했어요. 긴 모험을 함께해 줘서 고마워요.' : COURSES[r.stage].name + ' 완주! 다음 섬의 항로가 열렸어요.') : '괜찮아요. 익숙해질수록 더 멀리 갈 수 있어요.'}</p>${last && r.complete ? regionArt('view-ithaca', 'ending-art', '이타카 도착 항구') : ''}<p class="course-result-label">${VARIANT_LABELS[r.stage][r.variant ?? 'classic'].name}</p><div class="mission-badge">${r.adventure?.stamps.length ? '✓ 도전 도장 · ' + GOALS[this.selectedGoal].name : '◇ 다음 항해에서 도전에 다시 도전해요'}</div><div class="result-stars" aria-label="이번 평점 ${r.rating}점">${'★'.repeat(r.rating)}<em>${'☆'.repeat(3 - r.rating)}</em></div><div class="result-score"><span>이번 항해 점수</span><strong>${r.score.toLocaleString()}</strong><small>코스 최고 ${routeRecord.bestScore.toLocaleString()} ${r.score === routeRecord.bestScore ? '· NEW BEST' : ''}<br>섬 전체 최고 ${record.bestScore.toLocaleString()}</small></div>${this.rivalLine(r)}<div class="score-breakdown"><div><span>최고 전진거리</span><b>${Math.floor(r.distance / 10)}</b></div><div><span>별빛 ${r.stars} × 10</span><b>${r.stars * 10}</b></div><div><span>지도 ${r.maps.length} × 100</span><b>${r.maps.length * 100}</b></div><div><span>완주 보너스</span><b>${r.complete ? 500 : 0}</b></div></div><div class="result-summary"><span>♡ HP 손실 ${r.hpLoss}회</span><span>${icon('map')} 영구 지도 ${record.maps.length}/3</span></div>${this.damageSummary()}<small class="rating-help">완주 ★ · 별빛 70개 이상 ★ · HP 손실 0회 ★</small><div class="result-actions">${button('restart', '재도전', 'secondary')}${button('stage:' + r.stage, '다른 코스 고르기', 'secondary')}${r.complete && next ? button('stage:' + next, '다음 섬으로 →', 'primary') : button('islands', '섬 선택 →', 'primary')}</div>${r.complete && next ? button('islands', '섬 선택', 'text-button') : ''}${last && r.complete ? button('codex', '귀환의 지도 보기', 'text-button') : ''}<div class="adventure-result"><b>${r.adventure?.stamps.length ? '✓ 도전 성공! ' + GOALS[this.selectedGoal].name : '이번 도전: ' + GOALS[this.selectedGoal].name}</b><p>아슬아슬 회피 ${r.adventure?.nearMisses || 0} · 몬스터 회피 ${r.adventure?.evaded || 0} · 유도 격파 ${r.adventure?.tricked || 0}<br>별자리 ${r.adventure?.constellations.length || 0} · 이야기 ${r.adventure?.stories.length || 0} · 조합 ${r.adventure?.combos.length || 0}</p>${r.adventure ? button('share', '기록 공유 · QR', 'text-button') : ''}${button('quiz', '신화 퀴즈 한 문제', 'text-button')}${button('journal', '모험 수첩', 'text-button')}${button('harbor', '달라진 항구 보기', 'text-button')}${button('quit', '게임 종료', 'text-button')}</div></section></div>`,
@@ -782,7 +783,7 @@ export class App {
     this.abandon();
     this.world.showHome();
     this.set(
-      `<div class="page challenges">${this.header('특별 항해')}<div class="page-heading"><span class="eyebrow">READ THE PATTERN</span><h1 tabindex="-1">예고를 읽고, 한 번 더!</h1><p>일반 항로의 점수·지도·해금과 별도로 기록해요.</p></div><div class="trial-grid">${STAGES.map(
+      `<div class="page challenges">${this.header('특별 항해')}<div class="page-heading"><span class="eyebrow">READ THE PATTERN</span><h1 tabindex="-1">예고를 읽고, 한 번 더!</h1><p>일반 항로의 점수·지도·해금과 별도로 기록해요.</p></div><div class="trial-grid stages">${STAGES.map(
         id => {
           const open = this.store.data.stages[id].complete,
             r = this.store.data.expeditions.bosses[id];
@@ -873,7 +874,7 @@ export class App {
   private codex() {
     const found = new Set(STAGES.flatMap(id => this.store.data.stages[id].maps));
     this.set(
-      `<div class="page codex">${this.header('귀환의 지도')}<div class="page-heading"><span class="eyebrow">FRAGMENTS OF THE ODYSSEY</span><h1 tabindex="-1">이야기를 모아, 이타카로</h1><p>${found.size ? `아홉 조각 중 ${found.size}개를 찾았어요. 조각을 눌러 이야기를 읽어 보세요.` : '아직 지도가 비어 있어요. 첫 섬으로 탐험을 떠나 보세요!'}</p></div>${this.bookNav('codex')}<div class="fragment-grid">${STAGES.flatMap(
+      `<div class="page codex">${this.header('귀환의 지도')}<div class="page-heading"><span class="eyebrow">FRAGMENTS OF THE ODYSSEY</span><h1 tabindex="-1">이야기를 모아, 이타카로</h1><p>${found.size ? `${TOTAL_MAPS}조각 중 ${found.size}개를 찾았어요. 조각을 눌러 이야기를 읽어 보세요.` : '아직 지도가 비어 있어요. 첫 섬으로 탐험을 떠나 보세요!'}</p></div>${this.bookNav('codex')}<div class="fragment-grid">${STAGES.flatMap(
         (id, i) =>
           [1, 2, 3].map((n, j) => {
             const idx = i * 3 + j,
@@ -882,7 +883,7 @@ export class App {
           }),
       ).join(
         '',
-      )}</div><div class="page-foot"><span>${found.size === 9 ? '모든 지도가 모였어요. 당신만의 오디세이가 완성됐네요.' : '지도는 기본 경로, 2단 점프 경로, 슬라이드 경로에서 찾을 수 있어요.'}</span>${button('islands', '탐험하기 →', 'text-button')}</div></div>`,
+      )}</div><div class="page-foot"><span>${found.size === TOTAL_MAPS ? '모든 지도가 모였어요. 당신만의 오디세이가 완성됐네요.' : '지도는 기본 경로, 2단 점프 경로, 슬라이드 경로에서 찾을 수 있어요.'}</span>${button('islands', '탐험하기 →', 'text-button')}</div></div>`,
       'codex',
     );
   }
@@ -901,7 +902,7 @@ export class App {
   }
   private landscapes() {
     this.set(
-      `<div class="page landscapes">${this.header('항해 도감')}<div class="page-heading"><span class="eyebrow">ISLANDS & LEGENDS</span><h1 tabindex="-1">바다 너머의 풍경과 전설</h1><p>원화를 누르면 크게 볼 수 있어요. 그림 속 다른 섬과 몬스터는 이야기로 만나요.</p></div>${this.bookNav('landscapes')}<div class="sheet-grid">${ART_SHEETS.map(s => `<button class="sheet-card" data-action="sheet:${s.id}"><img src="${sheetUrl(s.id)}" alt="${s.name} 원화 미리보기" loading="lazy" decoding="async"><span><strong>${s.name}</strong><small>${s.description}</small><b>원화 펼치기 ↗</b></span></button>`).join('')}</div><p class="gallery-note">달리는 항로는 해변·동굴·바람 섬이에요. 원화에 적힌 추가 공격과 효과는 이번 항해에 등장하지 않아요.</p></div>`,
+      `<div class="page landscapes">${this.header('항해 도감')}<div class="page-heading"><span class="eyebrow">ISLANDS & LEGENDS</span><h1 tabindex="-1">바다 너머의 풍경과 전설</h1><p>원화를 누르면 크게 볼 수 있어요. 그림 속 다른 섬과 몬스터는 이야기로 만나요.</p></div>${this.bookNav('landscapes')}<div class="sheet-grid">${ART_SHEETS.map(s => `<button class="sheet-card" data-action="sheet:${s.id}"><img src="${sheetUrl(s.id)}" alt="${s.name} 원화 미리보기" loading="lazy" decoding="async"><span><strong>${s.name}</strong><small>${s.description}</small><b>원화 펼치기 ↗</b></span></button>`).join('')}</div><p class="gallery-note">달리는 항로는 해변·동굴·바람 섬·세이렌의 바다예요. 원화에 적힌 추가 공격과 효과는 이번 항해에 등장하지 않아요.</p></div>`,
       'landscapes',
     );
   }
@@ -1151,7 +1152,7 @@ export class App {
   private offlinePage() {
     const o = this.offline;
     this.set(
-      `<div class="page offline-page">${this.header('오프라인과 업데이트', 'settings')}<div class="page-heading"><h1 tabindex="-1">섬을 기기에 담아요</h1><p>${navigator.onLine ? '온라인 연결 상태' : '오프라인 상태'} · ${o.available ? '다운로드 준비됨' : '오프라인 기능 준비 중'}</p><p>이미 내려받은 파일을 검사해 완료 여부를 표시해요. 브라우저가 저장 공간을 비우면 다시 내려받아야 해요.</p></div><div class="trial-grid">${STAGES.map(id => `<section class="trial-card"><h2>${COURSES[id].name}</h2><p>${o.ready[id] ? '✓ 오프라인 이용 가능' : '아직 다운로드 전'}</p><small>공통 파일 재사용 · 음악 포함 · ${o.bytes[id] === undefined ? '크기 확인 중' : '약 ' + Math.ceil(o.bytes[id]! / 1048576) + 'MB'}</small>${button('download-stage:' + id, o.downloading === id ? `다운로드 중 ${Math.floor(o.progress * 100)}%` : o.ready[id] ? '파일 다시 확인·받기' : '섬 다운로드', 'primary', !o.available || o.downloading || !navigator.onLine ? 'disabled' : '')}</section>`).join('')}</div><section class="daily-card"><h2>새 버전</h2><p>${o.waiting ? '새 버전이 준비됐어요. 적용하면 화면을 다시 열어요.' : '현재 버전으로 플레이 중이에요.'}</p>${button('update', o.waiting ? '업데이트 적용' : '새 버전 확인', 'secondary', o.downloading ? 'disabled' : '')}${button('offline-refresh', '파일 상태 다시 확인', 'secondary')}<p role="status">${o.message}</p><small>기록은 유지해요. 다른 탭의 항해가 끝나야 업데이트할 수 있어요.</small></section></div>`,
+      `<div class="page offline-page">${this.header('오프라인과 업데이트', 'settings')}<div class="page-heading"><h1 tabindex="-1">섬을 기기에 담아요</h1><p>${navigator.onLine ? '온라인 연결 상태' : '오프라인 상태'} · ${o.available ? '다운로드 준비됨' : '오프라인 기능 준비 중'}</p><p>이미 내려받은 파일을 검사해 완료 여부를 표시해요. 브라우저가 저장 공간을 비우면 다시 내려받아야 해요.</p></div><div class="trial-grid stages">${STAGES.map(id => `<section class="trial-card"><h2>${COURSES[id].name}</h2><p>${o.ready[id] ? '✓ 오프라인 이용 가능' : '아직 다운로드 전'}</p><small>공통 파일 재사용 · 음악 포함 · ${o.bytes[id] === undefined ? '크기 확인 중' : '약 ' + Math.ceil(o.bytes[id]! / 1048576) + 'MB'}</small>${button('download-stage:' + id, o.downloading === id ? `다운로드 중 ${Math.floor(o.progress * 100)}%` : o.ready[id] ? '파일 다시 확인·받기' : '섬 다운로드', 'primary', !o.available || o.downloading || !navigator.onLine ? 'disabled' : '')}</section>`).join('')}</div><section class="daily-card"><h2>새 버전</h2><p>${o.waiting ? '새 버전이 준비됐어요. 적용하면 화면을 다시 열어요.' : '현재 버전으로 플레이 중이에요.'}</p>${button('update', o.waiting ? '업데이트 적용' : '새 버전 확인', 'secondary', o.downloading ? 'disabled' : '')}${button('offline-refresh', '파일 상태 다시 확인', 'secondary')}<p role="status">${o.message}</p><small>기록은 유지해요. 다른 탭의 항해가 끝나야 업데이트할 수 있어요.</small></section></div>`,
       'offline',
     );
   }
@@ -1239,7 +1240,7 @@ export class App {
   private importPreview() {
     const s = this.imported!;
     this.set(
-      `<div class="veil"><section class="panel"><span class="eyebrow">RESTORE YOUR JOURNEY</span><h1 tabindex="-1">이 기록으로 바꿀까요?</h1><p>완주한 섬 ${STAGES.filter(id => s.stages[id].complete).length}/3 · 지도 ${STAGES.reduce((a, id) => a + s.stages[id].maps.length, 0)}/9</p><p class="muted">모험 도장 ${s.journal.stamps.length}/12 · 별자리 ${s.journal.constellations.length}/9 · 이야기 ${s.journal.stories.length}/6<br>완주한 코스 ${Object.values(s.courses).filter(r => r?.complete).length}/9</p><div class="import-list">${STAGES.map(id => `<p><b>${COURSES[id].name}</b><span>${s.stages[id].bestScore}점 / ${s.stages[id].bestRating}★ / 별빛 ${s.stages[id].bestStars}</span></p>`).join('')}</div><p class="muted">현재 진행과 설정을 교체해요.<br>교체 전 원본은 이 게임 전용 백업에 보관해요.</p><div class="button-row">${button('settings', '취소', 'secondary')}${button('import-confirm', '이 기록으로 복원', 'primary')}</div></section></div>`,
+      `<div class="veil"><section class="panel"><span class="eyebrow">RESTORE YOUR JOURNEY</span><h1 tabindex="-1">이 기록으로 바꿀까요?</h1><p>완주한 섬 ${STAGES.filter(id => s.stages[id].complete).length}/${STAGES.length} · 지도 ${STAGES.reduce((a, id) => a + s.stages[id].maps.length, 0)}/${TOTAL_MAPS}</p><p class="muted">모험 도장 ${s.journal.stamps.length}/${stampIds.length} · 별자리 ${s.journal.constellations.length}/${constellationIds.length} · 이야기 ${s.journal.stories.length}/${storyIds.length}<br>완주한 코스 ${Object.values(s.courses).filter(r => r?.complete).length}/${STAGES.length * VARIANTS.length}</p><div class="import-list">${STAGES.map(id => `<p><b>${COURSES[id].name}</b><span>${s.stages[id].bestScore}점 / ${s.stages[id].bestRating}★ / 별빛 ${s.stages[id].bestStars}</span></p>`).join('')}</div><p class="muted">현재 진행과 설정을 교체해요.<br>교체 전 원본은 이 게임 전용 백업에 보관해요.</p><div class="button-row">${button('settings', '취소', 'secondary')}${button('import-confirm', '이 기록으로 복원', 'primary')}</div></section></div>`,
       'import',
     );
   }

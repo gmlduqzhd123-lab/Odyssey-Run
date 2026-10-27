@@ -45,6 +45,7 @@ export interface EndlessRecord {
 }
 export const SAVE_KEY = `odyssey-run:${new URL(import.meta.env?.BASE_URL || './', typeof location === 'undefined' ? 'http://local/' : location.href).pathname}:save`;
 export const BACKUP_KEY = SAVE_KEY + ':backup';
+const LATER_STAGES: readonly StageId[] = ['sea'];
 const emptyRecord = (): RecordData => ({complete: false, bestScore: 0, bestRating: 0, bestStars: 0, maps: []});
 export const emptySave = (): Save => ({
   schemaVersion: 1,
@@ -54,7 +55,7 @@ export const emptySave = (): Save => ({
   expeditions: emptyExpeditions(),
   tutorialSeen: false,
   lastStage: 'beach',
-  stages: {beach: emptyRecord(), cave: emptyRecord(), wind: emptyRecord()},
+  stages: {beach: emptyRecord(), cave: emptyRecord(), wind: emptyRecord(), sea: emptyRecord()},
   savedAt: new Date().toISOString(),
   journal: emptyJournal(),
   courses: {},
@@ -119,7 +120,8 @@ export function validateSave(raw: unknown): Save {
     throw Error('저장 시각이 올바르지 않아요.');
   out.savedAt = v.savedAt;
   STAGES.forEach((id, i) => {
-    const record = readRecord(stages[id], id);
+    // Islands added after a save was written start empty instead of rejecting the save.
+    const record = stages[id] === undefined && LATER_STAGES.includes(id) ? emptyRecord() : readRecord(stages[id], id);
     if (
       i > 0 &&
       (record.complete || record.bestScore > 0 || record.bestStars > 0 || record.maps.length > 0) &&

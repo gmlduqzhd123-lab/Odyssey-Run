@@ -3,7 +3,7 @@ import {sailColor} from '../systems/cosmetics';
 import {BOSSES, bossPhase} from '../levels/bosses';
 import Phaser from 'phaser';
 import {C} from '../config';
-import {COURSES, type StageId} from '../levels/courses';
+import {COURSES, STAGES, type StageId} from '../levels/courses';
 import type {Runner} from '../player/runner';
 import {assetUrl} from '../assets/catalog';
 import {REGIONS, sheetUrl} from '../assets/terrain';
@@ -540,7 +540,7 @@ export class World extends Phaser.Scene {
               : '↓ 꾹 누르기 · 슬라이드';
     } else if (r.x > 22400 && r.course.mode !== 'endless') {
       captionX = 650;
-      caption = this.stage === 'wind' ? '이타카 항구가 보여요!' : '도착 항구가 보여요!';
+      caption = this.stage === STAGES.at(-1) ? '이타카 항구가 보여요!' : '도착 항구가 보여요!';
       this.boat
         .setVisible(true)
         .setPosition((this.view.width * 760) / 960 - (r.x - 22400) * 0.08, 370)
@@ -609,6 +609,18 @@ export class World extends Phaser.Scene {
         fx.fillStyle(0x947354, 0.85).fillRoundedRect(gap.x + i * 38 - cam, 440 + fall, 31, 8, 2);
       }
       fx.lineStyle(2, 0xe2bd72, 0.8).lineBetween(gap.x - cam - 15, 433, gap.x - cam - 2, 420);
+    }
+    // The Sirens' song: notes drift over the open water; reduced motion keeps them still.
+    if (this.stage === 'sea' && r.x > h.start - 500 && r.x < h.end) {
+      const gap = r.course.gaps.find(g => g.x >= h.start && g.x <= h.end);
+      if (gap)
+        for (let i = 0; i < 5; i++) {
+          const drift = reduced ? 0 : r.time * 40 + i * 37,
+            x = gap.x - cam - 120 + i * 70 + (reduced ? 0 : Math.sin(drift / 30) * 10),
+            y = 300 - (drift % 90);
+          fx.fillStyle(0xf6e2a8, 0.75).fillEllipse(x, y, 11, 8);
+          fx.lineStyle(2, 0xf6e2a8, 0.75).lineBetween(x + 5, y, x + 5, y - 20);
+        }
     }
     if (this.stage === 'wind' && r.x > h.start - 700 && r.x < h.end) {
       for (const p of r.course.platforms.filter(p => p.id.startsWith('wind-cloud-') || p.id === 'wind-floating-3')) {

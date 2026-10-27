@@ -19,6 +19,11 @@ export const BOSSES = {
     description: '공중의 경고를 숙여 피하고 바람길과 절벽을 건너요.',
     phases: ['바람의 하르피아 · 숙이기', '안개 속 수호자 · 숙이기', '폭풍의 틈 · 바람과 점프'],
   },
+  sea: {
+    name: '세이렌의 노래',
+    description: '세이렌의 날갯짓 → 스킬라의 머리 → 바위섬 집게를 읽어요.',
+    phases: ['세이렌의 날갯짓 · 숙이기', '스킬라의 머리 · 점프', '바위섬 집게 · 점프'],
+  },
 } as const;
 function build(stage: StageId): Course {
   const base = COURSES[stage],
@@ -37,6 +42,7 @@ function build(stage: StageId): Course {
     beach: ['crab', 'crab', 'scylla', 'scylla', 'harpy', 'harpy'],
     cave: ['stone', 'stone', 'cyclops', 'cyclops', 'shade', 'shade'],
     wind: ['harpy', 'harpy', 'shade', 'shade', 'scylla', 'scylla'],
+    sea: ['harpy', 'harpy', 'scylla', 'scylla', 'crab', 'crab'],
   };
   const obstacles: Obstacle[] =
     stage === 'cave' ? [{id: 'cave-boss-hand', kind: 'hand', role: 'hazard', x: 8400, y: 365, w: 180, h: 39}] : [];

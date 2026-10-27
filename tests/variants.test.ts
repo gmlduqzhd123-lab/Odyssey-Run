@@ -106,10 +106,10 @@ test('all variant challenges and constellations can be earned with authored rout
         save = mergeResult(save, r.result());
         assert.deepEqual(validateSave(save), save);
       }
-  assert.equal(Object.values(save.courses).filter(r => r?.complete).length, 9);
-  assert.equal(save.journal.stamps.length, 12);
-  assert.equal(save.journal.constellations.length, 9);
-  assert.equal(save.journal.stories.length, 6);
+  assert.equal(Object.values(save.courses).filter(r => r?.complete).length, STAGES.length * 3);
+  assert.equal(save.journal.stamps.length, STAGES.length * 4);
+  assert.equal(save.journal.constellations.length, STAGES.length * 3);
+  assert.equal(save.journal.stories.length, STAGES.length * 2);
 });
 test('each new course recovers a fall to its own flat checkpoint without duplicate collection', () => {
   for (const stage of STAGES)
@@ -143,10 +143,14 @@ test('each new course recovers a fall to its own flat checkpoint without duplica
 test('old v1 imports keep exact core records and attribute previous ghosts only to classic', () => {
   const legacy = JSON.parse(readFileSync('artifacts/legacy-v1-save.json', 'utf8')),
     s = validateSave(legacy);
-  assert.deepEqual(s.stages, legacy.stages);
+  // Islands added later start empty; the original records stay exact.
+  assert.deepEqual(s.stages, {
+    ...legacy.stages,
+    sea: {complete: false, bestScore: 0, bestRating: 0, bestStars: 0, maps: []},
+  });
   assert.deepEqual(s.settings, legacy.settings);
   for (const stage of STAGES) {
-    assert.equal(courseRecord(s, stage, 'classic').bestScore, legacy.stages[stage].bestScore);
+    assert.equal(courseRecord(s, stage, 'classic').bestScore, s.stages[stage].bestScore);
     assert.equal(courseRecord(s, stage, 'remix-a').bestScore, 0);
     assert.equal(courseGhost(s, stage, 'remix-a'), undefined);
   }

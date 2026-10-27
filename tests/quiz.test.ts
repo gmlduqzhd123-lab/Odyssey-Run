@@ -30,3 +30,11 @@ test('saves keep answered quiz ids, default to none and reject unknown or duplic
   assert.deepEqual(validateSave({...s, quiz: ['home', 'owl']}).quiz, ['home', 'owl']);
   for (const quiz of [['nope'], ['home', 'home'], 'home', [3]]) assert.throws(() => validateSave({...s, quiz}));
 });
+
+test('the service worker knows every island that can be downloaded', async () => {
+  const {readFileSync} = await import('node:fs');
+  const {STAGES} = await import('../src/levels/courses');
+  const sw = readFileSync('public/sw.js', 'utf8'),
+    list = sw.match(/const STAGES = (\[[^\]]+\])/)![1].replaceAll("'", '"');
+  assert.deepEqual(JSON.parse(list), [...STAGES]);
+});

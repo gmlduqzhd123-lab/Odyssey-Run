@@ -19,6 +19,11 @@ export const VARIANT_LABELS: Record<StageId, Record<VariantId, {name: string; de
     'remix-a': {name: '구름 순례길', description: '구름다리와 유적을 새로운 순서로 건너요.'},
     'remix-b': {name: '순풍 우회길', description: '달라진 바람길과 끊어진 다리를 살펴봐요.'},
   },
+  sea: {
+    classic: {name: '기본 항로', description: '노래가 들리는 바다를 익숙한 길로 건너요.'},
+    'remix-a': {name: '절벽 신전길', description: '세이렌 석상 사이를 새로운 순서로 지나요.'},
+    'remix-b': {name: '밀랍 항로', description: '귀를 막고 달라진 파도의 위험을 살펴봐요.'},
+  },
 };
 // Six authored 3,200px encounter sections. Intro [0,3200) and harbor
 // [22400,24000] remain intact. Orders are fixed and verified, never random.
@@ -28,6 +33,7 @@ export const COURSE_ORDERS: Record<StageId, Record<Exclude<VariantId, 'classic'>
   beach: {'remix-a': [2, 0, 1, 4, 3, 5], 'remix-b': [1, 0, 2, 3, 5, 4]},
   cave: {'remix-a': [3, 0, 1, 2, 4, 5], 'remix-b': [4, 5, 0, 1, 2, 3]},
   wind: {'remix-a': [3, 4, 5, 0, 1, 2], 'remix-b': [5, 0, 1, 2, 3, 4]},
+  sea: {'remix-a': [1, 2, 0, 4, 5, 3], 'remix-b': [3, 0, 2, 1, 5, 4]},
 };
 export function rearrangeCourse(
   stage: StageId,
@@ -61,7 +67,7 @@ export function rearrangeCourse(
   plan.stories.forEach(s => {
     s.x = move(s.x);
   });
-  const anchor = stage === 'beach' ? 8500 : stage === 'cave' ? 13400 : 19800,
+  const anchor = stage === 'beach' ? 8500 : stage === 'cave' ? 13400 : stage === 'sea' ? 13300 : 19800,
     delta = move(anchor) - anchor;
   plan.highlight.start = Math.max(0, plan.highlight.start + delta);
   plan.highlight.end = Math.min(C.length, plan.highlight.end + delta);

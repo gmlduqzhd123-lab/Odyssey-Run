@@ -3,6 +3,8 @@ const VERSION = '__BUILD_VERSION__',
   ROOT = new URL('./', self.location.href).href,
   PREFIX = 'odyssey-run-v:' + new URL(ROOT).pathname + ':';
 const CORE = PREFIX + VERSION + '-core';
+// Must match STAGES in src/levels/courses.ts (checked by tests).
+const STAGES = ['beach', 'cave', 'wind', 'sea'];
 let manifest;
 const getManifest = async () =>
   manifest ||
@@ -103,7 +105,7 @@ self.addEventListener('activate', e =>
   ),
 );
 async function cached(path) {
-  for (const n of [CORE, cacheName('shared'), ...['beach', 'cave', 'wind'].map(cacheName)]) {
+  for (const n of [CORE, cacheName('shared'), ...STAGES.map(cacheName)]) {
     const hit = await (await caches.open(n)).match(path);
     if (hit) return hit;
   }
@@ -175,7 +177,7 @@ self.addEventListener('message', e => {
         const m = await loadManifest();
         if (e.data?.type === 'STATUS') {
           const ready = {};
-          for (const stage of ['beach', 'cave', 'wind']) ready[stage] = await stageReady(stage);
+          for (const stage of STAGES) ready[stage] = await stageReady(stage);
           p.postMessage({
             type: 'DONE',
             version: VERSION,
@@ -189,7 +191,7 @@ self.addEventListener('message', e => {
           });
         } else if (e.data?.type === 'DOWNLOAD_STAGE') {
           const stage = e.data.stage;
-          if (!['beach', 'cave', 'wind'].includes(stage) || downloading.size) throw Error('busy');
+          if (!STAGES.includes(stage) || downloading.size) throw Error('busy');
           downloading.add(stage);
           try {
             const stageCache = await caches.open(cacheName(stage)),

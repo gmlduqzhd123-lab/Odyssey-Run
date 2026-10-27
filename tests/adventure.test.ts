@@ -189,7 +189,7 @@ test('jumping before a cyclops release changes shot height, allowing different l
   const shot = r.enemyStates.find(e => e.kind === 'cyclops')!.projectile;
   assert.ok(shot.y < 350);
 });
-test('all twelve selectable stage challenges can be earned by actual route inputs', () => {
+test('every selectable stage challenge (four per island) can be earned by actual route inputs', () => {
   let save = emptySave();
   for (const stage of STAGES)
     for (const goal of Object.keys(GOALS) as (keyof typeof GOALS)[]) {
@@ -199,9 +199,9 @@ test('all twelve selectable stage challenges can be earned by actual route input
       save = mergeResult(save, r.result());
       assert.deepEqual(validateSave(save), save);
     }
-  assert.equal(save.journal.stamps.length, 12);
-  assert.equal(save.journal.constellations.length, 9);
-  assert.equal(save.journal.stories.length, 6);
+  assert.equal(save.journal.stamps.length, STAGES.length * 4);
+  assert.equal(save.journal.constellations.length, STAGES.length * 3);
+  assert.equal(save.journal.stories.length, STAGES.length * 2);
 });
 test('long valid return runs retain full comparison traces after repeated recoveries', () => {
   const s = emptySave();

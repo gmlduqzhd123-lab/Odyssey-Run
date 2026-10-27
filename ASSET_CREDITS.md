@@ -47,7 +47,7 @@
 | 자산 | 위치 | 제작·사용 |
 |---|---|---|
 | 최초 오디세우스 9개 동작 SVG | `public/assets/hero-*.svg` | 자체 벡터 그래픽. 이전 버전 보존, 현재 플레이는 사용자 제공 이미지 사용 |
-| 섬별 sky/far/mid SVG | `public/assets/{beach,cave,wind}-*.svg` | 자체 3층 풍경 |
+| 섬별 sky/far/mid SVG | `public/assets/{beach,cave,wind,sea}-*.svg` | 자체 3층 풍경 (`scripts/create-assets.py`) |
 | 배·거인·장애물 | `public/assets/{boat,giant,crate,pillar,gate,rock}.svg` | 자체 벡터 그래픽 |
 | 별빛과 최초 아이콘 SVG | `public/assets/{star,map,shield,wings,magnet,apple,compass}.svg` | 별빛은 현재 사용, 나머지 최초 아이콘은 이전 버전 보존 |
 | 지면·바람·피드백 | `src/scenes/World.ts` | 자체 절차적 그래픽 |
@@ -91,7 +91,7 @@
 
 | 원본 파일 | 배치 | 길이 | 프로젝트 파일 |
 |---|---|---|---|
-| Odyssey Run — Road to Ithaca (1).mp3 | 출항의 해변 | 약 162.14초 | `assets/audio/beach-78e90c47be32.mp3` |
+| Odyssey Run — Road to Ithaca (1).mp3 | 출항의 해변, 세이렌의 바다(같은 곡 재사용) | 약 162.14초 | `assets/audio/beach-78e90c47be32.mp3` |
 | Odyssey Run — Road to Ithaca (2).mp3 | 키클롭스의 동굴 | 108초 | `assets/audio/cave-3b7dca88f289.mp3` |
 | Odyssey Run — Road to Ithaca (3).mp3 | 아이올로스의 바람 섬 | 약 96.91초 | `assets/audio/wind-135cdecfaf1b.mp3` |
 
@@ -100,3 +100,12 @@
 ## 추가 장식 (2026-10-27)
 
 보스 도전은 기존 제공 몬스터 그림과 게임 내 동작을 재사용합니다. 추가 망토·문양·돛은 프로젝트에서 작성한 정적인 Phaser Graphics/SVG 도형입니다. 원본 캐릭터·몬스터·MP3는 변경하지 않았습니다. 외부 신규 에셋과 생성 API는 사용하지 않았습니다.
+
+## 네 번째 섬: 세이렌의 바다 (2026-10-27)
+
+| 자산 | 파일 | 출처 |
+|---|---|---|
+| 섬 카드·준비 화면 풍경 | `landscape-sheet`의 07 세이렌의 절벽 영역 | 사용자 제공 원화 시트의 기존 그림을 잘라 사용 |
+| 배경 3층 | `public/assets/sea-{sky,far,mid}.svg` | 자체 제작 (`scripts/create-assets.py`) |
+| 바닥 띠 | `terrain-sheet`의 해변 모래 띠 재사용 | 사용자 제공 |
+| 배경음악 | 출항의 해변 곡 재사용 | 사용자 제공 Suno 곡, 별도 곡 없음 |

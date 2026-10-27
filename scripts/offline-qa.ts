@@ -2,6 +2,7 @@ import {chromium, expect} from '@playwright/test';
 import {existsSync} from 'node:fs';
 import {writeFile} from 'node:fs/promises';
 import {routeInputs} from './check-routes';
+import {STAGES} from '../src/levels/courses';
 const url = process.env.QA_URL || 'http://localhost:4176/Odyssey-Run/',
   prefix = process.env.QA_PREFIX || 'roadmap-offline',
   production = url.startsWith('https:');
@@ -40,7 +41,7 @@ try {
   await p.locator('[data-setting="sfx"]').uncheck();
   await tap('[data-action="offline"]');
   await expect(p.locator('.offline-page')).toContainText('다운로드 준비됨', {timeout: 60000});
-  for (const id of ['beach', 'cave', 'wind']) {
+  for (const id of STAGES) {
     await tap(`[data-action="download-stage:${id}"]`);
     await expect(p.locator('.offline-page .daily-card [role="status"]')).toContainText('다운로드를 완료', {
       timeout: 120000,
@@ -93,7 +94,7 @@ try {
     const r = (await p.locator(`[data-control="${type}"]`).boundingBox())!;
     return {id, x: r.x + r.width / 2, y: r.y + r.height / 2};
   };
-  for (const id of ['beach', 'cave', 'wind'] as const) {
+  for (const id of STAGES) {
     await tap('[data-action="islands"]');
     await tap(`[data-action="stage:${id}"]`);
     await tap('[data-action="start"]');

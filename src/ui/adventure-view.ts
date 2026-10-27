@@ -1,5 +1,5 @@
 import {sailColor} from '../systems/cosmetics';
-import {ADVENTURE_PLANS, GOALS, COMBOS} from '../levels/adventure';
+import {ADVENTURE_PLANS, GOALS, COMBOS, stampIds, constellationIds, storyIds} from '../levels/adventure';
 import type {Journal} from '../storage/journal';
 export function constellationIcon(shape: string) {
   const path =
@@ -16,7 +16,7 @@ export function harborUnlocks(j: Journal, completed: number, maps: number) {
     maps >= 3,
     j.stories.length >= 2,
     j.constellations.length >= 3,
-    completed === 3 && j.stamps.length >= 3,
+    completed >= 3 && j.stamps.length >= 3,
   ];
 }
 export function harborArt(unlocks: boolean[], sail = 'plain') {
@@ -33,10 +33,10 @@ export const harborRequirements = [
   '지도 3개 · 등대',
   '이야기 2개 · 동료의 집',
   '별자리 3개 · 별빛 깃발',
-  '세 섬 완주 + 도장 3개 · 귀환 축제',
+  '섬 세 곳 완주 + 도장 3개 · 귀환 축제',
 ];
 export function journalCards(j: Journal) {
-  return `<section class="journal-section"><h2>선택한 도전의 도장 · ${j.stamps.length}/12</h2><div class="stamp-grid">${Object.entries(
+  return `<section class="journal-section"><h2>선택한 도전의 도장 · ${j.stamps.length}/${stampIds.length}</h2><div class="stamp-grid">${Object.entries(
     ADVENTURE_PLANS,
   )
     .flatMap(([id], index) =>
@@ -47,7 +47,7 @@ export function journalCards(j: Journal) {
     )
     .join(
       '',
-    )}</div></section><section class="journal-section"><h2>완성한 별자리 · ${j.constellations.length}/9</h2><div class="stamp-grid">${Object.values(
+    )}</div></section><section class="journal-section"><h2>완성한 별자리 · ${j.constellations.length}/${constellationIds.length}</h2><div class="stamp-grid">${Object.values(
     ADVENTURE_PLANS,
   )
     .flatMap(p =>
@@ -58,7 +58,7 @@ export function journalCards(j: Journal) {
     )
     .join(
       '',
-    )}</div></section><section class="journal-section"><h2>숨은 이야기 · ${j.stories.length}/6</h2><div class="stamp-grid">${Object.values(
+    )}</div></section><section class="journal-section"><h2>숨은 이야기 · ${j.stories.length}/${storyIds.length}</h2><div class="stamp-grid">${Object.values(
     ADVENTURE_PLANS,
   )
     .flatMap(p =>

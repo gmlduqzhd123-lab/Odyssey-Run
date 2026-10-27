@@ -112,6 +112,20 @@ export const QUIZ: readonly QuizQuestion[] = [
     answer: 1,
     explain: '트로이 전쟁 10년, 돌아오는 항해 약 10년. 정말 긴 여정이었어요.',
   },
+  {
+    id: 'wax',
+    question: '세이렌의 노래를 듣지 않으려고 선원들은 귀를 무엇으로 막았을까요?',
+    options: ['조개껍데기', '밀랍', '나뭇잎'],
+    answer: 1,
+    explain: '오디세우스가 밀랍을 부드럽게 녹여 선원들의 귀를 막아 주었어요.',
+  },
+  {
+    id: 'mast',
+    question: '세이렌의 노래를 듣고 싶었던 오디세우스는 어떻게 했을까요?',
+    options: ['배 밑바닥에 숨었어요', '돛대에 몸을 묶어 달라고 했어요', '노래를 따라 불렀어요'],
+    answer: 1,
+    explain: '자신을 돛대에 묶게 하고, 풀어 달라고 해도 더 단단히 묶으라고 부탁했어요.',
+  },
 ];
 export const quizIds = QUIZ.map(q => q.id);
 // Real figures get one line from the Odyssey; the game's own guides have none.

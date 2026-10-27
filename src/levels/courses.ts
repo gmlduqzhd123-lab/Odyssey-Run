@@ -2,7 +2,7 @@ import {C} from '../config';
 import {ADVENTURE_PLANS, type AdventurePlan} from './adventure';
 import type {VariantId} from './course-ids';
 import type {EnemyKind, EnemyPlacement} from './enemies';
-export const STAGES = ['beach', 'cave', 'wind'] as const;
+export const STAGES = ['beach', 'cave', 'wind', 'sea'] as const;
 export type StageId = (typeof STAGES)[number];
 export type ItemKind = 'star' | 'map' | 'shield' | 'wings' | 'magnet' | 'apple' | 'trident' | 'lantern' | 'compass';
 export interface Collectible {
@@ -66,8 +66,14 @@ const meta = {
   wind: {
     name: '아이올로스의 바람 섬',
     subtitle: 'THE WINDS',
-    description: '바람을 타고 구름 너머 이타카로 향해요.',
+    description: '바람을 타고 구름 너머 고향 바다로 향해요.',
     color: '#afc9a2',
+  },
+  sea: {
+    name: '세이렌의 바다',
+    subtitle: 'THE SIRENS',
+    description: '아름다운 노래를 지나쳐, 이타카의 항구로 노를 저어요.',
+    color: '#8fbcd8',
   },
 };
 // All courses are deterministic. Coordinates are world-space logical pixels.
@@ -94,6 +100,13 @@ const plans: Record<StageId, {crates: number[]; pillars: number[]; gates: number
       gaps: [8500, 14000, 19800],
       rocks: [],
     },
+    sea: {
+      crates: [3600, 7300, 12000, 16300, 20500],
+      pillars: [5100, 9800, 14700, 18800],
+      gates: [6300, 10900, 17500, 21700],
+      gaps: [8600, 13300, 19800],
+      rocks: [],
+    },
   };
 function build(id: StageId): Course {
   const p = plans[id];
@@ -104,7 +117,7 @@ function build(id: StageId): Course {
   p.pillars.forEach(x => add(x, 'pillar', 'structure', 65, 120));
   p.gates.forEach(x => add(x, 'gate', 'structure', 160, 125, 279));
   p.rocks.forEach(x => add(x, 'falling', 'hazard', 60, 64));
-  const gaps = p.gaps.map(x => ({x, w: id === 'wind' ? 210 : 150}));
+  const gaps = p.gaps.map(x => ({x, w: id === 'wind' ? 210 : id === 'sea' ? 180 : 150}));
   const winds: Rect[] =
     id === 'wind'
       ? [
@@ -136,7 +149,7 @@ function build(id: StageId): Course {
       items.push({id: `${id}-star-${group * 5 + j + 1}`, kind: 'star', x, y});
     }
   }
-  const highMapX = id === 'beach' ? 15400 : id === 'wind' ? 9500 : 5750;
+  const highMapX = id === 'beach' || id === 'sea' ? 15400 : id === 'wind' ? 9500 : 5750;
   const guides = [...items].sort((a, b) => Math.abs(a.x - highMapX) - Math.abs(b.x - highMapX)).slice(0, 5);
   guides.forEach((item, j) => {
     item.x = highMapX - 180 + j * 60;
@@ -153,11 +166,13 @@ function build(id: StageId): Course {
     beach: ['crab', 'scylla', 'crab', 'scylla'],
     cave: ['stone', 'cyclops', 'stone', 'cyclops'],
     wind: ['scylla', 'crab', 'stone', 'scylla'],
+    sea: ['scylla', 'crab', 'crab', 'scylla'],
   };
   const enemies: EnemyPlacement[] = p.crates
     .slice(1)
     .map((x, i) => ({id: `${id}-enemy-ground-${i + 1}`, kind: groundKinds[id][i], x}));
-  const air = id === 'beach' ? [5700, 13900, 18100] : id === 'cave' ? [4500, 12900, 19500] : [4300, 12000, 21600];
+  const air =
+    id === 'beach' || id === 'sea' ? [5700, 14000, 18200] : id === 'cave' ? [4500, 12900, 19500] : [4300, 12000, 21600];
   air.forEach((x, i) => enemies.push({id: `${id}-enemy-air-${i + 1}`, kind: id === 'cave' ? 'shade' : 'harpy', x}));
   // Replace four crate encounters, leaving tutorial crate, pillars, gates and gaps.
   for (let i = obstacles.length - 1; i >= 0; i--)
@@ -166,6 +181,7 @@ function build(id: StageId): Course {
     beach: {trident: [4200, 15100], lantern: [12900, 17800], compass: [7800, 16800]},
     cave: {trident: [3500, 16000], lantern: [11800, 19280], compass: [7900, 18400]},
     wind: {trident: [4600, 16500], lantern: [11900, 21300], compass: [8000, 17900]},
+    sea: {trident: [4200, 15100], lantern: [12900, 17800], compass: [7800, 16800]},
   };
   for (const kind of ['trident', 'lantern', 'compass'] as const)
     extra[id][kind].forEach((x, i) =>
@@ -217,13 +233,19 @@ function build(id: StageId): Course {
   adventure.constellations.forEach((group, index) =>
     group.stars.forEach((starId, j) => {
       const star = items.find(i => i.id === starId)!;
-      const centers = id === 'beach' ? [4430, 7800, 22200] : id === 'cave' ? [7770, 9600, 23300] : [4430, 7800, 23100];
+      const centers =
+        id === 'beach' || id === 'sea'
+          ? [4430, 7800, 22200]
+          : id === 'cave'
+            ? [7770, 9600, 23300]
+            : [4430, 7800, 23100];
       star.x = centers[index] + shapes[index][j][0];
       star.y = (index === 0 ? 295 : 405) + shapes[index][j][1];
     }),
   );
   items.find(i => i.id === `${id}-magnet-2`)!.x = 4800;
-  items.find(i => i.id === `${id}-lantern-extra-1`)!.x = id === 'cave' ? 4150 : id === 'beach' ? 4300 : 6900;
+  items.find(i => i.id === `${id}-lantern-extra-1`)!.x =
+    id === 'cave' ? 4150 : id === 'beach' || id === 'sea' ? 4300 : 6900;
   const safe = safePoints({gaps, obstacles, enemies}, [0, 3000, 6900, 9000, 12000, 14400, 17000, 20100, 23000]);
   return {id, ...meta[id], gaps, obstacles, platforms, winds, safe, items, enemies};
 }
@@ -253,5 +275,11 @@ export const MAP_STORIES = [
   ['함께 찾은 출구', '영웅의 모험에는 늘 동료가 있었어요. 서로를 도와 어려움을 넘었지요.'],
   ['바람의 주인', '아이올로스는 바람을 다스렸어요. 그는 오디세우스에게 바람이 담긴 자루를 주었어요.'],
   ['고향을 향한 바람', '순풍이 불면 배는 고향으로 나아가요. 하지만 항해에는 예상하지 못한 일이 생기기도 해요.'],
+  ['열린 바람 자루', '고향이 보일 즈음 선원들이 자루를 열었어요. 쏟아진 바람에 배는 다시 먼 바다로 밀려났지요.'],
+  ['세이렌의 노래', '세이렌은 아름다운 노래로 뱃사람을 바위섬으로 불렀어요. 선원들은 밀랍으로 귀를 막았어요.'],
+  [
+    '돛대에 묶인 영웅',
+    '노래를 듣고 싶었던 오디세우스는 자신을 돛대에 묶어 달라고 했어요. 지혜로운 약속이 모두를 지켰어요.',
+  ],
   ['마침내 이타카', '긴 여정 끝에 돌아온 고향. 오디세우스의 귀환 이야기는 《오디세이아》에 전해져요.'],
 ];

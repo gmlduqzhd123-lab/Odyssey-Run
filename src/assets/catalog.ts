@@ -8,7 +8,7 @@ export const PEOPLE = [
     id: 'odysseus',
     name: '오디세우스',
     role: '이타카로 돌아가는 영웅',
-    story: '이 모험의 주인공이에요. 용기와 지혜로 세 섬을 지나 고향 이타카로 돌아가요.',
+    story: '이 모험의 주인공이에요. 용기와 지혜로 네 섬을 지나 고향 이타카로 돌아가요.',
   },
   {
     id: 'penelope',
@@ -128,4 +128,4 @@ export const RELICS = [
       '6초 동안 하르피아·망령과 날아오는 바위를 막아요. 다시 얻으면 6초로 갱신해요. 다른 장애물과 추락은 막지 못해요.',
   },
 ] as const;
-export const STAGE_RELIC = {beach: 'trident', cave: 'lantern', wind: 'wind-bag'} as const;
+export const STAGE_RELIC = {beach: 'trident', cave: 'lantern', wind: 'wind-bag', sea: 'compass'} as const;

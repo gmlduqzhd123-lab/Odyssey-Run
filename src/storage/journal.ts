@@ -1,4 +1,5 @@
 import {C} from '../config';
+import {STAGES, type StageId} from '../levels/courses';
 import {constellationIds, storyIds, routeIds, stampIds, type ComboId} from '../levels/adventure';
 export const GHOST_SECONDS = 511;
 export interface Ghost {
@@ -12,7 +13,7 @@ export interface Journal {
   constellations: string[];
   combos: ComboId[];
   routes: string[];
-  ghosts: Partial<Record<'beach' | 'cave' | 'wind', Ghost>>;
+  ghosts: Partial<Record<StageId, Ghost>>;
 }
 export interface AdventureResult {
   stamps: string[];
@@ -87,7 +88,7 @@ export function validateJournal(raw: unknown, bestScores: Record<string, number>
   out.routes = list(v.routes, routeIds);
   out.combos = list(v.combos, ['glide', 'guardian']) as ComboId[];
   for (const [id, value] of Object.entries(g)) {
-    if (!['beach', 'cave', 'wind'].includes(id)) throw Error('비교 항해의 섬이 올바르지 않아요.');
+    if (!STAGES.includes(id as StageId)) throw Error('비교 항해의 섬이 올바르지 않아요.');
     out.ghosts[id as keyof typeof out.ghosts] = validateGhost(value, bestScores[id]);
   }
   return out;
