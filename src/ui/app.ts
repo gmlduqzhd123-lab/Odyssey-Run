@@ -1,4 +1,5 @@
 import {Offline} from '../systems/offline';
+import {getLang, initialLang, observe, setLang, translate, translateTree} from '../i18n';
 import {dailySpec, dailyPassed, type DailySpec} from '../levels/daily';
 import {COSMETICS, cosmeticUnlocked} from '../systems/cosmetics';
 import {BOSSES, BOSS_COURSES} from '../levels/bosses';
@@ -108,6 +109,11 @@ export class App {
       storage = localStorage;
     } catch {}
     this.storage = storage;
+    setLang(initialLang(storage));
+    const roots = ['#ui', '#notice', '#rotate', '#game', 'footer'].map(s => document.querySelector(s)).filter(e => !!e);
+    roots.forEach(translateTree);
+    observe(...roots);
+    document.title = translate(document.title);
     this.pendingLink = this.takeLink();
     // A link opened in a tab that already runs the game only changes the fragment.
     window.addEventListener(
@@ -278,7 +284,7 @@ export class App {
     if (this.screen === 'play') this.ui.querySelector<HTMLElement>('.play-ui')?.focus({preventScroll: true});
   }
   private header(label: string, back = 'home') {
-    return `<header class="topbar">${button(back, '← <span>돌아가기</span>', 'text-button')}<span class="brand">${icon('compass')} ${label}</span><span class="edition">ODYSSEY RUN / VOL. 01</span><span class="ys-key">${button('profiles', `👤 <span class="ys-wide">${esc(this.profiles.active.name)}</span>`, 'ys-chip', `aria-label="항해사 ${esc(this.profiles.active.name)}, 바꾸기"`)}${button('fullscreen', '⛶ <span class="ys-wide">전체 화면</span>', 'ys-chip', 'aria-label="전체 화면 전환"')}<button type="button" class="ys-chip" data-ys-install>📲 <span class="ys-wide">앱 </span>설치</button><button type="button" class="ys-chip" data-qr aria-label="QR 코드로 접속">📱 QR</button></span></header>`;
+    return `<header class="topbar">${button(back, '← <span>돌아가기</span>', 'text-button')}<span class="brand">${icon('compass')} ${label}</span><span class="edition">ODYSSEY RUN / VOL. 01</span><span class="ys-key">${button('lang', getLang() === 'en' ? '한국어' : 'EN', 'ys-chip', `translate="no" aria-label="${getLang() === 'en' ? '한국어로 보기' : 'View in English'}"`)}${button('profiles', `👤 <span class="ys-wide">${esc(this.profiles.active.name)}</span>`, 'ys-chip', `aria-label="항해사 ${esc(this.profiles.active.name)}, 바꾸기"`)}${button('fullscreen', '⛶ <span class="ys-wide">전체 화면</span>', 'ys-chip', 'aria-label="전체 화면 전환"')}<button type="button" class="ys-chip" data-ys-install>📲 <span class="ys-wide">앱 </span>설치</button><button type="button" class="ys-chip" data-qr aria-label="QR 코드로 접속">📱 QR</button></span></header>`;
   }
   // Shared records arrive in the URL fragment; read once and drop it so a reload does not repeat it.
   private takeLink() {
@@ -990,7 +996,7 @@ export class App {
     const board = this.profiles.board(),
       active = this.profiles.active.id;
     this.set(
-      `<div class="page profiles">${this.header('항해사')}<div class="page-heading"><span class="eyebrow">ONE DEVICE, MANY SAILORS</span><h1 tabindex="-1">누가 항해할까요?</h1><p>항해사마다 기록·설정·옷장을 따로 저장해요. 이 기기 안에서만 보여요.</p></div><section class="profile-form"><label>항해사 이름 <input id="profile-name" maxlength="${MAX_NAME}" autocomplete="off" placeholder="예: 지우"></label><div class="button-row">${button('profile-add', '새 항해사로 시작', 'primary')}${button('profile-rename', '지금 항해사 이름 바꾸기', 'secondary')}</div><p role="status" id="profile-message">${esc(message)}</p></section><section class="class-board"><h2>우리 반 항해 순위 <small>이 기기에 저장된 기록</small></h2><ol>${board.map((p, i) => `<li class="${p.id === active ? 'active' : ''}"><span class="rank">${i + 1}</span><b>${esc(p.name)}</b><span>${p.total.toLocaleString()}점</span><span>완주 ${p.islands}/${STAGES.length}</span><span>지도 ${p.maps}</span><span>퀴즈 ${p.quiz}</span>${p.id === active ? '<em>✓ 항해 중</em>' : button('profile-use:' + p.id, '이 항해사로', 'secondary')}${p.id === active || p.id === MAIN_PROFILE ? '' : button('profile-delete:' + p.id, '지우기', 'text-button danger', `aria-label="${esc(p.name)} 지우기"`)}</li>`).join('')}</ol><small>점수는 섬별 최고 점수의 합이에요. 온라인으로 보내지 않아요.</small></section></div>`,
+      `<div class="page profiles">${this.header('항해사')}<div class="page-heading"><span class="eyebrow">ONE DEVICE, MANY SAILORS</span><h1 tabindex="-1">누가 항해할까요?</h1><p>항해사마다 기록·설정·옷장을 따로 저장해요. 이 기기 안에서만 보여요.</p></div><section class="profile-form"><label>항해사 이름 <input id="profile-name" maxlength="${MAX_NAME}" autocomplete="off" placeholder="예: 지우"></label><div class="button-row">${button('profile-add', '새 항해사로 시작', 'primary')}${button('profile-rename', '지금 항해사 이름 바꾸기', 'secondary')}</div><p role="status" id="profile-message">${esc(message)}</p></section><section class="class-board"><h2>우리 반 항해 순위 <small>이 기기에 저장된 기록</small></h2><ol>${board.map((p, i) => `<li class="${p.id === active ? 'active' : ''}"><span class="rank">${i + 1}</span><b translate="no">${esc(p.name)}</b><span>${p.total.toLocaleString()}점</span><span>완주 ${p.islands}/${STAGES.length}</span><span>지도 ${p.maps}</span><span>퀴즈 ${p.quiz}</span>${p.id === active ? '<em>✓ 항해 중</em>' : button('profile-use:' + p.id, '이 항해사로', 'secondary')}${p.id === active || p.id === MAIN_PROFILE ? '' : button('profile-delete:' + p.id, '지우기', 'text-button danger', `aria-label="${esc(p.name)} 지우기"`)}</li>`).join('')}</ol><small>점수는 섬별 최고 점수의 합이에요. 온라인으로 보내지 않아요.</small></section></div>`,
       'profiles',
     );
   }
@@ -1344,6 +1350,11 @@ export class App {
       case 'profiles':
         this.profilesPage();
         break;
+      case 'lang':
+        if (['play', 'countdown', 'pause'].includes(this.screen)) break;
+        setLang(getLang() === 'en' ? 'ko' : 'en', this.storage);
+        location.reload();
+        break;
       case 'contests':
         this.contestsPage();
         break;
@@ -1502,6 +1513,7 @@ export class App {
   }
   private setText(selector: string, text: string) {
     const el = this.ui.querySelector(selector);
+    text = translate(text);
     if (el && el.textContent !== text) el.textContent = text;
   }
   private updateHud() {

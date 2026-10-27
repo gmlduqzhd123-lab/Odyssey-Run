@@ -62,7 +62,7 @@ export const PEOPLE = [
     id: 'navigator',
     name: '별빛 길잡이',
     role: '지도를 읽는 탐험가',
-    story: '이 게임의 안내 인물이에요. 아홉 조각의 지도를 모으며 이타카로 가는 길을 찾아요.',
+    story: '이 게임의 안내 인물이에요. 열두 조각의 지도를 모으며 이타카로 가는 길을 찾아요.',
   },
 ] as const;
 export const RELICS = [

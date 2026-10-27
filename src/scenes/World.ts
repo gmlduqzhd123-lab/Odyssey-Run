@@ -4,6 +4,7 @@ import {BOSSES, bossPhase} from '../levels/bosses';
 import Phaser from 'phaser';
 import {C} from '../config';
 import {COURSES, STAGES, type StageId} from '../levels/courses';
+import {translate} from '../i18n';
 import type {Runner} from '../player/runner';
 import {assetUrl} from '../assets/catalog';
 import {REGIONS, sheetUrl} from '../assets/terrain';
@@ -77,7 +78,7 @@ export class World extends Phaser.Scene {
         .clear()
         .fillStyle(0xe9b957)
         .fillRoundedRect(this.view.width / 2 - 180, 296, 360 * n, 5, 3);
-      t.setText(`항해를 준비하고 있어요… ${Math.round(n * 100)}%`);
+      t.setText(translate(`항해를 준비하고 있어요… ${Math.round(n * 100)}%`));
     };
     this.load.on('progress', initialProgress);
     const initialError = () => {
@@ -335,9 +336,11 @@ export class World extends Phaser.Scene {
       .text(
         this.view.width / 2,
         180,
-        ['near', 'discovery', 'constellation', 'combo', 'route', 'highlight', 'trick', 'strike'].includes(kind)
-          ? message || words[kind] || '새로운 발견!'
-          : words[kind] || '',
+        translate(
+          ['near', 'discovery', 'constellation', 'combo', 'route', 'highlight', 'trick', 'strike'].includes(kind)
+            ? message || words[kind] || '새로운 발견!'
+            : words[kind] || '',
+        ),
         {
           fontFamily: 'sans-serif',
           fontStyle: 'bold',
@@ -462,17 +465,19 @@ export class World extends Phaser.Scene {
     this.warning
       .setX(this.view.width * 0.615)
       .setText(
-        hazardFirst
-          ? hazard.kind === 'hand'
-            ? '! 거인의 손 · 숙이기'
-            : hazard.kind === 'falling'
-              ? '! 낙석 · 점프'
-              : '! 위험 장애물 · 점프'
-          : incoming
-            ? incoming.repelled
-              ? '등불이 지켜 주고 있어요'
-              : `! ${ENEMY_TYPES[incoming.kind].name} · ${ENEMY_TYPES[incoming.kind].hint}`
-            : '',
+        translate(
+          hazardFirst
+            ? hazard.kind === 'hand'
+              ? '! 거인의 손 · 숙이기'
+              : hazard.kind === 'falling'
+                ? '! 낙석 · 점프'
+                : '! 위험 장애물 · 점프'
+            : incoming
+              ? incoming.repelled
+                ? '등불이 지켜 주고 있어요'
+                : `! ${ENEMY_TYPES[incoming.kind].name} · ${ENEMY_TYPES[incoming.kind].hint}`
+              : '',
+        ),
       );
     const fx = this.fx;
     fx.clear();
@@ -561,6 +566,7 @@ export class World extends Phaser.Scene {
       caption = BOSSES[r.stage].phases[bossPhase(r.stage, r.x)];
     }
     this.label.setPosition((this.view.width * captionX) / 960, captionY);
+    caption = translate(caption);
     if (this.label.text !== caption) this.label.setText(caption);
   }
   private drawAdventure(r: Runner, cam: number, reduced: boolean) {

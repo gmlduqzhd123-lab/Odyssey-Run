@@ -21,7 +21,8 @@
     "test:loading": "tsx scripts/loading-qa.ts",
     "test:structures": "tsx scripts/structures-qa.ts",
     "format": "prettier --write src tests scripts public/sw.js vite.config.ts",
-    "format:check": "prettier --check src tests scripts public/sw.js vite.config.ts"
+    "format:check": "prettier --check src tests scripts public/sw.js vite.config.ts",
+    "test:i18n": "tsx scripts/i18n-qa.ts"
   },
   "dependencies": {
     "phaser": "3.90.0",
