@@ -60,6 +60,7 @@ import {
   type Save,
   type RunResult,
   type Settings,
+  SAVE_KEY,
 } from '../storage/save';
 import {VARIANTS, VARIANT_LABELS} from '../levels/variants';
 import {isVariant, type VariantId} from '../levels/course-ids';
@@ -71,7 +72,9 @@ import {World} from '../scenes/World';
 import {assetUrl, STAGE_RELIC} from '../assets/catalog';
 import {STAGE_VIEW, regionArt} from '../assets/terrain';
 import {displayDensity, displayViewport} from '../rendering/display';
+import {FrameWatch} from '../rendering/frame-watch';
 const asset = assetUrl;
+const SLOW_KEY = SAVE_KEY + ':slow-device';
 export class App {
   private ui = document.querySelector<HTMLDivElement>('#ui')!;
   private store: SaveStore;
@@ -122,6 +125,7 @@ export class App {
   private protectionState: Protection = 'unsupported';
   private protectionAsked = false;
   private reminded = false;
+  private frameWatch = new FrameWatch();
   constructor() {
     let storage: Storage | null = null;
     try {
@@ -154,7 +158,7 @@ export class App {
       document.querySelector('#shell')!.clientWidth,
       devicePixelRatio,
       document.querySelector('#shell')!.clientHeight,
-      this.store.data.preferences.quality,
+      this.quality(),
     );
     this.selected = this.store.data.lastStage;
     this.sound = new Sound(() => this.store.data.settings);
@@ -1218,6 +1222,12 @@ export class App {
     if (input.id === 'quality') {
       this.store.data.preferences.quality = input.value as Quality;
       this.store.persist();
+      // Choosing "auto" again gives this device a fresh chance at the sharper renderer.
+      if (input.value === 'auto')
+        try {
+          this.storage?.removeItem(SLOW_KEY);
+          this.frameWatch = new FrameWatch();
+        } catch {}
       this.resizeDisplay();
       this.notice();
       return;
@@ -1613,7 +1623,26 @@ export class App {
         }
       }
       if (this.screen === 'play') this.updateHud();
+      if (this.frameWatch.add(delta)) this.slowDevice();
     }
+  }
+  // "Auto" quality also steps down for good once this device has struggled to keep up.
+  private quality(): Quality {
+    const q = this.store.data.preferences.quality;
+    try {
+      if (q === 'auto' && this.storage?.getItem(SLOW_KEY)) return 'low';
+    } catch {}
+    return q;
+  }
+  private slowDevice() {
+    if (this.store.data.preferences.quality !== 'auto') return;
+    try {
+      this.storage?.setItem(SLOW_KEY, '1');
+    } catch {}
+    const before = this.renderDensity;
+    this.resizeDisplay();
+    if (this.renderDensity < before)
+      this.notice('화면이 끊겨서 그래픽을 가볍게 바꿨어요. 설정 → 그래픽 품질에서 바꿀 수 있어요.');
   }
   private setText(selector: string, text: string) {
     const el = this.ui.querySelector(selector);
@@ -1719,7 +1748,7 @@ export class App {
     if (!this.game?.isBooted || this.destroyed) return;
     const rect = document.querySelector('#shell')!.getBoundingClientRect(),
       view = displayViewport(rect.width, rect.height),
-      density = displayDensity(rect.width, window.devicePixelRatio, rect.height, this.store.data.preferences.quality);
+      density = displayDensity(rect.width, window.devicePixelRatio, rect.height, this.quality());
     if (
       density === this.renderDensity &&
       Math.abs(view.width - this.view.width) < 0.01 &&

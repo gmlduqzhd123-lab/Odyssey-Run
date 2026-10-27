@@ -318,4 +318,6 @@ export const EN_4: Record<string, string> = {
   빼기: 'Remove',
   '‘{x}’ 기록 빼기': 'Remove ‘{x}’',
   '‘{x}’ 기록을 뺐어요. 다시 찍으면 다시 들어가요.': 'Removed ‘{x}’. Scanning it again adds it back.',
+  '화면이 끊겨서 그래픽을 가볍게 바꿨어요. 설정 → 그래픽 품질에서 바꿀 수 있어요.':
+    'The screen was stuttering, so graphics switched to light. You can change it in Settings → Graphics quality.',
 };
