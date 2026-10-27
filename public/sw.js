@@ -35,12 +35,35 @@ async function fetchFile(entry) {
     clearTimeout(timer);
   }
 }
+// Older app versions still cached on this device; core files whose bytes did not change
+// (Phaser, mostly) are copied from them instead of being downloaded again.
+async function previousCores() {
+  const out = [];
+  for (const name of await caches.keys()) {
+    if (!name.startsWith(PREFIX) || !name.endsWith('-core') || name === CORE) continue;
+    try {
+      const cache = await caches.open(name),
+        r = await cache.match(key('offline-manifest.json'));
+      if (r) out.push({cache, files: (await r.json()).core});
+    } catch {}
+  }
+  return out;
+}
+async function unchanged(before, entry) {
+  for (const {cache, files} of before) {
+    if (!files.some(f => f.path === entry.path && f.hash === entry.hash && f.bytes === entry.bytes)) continue;
+    const hit = await cache.match(key(entry.path));
+    if (hit) return hit;
+  }
+  return undefined;
+}
 self.addEventListener('install', e =>
   e.waitUntil(
     (async () => {
       const m = await getManifest(),
-        c = await caches.open(CORE);
-      for (const f of m.core) await c.put(key(f.path), await fetchFile(f));
+        c = await caches.open(CORE),
+        before = await previousCores();
+      for (const f of m.core) await c.put(key(f.path), (await unchanged(before, f)) || (await fetchFile(f)));
       await c.put(
         key('offline-manifest.json'),
         new Response(JSON.stringify(m), {headers: {'Content-Type': 'application/json'}}),

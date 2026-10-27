@@ -3,5 +3,10 @@ import {defineConfig} from 'vite';
 // Actions passes the actual repository path through PAGES_BASE.
 export default defineConfig({
   base: process.env.PAGES_BASE || '/Odyssey-Run/',
-  build: {target: 'es2022', chunkSizeWarningLimit: 1600},
+  build: {
+    target: 'es2022',
+    chunkSizeWarningLimit: 1300,
+    // Phaser changes far less often than the game, so it keeps its file name (and cache) across releases.
+    rollupOptions: {output: {manualChunks: id => (id.includes('/node_modules/phaser/') ? 'phaser' : undefined)}},
+  },
 });

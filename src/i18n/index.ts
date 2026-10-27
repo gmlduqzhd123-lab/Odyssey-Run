@@ -1,4 +1,3 @@
-import {EN as SOURCE} from './en';
 // The game is written in Korean. English mode translates text where it is shown: screen DOM text
 // and labels (via an observer) and canvas captions (callers use translate). Dictionary keys are
 // the Korean text with {x} for anything interpolated; captured parts are translated recursively.
@@ -6,7 +5,9 @@ export type Lang = 'ko' | 'en';
 const HANGUL = /[가-힣]/;
 // Runs of spaces, including &nbsp;, compare as one space.
 const squash = (s: string) => s.replace(/\s+/g, ' ').trim();
-const EN: Record<string, string> = Object.fromEntries(Object.entries(SOURCE).map(([k, v]) => [squash(k), v]));
+// The English dictionary is a separate chunk: Korean players never download it.
+let EN: Record<string, string> = {};
+let loaded = false;
 let lang: Lang = 'ko';
 export const getLang = () => lang;
 const LANG_KEY = 'odyssey-run:lang';
@@ -28,21 +29,31 @@ export function setLang(next: Lang, storage?: Pick<Storage, 'setItem'> | null) {
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 // {x} captures any text (translated recursively); {n} captures a number such as 4,130.
 const SLOT = /\{[xn]\}/g;
-const patterns = Object.keys(EN)
-  .filter(k => /\{[xn]\}/.test(k))
-  // Longer fixed text first, so specific phrases win over generic ones like "{x} · {x}".
-  .sort((a, b) => b.replace(SLOT, '').length - a.replace(SLOT, '').length)
-  .map(k => {
-    const slots = k.match(SLOT)!,
-      body = k
-        .split(SLOT)
-        .map(escape)
-        .reduce((re, part, i) => re + (i ? (slots[i - 1] === '{n}' ? '([\\d][\\d,.]*)' : '(.+?)') : '') + part, '');
-    // Slots wrapped in ‘…’ hold sailor names, which may stay in Korean.
-    const parts = k.split(SLOT),
-      names = slots.map((_, i) => parts[i].endsWith('‘') && parts[i + 1].startsWith('’'));
-    return {key: k, re: new RegExp('^' + body + '$', 's'), names};
-  });
+let patterns: {key: string; re: RegExp; names: boolean[]}[] = [];
+const compile = () =>
+  Object.keys(EN)
+    .filter(k => /\{[xn]\}/.test(k))
+    // Longer fixed text first, so specific phrases win over generic ones like "{x} · {x}".
+    .sort((a, b) => b.replace(SLOT, '').length - a.replace(SLOT, '').length)
+    .map(k => {
+      const slots = k.match(SLOT)!,
+        body = k
+          .split(SLOT)
+          .map(escape)
+          .reduce((re, part, i) => re + (i ? (slots[i - 1] === '{n}' ? '([\\d][\\d,.]*)' : '(.+?)') : '') + part, '');
+      // Slots wrapped in ‘…’ hold sailor names, which may stay in Korean.
+      const parts = k.split(SLOT),
+        names = slots.map((_, i) => parts[i].endsWith('‘') && parts[i + 1].startsWith('’'));
+      return {key: k, re: new RegExp('^' + body + '$', 's'), names};
+    });
+export async function loadDictionary() {
+  if (loaded) return;
+  const {EN: source} = await import('./en');
+  EN = Object.fromEntries(Object.entries(source).map(([k, v]) => [squash(k), v]));
+  patterns = compile();
+  loaded = true;
+  cache.clear();
+}
 export const missing = new Set<string>();
 // Exposed for the English QA run, which also checks canvas captions.
 if (typeof window !== 'undefined') (window as unknown as {__i18nMissing: Set<string>}).__i18nMissing = missing;
@@ -80,7 +91,7 @@ function core(text: string, depth: number): string {
     const parts = text.split(sep).map(part => core(part.trim(), depth + 1));
     if (parts.every(part => !HANGUL.test(part))) return parts.join(sep);
   }
-  missing.add(text);
+  if (loaded) missing.add(text);
   return text;
 }
 // Canvas captions repeat every frame, so results are memoized (bounded).
