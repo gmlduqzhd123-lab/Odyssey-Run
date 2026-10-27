@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {EN} from '../src/i18n/en';
-import {translateTo} from '../src/i18n';
+import {translateTo, loadDictionary} from '../src/i18n';
 import {QUIZ} from '../src/levels/quiz';
 import {COURSES, STAGES, MAP_STORIES} from '../src/levels/courses';
 import {ADVENTURE_PLANS} from '../src/levels/adventure';
@@ -9,6 +9,7 @@ import {PEOPLE, RELICS} from '../src/assets/catalog';
 import {VARIANT_LABELS} from '../src/levels/variants';
 import {BOSSES} from '../src/levels/bosses';
 
+await loadDictionary();
 const en = (s: string) => translateTo('en', s);
 const H = /[가-힣]/;
 

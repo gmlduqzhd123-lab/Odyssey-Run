@@ -25,6 +25,7 @@
     "test:i18n": "tsx scripts/i18n-qa.ts"
   },
   "dependencies": {
+    "jsqr": "1.4.0",
     "phaser": "3.90.0",
     "qrcode-generator": "2.0.4"
   },

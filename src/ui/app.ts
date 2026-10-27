@@ -8,7 +8,7 @@ import {damageGuidance} from '../systems/damage';
 import {defaultPreferences, PACES, type Assist, type Pace, type Quality} from '../storage/preferences';
 import {ADVENTURE_PLANS, GOALS, stampIds, constellationIds, storyIds, type GoalId} from '../levels/adventure';
 import {ghostDistance} from '../storage/journal';
-import {QUIZ, PERSON_MYTHS, type QuizQuestion} from '../levels/quiz';
+import {QUIZ, type QuizQuestion} from '../levels/quiz';
 import {
   decodeLink,
   linkUrl,
@@ -19,15 +19,28 @@ import {
   type Link,
   type RivalLink,
 } from '../systems/share';
-import {Contests, newContestId, rank, type Entry} from '../storage/contests';
+import {Contests, newContestId, type Entry} from '../storage/contests';
+import {classBackup, readClassBackup, restoreClass, CLASS_BACKUP_LIMIT, type ClassBackup} from '../storage/backup';
 import {buildEndless, sectionsPassed, ENDLESS_SECTIONS} from '../levels/endless';
 import type {Course} from '../levels/courses';
+import {button, esc, icon} from './html';
+import {
+  bookNav,
+  codexPage,
+  landscapesPage,
+  sheetPage,
+  peoplePage,
+  personPage,
+  relicsPage,
+  bestiaryPage,
+  TOTAL_MAPS,
+} from './book-view';
 import {harborArt, harborUnlocks, harborRequirements, journalCards} from './adventure-view';
 import Phaser from 'phaser';
 import {C} from '../config';
 import {COURSES, STAGES, MAP_STORIES, type StageId} from '../levels/courses';
 import {Runner} from '../player/runner';
-import {Profiles, profileKey, MAX_NAME, MAIN_PROFILE} from '../storage/profiles';
+import {Profiles, profileKey, readBook, PROFILES_KEY, MAX_NAME, MAIN_PROFILE} from '../storage/profiles';
 import {
   SaveStore,
   mergeResult,
@@ -44,19 +57,12 @@ import {isVariant, type VariantId} from '../levels/course-ids';
 import {Controls} from '../input/controls';
 import {Sound} from '../systems/audio';
 import {vibrate} from '../systems/haptics';
+import {BoardScanner, boardMarkup, contestCsv, contestsMarkup} from './contest-view';
 import {World} from '../scenes/World';
-import {assetUrl, PEOPLE, RELICS, STAGE_RELIC} from '../assets/catalog';
-import {ART_SHEETS, STAGE_VIEW, regionArt, sheetUrl} from '../assets/terrain';
-import {ENEMY_TYPES, type EnemyKind} from '../levels/enemies';
-import {MONSTER_ART} from '../assets/expansion-art';
+import {assetUrl, STAGE_RELIC} from '../assets/catalog';
+import {STAGE_VIEW, regionArt} from '../assets/terrain';
 import {displayDensity, displayViewport} from '../rendering/display';
 const asset = assetUrl;
-const TOTAL_MAPS = STAGES.length * 3;
-const icon = (name: string, cls = '') => `<img class="icon ${cls}" src="${asset(name)}" alt="">`;
-const esc = (text: string) =>
-  text.replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'})[c]!);
-const button = (action: string, text: string, cls = '', extra = '') =>
-  `<button class="${cls}" data-action="${action}" ${extra}>${text}</button>`;
 export class App {
   private ui = document.querySelector<HTMLDivElement>('#ui')!;
   private store: SaveStore;
@@ -76,6 +82,7 @@ export class App {
   private accumulator = 0;
   private countdown = 0;
   private imported: Save | null = null;
+  private classImport: ClassBackup | null = null;
   private lastHud = '';
   private destroyed = false;
   private abort = new AbortController();
@@ -174,7 +181,7 @@ export class App {
     this.offline = new Offline(
       () => (!!this.run && !this.result) || this.screen === 'stage-loading',
       () => {
-        if (!this.destroyed && this.screen === 'offline') this.offlinePage();
+        if (!this.destroyed && this.screen === 'offline') this.offlineChanged();
         else if (!this.destroyed && this.offline?.waiting && ['home', 'islands', 'result'].includes(this.screen))
           this.notice(this.store.warning || '새 버전이 준비됐어요. 설정 → 섬 다운로드·업데이트에서 적용할 수 있어요.');
       },
@@ -202,6 +209,7 @@ export class App {
       {signal: this.abort.signal},
     );
     window.addEventListener('blur', () => this.suspend(), {signal: this.abort.signal});
+    window.addEventListener('storage', e => this.otherTab(e), {signal: this.abort.signal});
     window.addEventListener(
       'resize',
       () => {
@@ -247,6 +255,23 @@ export class App {
       {signal: this.abort.signal},
     );
   }
+  private sharedNotice = false;
+  // Another tab saved: fold its progress in now (saving also merges, so nothing is lost either way).
+  private otherTab(e: StorageEvent) {
+    if (e.key === PROFILES_KEY) {
+      const active = this.profiles.active.id;
+      this.profiles.book = readBook(e.newValue);
+      if (this.profiles.book.list.some(p => p.id === active)) this.profiles.book.active = active;
+      return;
+    }
+    if (e.key !== this.store.key || !this.store.adopt(e.newValue)) return;
+    if (this.screen === 'home') this.home();
+    else if (this.screen === 'islands') this.islands();
+    if (!this.sharedNotice) {
+      this.sharedNotice = true;
+      this.notice('같은 항해사가 다른 탭에서도 열려 있어요. 두 탭의 기록은 합쳐서 저장해요.');
+    }
+  }
   private notice(message = this.store.warning) {
     const n = document.querySelector<HTMLElement>('#notice')!;
     n.textContent = message;
@@ -254,6 +279,7 @@ export class App {
   }
   private set(html: string, screen: string) {
     this.importRequest++;
+    this.stopScanner();
     this.screen = screen;
     document.querySelector<HTMLElement>('#app')!.dataset.screen = screen;
     this.controls.clear();
@@ -419,11 +445,7 @@ export class App {
   private contestsPage(message = '') {
     this.abandon();
     this.world.showHome();
-    const hosted = this.contests.book.hosted;
-    this.set(
-      `<div class="page contests">${this.header('교사용 대회', 'challenges')}<div class="page-heading"><span class="eyebrow">FOR TEACHERS</span><h1 tabindex="-1">우리 반 대회 열기</h1><p>코스를 정해 QR을 띄우면 학생들이 카메라로 찍고 참가해요. 결과 QR을 찍으면 이 기기에 순위표가 모여요. 서버로 보내지 않아요.</p></div><section class="contest-form"><h2>새 대회</h2><label>대회 이름 <input id="contest-title" maxlength="12" placeholder="예: 3반 해변 대회"></label><label>섬 <select id="contest-stage">${STAGES.map(id => `<option value="${id}">${COURSES[id].name}</option>`).join('')}</select></label><label>코스 <select id="contest-variant">${VARIANTS.map((v, i) => `<option value="${v}">${['기본 항로', '변형 코스 A', '변형 코스 B'][i]}</option>`).join('')}</select></label><label class="toggle"><span>쉬운 항해 허용</span><input type="checkbox" id="contest-assist"><i aria-hidden="true"></i></label>${button('contest-create', '대회 만들기', 'primary')}<p role="status" id="contest-message">${esc(message)}</p></section><section class="contest-list"><h2>이 기기의 대회</h2>${hosted.length ? hosted.map(c => `<p>${button('contest-open:' + c.id, `<b>${esc(c.title)}</b> · 참가 ${c.entries.length}명`, 'secondary')}</p>`).join('') : '<p class="muted">아직 만든 대회가 없어요.</p>'}<label>결과 코드 붙여넣기 <input id="contest-code" autocomplete="off" placeholder="학생 화면의 결과 코드"></label>${button('contest-paste', '결과 추가', 'secondary')}</section></div>`,
-      'contests',
-    );
+    this.set(contestsMarkup(this.header('교사용 대회', 'challenges'), this.contests.book.hosted, message), 'contests');
   }
   private contestBoard(id: string, message = '') {
     const c = this.contests.find(id);
@@ -441,18 +463,18 @@ export class App {
           )
         : '';
     this.set(
-      `<div class="page contest-board">${this.header(esc(c.title), 'contests')}<div class="contest-layout"><section class="contest-join-box"><h1 tabindex="-1">${esc(c.title)}</h1><p>${this.contestRules(c)}</p>${join ? `<div class="qr-box" role="img" aria-label="대회 참가 QR 코드">${qrSvg(join)}</div><p class="muted">학생은 카메라로 찍어 참가해요.</p><label class="share-url">참가 링크 <input id="share-url" readonly value="${esc(join)}"></label>${button('share-copy', '참가 링크 복사', 'secondary')}<p role="status" id="share-status"></p>` : '<p class="muted">결과만 모으는 순위표예요. 대회를 만든 기기에서 참가 QR을 띄워 주세요.</p>'}</section><section class="class-board"><h2>순위 <small>${c.entries.length}명</small></h2><p role="status" id="contest-message">${esc(message)}</p><ol>${rank(
-        c.entries,
-      )
-        .map(
-          (e, i) =>
-            `<li><span class="rank">${i + 1}</span><b>${esc(e.name)}</b><span>${e.score.toLocaleString()}점</span><span>${e.complete ? '⚑ 완주' : '도전'}</span><span>별빛 ${e.stars}</span><span>HP 손실 ${e.hpLoss}</span></li>`,
-        )
-        .join(
-          '',
-        )}</ol><label>결과 코드 붙여넣기 <input id="contest-code" autocomplete="off"></label><div class="button-row">${button('contest-paste', '결과 추가', 'secondary')}${button('contest-clear:' + c.id, '순위 비우기', 'text-button')}${button('contest-delete:' + c.id, '대회 지우기', 'text-button danger')}</div></section></div></div>`,
+      boardMarkup(this.header(esc(c.title), 'contests'), c, this.contestRules(c), join, message),
       'contest-board',
     );
+  }
+  private scanner: BoardScanner | null = null;
+  private stopScanner() {
+    this.scanner?.stop();
+    this.scanner = null;
+  }
+  private contestCsv(id: string) {
+    const c = this.contests.find(id);
+    if (c) this.download(contestCsv(c.entries), `odyssey-run-contest-${c.id}.csv`, 'text/csv;charset=utf-8');
   }
   private contestAction(kind: string, id = '') {
     const say = (text: string) => {
@@ -468,6 +490,10 @@ export class App {
       const c = this.contests.host({id: newContestId(), title: title.slice(0, 12), stage, variant, assist});
       this.contestBoard(c.id, '대회를 만들었어요. 참가 QR을 띄워 주세요.');
     } else if (kind === 'open') this.contestBoard(id);
+    else if (kind === 'scan') {
+      if (this.scanner) this.stopScanner();
+      else this.scanner = new BoardScanner(this.ui, id, this.contests, () => this.store.data.preferences.haptics);
+    } else if (kind === 'csv') this.contestCsv(id);
     else if (kind === 'paste') {
       try {
         const link = parseLinkText(this.ui.querySelector<HTMLInputElement>('#contest-code')?.value ?? '');
@@ -682,7 +708,7 @@ export class App {
     ].filter(Boolean);
   }
   private hud() {
-    return `<div class="play-ui" tabindex="-1" role="group" aria-label="게임 조작" data-one-button="${this.assist().autoSlide}"><div class="hud"><div class="hp-block"><span class="hud-caption">오디세우스</span><strong id="hp" aria-label="체력 3"></strong></div><div class="route-progress"><span>${this.special === 'boss' ? BOSSES[this.selected].name : this.special === 'daily' ? '오늘의 항해 · ' + this.daily!.name : this.special === 'contest' ? '대회 · ' + esc(this.contest!.title) : this.special === 'endless' ? '끝없는 항해 · ' + COURSES[this.selected].name : COURSES[this.selected].name + ' · ' + VARIANT_LABELS[this.selected][this.selectedVariant].name}</span><progress id="progress" data-course="${this.selected}/${this.selectedVariant}" max="24000" value="0" aria-label="섬 진행률"></progress><i id="ghost-marker" hidden aria-label="비교 항해 위치"></i><small id="progress-label">0%</small></div><div class="score-block"><span class="hud-caption">SCORE</span><strong id="score">0</strong></div><div class="hud-actions">${button('fullscreen', '⛶', 'fullscreen-button', 'aria-label="전체 화면 전환"')}${button('pause', 'Ⅱ', 'pause-button', 'aria-label="일시정지"')}</div></div><div class="run-details"><span id="stars">✦ 0 / 100</span><span id="maps">지도 0 / 3</span><span id="effects"></span>${this.assistLabel().length ? `<span class="assist-chip">쉬운 항해 · ${this.assistLabel().join(' · ')}</span>` : ''}</div><div class="adventure-hud"><span id="goal-progress"></span><span id="ghost-delta"></span><span id="discovery-progress"></span></div><div class="touch-controls"><button data-control="slide" class="control slide" aria-label="슬라이드, 누르고 유지"><span>⇣</span><b>슬라이드</b><small>↓ 누르기</small></button><button data-control="jump" class="control jump" aria-label="점프, 공중에서 다시 누르면 2단 점프"><span>↟</span><b>점프</b><small>Space / ↑</small></button></div></div>`;
+    return `<div class="play-ui" tabindex="-1" role="group" aria-label="게임 조작" data-one-button="${this.assist().autoSlide}"><div class="hud"><div class="hp-block"><span class="hud-caption">오디세우스</span><strong id="hp" role="img" aria-label="체력 3"></strong></div><div class="route-progress"><span>${this.special === 'boss' ? BOSSES[this.selected].name : this.special === 'daily' ? '오늘의 항해 · ' + this.daily!.name : this.special === 'contest' ? '대회 · ' + esc(this.contest!.title) : this.special === 'endless' ? '끝없는 항해 · ' + COURSES[this.selected].name : COURSES[this.selected].name + ' · ' + VARIANT_LABELS[this.selected][this.selectedVariant].name}</span><progress id="progress" data-course="${this.selected}/${this.selectedVariant}" max="24000" value="0" aria-label="섬 진행률"></progress><i id="ghost-marker" hidden aria-label="비교 항해 위치"></i><small id="progress-label">0%</small></div><div class="score-block"><span class="hud-caption">SCORE</span><strong id="score">0</strong></div><div class="hud-actions">${button('fullscreen', '⛶', 'fullscreen-button', 'aria-label="전체 화면 전환"')}${button('pause', 'Ⅱ', 'pause-button', 'aria-label="일시정지"')}</div></div><div class="run-details"><span id="stars">✦ 0 / 100</span><span id="maps">지도 0 / 3</span><span id="effects"></span>${this.assistLabel().length ? `<span class="assist-chip">쉬운 항해 · ${this.assistLabel().join(' · ')}</span>` : ''}</div><div class="adventure-hud"><span id="goal-progress"></span><span id="ghost-delta"></span><span id="discovery-progress"></span></div><div class="touch-controls"><button data-control="slide" class="control slide" aria-label="슬라이드, 누르고 유지"><span>⇣</span><b>슬라이드</b><small>↓ 누르기</small></button><button data-control="jump" class="control jump" aria-label="점프, 공중에서 다시 누르면 2단 점프"><span>↟</span><b>점프</b><small>Space / ↑</small></button></div></div>`;
   }
   private beginCountdown() {
     this.countdown = 3;
@@ -691,7 +717,7 @@ export class App {
     this.run!.state = 'ready';
     this.set(
       this.hud() +
-        `<div class="countdown"><span>준비됐나요?</span><strong id="count">3</strong><small>점프 · 2단 점프 · 슬라이드</small>${button('pause', '잠시 멈추기', 'secondary')}</div>`,
+        `<div class="countdown" role="status" aria-live="polite"><span>준비됐나요?</span><strong id="count">3</strong><small>점프 · 2단 점프 · 슬라이드</small>${button('pause', '잠시 멈추기', 'secondary')}</div>`,
       'countdown',
     );
     this.controls.bind(this.ui);
@@ -879,92 +905,34 @@ export class App {
   }
   private codex() {
     const found = new Set(STAGES.flatMap(id => this.store.data.stages[id].maps));
-    this.set(
-      `<div class="page codex">${this.header('귀환의 지도')}<div class="page-heading"><span class="eyebrow">FRAGMENTS OF THE ODYSSEY</span><h1 tabindex="-1">이야기를 모아, 이타카로</h1><p>${found.size ? `${TOTAL_MAPS}조각 중 ${found.size}개를 찾았어요. 조각을 눌러 이야기를 읽어 보세요.` : '아직 지도가 비어 있어요. 첫 섬으로 탐험을 떠나 보세요!'}</p></div>${this.bookNav('codex')}<div class="fragment-grid">${STAGES.flatMap(
-        (id, i) =>
-          [1, 2, 3].map((n, j) => {
-            const idx = i * 3 + j,
-              yes = found.has(`${id}-map-${n}`);
-            return `<button class="fragment ${yes ? 'found' : ''}" data-action="story:${idx}" ${yes ? '' : 'disabled'}>${yes ? icon('map') : '<span class="unknown">?</span>'}<span class="fragment-number">0${idx + 1}</span><b>${yes ? MAP_STORIES[idx][0] : '아직 발견하지 못했어요'}</b><small>${COURSES[id].name} · ${n}번 조각</small></button>`;
-          }),
-      ).join(
-        '',
-      )}</div><div class="page-foot"><span>${found.size === TOTAL_MAPS ? '모든 지도가 모였어요. 당신만의 오디세이가 완성됐네요.' : '지도는 기본 경로, 2단 점프 경로, 슬라이드 경로에서 찾을 수 있어요.'}</span>${button('islands', '탐험하기 →', 'text-button')}</div></div>`,
-      'codex',
-    );
-  }
-  private bookNav(active: string) {
-    return `<nav class="book-nav" aria-label="도감 종류">${[
-      ['codex', '지도 조각'],
-      ['journal', '모험 수첩'],
-      ['harbor', '이타카 항구'],
-      ['people', '여정의 인물'],
-      ['relics', '아이템과 상징'],
-      ['bestiary', '몬스터'],
-      ['landscapes', '풍경과 원화'],
-    ]
-      .map(([id, label]) => button(id, label, 'book-tab', active === id ? 'aria-current="page"' : ''))
-      .join('')}</nav>`;
+    this.set(codexPage(this.header('귀환의 지도'), found), 'codex');
   }
   private landscapes() {
-    this.set(
-      `<div class="page landscapes">${this.header('항해 도감')}<div class="page-heading"><span class="eyebrow">ISLANDS & LEGENDS</span><h1 tabindex="-1">바다 너머의 풍경과 전설</h1><p>원화를 누르면 크게 볼 수 있어요. 그림 속 다른 섬과 몬스터는 이야기로 만나요.</p></div>${this.bookNav('landscapes')}<div class="sheet-grid">${ART_SHEETS.map(s => `<button class="sheet-card" data-action="sheet:${s.id}"><img src="${sheetUrl(s.id)}" alt="${s.name} 원화 미리보기" loading="lazy" decoding="async"><span><strong>${s.name}</strong><small>${s.description}</small><b>원화 펼치기 ↗</b></span></button>`).join('')}</div><p class="gallery-note">달리는 항로는 해변·동굴·바람 섬·세이렌의 바다예요. 원화에 적힌 추가 공격과 효과는 이번 항해에 등장하지 않아요.</p></div>`,
-      'landscapes',
-    );
+    this.set(landscapesPage(this.header('항해 도감')), 'landscapes');
   }
   private sheet(id: string) {
-    const s = ART_SHEETS.find(s => s.id === id);
-    if (!s) return;
-    this.set(
-      `<div class="page art-detail">${this.header('풍경과 원화', 'landscapes')}<div class="page-heading"><span class="eyebrow">ODYSSEY ARTBOOK</span><h1 tabindex="-1">${s.name}</h1><p>${s.description}</p><div class="sheet-tools">${button('sheet-zoom', '원본 크기로 확대', 'secondary', 'aria-pressed="false"')}<small>확대 후 그림을 좌우·위아래로 움직여 볼 수 있어요.</small></div></div><div class="sheet-viewer" tabindex="0" role="region" aria-label="${s.name} 확대 그림, 방향키로 이동"><img src="${sheetUrl(s.id)}" alt="${s.name}. 확대해서 원화의 그림과 설명을 살펴보세요."></div><p class="gallery-note">그림 속 추가 공격과 효과는 이번 항해에 등장하지 않아요.</p></div>`,
-      'sheet',
-    );
+    const html = sheetPage(this.header('풍경과 원화', 'landscapes'), id);
+    if (html) this.set(html, 'sheet');
   }
   private people() {
-    this.set(
-      `<div class="page people">${this.header('항해 도감')}<div class="page-heading"><span class="eyebrow">FACES OF THE ODYSSEY</span><h1 tabindex="-1">귀환의 길에서 만난 사람들</h1><p>인물을 누르면 짧은 이야기를 읽을 수 있어요.</p></div>${this.bookNav('people')}<div class="cast-grid">${PEOPLE.map(p => `<button class="person-card" data-action="person:${p.id}"><img src="${asset(p.id)}" alt="" loading="lazy" decoding="async"><strong>${p.name}</strong><small>${p.role}</small></button>`).join('')}</div><div class="page-foot"><span>이 모험은 오디세우스의 귀환을 따라가요.</span>${button('quiz', '신화 퀴즈 풀기', 'text-button')}${button('islands', '항해 시작 →', 'text-button')}</div></div>`,
-      'people',
-    );
+    this.set(peoplePage(this.header('항해 도감')), 'people');
   }
   private person(id: string) {
-    const p = PEOPLE.find(person => person.id === id);
-    if (!p) return;
-    this.set(
-      `<div class="veil"><section class="panel character-story"><img class="character-portrait" src="${asset(p.id)}" alt="${p.name}"><span class="eyebrow">${p.role}</span><h1 tabindex="-1">${p.name}</h1><p>${p.story}</p>${PERSON_MYTHS[p.id] ? `<p class="myth-line"><b>『오디세이아』 속 이야기</b>${PERSON_MYTHS[p.id]}</p>` : ''}${button('people', '인물 도감으로 돌아가기', 'primary')}</section></div>`,
-      'person',
-    );
+    const html = personPage(id);
+    if (html) this.set(html, 'person');
   }
   private relics() {
-    this.set(
-      `<div class="page relics">${this.header('항해 도감')}<div class="page-heading"><span class="eyebrow">TREASURES OF THE JOURNEY</span><h1 tabindex="-1">모험을 비추는 보물들</h1><p>달리기 아이템 여덟 가지와 항해를 안내하는 상징을 만나 보세요.</p></div>${this.bookNav('relics')}<div class="relic-grid">${RELICS.map(r => `<article class="relic-card"><img src="${asset(r.id)}" alt="" loading="lazy" decoding="async"><div><span class="relic-kind">${r.kind}</span><h2>${r.name}</h2><p>${r.description}</p></div></article>`).join('')}</div></div>`,
-      'relics',
-    );
+    this.set(relicsPage(this.header('항해 도감')), 'relics');
   }
   private bestiary() {
-    const cards = (Object.keys(ENEMY_TYPES) as EnemyKind[])
-      .map(id => {
-        const e = ENEMY_TYPES[id],
-          f = MONSTER_ART.frames[id];
-        const places = STAGES.map(stage => {
-          const count = COURSES[stage].enemies.filter(m => m.kind === id).length;
-          return count ? `${COURSES[stage].name} ${count}마리` : '';
-        })
-          .filter(Boolean)
-          .join(' · ');
-        return `<article class="relic-card monster-card"><svg viewBox="${f.x} ${f.y} ${f.w} ${f.h}" role="img" aria-label="${e.name}"><image href="${import.meta.env.BASE_URL}${MONSTER_ART.file}" width="1536" height="1024"/></svg><div><span class="relic-kind">${e.hint}로 피하기</span><h2>${e.name}</h2><p>${e.behavior}</p><small>${places}</small></div></article>`;
-      })
-      .join('');
-    this.set(
-      `<div class="page bestiary">${this.header('항해 도감')}<div class="page-heading"><span class="eyebrow">CREATURES ON THE ROAD</span><h1 tabindex="-1">항로에서 만나는 여섯 몬스터</h1><p>머리 위 삼각형과 안내를 살펴보세요. 공격을 미리 알면 안전하게 피할 수 있어요.</p></div>${this.bookNav('bestiary')}<div class="relic-grid">${cards}</div></div>`,
-      'bestiary',
-    );
+    this.set(bestiaryPage(this.header('항해 도감')), 'bestiary');
   }
   private journal() {
     this.abandon();
     this.world.showHome();
     const j = this.store.data.journal;
     this.set(
-      `<div class="page journal">${this.header('모험 수첩')}<div class="page-heading"><span class="eyebrow">YOUR OWN ODYSSEY</span><h1 tabindex="-1">나만의 모험을 채워요</h1><p>도전 도장과 발견은 결과 화면에서 기록돼요. 점수와 별빛을 소비하지 않아요.</p></div>${this.bookNav('journal')}${journalCards(j)}<section class="journal-section"><h2>다시 달릴 항로</h2><p>${STAGES.map(id => `${COURSES[id].name}: ${j.routes.includes(id + '-upper') ? '✓ 높은 길' : '○ 높은 길'} · ${j.routes.includes(id + '-lower') ? '✓ 아래 길' : '○ 아래 길'}`).join('<br>')}</p></section><section class="journal-section"><h2>신화 퀴즈</h2><p>맞힌 문제 ${this.store.data.quiz.length} / ${QUIZ.length}</p>${button('quiz', '한 문제 풀기', 'secondary')}</section><div class="page-foot">${button('islands', '다음 모험으로 →', 'primary')}</div></div>`,
+      `<div class="page journal">${this.header('모험 수첩')}<div class="page-heading"><span class="eyebrow">YOUR OWN ODYSSEY</span><h1 tabindex="-1">나만의 모험을 채워요</h1><p>도전 도장과 발견은 결과 화면에서 기록돼요. 점수와 별빛을 소비하지 않아요.</p></div>${bookNav('journal')}${journalCards(j)}<section class="journal-section"><h2>다시 달릴 항로</h2><p>${STAGES.map(id => `${COURSES[id].name}: ${j.routes.includes(id + '-upper') ? '✓ 높은 길' : '○ 높은 길'} · ${j.routes.includes(id + '-lower') ? '✓ 아래 길' : '○ 아래 길'}`).join('<br>')}</p></section><section class="journal-section"><h2>신화 퀴즈</h2><p>맞힌 문제 ${this.store.data.quiz.length} / ${QUIZ.length}</p>${button('quiz', '한 문제 풀기', 'secondary')}</section><div class="page-foot">${button('islands', '다음 모험으로 →', 'primary')}</div></div>`,
       'journal',
     );
   }
@@ -1095,9 +1063,11 @@ export class App {
     return `<label class="toggle"><span>${label}</span><input type="checkbox" data-setting="${key}" ${this.store.data.settings[key] ? 'checked' : ''}><i aria-hidden="true"></i></label>`;
   }
   private settings() {
-    this.returnScreen = this.screen === 'islands' ? 'islands' : 'home';
+    // Sub-pages of settings (touch layout, offline, import, reset) keep the original way back.
+    if (!['settings', 'touch-layout', 'offline', 'import', 'reset', 'class-import'].includes(this.screen))
+      this.returnScreen = this.screen === 'islands' ? 'islands' : 'home';
     this.set(
-      `<div class="page settings">${this.header('설정', this.returnScreen)}<div class="settings-layout"><div class="page-heading"><span class="eyebrow">MAKE IT YOUR JOURNEY</span><h1 tabindex="-1">나의 항해 설정</h1><p>기록은 이 기기와 브라우저에 저장돼요.<br>기록 파일로 옮길 수 있어요.</p><div class="save-note">계정 없이, 이 브라우저에만 저장해요.<br>다른 기기와 자동으로 동기화되지는 않아요.</div></div><div class="settings-body"><section><h2>소리와 움직임</h2>${this.settingToggle('music', '배경음')}${this.settingToggle('sfx', '효과음')}${this.settingToggle('reducedMotion', '움직임 줄이기')}<small>기본 배경은 고정돼 있어요. 켜면 장식 무늬와 바람 표시를 더 줄여요. 달리기·점프와 위험 신호는 유지돼요.</small><label class="toggle"><span>진동 (지원하는 휴대폰)</span><input type="checkbox" data-haptics ${this.store.data.preferences.haptics ? 'checked' : ''}><i aria-hidden="true"></i></label><small>피격·추락·지도 획득·완주 때 짧게 진동해요. 아이폰 사파리는 진동을 지원하지 않아요.</small></section>${this.assistSettings()}<section><h2>화질과 조작</h2><label>그래픽 품질 <select id="quality"><option value="auto" ${this.store.data.preferences.quality === 'auto' ? 'selected' : ''}>자동</option><option value="high" ${this.store.data.preferences.quality === 'high' ? 'selected' : ''}>선명하게</option><option value="low" ${this.store.data.preferences.quality === 'low' ? 'selected' : ''}>가볍게</option></select></label><p class="muted">가볍게는 그림 해상도만 줄여요. 시야·달리기·점프·판정은 같아요.</p>${button('touch-layout', '터치 버튼 맞춤', 'secondary')}</section><section><h2>오프라인과 업데이트</h2>${button('offline', '섬 다운로드·업데이트', 'secondary')}<p class="muted">다운로드한 섬은 오프라인에서도 시작할 수 있어요. 새 버전은 항해를 끝낸 뒤 적용해요.</p></section><section><h2>기록 보관함</h2><div class="backup-row">${button('export', icon('map') + ' 기록 내보내기', 'secondary')}<label class="button secondary file-button">기록 가져오기<input id="import-file" type="file" accept="application/json,.json" aria-label="JSON 기록 파일 가져오기"></label></div><p class="muted">UTF-8 JSON · 최대 64KiB · 복원 전 내용을 확인해요.</p>${this.store.blocked ? button('original', '보존된 원본 내려받기', 'text-button') : ''}${button('reset-confirm', '이 게임의 기록 초기화', 'danger text-button')}</section><div id="import-error" role="alert"></div></div></div></div>`,
+      `<div class="page settings">${this.header('설정', this.returnScreen)}<div class="settings-layout"><div class="page-heading"><span class="eyebrow">MAKE IT YOUR JOURNEY</span><h1 tabindex="-1">나의 항해 설정</h1><p>기록은 이 기기와 브라우저에 저장돼요.<br>기록 파일로 옮길 수 있어요.</p><div class="save-note">계정 없이, 이 브라우저에만 저장해요.<br>다른 기기와 자동으로 동기화되지는 않아요.</div></div><div class="settings-body"><section><h2>소리와 움직임</h2>${this.settingToggle('music', '배경음')}${this.settingToggle('sfx', '효과음')}${this.settingToggle('reducedMotion', '움직임 줄이기')}<small>기본 배경은 고정돼 있어요. 켜면 장식 무늬와 바람 표시를 더 줄여요. 달리기·점프와 위험 신호는 유지돼요.</small><label class="toggle"><span>진동 (지원하는 휴대폰)</span><input type="checkbox" data-haptics ${this.store.data.preferences.haptics ? 'checked' : ''}><i aria-hidden="true"></i></label><small>피격·추락·지도 획득·완주 때 짧게 진동해요. 아이폰 사파리는 진동을 지원하지 않아요.</small></section>${this.assistSettings()}<section><h2>화질과 조작</h2><label>그래픽 품질 <select id="quality"><option value="auto" ${this.store.data.preferences.quality === 'auto' ? 'selected' : ''}>자동</option><option value="high" ${this.store.data.preferences.quality === 'high' ? 'selected' : ''}>선명하게</option><option value="low" ${this.store.data.preferences.quality === 'low' ? 'selected' : ''}>가볍게</option></select></label><p class="muted">가볍게는 그림 해상도만 줄여요. 시야·달리기·점프·판정은 같아요.</p>${button('touch-layout', '터치 버튼 맞춤', 'secondary')}</section><section><h2>오프라인과 업데이트</h2>${button('offline', '섬 다운로드·업데이트', 'secondary')}<p class="muted">다운로드한 섬은 오프라인에서도 시작할 수 있어요. 새 버전은 항해를 끝낸 뒤 적용해요.</p></section><section><h2>기록 보관함</h2><div class="backup-row">${button('export', icon('map') + ' 기록 내보내기', 'secondary')}<label class="button secondary file-button">기록 가져오기<input id="import-file" type="file" accept="application/json,.json" aria-label="JSON 기록 파일 가져오기"></label></div><p class="muted">UTF-8 JSON · 최대 64KiB · 복원 전 내용을 확인해요.</p>${this.store.blocked ? button('original', '보존된 원본 내려받기', 'text-button') : ''}${button('reset-confirm', '이 게임의 기록 초기화', 'danger text-button')}</section><section class="class-backup"><h2>반 전체 백업</h2><div class="backup-row">${button('class-export', '반 전체 내보내기', 'secondary')}<label class="button secondary file-button">반 전체 가져오기<input id="class-import" type="file" accept="application/json,.json" aria-label="반 전체 백업 파일 가져오기"></label></div><p class="muted">모든 항해사의 기록과 대회 순위를 한 파일로 저장해요. 가져오면 이 기기의 기록과 합쳐요. 지우지 않아요.</p></section><div id="import-error" role="alert"></div></div></div></div>`,
       'settings',
     );
   }
@@ -1155,15 +1125,37 @@ export class App {
       this.pause();
     } else this.settings();
   }
+  private offlineKey() {
+    const o = this.offline;
+    return JSON.stringify([o.available, o.downloading, o.ready, o.bytes, o.waiting, o.message, navigator.onLine]);
+  }
+  private lastOffline = '';
+  // Progress ticks only rewrite the busy button; other changes re-render but keep keyboard focus.
+  private offlineChanged() {
+    const o = this.offline,
+      key = this.offlineKey();
+    if (key === this.lastOffline && o.downloading) {
+      const b = this.ui.querySelector(`[data-action="download-stage:${o.downloading}"]`);
+      if (b) b.textContent = translate(`다운로드 중 ${Math.floor(o.progress * 100)}%`);
+      return;
+    }
+    const focused = (document.activeElement as HTMLElement | null)?.dataset?.action;
+    this.offlinePage();
+    if (focused)
+      queueMicrotask(() =>
+        this.ui.querySelector<HTMLElement>(`[data-action="${focused}"]`)?.focus({preventScroll: true}),
+      );
+  }
   private offlinePage() {
+    this.lastOffline = this.offlineKey();
     const o = this.offline;
     this.set(
       `<div class="page offline-page">${this.header('오프라인과 업데이트', 'settings')}<div class="page-heading"><h1 tabindex="-1">섬을 기기에 담아요</h1><p>${navigator.onLine ? '온라인 연결 상태' : '오프라인 상태'} · ${o.available ? '다운로드 준비됨' : '오프라인 기능 준비 중'}</p><p>이미 내려받은 파일을 검사해 완료 여부를 표시해요. 브라우저가 저장 공간을 비우면 다시 내려받아야 해요.</p></div><div class="trial-grid stages">${STAGES.map(id => `<section class="trial-card"><h2>${COURSES[id].name}</h2><p>${o.ready[id] ? '✓ 오프라인 이용 가능' : '아직 다운로드 전'}</p><small>공통 파일 재사용 · 음악 포함 · ${o.bytes[id] === undefined ? '크기 확인 중' : '약 ' + Math.ceil(o.bytes[id]! / 1048576) + 'MB'}</small>${button('download-stage:' + id, o.downloading === id ? `다운로드 중 ${Math.floor(o.progress * 100)}%` : o.ready[id] ? '파일 다시 확인·받기' : '섬 다운로드', 'primary', !o.available || o.downloading || !navigator.onLine ? 'disabled' : '')}</section>`).join('')}</div><section class="daily-card"><h2>새 버전</h2><p>${o.waiting ? '새 버전이 준비됐어요. 적용하면 화면을 다시 열어요.' : '현재 버전으로 플레이 중이에요.'}</p>${button('update', o.waiting ? '업데이트 적용' : '새 버전 확인', 'secondary', o.downloading ? 'disabled' : '')}${button('offline-refresh', '파일 상태 다시 확인', 'secondary')}<p role="status">${o.message}</p><small>기록은 유지해요. 다른 탭의 항해가 끝나야 업데이트할 수 있어요.</small></section></div>`,
       'offline',
     );
   }
-  private download(data: string, filename: string) {
-    const url = URL.createObjectURL(new Blob([data], {type: 'application/json;charset=utf-8'}));
+  private download(data: string, filename: string, type = 'application/json;charset=utf-8') {
+    const url = URL.createObjectURL(new Blob([data], {type}));
     const a = document.createElement('a');
     a.href = url;
     a.download = filename;
@@ -1216,6 +1208,27 @@ export class App {
       this.notice();
       return;
     }
+    if (input.id === 'class-import' && input.files?.[0]) {
+      const box = this.ui.querySelector('#import-error');
+      try {
+        const file = input.files[0];
+        if (file.size > CLASS_BACKUP_LIMIT) throw Error('반 전체 백업 파일은 4MB 이하여야 해요.');
+        let raw: unknown;
+        try {
+          raw = JSON.parse(await file.text());
+        } catch {
+          throw Error('JSON 파일을 읽을 수 없어요. 올바른 기록 파일을 선택해 주세요.');
+        }
+        if (this.screen !== 'settings') return;
+        this.classImport = readClassBackup(raw);
+        this.classPreview();
+      } catch (error) {
+        if (box) box.textContent = (error as Error).message;
+      } finally {
+        input.value = '';
+      }
+      return;
+    }
     if (input.id === 'import-file' && input.files?.[0]) {
       const request = ++this.importRequest;
       const active = () =>
@@ -1242,6 +1255,28 @@ export class App {
         if (active()) input.value = '';
       }
     }
+  }
+  private classPreview() {
+    const b = this.classImport!,
+      known = new Set(this.profiles.book.list.map(p => p.id));
+    this.set(
+      `<div class="veil"><section class="panel"><span class="eyebrow">RESTORE YOUR CLASS</span><h1 tabindex="-1">반 전체 기록을 합칠까요?</h1><p>항해사 ${b.profiles.list.length}명 · 대회 ${b.contests.hosted.length}개</p><div class="import-list">${b.profiles.list.map(p => `<p><b translate="no">${esc(p.name)}</b><span>${known.has(p.id) ? '합치기' : '새로 추가'}</span></p>`).join('')}</div><p class="muted">같은 항해사는 더 좋은 기록을 남기고, 대회 순위는 이름별 최고 기록을 남겨요. 이 기기의 기록은 지우지 않아요.</p><div class="button-row">${button('settings', '취소', 'secondary')}${button('class-import-confirm', '합쳐서 가져오기', 'primary')}</div></section></div>`,
+      'class-import',
+    );
+  }
+  private classRestore() {
+    if (this.screen !== 'class-import' || !this.classImport || !this.storage) return;
+    const r = restoreClass(this.storage, this.classImport);
+    this.classImport = null;
+    this.profiles = new Profiles(this.storage);
+    this.contests = new Contests(this.storage);
+    this.store = new SaveStore(this.storage, profileKey(this.profiles.active.id));
+    this.selected = this.store.data.lastStage;
+    this.resizeDisplay();
+    this.settings();
+    this.notice(
+      `반 전체 기록을 가져왔어요. 합친 항해사 ${r.merged}명 · 새 항해사 ${r.added}명 · 대회 ${r.contests}개${r.skipped ? ` · 인원 초과로 건너뜀 ${r.skipped}명` : ''}`,
+    );
   }
   private importPreview() {
     const s = this.imported!;
@@ -1450,6 +1485,16 @@ export class App {
           this.notice('원본을 읽지 못했어요.');
         }
         break;
+      case 'class-export':
+        if (this.storage)
+          this.download(
+            JSON.stringify(classBackup(this.storage)),
+            `odyssey-run-class-${new Date().toISOString().slice(0, 10).replaceAll('-', '')}.json`,
+          );
+        break;
+      case 'class-import-confirm':
+        this.classRestore();
+        break;
       case 'import-confirm':
         if (this.screen === 'import' && this.imported) {
           const ok = this.store.replace(this.imported);
@@ -1627,6 +1672,8 @@ export class App {
     this.game.scale.setGameSize(Math.round(view.width * density), Math.round(view.height * density));
     this.game.scale.refresh();
     this.world.syncDisplay();
+    // The quit screen sleeps the loop; draw one frame so the resized canvas is not left blank.
+    if (this.screen === 'quit') this.game.loop.wake();
   }
   destroy() {
     this.destroyed = true;

@@ -249,4 +249,49 @@ export const EN_4: Record<string, string> = {
   효과음: 'Sound effects',
   '휴대폰으로 공유': 'Share from phone',
   '🔒 잠긴 항로': '🔒 Locked route',
+  '반 전체 백업 파일이 아니에요.': 'This is not a whole-class backup file.',
+  '‘{x}’ 항해사의 기록이 올바르지 않아요.': 'The records of sailor ‘{x}’ are not valid.',
+  '이 브라우저에서는 카메라를 쓸 수 없어요. 결과 코드를 붙여 넣어 주세요.':
+    "This browser can't use the camera. Paste the result code instead.",
+  '카메라를 켜지 못했어요. 브라우저의 카메라 권한을 확인해 주세요.':
+    "Couldn't turn on the camera. Check the browser's camera permission.",
+  '같은 항해사가 다른 탭에서도 열려 있어요. 두 탭의 기록은 합쳐서 저장해요.':
+    'This sailor is also open in another tab. Records from both tabs are merged when saved.',
+  '반 전체 백업': 'Whole-class backup',
+  '반 전체 내보내기': 'Export whole class',
+  '반 전체 가져오기': 'Import whole class',
+  '반 전체 백업 파일 가져오기': 'Import a whole-class backup file',
+  '모든 항해사의 기록과 대회 순위를 한 파일로 저장해요. 가져오면 이 기기의 기록과 합쳐요. 지우지 않아요.':
+    "Saves every sailor's records and contest boards in one file. Importing merges them with this device's records and deletes nothing.",
+  '반 전체 백업 파일은 4MB 이하여야 해요.': 'A whole-class backup file must be 4MB or smaller.',
+  '반 전체 기록을 합칠까요?': "Merge the whole class's records?",
+  '항해사 {n}명 · 대회 {n}개': '{n} sailors · {n} contests',
+  합치기: 'Merge',
+  '새로 추가': 'Add new',
+  '합쳐서 가져오기': 'Merge and import',
+  '같은 항해사는 더 좋은 기록을 남기고, 대회 순위는 이름별 최고 기록을 남겨요. 이 기기의 기록은 지우지 않아요.':
+    "The same sailor keeps the better records, and contest boards keep each name's best result. Nothing on this device is deleted.",
+  '반 전체 기록을 가져왔어요. 합친 항해사 {n}명 · 새 항해사 {n}명 · 대회 {n}개':
+    'Imported the whole class. Merged sailors {n} · new sailors {n} · contests {n}',
+  '반 전체 기록을 가져왔어요. 합친 항해사 {n}명 · 새 항해사 {n}명 · 대회 {n}개 · 인원 초과로 건너뜀 {n}명':
+    'Imported the whole class. Merged sailors {n} · new sailors {n} · contests {n} · skipped over the limit {n}',
+  '📷 결과 QR 연속 찍기': '📷 Scan result QRs',
+  '카메라 끄기': 'Turn camera off',
+  '결과 QR 카메라': 'Result QR camera',
+  '결과 QR을 카메라에 비춰 주세요. 여러 장을 차례로 찍을 수 있어요.':
+    'Hold a result QR up to the camera. You can scan several in a row.',
+  '순위 CSV 내보내기': 'Export ranking CSV',
+  '학생 결과 화면의 결과 QR을 찍어 주세요.': "Scan the result QR on the student's result screen.",
+  '다른 대회({x})의 결과라 그 순위표에 넣었어요.':
+    'That result is from another contest ({x}), so it went to that board.',
+  '‘{x}’ {n}점을 넣었어요.': 'Added ‘{x}’ with {n} points.',
+  '순위표가 가득 찼어요(최대 인원).': 'The board is full (maximum entries).',
+  등수: 'Rank',
+  지도: 'Maps',
+  이름: 'Name',
+  점수: 'Score',
+  완주: 'Finished',
+  별빛: 'Starlight',
+  'HP 손실': 'HP lost',
+  '시간(초)': 'Time (s)',
 };

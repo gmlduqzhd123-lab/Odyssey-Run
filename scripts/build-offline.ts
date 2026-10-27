@@ -41,7 +41,8 @@ const home = [
 const core = entries.filter(
   f =>
     home.includes(f.path) ||
-    /^assets\/index-.*\.(js|css)$/.test(f.path) ||
+    // Every script chunk: the English dictionary and the QR reader load on demand, also offline.
+    /^assets\/[^/]+\.(js|css)$/.test(f.path) ||
     /^assets\/(beach-(sky|far|mid)|boat)\.svg$/.test(f.path) ||
     (/^assets\/art\/(odysseus-|compass-|landscape-sheet-)/.test(f.path) && !f.path.includes('-run-')),
 );

@@ -56,7 +56,7 @@
 
 자체 제작 SVG·코드는 이 프로젝트 소스와 함께 수정·재사용할 수 있습니다. 오디세이아의 신화와 인물은 고대 원전에서 착안했고, 짧은 도감 설명은 새로 작성했습니다.
 
-의존성 라이선스는 각 패키지를 따릅니다. Phaser(MIT), Vite(MIT), TypeScript(Apache-2.0), Playwright(Apache-2.0), tsx(MIT). 설치 버전은 `package-lock.json`에 있습니다.
+의존성 라이선스는 각 패키지를 따릅니다. Phaser(MIT), Vite(MIT), TypeScript(Apache-2.0), Playwright(Apache-2.0), tsx(MIT), Prettier(MIT), qrcode-generator(MIT, QR 생성), jsQR(Apache-2.0, 카메라 QR 판독 — 브라우저에 판독 기능이 없을 때만 불러옴). 설치 버전은 `package-lock.json`에 있습니다.
 
 ## 달리기 애니메이션 추가 — 2026-10-26
 
