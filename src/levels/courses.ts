@@ -70,8 +70,16 @@ function build(id:StageId):Course {
  adventure.constellations.forEach((group,index)=>group.stars.forEach((starId,j)=>{const star=items.find(i=>i.id===starId)!;const centers=id==='beach'?[4430,7800,22200]:id==='cave'?[7770,9600,23300]:[4430,7800,23100];star.x=centers[index]+shapes[index][j][0];star.y=(index===0?295:405)+shapes[index][j][1];}));
  items.find(i=>i.id===`${id}-magnet-2`)!.x=4800;
  items.find(i=>i.id===`${id}-lantern-extra-1`)!.x=id==='cave'?4150:id==='beach'?4300:6900;
- const safe=[0,3000,6900,9000,12000,14400,17000,20100,23000].filter(x=>!gaps.some(g=>x>=g.x-200&&x<=g.x+g.w+350)&&!obstacles.some(o=>x>=o.x-450&&x<o.x+o.w+80)&&!enemies.some(e=>e.x>=x-120&&e.x<x+450));
+ const safe=safePoints({gaps,obstacles,enemies},[0,3000,6900,9000,12000,14400,17000,20100,23000]);
  return {id,...meta[id],gaps,obstacles,platforms,winds,safe,items,enemies};
+}
+// A fall returns to the nearest clear ground at most this far before the gap.
+export const SAFE_LEAD={min:600,max:2400} as const;
+export function safePoints(c:Pick<Course,'gaps'|'obstacles'|'enemies'>,candidates:number[]):number[] {
+ const clear=(x:number)=>!c.gaps.some(g=>x>=g.x-200&&x<=g.x+g.w+350)&&!c.obstacles.some(o=>x>=o.x-450&&x<o.x+o.w+80)&&!c.enemies.some(e=>e.x>=x-120&&e.x<x+450);
+ const out=candidates.filter(clear);
+ for(const g of c.gaps)for(let x=g.x-SAFE_LEAD.min;x>=g.x-SAFE_LEAD.max;x-=50)if(clear(x)){out.push(x);break;}
+ return [...new Set(out)].sort((a,b)=>a-b);
 }
 export const COURSES=Object.fromEntries(STAGES.map(id=>[id,build(id)])) as Record<StageId,Course>;
 export const MAP_STORIES = [

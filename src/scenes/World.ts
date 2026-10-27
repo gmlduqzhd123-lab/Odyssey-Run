@@ -54,26 +54,28 @@ export class World extends Phaser.Scene {
  async prepare(stage:StageId,onProgress:(n:number)=>void=()=>{}):Promise<void>{
   if(this.preparing){await this.preparing;return this.prepare(stage,onProgress);}
   const files=[...GAME_FILES,...backgroundFiles(stage)].filter(f=>!this.textures.exists(f.key));
-  if(!files.length)return;
+  if(!files.length){this.ensureFrames();return;}
   this.preparing=new Promise<void>((resolve,reject)=>{
    let failed=false;
    const progress=(n:number)=>onProgress(n),error=()=>{failed=true;};
    this.load.on('progress',progress);this.load.on('loaderror',error);
    this.load.once('complete',()=>{this.load.off('progress',progress);this.load.off('loaderror',error);
     if(failed){reject(Error('필요한 그림을 불러오지 못했어요. 연결을 확인하고 다시 시도해 주세요.'));return;}
-    if(!this.gameplayReady){
-  Object.entries(REGIONS).filter(([,r])=>r.sheet==='terrain-sheet').forEach(([id,r])=>this.textures.get(r.sheet).add(id,0,r.x,r.y,r.w,r.h));
-  RUN_ART.frames.forEach((f,i)=>this.textures.get('odysseus-run').add(`run-${i}`,0,f.x,f.y,f.w,f.h));
-  const crouch=CROUCH_ART.frame;this.textures.get('hero-crouch').add('crouch',0,crouch.x,crouch.y,crouch.w,crouch.h);
-  Object.entries(MONSTER_ART.frames).forEach(([id,f])=>this.textures.get('monster-atlas').add(id,0,f.x,f.y,f.w,f.h));
-     for(let i=0;i<5;i++)this.groundArt.push(this.add.tileSprite(0,440,1,33,'terrain-sheet','ground-beach').setOrigin(0).setVisible(false));
-     this.giant.setTexture('giant');this.gameplayReady=true;
-    }
-    resolve();
+    this.ensureFrames();resolve();
    });
    files.forEach(f=>f.svg?this.load.svg(f.key,f.url,{scale:DISPLAY.svgDensity}):this.load.image(f.key,f.url));this.load.start();
   });
   try{await this.preparing;}finally{this.preparing=null;}
+ }
+ // Frames are registered once every game file exists, even if an earlier batch partly failed.
+ private ensureFrames(){
+  if(this.gameplayReady||GAME_FILES.some(f=>!this.textures.exists(f.key)))return;
+  Object.entries(REGIONS).filter(([,r])=>r.sheet==='terrain-sheet').forEach(([id,r])=>this.textures.get(r.sheet).add(id,0,r.x,r.y,r.w,r.h));
+  RUN_ART.frames.forEach((f,i)=>this.textures.get('odysseus-run').add(`run-${i}`,0,f.x,f.y,f.w,f.h));
+  const crouch=CROUCH_ART.frame;this.textures.get('hero-crouch').add('crouch',0,crouch.x,crouch.y,crouch.w,crouch.h);
+  Object.entries(MONSTER_ART.frames).forEach(([id,f])=>this.textures.get('monster-atlas').add(id,0,f.x,f.y,f.w,f.h));
+  for(let i=0;i<5;i++)this.groundArt.push(this.add.tileSprite(0,440,1,33,'terrain-sheet','ground-beach').setOrigin(0).setVisible(false));
+  this.giant.setTexture('giant');this.gameplayReady=true;
  }
  showHome(){this.mode='home';this.run=null;this.clearObjects();this.setStage('beach');this.boat.setVisible(true).setPosition(744,410).setDisplaySize(350,230);this.hero.setTexture('odysseus').setOrigin(.5,1).setDisplaySize(180,240).setPosition(744,442).setRotation(0).setAlpha(1);this.giant.setVisible(false);this.label.setText('');this.warning.setText('');}
  setStage(id:StageId){this.stage=id;this.bg.forEach((pair,i)=>pair.forEach(b=>b.setTexture(`${id}-${['sky','far','mid'][i]}`).setDisplaySize(this.bgWidth,this.bgHeight)));this.groundArt.forEach(s=>s.setTexture('terrain-sheet',`ground-${id}`).setVisible(false));}

@@ -66,7 +66,7 @@ export class Runner {
   this.recovering=Math.max(0,this.recovering-dt);
   if(this.grounded)this.coyote=C.coyote;else this.coyote=Math.max(0,this.coyote-dt);
   this.tryJump();this.buffer=Math.max(0,this.buffer-dt);
-  const oldY=this.y;
+  const oldY=this.y,oldTop=this.body.y;
   this.x+=C.speed*dt;
   this.sliding=this.grounded&&(this.slideHeld||(this.sliding&&!this.canStand()));
   this.vy+=C.gravity*dt;
@@ -75,7 +75,8 @@ export class Runner {
   if(this.wings>0&&this.vy>C.glide)this.vy=C.glide;
   this.y+=this.vy*dt;
   // Solid ceiling undersides do not spend jumps or allow clipping through the gate.
-  for(const o of this.course.obstacles){if((o.kind==='gate'||o.kind==='hand')&&this.vy<0&&overlap(this.body,o)){this.y=o.y+o.h+(this.sliding?C.slide:C.stand);this.vy=0;}}
+  // Rising into the side only stops the climb; snapping below would teleport the hero.
+  for(const o of this.course.obstacles){if((o.kind==='gate'||o.kind==='hand')&&this.vy<0&&overlap(this.body,o)){if(oldTop>=o.y+o.h)this.y=o.y+o.h+(this.sliding?C.slide:C.stand);this.vy=0;}}
   let floor=Infinity;
   if(!this.course.gaps.some(g=>this.x>g.x&&this.x<g.x+g.w)&&oldY<=C.ground+1)floor=C.ground;
   for(const p of this.course.platforms){const py=this.platformY(p);if(this.x+18>p.x&&this.x-18<p.x+p.w&&oldY<=py+3&&this.y>=py&&this.vy>=0)floor=Math.min(floor,py);}
