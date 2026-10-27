@@ -12,6 +12,8 @@ function build(stage:StageId):Course {
  return {...base,name:BOSSES[stage].name,length:BOSS_LENGTH,adventure:plan,routeName:BOSSES[stage].name,items:[],platforms:[],obstacles,gaps:stage==='wind'?[{x:8500,w:180}]:[],winds:stage==='wind'?[{x:8200,y:70,w:650,h:370}]:[],safe:[0,2800,6000,9000],enemies:kinds[stage].map((kind,i)=>({id:`${stage}-boss-${i+1}`,kind,x:1500+i*1200}))};
 }
 export const BOSS_COURSES=Object.fromEntries(STAGES.map(id=>[id,build(id)])) as Record<StageId,Course>;
+// Phase hints switch when the first attack in that phase becomes visible.
+export function bossPhase(stage:StageId,x:number){const enemies=BOSS_COURSES[stage].enemies;return x>=enemies[4].x-700?2:x>=enemies[2].x-700?1:0;}
 // Authored input plan, also used by the course verifier. No player-state overrides.
 export function bossInputs(stage:StageId){
  const jumps:number[]=[],slides:{start:number;end:number}[]=[];

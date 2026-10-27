@@ -1,6 +1,6 @@
 import type {Preferences} from '../storage/preferences';
 import {sailColor} from '../systems/cosmetics';
-import {BOSSES} from '../levels/bosses';
+import {BOSSES,bossPhase} from '../levels/bosses';
 import Phaser from 'phaser';
 import {C} from '../config';
 import {COURSES,type StageId} from '../levels/courses';
@@ -152,7 +152,7 @@ export class World extends Phaser.Scene {
   const highlight=r.adventure.highlight,branch=r.adventure.branch;
   if(r.x>=highlight.start&&r.x<=highlight.end)this.label.setPosition(this.view.width*580/960,215).setText(`${highlight.name}\n${highlight.hint}`);
   else if(r.x>=branch.start-700&&r.x<branch.end)this.label.setPosition(this.view.width*620/960,215).setText('↑ 높은 길: 별자리와 이야기 · 아래: 안전한 길');
-  if(r.course.length)this.label.setPosition(this.view.width*.6,210).setText(BOSSES[r.stage].phases[Math.min(2,Math.floor(r.x/3200))]);
+  if(r.course.length)this.label.setPosition(this.view.width*.6,210).setText(BOSSES[r.stage].phases[bossPhase(r.stage,r.x)]);
  }
  private drawAdventure(r:Runner,cam:number,reduced:boolean){
   const fx=this.fx,branch=r.adventure.branch;
