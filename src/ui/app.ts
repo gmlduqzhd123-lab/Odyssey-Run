@@ -174,7 +174,7 @@ export class App {
     this.offline = new Offline(
       () => (!!this.run && !this.result) || this.screen === 'stage-loading',
       () => {
-        if (!this.destroyed && this.screen === 'offline') this.offlinePage();
+        if (!this.destroyed && this.screen === 'offline') this.offlineChanged();
         else if (!this.destroyed && this.offline?.waiting && ['home', 'islands', 'result'].includes(this.screen))
           this.notice(this.store.warning || '새 버전이 준비됐어요. 설정 → 섬 다운로드·업데이트에서 적용할 수 있어요.');
       },
@@ -682,7 +682,7 @@ export class App {
     ].filter(Boolean);
   }
   private hud() {
-    return `<div class="play-ui" tabindex="-1" role="group" aria-label="게임 조작" data-one-button="${this.assist().autoSlide}"><div class="hud"><div class="hp-block"><span class="hud-caption">오디세우스</span><strong id="hp" aria-label="체력 3"></strong></div><div class="route-progress"><span>${this.special === 'boss' ? BOSSES[this.selected].name : this.special === 'daily' ? '오늘의 항해 · ' + this.daily!.name : this.special === 'contest' ? '대회 · ' + esc(this.contest!.title) : this.special === 'endless' ? '끝없는 항해 · ' + COURSES[this.selected].name : COURSES[this.selected].name + ' · ' + VARIANT_LABELS[this.selected][this.selectedVariant].name}</span><progress id="progress" data-course="${this.selected}/${this.selectedVariant}" max="24000" value="0" aria-label="섬 진행률"></progress><i id="ghost-marker" hidden aria-label="비교 항해 위치"></i><small id="progress-label">0%</small></div><div class="score-block"><span class="hud-caption">SCORE</span><strong id="score">0</strong></div><div class="hud-actions">${button('fullscreen', '⛶', 'fullscreen-button', 'aria-label="전체 화면 전환"')}${button('pause', 'Ⅱ', 'pause-button', 'aria-label="일시정지"')}</div></div><div class="run-details"><span id="stars">✦ 0 / 100</span><span id="maps">지도 0 / 3</span><span id="effects"></span>${this.assistLabel().length ? `<span class="assist-chip">쉬운 항해 · ${this.assistLabel().join(' · ')}</span>` : ''}</div><div class="adventure-hud"><span id="goal-progress"></span><span id="ghost-delta"></span><span id="discovery-progress"></span></div><div class="touch-controls"><button data-control="slide" class="control slide" aria-label="슬라이드, 누르고 유지"><span>⇣</span><b>슬라이드</b><small>↓ 누르기</small></button><button data-control="jump" class="control jump" aria-label="점프, 공중에서 다시 누르면 2단 점프"><span>↟</span><b>점프</b><small>Space / ↑</small></button></div></div>`;
+    return `<div class="play-ui" tabindex="-1" role="group" aria-label="게임 조작" data-one-button="${this.assist().autoSlide}"><div class="hud"><div class="hp-block"><span class="hud-caption">오디세우스</span><strong id="hp" role="img" aria-label="체력 3"></strong></div><div class="route-progress"><span>${this.special === 'boss' ? BOSSES[this.selected].name : this.special === 'daily' ? '오늘의 항해 · ' + this.daily!.name : this.special === 'contest' ? '대회 · ' + esc(this.contest!.title) : this.special === 'endless' ? '끝없는 항해 · ' + COURSES[this.selected].name : COURSES[this.selected].name + ' · ' + VARIANT_LABELS[this.selected][this.selectedVariant].name}</span><progress id="progress" data-course="${this.selected}/${this.selectedVariant}" max="24000" value="0" aria-label="섬 진행률"></progress><i id="ghost-marker" hidden aria-label="비교 항해 위치"></i><small id="progress-label">0%</small></div><div class="score-block"><span class="hud-caption">SCORE</span><strong id="score">0</strong></div><div class="hud-actions">${button('fullscreen', '⛶', 'fullscreen-button', 'aria-label="전체 화면 전환"')}${button('pause', 'Ⅱ', 'pause-button', 'aria-label="일시정지"')}</div></div><div class="run-details"><span id="stars">✦ 0 / 100</span><span id="maps">지도 0 / 3</span><span id="effects"></span>${this.assistLabel().length ? `<span class="assist-chip">쉬운 항해 · ${this.assistLabel().join(' · ')}</span>` : ''}</div><div class="adventure-hud"><span id="goal-progress"></span><span id="ghost-delta"></span><span id="discovery-progress"></span></div><div class="touch-controls"><button data-control="slide" class="control slide" aria-label="슬라이드, 누르고 유지"><span>⇣</span><b>슬라이드</b><small>↓ 누르기</small></button><button data-control="jump" class="control jump" aria-label="점프, 공중에서 다시 누르면 2단 점프"><span>↟</span><b>점프</b><small>Space / ↑</small></button></div></div>`;
   }
   private beginCountdown() {
     this.countdown = 3;
@@ -691,7 +691,7 @@ export class App {
     this.run!.state = 'ready';
     this.set(
       this.hud() +
-        `<div class="countdown"><span>준비됐나요?</span><strong id="count">3</strong><small>점프 · 2단 점프 · 슬라이드</small>${button('pause', '잠시 멈추기', 'secondary')}</div>`,
+        `<div class="countdown" role="status" aria-live="polite"><span>준비됐나요?</span><strong id="count">3</strong><small>점프 · 2단 점프 · 슬라이드</small>${button('pause', '잠시 멈추기', 'secondary')}</div>`,
       'countdown',
     );
     this.controls.bind(this.ui);
@@ -1095,7 +1095,9 @@ export class App {
     return `<label class="toggle"><span>${label}</span><input type="checkbox" data-setting="${key}" ${this.store.data.settings[key] ? 'checked' : ''}><i aria-hidden="true"></i></label>`;
   }
   private settings() {
-    this.returnScreen = this.screen === 'islands' ? 'islands' : 'home';
+    // Sub-pages of settings (touch layout, offline, import, reset) keep the original way back.
+    if (!['settings', 'touch-layout', 'offline', 'import', 'reset'].includes(this.screen))
+      this.returnScreen = this.screen === 'islands' ? 'islands' : 'home';
     this.set(
       `<div class="page settings">${this.header('설정', this.returnScreen)}<div class="settings-layout"><div class="page-heading"><span class="eyebrow">MAKE IT YOUR JOURNEY</span><h1 tabindex="-1">나의 항해 설정</h1><p>기록은 이 기기와 브라우저에 저장돼요.<br>기록 파일로 옮길 수 있어요.</p><div class="save-note">계정 없이, 이 브라우저에만 저장해요.<br>다른 기기와 자동으로 동기화되지는 않아요.</div></div><div class="settings-body"><section><h2>소리와 움직임</h2>${this.settingToggle('music', '배경음')}${this.settingToggle('sfx', '효과음')}${this.settingToggle('reducedMotion', '움직임 줄이기')}<small>기본 배경은 고정돼 있어요. 켜면 장식 무늬와 바람 표시를 더 줄여요. 달리기·점프와 위험 신호는 유지돼요.</small><label class="toggle"><span>진동 (지원하는 휴대폰)</span><input type="checkbox" data-haptics ${this.store.data.preferences.haptics ? 'checked' : ''}><i aria-hidden="true"></i></label><small>피격·추락·지도 획득·완주 때 짧게 진동해요. 아이폰 사파리는 진동을 지원하지 않아요.</small></section>${this.assistSettings()}<section><h2>화질과 조작</h2><label>그래픽 품질 <select id="quality"><option value="auto" ${this.store.data.preferences.quality === 'auto' ? 'selected' : ''}>자동</option><option value="high" ${this.store.data.preferences.quality === 'high' ? 'selected' : ''}>선명하게</option><option value="low" ${this.store.data.preferences.quality === 'low' ? 'selected' : ''}>가볍게</option></select></label><p class="muted">가볍게는 그림 해상도만 줄여요. 시야·달리기·점프·판정은 같아요.</p>${button('touch-layout', '터치 버튼 맞춤', 'secondary')}</section><section><h2>오프라인과 업데이트</h2>${button('offline', '섬 다운로드·업데이트', 'secondary')}<p class="muted">다운로드한 섬은 오프라인에서도 시작할 수 있어요. 새 버전은 항해를 끝낸 뒤 적용해요.</p></section><section><h2>기록 보관함</h2><div class="backup-row">${button('export', icon('map') + ' 기록 내보내기', 'secondary')}<label class="button secondary file-button">기록 가져오기<input id="import-file" type="file" accept="application/json,.json" aria-label="JSON 기록 파일 가져오기"></label></div><p class="muted">UTF-8 JSON · 최대 64KiB · 복원 전 내용을 확인해요.</p>${this.store.blocked ? button('original', '보존된 원본 내려받기', 'text-button') : ''}${button('reset-confirm', '이 게임의 기록 초기화', 'danger text-button')}</section><div id="import-error" role="alert"></div></div></div></div>`,
       'settings',
@@ -1155,7 +1157,29 @@ export class App {
       this.pause();
     } else this.settings();
   }
+  private offlineKey() {
+    const o = this.offline;
+    return JSON.stringify([o.available, o.downloading, o.ready, o.bytes, o.waiting, o.message, navigator.onLine]);
+  }
+  private lastOffline = '';
+  // Progress ticks only rewrite the busy button; other changes re-render but keep keyboard focus.
+  private offlineChanged() {
+    const o = this.offline,
+      key = this.offlineKey();
+    if (key === this.lastOffline && o.downloading) {
+      const b = this.ui.querySelector(`[data-action="download-stage:${o.downloading}"]`);
+      if (b) b.textContent = translate(`다운로드 중 ${Math.floor(o.progress * 100)}%`);
+      return;
+    }
+    const focused = (document.activeElement as HTMLElement | null)?.dataset?.action;
+    this.offlinePage();
+    if (focused)
+      queueMicrotask(() =>
+        this.ui.querySelector<HTMLElement>(`[data-action="${focused}"]`)?.focus({preventScroll: true}),
+      );
+  }
   private offlinePage() {
+    this.lastOffline = this.offlineKey();
     const o = this.offline;
     this.set(
       `<div class="page offline-page">${this.header('오프라인과 업데이트', 'settings')}<div class="page-heading"><h1 tabindex="-1">섬을 기기에 담아요</h1><p>${navigator.onLine ? '온라인 연결 상태' : '오프라인 상태'} · ${o.available ? '다운로드 준비됨' : '오프라인 기능 준비 중'}</p><p>이미 내려받은 파일을 검사해 완료 여부를 표시해요. 브라우저가 저장 공간을 비우면 다시 내려받아야 해요.</p></div><div class="trial-grid stages">${STAGES.map(id => `<section class="trial-card"><h2>${COURSES[id].name}</h2><p>${o.ready[id] ? '✓ 오프라인 이용 가능' : '아직 다운로드 전'}</p><small>공통 파일 재사용 · 음악 포함 · ${o.bytes[id] === undefined ? '크기 확인 중' : '약 ' + Math.ceil(o.bytes[id]! / 1048576) + 'MB'}</small>${button('download-stage:' + id, o.downloading === id ? `다운로드 중 ${Math.floor(o.progress * 100)}%` : o.ready[id] ? '파일 다시 확인·받기' : '섬 다운로드', 'primary', !o.available || o.downloading || !navigator.onLine ? 'disabled' : '')}</section>`).join('')}</div><section class="daily-card"><h2>새 버전</h2><p>${o.waiting ? '새 버전이 준비됐어요. 적용하면 화면을 다시 열어요.' : '현재 버전으로 플레이 중이에요.'}</p>${button('update', o.waiting ? '업데이트 적용' : '새 버전 확인', 'secondary', o.downloading ? 'disabled' : '')}${button('offline-refresh', '파일 상태 다시 확인', 'secondary')}<p role="status">${o.message}</p><small>기록은 유지해요. 다른 탭의 항해가 끝나야 업데이트할 수 있어요.</small></section></div>`,
@@ -1627,6 +1651,8 @@ export class App {
     this.game.scale.setGameSize(Math.round(view.width * density), Math.round(view.height * density));
     this.game.scale.refresh();
     this.world.syncDisplay();
+    // The quit screen sleeps the loop; draw one frame so the resized canvas is not left blank.
+    if (this.screen === 'quit') this.game.loop.wake();
   }
   destroy() {
     this.destroyed = true;

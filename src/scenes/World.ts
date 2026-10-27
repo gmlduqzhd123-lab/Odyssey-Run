@@ -145,7 +145,8 @@ export class World extends Phaser.Scene {
   }
   async prepare(stage: StageId, onProgress: (n: number) => void = () => {}): Promise<void> {
     if (this.preparing) {
-      await this.preparing;
+      // A failed earlier request must not fail this one; it retries with its own files.
+      await this.preparing.catch(() => {});
       return this.prepare(stage, onProgress);
     }
     const files = [...GAME_FILES, ...backgroundFiles(stage)].filter(f => !this.textures.exists(f.key));
