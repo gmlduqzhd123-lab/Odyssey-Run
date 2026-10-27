@@ -2664,3 +2664,28 @@ body {
 .class-board b {
   flex: 1 1 6em;
 }
+
+/* Sharing and friend races */
+.qr-box {
+  width: min(230px, 60vw, 36vh);
+  margin: 0.6rem auto;
+  background: #fff;
+  padding: 6px;
+  border-radius: 12px;
+}
+.qr-box svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.share-url input {
+  width: 100%;
+  font: inherit;
+  font-size: 0.75rem;
+  padding: 0.35rem;
+  border-radius: 8px;
+  border: 1px solid #c9bba0;
+}
+.rival-result {
+  font-size: 1rem;
+}

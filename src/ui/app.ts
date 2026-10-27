@@ -8,6 +8,7 @@ import {defaultPreferences, PACES, type Assist, type Pace, type Quality} from '.
 import {ADVENTURE_PLANS, GOALS, type GoalId} from '../levels/adventure';
 import {ghostDistance} from '../storage/journal';
 import {QUIZ, PERSON_MYTHS, type QuizQuestion} from '../levels/quiz';
+import {decodeLink, linkUrl, qrSvg, type Link, type RivalLink} from '../systems/share';
 import {harborArt, harborUnlocks, harborRequirements, journalCards} from './adventure-view';
 import Phaser from 'phaser';
 import {C} from '../config';
@@ -83,12 +84,27 @@ export class App {
   private selectedVariant: VariantId = 'classic';
   private question: QuizQuestion | null = null;
   private quizReturn = 'islands';
+  private rival: RivalLink | null = null;
+  private pendingLink = '';
   constructor() {
     let storage: Storage | null = null;
     try {
       storage = localStorage;
     } catch {}
     this.storage = storage;
+    this.pendingLink = this.takeLink();
+    // A link opened in a tab that already runs the game only changes the fragment.
+    window.addEventListener(
+      'hashchange',
+      () => {
+        const code = this.takeLink();
+        if (!code || this.screen === 'loading') return;
+        if (['play', 'countdown'].includes(this.screen)) this.pause();
+        this.pendingLink = code;
+        this.openPendingLink();
+      },
+      {signal: this.abort.signal},
+    );
     this.profiles = new Profiles(storage);
     this.store = new SaveStore(storage, profileKey(this.profiles.active.id));
     this.renderDensity = displayDensity(
@@ -112,7 +128,7 @@ export class App {
     });
     this.world = new World({
       frame: d => this.frame(d),
-      loaded: () => this.home(),
+      loaded: () => this.openPendingLink(),
       loadError: () => this.error(),
       reduced: () => this.store.data.settings.reducedMotion,
       density: () => this.renderDensity,
@@ -247,7 +263,105 @@ export class App {
   private header(label: string, back = 'home') {
     return `<header class="topbar">${button(back, '← <span>돌아가기</span>', 'text-button')}<span class="brand">${icon('compass')} ${label}</span><span class="edition">ODYSSEY RUN / VOL. 01</span><span class="ys-key">${button('profiles', `👤 <span class="ys-wide">${esc(this.profiles.active.name)}</span>`, 'ys-chip', `aria-label="항해사 ${esc(this.profiles.active.name)}, 바꾸기"`)}${button('fullscreen', '⛶ <span class="ys-wide">전체 화면</span>', 'ys-chip', 'aria-label="전체 화면 전환"')}<button type="button" class="ys-chip" data-ys-install>📲 <span class="ys-wide">앱 </span>설치</button><button type="button" class="ys-chip" data-qr aria-label="QR 코드로 접속">📱 QR</button></span></header>`;
   }
+  // Shared records arrive in the URL fragment; read once and drop it so a reload does not repeat it.
+  private takeLink() {
+    if (!/^#[gcr]=/.test(location.hash)) return '';
+    const code = location.hash.slice(3);
+    try {
+      history.replaceState(null, '', location.pathname + location.search);
+    } catch {}
+    return code;
+  }
+  private openPendingLink() {
+    const code = this.pendingLink;
+    this.pendingLink = '';
+    if (!code) {
+      this.home();
+      return;
+    }
+    let link: Link;
+    try {
+      link = decodeLink(code);
+    } catch (error) {
+      this.home();
+      this.notice((error as Error).message);
+      return;
+    }
+    this.openLink(link);
+  }
+  private openLink(link: Link) {
+    if (link.kind === 'ghost') this.rivalPage(link);
+    else this.home();
+  }
+  private courseName(stage: StageId, variant: VariantId) {
+    return `${COURSES[stage].name} · ${VARIANT_LABELS[stage][variant].name}`;
+  }
+  private rivalPage(link: RivalLink) {
+    this.abandon();
+    this.world.showHome();
+    this.rival = link;
+    const open = unlocked(this.store.data, link.stage);
+    this.set(
+      `<div class="veil"><section class="panel rival-panel"><span class="eyebrow">A FRIEND’S VOYAGE</span><h1 tabindex="-1">‘${esc(link.name)}’의 기록이 도착했어요</h1><p>${this.courseName(link.stage, link.variant)}</p><div class="result-score"><span>친구의 점수</span><strong>${link.score.toLocaleString()}</strong><small>${Math.floor(link.ghost.samples.at(-1)! / 10)}m · ${Math.floor(link.ghost.duration)}초 항해</small></div><p>같은 코스를 달리면 친구의 배가 진행 막대에 함께 표시돼요.</p>${open ? button('rival-start', '이 기록과 겨루기 →', 'primary large') : `<p class="unlock-hint">${COURSES[link.stage].name}은 아직 잠겨 있어요. 앞선 섬을 먼저 완주해 주세요.</p>`}${button('home', '시작 화면으로', 'secondary')}<small>링크로 받은 기록은 이 기기에서 확인할 수 없어요. 재미로 겨뤄요.</small></section></div>`,
+      'rival',
+    );
+  }
+  private async rivalStart() {
+    const link = this.rival;
+    if (!link || !unlocked(this.store.data, link.stage)) return;
+    await this.prepare(link.stage);
+    if (this.screen !== 'prepare' || this.selected !== link.stage || this.rival !== link) return;
+    this.selectedVariant = link.variant;
+    this.set(
+      `<div class="veil"><section class="panel"><span class="eyebrow">A FRIEND’S VOYAGE</span><h1 tabindex="-1">‘${esc(link.name)}’의 기록과 나란히</h1><p>${this.courseName(link.stage, link.variant)} · 친구 ${link.score.toLocaleString()}점</p><p>일반 항해와 똑같이 기록·지도·해금이 남아요.</p>${button('start', '출발 →', 'primary large')}${button('home', '그만두기', 'secondary')}</section></div>`,
+      'prepare',
+    );
+  }
+  private rivalFor(stage: StageId, variant: VariantId) {
+    const r = this.rival;
+    return !this.special && r && r.stage === stage && r.variant === variant ? r : null;
+  }
+  private sharePage() {
+    const r = this.result,
+      ghost = r?.adventure?.ghost;
+    if (!r || !ghost || this.special) return;
+    const url = linkUrl(
+      {
+        kind: 'ghost',
+        name: this.profiles.active.name,
+        stage: r.stage,
+        variant: r.variant ?? 'classic',
+        score: r.score,
+        ghost,
+      },
+      location.href,
+    );
+    this.set(
+      `<div class="veil"><section class="panel share-panel"><span class="eyebrow">SHARE YOUR VOYAGE</span><h1 tabindex="-1">친구에게 기록 보내기</h1><p>${this.courseName(r.stage, r.variant ?? 'classic')} · ${r.score.toLocaleString()}점 · ${esc(this.profiles.active.name)}</p><div class="qr-box" role="img" aria-label="기록 링크 QR 코드">${qrSvg(url)}</div><p class="muted">친구가 휴대폰 카메라로 찍거나 링크를 열면 이 기록과 겨룰 수 있어요. 서버로 보내지 않고 링크 안에만 담겨요.</p><label class="share-url">링크 <input id="share-url" readonly value="${esc(url)}"></label><div class="button-row">${button('share-copy', '링크 복사', 'secondary')}${'share' in navigator ? button('share-native', '휴대폰으로 공유', 'secondary') : ''}</div><p role="status" id="share-status"></p><div class="button-row">${button('restart', '재도전', 'primary')}${button('islands', '섬 선택', 'secondary')}</div></section></div>`,
+      'share',
+    );
+  }
+  private async shareAction(kind: 'copy' | 'native') {
+    const url = this.ui.querySelector<HTMLInputElement>('#share-url')?.value,
+      status = this.ui.querySelector('#share-status');
+    if (!url || !status) return;
+    try {
+      if (kind === 'copy') {
+        await navigator.clipboard.writeText(url);
+        status.textContent = '링크를 복사했어요.';
+      } else {
+        await navigator.share({title: '오디세이 런 기록', text: '내 기록과 겨뤄 볼래?', url});
+        status.textContent = '';
+      }
+    } catch {
+      if (kind === 'copy') {
+        this.ui.querySelector<HTMLInputElement>('#share-url')?.select();
+        status.textContent = '자동 복사가 막혔어요. 선택된 링크를 직접 복사해 주세요.';
+      }
+    }
+  }
   home() {
+    this.rival = null;
     this.abandon();
     this.world.showHome();
     const done = STAGES.every(id => this.store.data.stages[id].complete);
@@ -436,9 +550,15 @@ export class App {
       last = r.stage === 'wind',
       next = STAGES[STAGES.indexOf(r.stage) + 1];
     this.set(
-      `<div class="veil result-veil"><section class="panel result"><span class="eyebrow">${r.complete ? icon('laurel') : ''} ${r.complete ? 'ISLAND COMPLETE' : 'THE JOURNEY CONTINUES'}</span><h1 tabindex="-1">${r.complete ? (last ? '마침내, 이타카!' : '멋진 항해였어요!') : r.stage === 'cave' ? '거인에게 잡혔어요!' : '다시, 한 걸음 더!'}</h1><p>${r.complete ? (last ? '오디세우스가 고향 항구에 도착했어요. 긴 모험을 함께해 줘서 고마워요.' : COURSES[r.stage].name + ' 완주! 다음 섬의 항로가 열렸어요.') : '괜찮아요. 익숙해질수록 더 멀리 갈 수 있어요.'}</p>${last && r.complete ? regionArt('view-ithaca', 'ending-art', '이타카 도착 항구') : ''}<p class="course-result-label">${VARIANT_LABELS[r.stage][r.variant ?? 'classic'].name}</p><div class="mission-badge">${r.adventure?.stamps.length ? '✓ 도전 도장 · ' + GOALS[this.selectedGoal].name : '◇ 다음 항해에서 도전에 다시 도전해요'}</div><div class="result-stars" aria-label="이번 평점 ${r.rating}점">${'★'.repeat(r.rating)}<em>${'☆'.repeat(3 - r.rating)}</em></div><div class="result-score"><span>이번 항해 점수</span><strong>${r.score.toLocaleString()}</strong><small>코스 최고 ${routeRecord.bestScore.toLocaleString()} ${r.score === routeRecord.bestScore ? '· NEW BEST' : ''}<br>섬 전체 최고 ${record.bestScore.toLocaleString()}</small></div><div class="score-breakdown"><div><span>최고 전진거리</span><b>${Math.floor(r.distance / 10)}</b></div><div><span>별빛 ${r.stars} × 10</span><b>${r.stars * 10}</b></div><div><span>지도 ${r.maps.length} × 100</span><b>${r.maps.length * 100}</b></div><div><span>완주 보너스</span><b>${r.complete ? 500 : 0}</b></div></div><div class="result-summary"><span>♡ HP 손실 ${r.hpLoss}회</span><span>${icon('map')} 영구 지도 ${record.maps.length}/3</span></div>${this.damageSummary()}<small class="rating-help">완주 ★ · 별빛 70개 이상 ★ · HP 손실 0회 ★</small><div class="result-actions">${button('restart', '재도전', 'secondary')}${button('stage:' + r.stage, '다른 코스 고르기', 'secondary')}${r.complete && next ? button('stage:' + next, '다음 섬으로 →', 'primary') : button('islands', '섬 선택 →', 'primary')}</div>${r.complete && next ? button('islands', '섬 선택', 'text-button') : ''}${last && r.complete ? button('codex', '귀환의 지도 보기', 'text-button') : ''}<div class="adventure-result"><b>${r.adventure?.stamps.length ? '✓ 도전 성공! ' + GOALS[this.selectedGoal].name : '이번 도전: ' + GOALS[this.selectedGoal].name}</b><p>아슬아슬 회피 ${r.adventure?.nearMisses || 0} · 몬스터 회피 ${r.adventure?.evaded || 0} · 유도 격파 ${r.adventure?.tricked || 0}<br>별자리 ${r.adventure?.constellations.length || 0} · 이야기 ${r.adventure?.stories.length || 0} · 조합 ${r.adventure?.combos.length || 0}</p>${button('quiz', '신화 퀴즈 한 문제', 'text-button')}${button('journal', '모험 수첩', 'text-button')}${button('harbor', '달라진 항구 보기', 'text-button')}${button('quit', '게임 종료', 'text-button')}</div></section></div>`,
+      `<div class="veil result-veil"><section class="panel result"><span class="eyebrow">${r.complete ? icon('laurel') : ''} ${r.complete ? 'ISLAND COMPLETE' : 'THE JOURNEY CONTINUES'}</span><h1 tabindex="-1">${r.complete ? (last ? '마침내, 이타카!' : '멋진 항해였어요!') : r.stage === 'cave' ? '거인에게 잡혔어요!' : '다시, 한 걸음 더!'}</h1><p>${r.complete ? (last ? '오디세우스가 고향 항구에 도착했어요. 긴 모험을 함께해 줘서 고마워요.' : COURSES[r.stage].name + ' 완주! 다음 섬의 항로가 열렸어요.') : '괜찮아요. 익숙해질수록 더 멀리 갈 수 있어요.'}</p>${last && r.complete ? regionArt('view-ithaca', 'ending-art', '이타카 도착 항구') : ''}<p class="course-result-label">${VARIANT_LABELS[r.stage][r.variant ?? 'classic'].name}</p><div class="mission-badge">${r.adventure?.stamps.length ? '✓ 도전 도장 · ' + GOALS[this.selectedGoal].name : '◇ 다음 항해에서 도전에 다시 도전해요'}</div><div class="result-stars" aria-label="이번 평점 ${r.rating}점">${'★'.repeat(r.rating)}<em>${'☆'.repeat(3 - r.rating)}</em></div><div class="result-score"><span>이번 항해 점수</span><strong>${r.score.toLocaleString()}</strong><small>코스 최고 ${routeRecord.bestScore.toLocaleString()} ${r.score === routeRecord.bestScore ? '· NEW BEST' : ''}<br>섬 전체 최고 ${record.bestScore.toLocaleString()}</small></div>${this.rivalLine(r)}<div class="score-breakdown"><div><span>최고 전진거리</span><b>${Math.floor(r.distance / 10)}</b></div><div><span>별빛 ${r.stars} × 10</span><b>${r.stars * 10}</b></div><div><span>지도 ${r.maps.length} × 100</span><b>${r.maps.length * 100}</b></div><div><span>완주 보너스</span><b>${r.complete ? 500 : 0}</b></div></div><div class="result-summary"><span>♡ HP 손실 ${r.hpLoss}회</span><span>${icon('map')} 영구 지도 ${record.maps.length}/3</span></div>${this.damageSummary()}<small class="rating-help">완주 ★ · 별빛 70개 이상 ★ · HP 손실 0회 ★</small><div class="result-actions">${button('restart', '재도전', 'secondary')}${button('stage:' + r.stage, '다른 코스 고르기', 'secondary')}${r.complete && next ? button('stage:' + next, '다음 섬으로 →', 'primary') : button('islands', '섬 선택 →', 'primary')}</div>${r.complete && next ? button('islands', '섬 선택', 'text-button') : ''}${last && r.complete ? button('codex', '귀환의 지도 보기', 'text-button') : ''}<div class="adventure-result"><b>${r.adventure?.stamps.length ? '✓ 도전 성공! ' + GOALS[this.selectedGoal].name : '이번 도전: ' + GOALS[this.selectedGoal].name}</b><p>아슬아슬 회피 ${r.adventure?.nearMisses || 0} · 몬스터 회피 ${r.adventure?.evaded || 0} · 유도 격파 ${r.adventure?.tricked || 0}<br>별자리 ${r.adventure?.constellations.length || 0} · 이야기 ${r.adventure?.stories.length || 0} · 조합 ${r.adventure?.combos.length || 0}</p>${r.adventure ? button('share', '기록 공유 · QR', 'text-button') : ''}${button('quiz', '신화 퀴즈 한 문제', 'text-button')}${button('journal', '모험 수첩', 'text-button')}${button('harbor', '달라진 항구 보기', 'text-button')}${button('quit', '게임 종료', 'text-button')}</div></section></div>`,
       'result',
     );
+  }
+  private rivalLine(r: RunResult) {
+    const rival = this.rivalFor(r.stage, r.variant ?? 'classic');
+    if (!rival) return '';
+    const diff = r.score - rival.score;
+    return `<p class="rival-result"><b>친구 ‘${esc(rival.name)}’ ${rival.score.toLocaleString()}점</b> · ${diff > 0 ? `${diff.toLocaleString()}점 앞섰어요!` : diff === 0 ? '똑같은 점수예요!' : `${(-diff).toLocaleString()}점 차이, 다시 도전해 봐요`}</p>`;
   }
   private wardrobe() {
     this.abandon();
@@ -993,6 +1113,18 @@ export class App {
       case 'quiz':
         this.quiz();
         break;
+      case 'share':
+        if (this.screen === 'result') this.sharePage();
+        break;
+      case 'share-copy':
+        void this.shareAction('copy');
+        break;
+      case 'share-native':
+        void this.shareAction('native');
+        break;
+      case 'rival-start':
+        if (this.screen === 'rival') void this.rivalStart();
+        break;
       case 'profiles':
         this.profilesPage();
         break;
@@ -1070,7 +1202,7 @@ export class App {
         if (this.screen === 'prepare') this.start();
         break;
       case 'restart':
-        if (['pause', 'result'].includes(this.screen)) this.start();
+        if (['pause', 'result', 'share'].includes(this.screen)) this.start();
         break;
       case 'pause':
         this.pause();
@@ -1162,7 +1294,11 @@ export class App {
     progress.value = Math.min(r.length, r.x);
     progress.dataset.distance = String(r.x);
     this.setText('#progress-label', Math.min(100, Math.floor((r.x / r.length) * 100)).toString() + '%');
-    const ghost = this.special ? null : ghostDistance(courseGhost(this.store.data, this.selected, r.variant), r.time),
+    const rival = this.rivalFor(this.selected, r.variant),
+      ghost = this.special
+        ? null
+        : ghostDistance(rival?.ghost ?? courseGhost(this.store.data, this.selected, r.variant), r.time),
+      who = rival ? `친구 ‘${rival.name}’` : '나의 비교 항해',
       marker = this.ui.querySelector<HTMLElement>('#ghost-marker')!;
     marker.hidden = ghost === null;
     if (ghost !== null) marker.style.left = `${ghost / 240}%`;
@@ -1171,8 +1307,8 @@ export class App {
       ghost === null
         ? '이 코스의 첫 기록을 남겨 보세요'
         : Math.abs(r.x - ghost) <= C.speed * C.step * 2
-          ? '나의 비교 항해 · 나란히'
-          : `나의 비교 항해 ${Math.floor(Math.abs(r.x - ghost) / 10)}m ${r.x >= ghost ? '앞' : '뒤'}`,
+          ? `${who} · 나란히`
+          : `${who} ${Math.floor(Math.abs(r.x - ghost) / 10)}m ${r.x >= ghost ? '앞' : '뒤'}`,
     );
     const text = [
       r.hp,
