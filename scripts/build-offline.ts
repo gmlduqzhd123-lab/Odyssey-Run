@@ -42,8 +42,9 @@ const home = [
 const core = entries.filter(
   f =>
     home.includes(f.path) ||
-    // Every script chunk: the English dictionary and the QR reader load on demand, also offline.
-    /^assets\/[^/]+\.(js|css)$/.test(f.path) ||
+    // Every script chunk (the English dictionary loads on demand, also offline) except the QR
+    // reader, which only teachers' contest boards use; it rides with the island downloads.
+    (/^assets\/[^/]+\.(js|css)$/.test(f.path) && !/^assets\/jsQR-/.test(f.path)) ||
     /^assets\/(beach-(sky|far|mid)|boat)\.svg$/.test(f.path) ||
     (/^assets\/art\/(odysseus-|compass-|landscape-sheet-)/.test(f.path) && !f.path.includes('-run-')),
 );

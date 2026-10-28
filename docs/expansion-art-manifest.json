@@ -5,23 +5,23 @@
   "images": [
     {
       "name": "crouch",
-      "file": "assets/art/crouch-6dfc7b631076.webp",
+      "file": "assets/art/crouch-86a1256914c4.webp",
       "bytes": 205450,
-      "sha256": "6dfc7b6310767c21fa2c90babe9c455239bc4e52b35b8c819897656c8ec81ccb",
+      "sha256": "86a1256914c4782a43eb860149463a89336e30e11e25e3b06b0730fa86c2c4f0",
       "sourceSha256": "a3ce09b48b024519151b76dad72df1f54fefd19c504f1737744ded37188945ee",
       "size": "768x512"
     },
     {
       "name": "monsters",
-      "file": "assets/art/monsters-8bf8f8a57de0.webp",
+      "file": "assets/art/monsters-3a86c7138117.webp",
       "bytes": 1405498,
-      "sha256": "8bf8f8a57de00a706ef6bc6c4176e76ce1c68e251b025aa3f106a4b77c3269ac",
+      "sha256": "3a86c7138117124917d01d98bfd7f178f45fa2405b68e63b6f50877bf109c1d9",
       "sourceSha256": "390d85c625fdf06ac9a13ceba015ce268b06b55809756f9f16f7faa065e8e58e",
       "size": "1536x1024"
     }
   ],
   "crouchArt": {
-    "file": "assets/art/crouch-6dfc7b631076.webp",
+    "file": "assets/art/crouch-86a1256914c4.webp",
     "frame": {
       "x": 100,
       "y": 50,
@@ -33,7 +33,7 @@
     "scale": 0.08685162846803378
   },
   "monsterArt": {
-    "file": "assets/art/monsters-8bf8f8a57de0.webp",
+    "file": "assets/art/monsters-3a86c7138117.webp",
     "frames": {
       "crab": {
         "x": 20,

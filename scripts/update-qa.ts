@@ -6,7 +6,8 @@ import {existsSync} from 'node:fs';
 const original = JSON.parse(await readFile('dist/offline-manifest.json', 'utf8')),
   sw = await readFile('dist/sw.js', 'utf8'),
   versionA = original.version,
-  versionB = 'test000000000002';
+  versionB = 'test000000000002',
+  versionC = 'test000000000003';
 let revision = versionA,
   deny = false;
 const root = resolve('dist'),
@@ -108,6 +109,11 @@ try {
   await tap('[data-action="download-stage:beach"]');
   await expect(p.locator('.trial-card').first()).toContainText('오프라인 이용 가능', {timeout: 120000});
   saved = await p.evaluate(() => Object.entries(localStorage));
+  // A second tab is already open when the new version arrives (a tab opened afterwards would
+  // apply it on start, which is checked at the end), and is mid-run when the update is tried.
+  const p2 = await c.newPage();
+  await p2.goto(url);
+  await p2.waitForSelector('.home');
   revision = versionB;
   await p.evaluate(async () => {
     const r = await navigator.serviceWorker.getRegistration();
@@ -116,9 +122,6 @@ try {
   await expect
     .poll(() => p.evaluate(async () => !!(await navigator.serviceWorker.getRegistration())?.waiting), {timeout: 60000})
     .toBe(true);
-  const p2 = await c.newPage();
-  await p2.goto(url);
-  await p2.waitForSelector('.home');
   await p2.locator('[data-action="islands"]').first().tap();
   await p2.locator('[data-action="stage:beach"]').tap();
   await p2.locator('[data-action="start"]').tap();
@@ -146,6 +149,25 @@ try {
   await tap('[data-action="offline"]');
   await expect(p.locator('.trial-card').first()).toContainText('오프라인 이용 가능', {timeout: 20000});
   results.push({unchangedDownloadedIslandSurvivesUpdate: true});
+  // A version that finished downloading earlier is applied as soon as the game is opened again.
+  revision = versionC;
+  await p.evaluate(async () => {
+    const r = await navigator.serviceWorker.getRegistration();
+    await r!.update();
+  });
+  await expect
+    .poll(() => p.evaluate(async () => !!(await navigator.serviceWorker.getRegistration())?.waiting), {timeout: 60000})
+    .toBe(true);
+  const p3 = await c.newPage();
+  p3.on('pageerror', e => errors.push(e.message));
+  await p3.goto(url);
+  await expect
+    .poll(() => p3.evaluate(() => caches.keys()).catch(() => [] as string[]), {timeout: 30000})
+    .toContain('odyssey-run-v:/Odyssey-Run/:' + versionC + '-core');
+  await p3.waitForSelector('.home', {timeout: 30000});
+  expect(await p3.evaluate(() => Object.entries(localStorage))).toEqual(saved);
+  results.push({waitingVersionAppliedOnOpen: true});
+  await p3.close();
   await p.screenshot({path: 'artifacts/roadmap-update.png'});
   expect(errors).toEqual([]);
   await writeFile(

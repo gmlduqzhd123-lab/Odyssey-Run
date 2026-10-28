@@ -232,3 +232,14 @@ test('muted music never downloads, and destruction cancels late activation', asy
     async () => wait.promise,
   );
 });
+test('an island track is not fetched until its run is playing', async () => {
+  await setup(async (s, c, _, requests) => {
+    s.setStage('cave');
+    await settle();
+    assert.equal(requests.length, 0);
+    s.setPlaying(true);
+    await settle();
+    assert.equal(requests.length, 1);
+    assert.equal(c.sources.at(-1)!.buffer.tag, 2);
+  });
+});

@@ -162,7 +162,7 @@ try {
   expect(await x()).toBeGreaterThan(paused);
   const strip = (await p.locator('#game').boundingBox())!,
     jumpUpright = (await p.locator('[data-control="jump"]').boundingBox())!;
-  expect(Math.abs(strip.height - (strip.width * 9) / 16)).toBeLessThan(2);
+  expect(Math.abs(strip.height - (strip.width * 3) / 4)).toBeLessThan(2);
   expect(jumpUpright.y).toBeGreaterThanOrEqual(strip.y + strip.height - 1);
   await p.setViewportSize({width: 844, height: 390});
   await expect(p.locator('[data-action="resume"]')).toBeVisible();

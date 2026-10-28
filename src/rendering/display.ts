@@ -9,11 +9,19 @@ export const DISPLAY = {
   farParallax: 0,
   nearParallax: 0,
 } as const;
-export function displayViewport(width: number, height: number) {
+// minWidth narrows the logical view (zooming in) for the portrait game strip; the hero keeps
+// at least 192 logical px behind it, so about 1.6 s of the course ahead stays in view.
+export function displayViewport(width: number, height: number, minWidth = 960) {
   const w = Math.max(1, width),
     h = Math.max(1, height),
-    scale = Math.min(w / 960, h / 540);
-  return {width: w / scale, height: h / scale, scale, extraHeight: h / scale - 540, heroX: (w / scale) * 0.2};
+    scale = Math.min(w / minWidth, h / 540);
+  return {
+    width: w / scale,
+    height: h / scale,
+    scale,
+    extraHeight: h / scale - 540,
+    heroX: Math.max(192, (w / scale) * 0.2),
+  };
 }
 export type DisplayViewport = ReturnType<typeof displayViewport>;
 export function displayDensity(
