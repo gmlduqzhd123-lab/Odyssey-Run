@@ -326,4 +326,18 @@ export const EN_4: Record<string, string> = {
   '아이폰·아이패드는 공유 → 홈 화면에 추가로 설치하면 주소창 없이 화면을 꽉 채워요.':
     'On iPhone and iPad, install with Share → Add to Home Screen to fill the screen without the address bar.',
   '전체 화면 설정을 확인해 주세요.': 'Check the full screen setting.',
+  '📋 학생별 진행 현황': '📋 Progress by student',
+  '학생별 진행 현황': 'Progress by student',
+  '이 기기에 있는 항해사 {n}명 · 모든 섬 완주 {n}명. 반 전체 백업을 합쳐 오면 여러 기기의 학생을 한 표로 볼 수 있어요.':
+    '{n} sailors on this device · {n} finished every island. Merge whole-class backups to see students from several devices in one table.',
+  '진행 현황 CSV 내보내기': 'Export progress CSV',
+  '항해사 화면으로': 'Back to sailors',
+  '학생별 진행 현황 표': 'Progress table by student',
+  도장: 'Stamps',
+  퀴즈: 'Quiz',
+  총점: 'Total',
+  '마지막 저장': 'Last saved',
+  '기록 없음': 'No record',
+  '✓ 완주와 최고 별점 · 숫자는 아직 완주 전 최고 점수 · 온라인으로 보내지 않아요.':
+    '✓ finished with best stars · a number is the best score before finishing · nothing is sent online.',
 };

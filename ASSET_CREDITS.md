@@ -109,3 +109,8 @@
 | 배경 3층 | `public/assets/sea-{sky,far,mid}.svg` | 자체 제작 (`scripts/create-assets.py`) |
 | 바닥 띠 | `terrain-sheet`의 해변 모래 띠 재사용 | 사용자 제공 |
 | 배경음악 | 출항의 해변 곡 재사용 | 사용자 제공 Suno 곡, 별도 곡 없음 |
+
+## 화면 글꼴
+
+`public/fonts/odyssey-ui.woff2`(글꼴 이름 「Odyssey UI」)는 Pretendard 1.3.9(© 2021 Kil Hyung-jin, SIL Open Font License 1.1)에서 게임 화면에 쓰는 글자 729자만 남긴 파일입니다. OFL은 수정본에 원래 이름(Reserved Font Name 「Pretendard」)을 쓰지 못하게 하므로 글꼴 내부 이름을 바꿨고, 저작권 표시와 라이선스 문구는 글꼴 안에 그대로 두었습니다. 라이선스 전문은 `public/fonts/OFL-Pretendard.txt`에 함께 배포합니다. 다시 만드는 방법은 `scripts/subset-font.py` 머리말에 있습니다.
+

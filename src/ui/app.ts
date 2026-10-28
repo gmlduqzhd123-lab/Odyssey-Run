@@ -68,6 +68,7 @@ import {Controls} from '../input/controls';
 import {Sound} from '../systems/audio';
 import {vibrate} from '../systems/haptics';
 import {classPreviewMarkup, importPreviewMarkup, settingToggle, settingsMarkup} from './settings-view';
+import {progressCsv, progressMarkup} from './progress-view';
 import {BoardScanner, boardMarkup, contestCsv, contestsMarkup} from './contest-view';
 import {World} from '../scenes/World';
 import {assetUrl, STAGE_RELIC} from '../assets/catalog';
@@ -134,7 +135,7 @@ export class App {
     } catch {}
     this.storage = storage;
     setLang(initialLang(storage));
-    const roots = ['#ui', '#notice', '#rotate', '#game', 'footer'].map(s => document.querySelector(s)).filter(e => !!e);
+    const roots = ['#ui', '#notice', '#game', 'footer'].map(s => document.querySelector(s)).filter(e => !!e);
     roots.forEach(translateTree);
     observe(...roots);
     document.title = translate(document.title);
@@ -206,6 +207,8 @@ export class App {
     );
     this.displayObserver = new ResizeObserver(() => this.resizeDisplay());
     this.displayObserver.observe(document.querySelector('#shell')!);
+    // In portrait play the game strip is smaller than the shell; the canvas follows the strip.
+    this.displayObserver.observe(document.querySelector('#game')!);
     this.ui.addEventListener(
       'click',
       e => {
@@ -233,14 +236,6 @@ export class App {
       () => {
         this.orientation();
         this.resizeDisplay();
-      },
-      {signal: this.abort.signal},
-    );
-    document.querySelector('#rotate-menu')!.addEventListener(
-      'click',
-      () => {
-        this.abandon();
-        this.islands();
       },
       {signal: this.abort.signal},
     );
@@ -1018,7 +1013,7 @@ export class App {
     const board = this.profiles.board(),
       active = this.profiles.active.id;
     this.set(
-      `<div class="page profiles">${this.header('항해사')}<div class="page-heading"><span class="eyebrow">ONE DEVICE, MANY SAILORS</span><h1 tabindex="-1">누가 항해할까요?</h1><p>항해사마다 기록·설정·옷장을 따로 저장해요. 이 기기 안에서만 보여요.</p></div><section class="profile-form"><label>항해사 이름 <input id="profile-name" maxlength="${MAX_NAME}" autocomplete="off" placeholder="예: 지우"></label><div class="button-row">${button('profile-add', '새 항해사로 시작', 'primary')}${button('profile-rename', '지금 항해사 이름 바꾸기', 'secondary')}</div><p role="status" id="profile-message">${esc(message)}</p></section><section class="class-board"><h2>우리 반 항해 순위 <small>이 기기에 저장된 기록</small></h2><ol>${board.map((p, i) => `<li class="${p.id === active ? 'active' : ''}"><span class="rank">${i + 1}</span><b translate="no">${esc(p.name)}</b><span>${p.total.toLocaleString()}점</span><span>완주 ${p.islands}/${STAGES.length}</span><span>지도 ${p.maps}</span><span>퀴즈 ${p.quiz}</span>${p.id === active ? '<em>✓ 항해 중</em>' : button('profile-use:' + p.id, '이 항해사로', 'secondary')}${p.id === active || p.id === MAIN_PROFILE ? '' : button('profile-delete:' + p.id, '지우기', 'text-button danger', `aria-label="${esc(p.name)} 지우기"`)}</li>`).join('')}</ol><small>점수는 섬별 최고 점수의 합이에요. 온라인으로 보내지 않아요.</small></section></div>`,
+      `<div class="page profiles">${this.header('항해사')}<div class="page-heading"><span class="eyebrow">ONE DEVICE, MANY SAILORS</span><h1 tabindex="-1">누가 항해할까요?</h1><p>항해사마다 기록·설정·옷장을 따로 저장해요. 이 기기 안에서만 보여요.</p></div><section class="profile-form"><label>항해사 이름 <input id="profile-name" maxlength="${MAX_NAME}" autocomplete="off" placeholder="예: 지우"></label><div class="button-row">${button('profile-add', '새 항해사로 시작', 'primary')}${button('profile-rename', '지금 항해사 이름 바꾸기', 'secondary')}</div><p role="status" id="profile-message">${esc(message)}</p></section><section class="class-board"><h2>우리 반 항해 순위 <small>이 기기에 저장된 기록</small></h2><ol>${board.map((p, i) => `<li class="${p.id === active ? 'active' : ''}"><span class="rank">${i + 1}</span><b translate="no">${esc(p.name)}</b><span>${p.total.toLocaleString()}점</span><span>완주 ${p.islands}/${STAGES.length}</span><span>지도 ${p.maps}</span><span>퀴즈 ${p.quiz}</span>${p.id === active ? '<em>✓ 항해 중</em>' : button('profile-use:' + p.id, '이 항해사로', 'secondary')}${p.id === active || p.id === MAIN_PROFILE ? '' : button('profile-delete:' + p.id, '지우기', 'text-button danger', `aria-label="${esc(p.name)} 지우기"`)}</li>`).join('')}</ol><small>점수는 섬별 최고 점수의 합이에요. 온라인으로 보내지 않아요.</small>${button('progress', '📋 학생별 진행 현황', 'secondary')}</section></div>`,
       'profiles',
     );
   }
@@ -1404,6 +1399,17 @@ export class App {
     'share-native': () => void this.shareAction('native'),
     'rival-start': () => this.screen === 'rival' && void this.rivalStart(),
     profiles: () => this.profilesPage(),
+    progress: () => {
+      this.abandon();
+      this.world.showHome();
+      this.set(progressMarkup(this.header('학생별 진행 현황', 'profiles'), this.profiles.progress()), 'progress');
+    },
+    'progress-csv': () =>
+      this.download(
+        progressCsv(this.profiles.progress()),
+        `odyssey-run-progress-${new Date().toISOString().slice(0, 10).replaceAll('-', '')}.csv`,
+        'text/csv;charset=utf-8',
+      ),
     lang: () => {
       if (['play', 'countdown', 'pause'].includes(this.screen)) return;
       setLang(getLang() === 'en' ? 'ko' : 'en', this.storage);
@@ -1670,22 +1676,20 @@ export class App {
         .join(' · '),
     );
   }
+  // Phones held upright play too: the game becomes a 16:9 strip under the score with large
+  // buttons below it (CSS keyed on data-portrait). Turning the phone mid-run pauses the run,
+  // because everything moves under the player's thumbs.
+  private portrait = false;
   private orientation() {
-    const portrait = innerHeight > innerWidth && (navigator.maxTouchPoints > 0 || innerWidth < 700);
-    const active = !!this.run && ['play', 'pause', 'countdown'].includes(this.screen);
-    const rotate = document.querySelector<HTMLElement>('#rotate')!,
-      wasVisible = !rotate.hidden,
-      visible = portrait && active;
-    rotate.hidden = !visible;
-    this.ui.inert = visible;
-    if (visible && this.screen !== 'pause') this.pause();
-    if (visible && !wasVisible) document.querySelector<HTMLButtonElement>('#rotate-menu')!.focus({preventScroll: true});
-    else if (!visible && wasVisible)
-      this.ui.querySelector<HTMLButtonElement>('[data-action="resume"]')?.focus({preventScroll: true});
+    const portrait = innerHeight > innerWidth && (navigator.maxTouchPoints > 0 || innerWidth < 700),
+      changed = portrait !== this.portrait;
+    this.portrait = portrait;
+    document.querySelector<HTMLElement>('#app')!.dataset.portrait = String(portrait);
+    if (changed && this.run && ['play', 'countdown'].includes(this.screen)) this.pause();
   }
   private resizeDisplay() {
     if (!this.game?.isBooted || this.destroyed) return;
-    const rect = document.querySelector('#shell')!.getBoundingClientRect(),
+    const rect = document.querySelector('#game')!.getBoundingClientRect(),
       view = displayViewport(rect.width, rect.height),
       density = displayDensity(rect.width, window.devicePixelRatio, rect.height, this.quality());
     if (

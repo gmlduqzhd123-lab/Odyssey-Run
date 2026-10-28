@@ -35,6 +35,7 @@ const home = [
   'ys-install.js',
   'ys-qr.js',
   'qr.svg',
+  'fonts/odyssey-ui.woff2',
   'icons/icon-192.png',
   'icons/apple-touch-icon.png',
 ];

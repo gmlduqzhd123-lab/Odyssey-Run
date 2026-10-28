@@ -149,12 +149,23 @@ try {
   await expect(p.locator('[data-action="resume"]')).toBeVisible();
   await tap('[data-action="resume"]');
   await finishCount();
+  // Turning the phone upright pauses; the run then continues in portrait with the game strip
+  // above the buttons, and turning back pauses again.
   await p.setViewportSize({width: 390, height: 844});
-  await expect(p.locator('#rotate')).toBeVisible();
+  await expect(p.locator('[data-action="resume"]')).toBeVisible();
   const paused = await x();
   await p.clock.runFor(11000);
   expect(await x()).toBe(paused);
+  await tap('[data-action="resume"]');
+  await finishCount();
+  await p.clock.runFor(500);
+  expect(await x()).toBeGreaterThan(paused);
+  const strip = (await p.locator('#game').boundingBox())!,
+    jumpUpright = (await p.locator('[data-control="jump"]').boundingBox())!;
+  expect(Math.abs(strip.height - (strip.width * 9) / 16)).toBeLessThan(2);
+  expect(jumpUpright.y).toBeGreaterThanOrEqual(strip.y + strip.height - 1);
   await p.setViewportSize({width: 844, height: 390});
+  await expect(p.locator('[data-action="resume"]')).toBeVisible();
   await tap('[data-action="resume"]');
   await finishCount();
   await tap('[data-action="pause"]');

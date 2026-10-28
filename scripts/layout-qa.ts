@@ -26,8 +26,9 @@ const VIEWPORTS = [
   {name: 'phone-bars-740', width: 740, height: 300, touch: true},
   {name: 'phone-portrait-390', width: 390, height: 664, touch: true},
 ];
+const RUN_SIZES = ['short-1280', 'phone-844', 'phone-667', 'phone-bars-658', 'phone-bars-740', 'phone-portrait-390'];
 // Screens reached by a button on the home page (or a page reached from there).
-const SCREENS: [string, string[]][] = [
+const SCREENS: [string, string[], string[]?][] = [
   ['home', []],
   ['islands', ['islands']],
   ['prepare', ['islands', 'stage:beach']],
@@ -43,8 +44,14 @@ const SCREENS: [string, string[]][] = [
   ['landscapes', ['codex', 'landscapes']],
   ['quiz', ['journal', 'quiz']],
   ['profiles', ['profiles']],
+  ['progress', ['profiles', 'progress']],
   ['settings', ['settings']],
   ['offline', ['settings', 'offline']],
+  // A run: the countdown, a moment of play, then the pause dialog (wait:ms and key:Name are steps).
+  // Runs are checked where space is tight: phones and the smallest laptop window.
+  ['countdown', ['islands', 'stage:beach', 'start', 'wait:900'], RUN_SIZES],
+  ['play', ['islands', 'stage:beach', 'start', 'wait:4500'], RUN_SIZES],
+  ['pause', ['islands', 'stage:beach', 'start', 'wait:4500', 'key:Escape'], RUN_SIZES],
 ];
 // Plain source: tsx would wrap named functions with a helper the page does not have.
 const SCAN = `(() => {
@@ -88,6 +95,9 @@ const SCAN = `(() => {
     for (let j = i + 1; j < boxes.length; j++) {
       const A = boxes[i], B = boxes[j];
       if (A.el === B.el) continue;
+      // A dialog or the countdown deliberately covers the run underneath it.
+      const cover = x => !!x.el.closest('.countdown, .veil');
+      if (cover(A) !== cover(B)) continue;
       const w = Math.min(A.r.right, B.r.right) - Math.max(A.r.left, B.r.left),
         h = Math.min(A.r.bottom, B.r.bottom) - Math.max(A.r.top, B.r.top);
       // Glyph boxes include the font's line gap, so require a real share of the shorter line.
@@ -99,7 +109,9 @@ async function go(p: Page, steps: string[]) {
   await p.goto(url);
   await p.waitForSelector('.home', {timeout: 30000});
   for (const s of steps) {
-    await p.locator(`[data-action="${s}"]:visible`).first().click();
+    if (s.startsWith('wait:')) await p.waitForTimeout(Number(s.slice(5)));
+    else if (s.startsWith('key:')) await p.keyboard.press(s.slice(4));
+    else await p.locator(`[data-action="${s}"]:visible`).first().click();
     await p.waitForTimeout(150);
   }
   await p.waitForTimeout(250);
@@ -132,8 +144,8 @@ try {
         );
         const p = await ctx.newPage();
         p.on('pageerror', e => errors.push(`${lang} ${v.name}: ${e.message}`));
-        for (const [screen, steps] of SCREENS) {
-          if (only && !only.includes(screen)) continue;
+        for (const [screen, steps, sizes] of SCREENS) {
+          if ((only && !only.includes(screen)) || (sizes && !sizes.includes(v.name))) continue;
           try {
             await go(p, steps);
           } catch (e) {

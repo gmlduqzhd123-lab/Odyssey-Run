@@ -94,3 +94,25 @@ test('profile books are sanitized and fall back to the first profile', () => {
   assert.equal(book.list[1].name, 'ok');
   assert.ok(PROFILES_KEY.startsWith(SAVE_KEY));
 });
+
+test('the teacher progress table lists every sailor with each island and exports as CSV', async () => {
+  const {progressCsv} = await import('../src/ui/progress-view');
+  const m = new Map<string, string>(),
+    storage = {
+      getItem: (k: string) => m.get(k) ?? null,
+      setItem: (k: string, v: string) => void m.set(k, v),
+      removeItem: (k: string) => void m.delete(k),
+    };
+  const book = new Profiles(storage);
+  book.add('민준');
+  const rows = book.progress();
+  assert.deepEqual(
+    rows.map(r => r.name),
+    ['첫 항해사', '민준'],
+  );
+  assert.equal(rows[0].stages.length, 4);
+  assert.equal(rows[1].saved, '');
+  const csv = progressCsv(rows).split('\r\n');
+  assert.match(csv[0], /^﻿이름,출항의 해변 · 완주,출항의 해변 · 별점/);
+  assert.match(csv[2], /^민준,X,0,0,/);
+});
