@@ -195,6 +195,54 @@ try {
 } finally {
   await cam.close();
 }
+// 5. Hostile share links: markup in names and titles shows as text, a broken code is refused
+// with a message, and the built page's security policy is never violated.
+const hostile = await chromium.launch({executablePath, args: ['--no-sandbox']});
+try {
+  const ctx = await hostile.newContext({serviceWorkers: 'block'});
+  await ctx.addInitScript(() => {
+    const w = window as unknown as {__csp: string[]};
+    w.__csp = [];
+    document.addEventListener('securitypolicyviolation', e => w.__csp.push(`${e.violatedDirective} ${e.blockedURI}`));
+  });
+  const p = await ctx.newPage();
+  watch(p, 'hostile');
+  const dialogs: string[] = [];
+  p.on('dialog', d => {
+    dialogs.push(d.message());
+    void d.dismiss();
+  });
+  const name = '<b>x</b>"\'&',
+    title = '<i>대회</i>';
+  await p.goto(
+    linkUrl(
+      {kind: 'result', contest: 'hx0001', name, score: 100, complete: false, stars: 0, maps: 0, hpLoss: 0, time: 40},
+      url,
+    ),
+  );
+  await p.waitForSelector('.contest-board');
+  check((await p.locator('#board-list b').first().textContent()) === name, 'name not shown as plain text');
+  check((await p.locator('#board-list b b, #board-list i').count()) === 0, 'markup in a name became elements');
+  await p.goto(linkUrl({kind: 'contest', id: 'hx0002', title, stage: 'beach', variant: 'classic', assist: false}, url));
+  await p.waitForSelector('.contest-panel');
+  check((await p.locator('.contest-panel h1').textContent()) === title, 'title not shown as plain text');
+  check((await p.locator('.contest-panel h1 i').count()) === 0, 'markup in a title became elements');
+  await p.goto(url + '#r=AAAA.zz');
+  await p.waitForSelector('#notice:not(:empty), .home');
+  await p.goto(url);
+  await p.waitForSelector('.home');
+  for (const s of ['islands', 'home', 'settings', 'home', 'profiles', 'progress']) {
+    await visible(p, s).click();
+    await p.waitForTimeout(200);
+  }
+  const csp = await p.evaluate(() => (window as unknown as {__csp: string[]}).__csp);
+  check(!dialogs.length, `a dialog opened: ${dialogs.join(' | ')}`);
+  check(!csp.length, `security policy violations: ${csp.join(' | ')}`);
+  results.hostile = {name, title, csp: csp.length};
+  await ctx.close();
+} finally {
+  await hostile.close();
+}
 check(!errors.length, `page errors: ${errors.join(' | ')}`);
 console.log(JSON.stringify(results, null, 1));
-console.log('classroom: tabs, backup, reminder, scan, flag, drop and CSV passed');
+console.log('classroom: tabs, backup, reminder, scan, flag, drop, CSV and hostile links passed');

@@ -66,7 +66,7 @@ export class World extends Phaser.Scene {
     g.fillStyle(0x102f46).fillRect(0, -this.view.extraHeight, this.view.width, this.view.height);
     const t = this.add
       .text(this.view.width / 2, 250, '항해를 준비하고 있어요…', {
-        fontFamily: 'sans-serif',
+        fontFamily: "'Odyssey UI', sans-serif",
         fontSize: '22px',
         color: '#f6e8c5',
         resolution: this.host.density(),
@@ -120,7 +120,7 @@ export class World extends Phaser.Scene {
     this.hero = this.add.image(744, 442, 'odysseus').setDepth(10).setOrigin(0.5, 1).setDisplaySize(180, 240);
     this.label = this.add
       .text(480, 275, '', {
-        fontFamily: 'sans-serif',
+        fontFamily: "'Odyssey UI', sans-serif",
         fontSize: '22px',
         color: '#fff2d2',
         stroke: '#223e4b',
@@ -131,7 +131,7 @@ export class World extends Phaser.Scene {
       .setOrigin(0.5);
     this.warning = this.add
       .text(590, 260, '', {
-        fontFamily: 'sans-serif',
+        fontFamily: "'Odyssey UI', sans-serif",
         fontSize: '17px',
         color: '#f8e8bd',
         stroke: '#20394b',
@@ -343,7 +343,7 @@ export class World extends Phaser.Scene {
             : words[kind] || '',
         ),
         {
-          fontFamily: 'sans-serif',
+          fontFamily: "'Odyssey UI', sans-serif",
           fontStyle: 'bold',
           fontSize: '18px',
           color: kind === 'hurt' ? '#ffb8a3' : '#ffebae',

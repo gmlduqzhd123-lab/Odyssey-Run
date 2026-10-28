@@ -106,6 +106,30 @@ export class Profiles {
       })
       .sort((a, b) => b.total - a.total || b.islands - a.islands || b.maps - a.maps || a.name.localeCompare(b.name));
   }
+  // The teacher's progress table: every sailor in list order, with each island's state.
+  progress() {
+    return this.book.list.map(p => {
+      let save: Save | null = null;
+      try {
+        const raw = this.storage?.getItem(profileKey(p.id));
+        if (raw) save = validateSave(JSON.parse(raw));
+      } catch {}
+      return {...p, ...progress(save)};
+    });
+  }
+}
+export function progress(save: Save | null) {
+  return {
+    ...summary(save),
+    stages: STAGES.map(id => ({
+      id,
+      complete: !!save?.stages[id].complete,
+      rating: save?.stages[id].bestRating ?? 0,
+      score: save?.stages[id].bestScore ?? 0,
+    })),
+    stamps: save?.journal.stamps.length ?? 0,
+    saved: save ? save.savedAt.slice(0, 10) : '',
+  };
 }
 export function summary(save: Save | null) {
   if (!save) return {total: 0, islands: 0, maps: 0, quiz: 0};

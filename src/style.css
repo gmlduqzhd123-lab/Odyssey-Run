@@ -1,5 +1,14 @@
+/* The game's own text in one bundled face on every device (Pretendard cut to the characters the
+   game uses; see scripts/subset-font.py). Other characters fall back to the device font. */
+@font-face {
+  font-family: 'Odyssey UI';
+  src: url('/fonts/odyssey-ui.woff2') format('woff2');
+  font-weight: 45 930;
+  font-display: swap;
+}
 :root {
   font-family:
+    'Odyssey UI',
     Inter,
     'Pretendard',
     'Noto Sans KR',
@@ -2966,4 +2975,159 @@ body {
     flex: 1 0 100%;
     justify-content: flex-end;
   }
+}
+
+/* Portrait play: score and health on top, a 16:9 game strip in the middle, big buttons below.
+   The canvas follows #game, so the world keeps its landscape view at phone width. */
+#app[data-portrait='true']:is([data-screen='play'], [data-screen='countdown'], [data-screen='pause']) {
+  --strip-top: calc(max(12px, env(safe-area-inset-top)) + 84px);
+  --strip-height: calc(100vw * 9 / 16);
+  --below-strip: calc(var(--strip-top) + var(--strip-height));
+}
+#app[data-portrait='true']:is([data-screen='play'], [data-screen='countdown'], [data-screen='pause']) #game {
+  inset: auto 0 auto 0;
+  top: var(--strip-top);
+  height: var(--strip-height);
+}
+#app[data-portrait='true']:is([data-screen='play'], [data-screen='countdown'], [data-screen='pause']) #shell {
+  background: #12324a;
+}
+#app[data-portrait='true'] .play-ui .hud {
+  height: var(--strip-top);
+  min-height: 0;
+  align-items: flex-end;
+  padding-bottom: 8px;
+  flex-wrap: wrap;
+  row-gap: 4px;
+  background: #112e42;
+}
+#app[data-portrait='true'] .play-ui .route-progress {
+  order: 5;
+  flex: 1 0 100%;
+  max-width: none;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+}
+#app[data-portrait='true'] .play-ui .route-progress span {
+  margin: 0;
+}
+#app[data-portrait='true'] .play-ui .route-progress small {
+  position: static;
+}
+#app[data-portrait='true'] .play-ui .run-details,
+#app[data-portrait='true'] .play-ui .adventure-hud {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: calc(var(--below-strip) + 10px);
+  width: auto;
+}
+#app[data-portrait='true'] .play-ui .run-details {
+  justify-content: center;
+  flex-wrap: wrap;
+}
+#app[data-portrait='true'] .play-ui .adventure-hud {
+  top: calc(var(--below-strip) + 52px);
+  justify-content: center;
+}
+#app[data-portrait='true'] #shell .play-ui .control {
+  bottom: calc(max(16px, env(safe-area-inset-bottom)) + var(--control-bottom, 0px));
+  width: calc(50vw - 24px);
+  height: min(30vh, 200px);
+  border-radius: 22px;
+}
+#app[data-portrait='true'] .countdown {
+  inset: auto 0 auto 0;
+  top: var(--strip-top);
+  height: var(--strip-height);
+  gap: 4px;
+}
+#app[data-portrait='true'] .countdown strong {
+  font-size: 64px;
+}
+#app[data-portrait='true'] .countdown small {
+  display: none;
+}
+
+/* The countdown sits over canvas captions and the run chips; a deeper veil keeps its number
+   readable over them on every screen. */
+.countdown {
+  background: #12324ad9;
+}
+/* Short landscape phones: the run chips move from under the score to the strip between the two
+   thumb buttons, so the sky ahead of the hero (where hazards appear) stays clear. */
+@media (orientation: landscape) and (max-height: 420px) {
+  #app[data-portrait='false'] .play-ui .run-details {
+    top: auto;
+    bottom: calc(max(8px, env(safe-area-inset-bottom)) + 26px);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 1px 8px;
+    font-size: 10px;
+    line-height: 1.5;
+    gap: 12px;
+    white-space: nowrap;
+  }
+  #app[data-portrait='false'] .play-ui .adventure-hud {
+    top: auto;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    left: calc(max(12px, env(safe-area-inset-left)) + var(--control-size, 80px) + 12px);
+    right: calc(max(12px, env(safe-area-inset-right)) + var(--control-size, 80px) + 12px);
+    justify-content: center;
+    gap: 6px;
+    font-size: 10px;
+    line-height: 1.5;
+  }
+  #app[data-portrait='false'] .play-ui .adventure-hud > span {
+    padding: 0 6px;
+  }
+}
+
+/* Teacher progress table: scrolls sideways on narrow screens instead of squeezing columns. */
+.progress-board {
+  margin: 0 5.2% 28px;
+}
+.table-scroll {
+  overflow-x: auto;
+  margin: 12px 0 8px;
+  border: 1px solid #ccd0b8;
+  border-radius: 12px;
+  background: #fff8e7;
+}
+.progress-board table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 720px;
+  font-size: clamp(12px, 1.1cqw, 15px);
+}
+.progress-board th,
+.progress-board td {
+  padding: 9px 10px;
+  border-bottom: 1px solid #e3dcc6;
+  text-align: center;
+  white-space: nowrap;
+}
+.progress-board thead th {
+  background: #efe6cf;
+  color: #2f5b62;
+  position: sticky;
+  top: 0;
+}
+.progress-board tbody th {
+  text-align: left;
+  color: #234b55;
+}
+.progress-board small {
+  color: #6b7e73;
+}
+.class-board > .secondary {
+  margin-top: 12px;
+}
+/* On home the notice sits under the top bar instead of over the bottom menu. */
+#app[data-screen='home'] #notice {
+  bottom: auto;
+  top: calc(max(48px, 14%) + 8px);
 }
