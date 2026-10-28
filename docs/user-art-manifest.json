@@ -15,10 +15,10 @@
         1086,
         1448
       ],
-      "displayTexture": "assets/art/navigator-6dfee87623a4.webp",
+      "displayTexture": "assets/art/navigator-3bee93de8fe3.webp",
       "preparedSize": "288x384",
       "preparedBytes": 99486,
-      "preparedSha256": "6dfee87623a4f8807b42457da1e515d51b75bc3853bc799ff278c8b58923e3f7"
+      "preparedSha256": "3bee93de8fe3c5279ccd66bc761b63d8456d7dcc3d5c4ed21fc0ff2d46308069"
     },
     {
       "name": "odysseus",
@@ -30,10 +30,10 @@
         1086,
         1448
       ],
-      "displayTexture": "assets/art/odysseus-48c9d109729f.webp",
+      "displayTexture": "assets/art/odysseus-f71e5acf1d8b.webp",
       "preparedSize": "576x768",
       "preparedBytes": 287024,
-      "preparedSha256": "48c9d109729fd34de7b1e2594c93346ed75173206fb9603cb47fb23975b42387"
+      "preparedSha256": "f71e5acf1d8b7d5469be43c64652f54a63a77475024ee9bc61a1dd62a2add595"
     },
     {
       "name": "penelope",
@@ -45,10 +45,10 @@
         1086,
         1448
       ],
-      "displayTexture": "assets/art/penelope-e2fb0cfb9ffa.webp",
+      "displayTexture": "assets/art/penelope-e103f212853a.webp",
       "preparedSize": "288x384",
       "preparedBytes": 95198,
-      "preparedSha256": "e2fb0cfb9ffa4b5800eb1eec574ebf34e55429cce0b25d5f723b015ca513695c"
+      "preparedSha256": "e103f212853a7c315275fa12d81cf343f823882cd19d8f46bd413e908e45f69a"
     },
     {
       "name": "telemachus",
@@ -60,10 +60,10 @@
         1086,
         1448
       ],
-      "displayTexture": "assets/art/telemachus-766693093d38.webp",
+      "displayTexture": "assets/art/telemachus-e9e6ba3d3bc9.webp",
       "preparedSize": "288x384",
       "preparedBytes": 86538,
-      "preparedSha256": "766693093d380fc15ed68231032e29fd1a160b8e5aea7ade9b3a3674f46c1723"
+      "preparedSha256": "e9e6ba3d3bc9e0dea164e187b1901b1363b96587d1d587db8268f2126e801d61"
     },
     {
       "name": "athena",
@@ -75,10 +75,10 @@
         1086,
         1448
       ],
-      "displayTexture": "assets/art/athena-6c30807fcfd7.webp",
+      "displayTexture": "assets/art/athena-662e263a93b6.webp",
       "preparedSize": "288x384",
       "preparedBytes": 93700,
-      "preparedSha256": "6c30807fcfd7e55f61e39aa8a5b28bed696bce91459750ad925cb252b964c337"
+      "preparedSha256": "662e263a93b6d843f63a15e48afb65e0d1bd0782afb348f6e9483a12baa0db5e"
     },
     {
       "name": "hermes",
@@ -90,10 +90,10 @@
         1086,
         1448
       ],
-      "displayTexture": "assets/art/hermes-5b03daddab93.webp",
+      "displayTexture": "assets/art/hermes-17f87ce53ed9.webp",
       "preparedSize": "288x384",
       "preparedBytes": 94806,
-      "preparedSha256": "5b03daddab935b3e57c467c07b14db14efb5f477c68a22770246d5d2b4d888ae"
+      "preparedSha256": "17f87ce53ed9c916294897f5f0effeac7e934febc3df94d83f6b4f8994ae920e"
     },
     {
       "name": "aeolus",
@@ -105,10 +105,10 @@
         1086,
         1448
       ],
-      "displayTexture": "assets/art/aeolus-05a66e6fd56f.webp",
+      "displayTexture": "assets/art/aeolus-8a771d0b47b2.webp",
       "preparedSize": "288x384",
       "preparedBytes": 118782,
-      "preparedSha256": "05a66e6fd56ffd9537bb0fead5f57d565873b791634cfcdca9486bf37f590255"
+      "preparedSha256": "8a771d0b47b299a7dfd9c507b4a280864f6277506e56b565ba4ff66e0b326a1c"
     },
     {
       "name": "nausicaa",
@@ -120,10 +120,10 @@
         1086,
         1448
       ],
-      "displayTexture": "assets/art/nausicaa-b189df128970.webp",
+      "displayTexture": "assets/art/nausicaa-bd0eb0b77523.webp",
       "preparedSize": "288x384",
       "preparedBytes": 104852,
-      "preparedSha256": "b189df128970a3179fcab54f983448b673d46c51296c1f12aaa8d45ade22e461"
+      "preparedSha256": "bd0eb0b775239c38c6b0adf24627242932b2e3189a8fcbcbd1d34f6b566ad48e"
     },
     {
       "name": "sailor",
@@ -135,10 +135,10 @@
         1086,
         1448
       ],
-      "displayTexture": "assets/art/sailor-f02b2b8541dc.webp",
+      "displayTexture": "assets/art/sailor-38e3151576ab.webp",
       "preparedSize": "288x384",
       "preparedBytes": 96414,
-      "preparedSha256": "f02b2b8541dc789df24a84785902f94005bc02eb2cd3fcdb70c819ddb3ba8fbd"
+      "preparedSha256": "38e3151576ab30c2b3757e701d48f9b0ebe2301aee55b6dd6055b30254cca99b"
     },
     {
       "name": "counsellor",
@@ -150,10 +150,10 @@
         1086,
         1448
       ],
-      "displayTexture": "assets/art/counsellor-8835e07d4cfc.webp",
+      "displayTexture": "assets/art/counsellor-9974dda25249.webp",
       "preparedSize": "288x384",
       "preparedBytes": 96892,
-      "preparedSha256": "8835e07d4cfc17bd15d7ff716c14715d288984293d6cd182dfb47b678b6d1962"
+      "preparedSha256": "9974dda25249edce47eaad62114e382ca4e37b2e579e28424b40907459badc45"
     },
     {
       "name": "shield",
@@ -165,10 +165,10 @@
         1254,
         1254
       ],
-      "displayTexture": "assets/art/shield-460ee6506725.webp",
+      "displayTexture": "assets/art/shield-a8a19e85469e.webp",
       "preparedSize": "256x256",
       "preparedBytes": 98024,
-      "preparedSha256": "460ee6506725d4399b92ca16e16a39966b4d3fff938c02ec5e46a321a008e306"
+      "preparedSha256": "a8a19e85469ec99559326330facf6866e8c051be2d46742af68b8b42299cd037"
     },
     {
       "name": "wings",
@@ -180,10 +180,10 @@
         1254,
         1254
       ],
-      "displayTexture": "assets/art/wings-8b734790c630.webp",
+      "displayTexture": "assets/art/wings-cf1ddd19baa5.webp",
       "preparedSize": "256x256",
       "preparedBytes": 85514,
-      "preparedSha256": "8b734790c6306fd00cbf8c9a5860f17adf3d2feb6c6b7cb51e63eb59f618fb9a"
+      "preparedSha256": "cf1ddd19baa5aec2135fad09dd9b28790b89535b6b21d1498fce3da9cb98bb29"
     },
     {
       "name": "magnet",
@@ -195,10 +195,10 @@
         1254,
         1254
       ],
-      "displayTexture": "assets/art/magnet-e899ce1ab3bf.webp",
+      "displayTexture": "assets/art/magnet-3ea568cbe1ea.webp",
       "preparedSize": "256x256",
       "preparedBytes": 95030,
-      "preparedSha256": "e899ce1ab3bfd8204db06304491da9c0334e2936df846937287e5825c304aa94"
+      "preparedSha256": "3ea568cbe1eafad6c6267db772ca6f5acb7f277b719b2d940dc342a642b0230a"
     },
     {
       "name": "apple",
@@ -210,10 +210,10 @@
         1254,
         1254
       ],
-      "displayTexture": "assets/art/apple-a178178a9e74.webp",
+      "displayTexture": "assets/art/apple-bba0954bace5.webp",
       "preparedSize": "256x256",
       "preparedBytes": 80594,
-      "preparedSha256": "a178178a9e74ca0eb45e9456b164cfd85839623b9810c598d3bdd21cf9e08d42"
+      "preparedSha256": "bba0954bace5c1720a91b44984ee44e744d9cb1ddf3b5013aab43ac89848cf6b"
     },
     {
       "name": "map",
@@ -225,10 +225,10 @@
         1254,
         1254
       ],
-      "displayTexture": "assets/art/map-c87be76009fe.webp",
+      "displayTexture": "assets/art/map-dd2560adaad4.webp",
       "preparedSize": "256x256",
       "preparedBytes": 86074,
-      "preparedSha256": "c87be76009fe180265d2023ec81023df1524e0c26688b16f9eb2bf9ae961f6f2"
+      "preparedSha256": "dd2560adaad405298037a9ebe4f1b95b50350c6d13c0ef773fa1d5a7924714be"
     },
     {
       "name": "wind-bag",
@@ -240,10 +240,10 @@
         1254,
         1254
       ],
-      "displayTexture": "assets/art/wind-bag-9bf9baf0fd6a.webp",
+      "displayTexture": "assets/art/wind-bag-308e28a5995d.webp",
       "preparedSize": "256x256",
       "preparedBytes": 93406,
-      "preparedSha256": "9bf9baf0fd6a27ef77d4ede2039a8b8438e2ac9ba17abf98a38dc3c5e41fca03"
+      "preparedSha256": "308e28a5995d57977c81b6ff0580d08040522b82af75527ae9eb0b4c11a247b1"
     },
     {
       "name": "trident",
@@ -255,10 +255,10 @@
         1254,
         1254
       ],
-      "displayTexture": "assets/art/trident-4bfc90d78eb6.webp",
+      "displayTexture": "assets/art/trident-0258b0964d34.webp",
       "preparedSize": "256x256",
       "preparedBytes": 56314,
-      "preparedSha256": "4bfc90d78eb677f97ea2fcda131c837518d8de509f3b3a3b74e701cf03cbe7c8"
+      "preparedSha256": "0258b0964d34e23abf36cc5b597c88adebd5af577a3f539e353369a55fca229f"
     },
     {
       "name": "laurel",
@@ -270,10 +270,10 @@
         1254,
         1254
       ],
-      "displayTexture": "assets/art/laurel-43b98b476384.webp",
+      "displayTexture": "assets/art/laurel-5aaefcb71654.webp",
       "preparedSize": "256x256",
       "preparedBytes": 71428,
-      "preparedSha256": "43b98b476384bf27a9b95c559d6fbe78c0a887e09a19735dec455eed6e0f84ff"
+      "preparedSha256": "5aaefcb716540914a7c8a1c8830c7ff5e193a95f513b4fb48a82155871c2ab58"
     },
     {
       "name": "compass",
@@ -285,10 +285,10 @@
         1254,
         1254
       ],
-      "displayTexture": "assets/art/compass-0bfa48989ace.webp",
+      "displayTexture": "assets/art/compass-30415c197a1e.webp",
       "preparedSize": "256x256",
       "preparedBytes": 92166,
-      "preparedSha256": "0bfa48989ace00cbd9501db35bbec591454ee6cf882b9fbf9ae2a6b55a135bd7"
+      "preparedSha256": "30415c197a1e91877636212bd62eb5b4956ea651cf7eecca385a6c3f3be911d6"
     },
     {
       "name": "lantern",
@@ -300,10 +300,10 @@
         1254,
         1254
       ],
-      "displayTexture": "assets/art/lantern-92cc051f0c7f.webp",
+      "displayTexture": "assets/art/lantern-16bdf82b7f7d.webp",
       "preparedSize": "256x256",
       "preparedBytes": 64008,
-      "preparedSha256": "92cc051f0c7f9a5d008ff0574e725be550fe7b69314c2ff474d077461e466361"
+      "preparedSha256": "16bdf82b7f7d4104f2ef626b214ca34bf526f0de896bcde8311f0e6eb571ea65"
     }
   ]
 }

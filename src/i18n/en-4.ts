@@ -340,4 +340,16 @@ export const EN_4: Record<string, string> = {
   '기록 없음': 'No record',
   '✓ 완주와 최고 별점 · 숫자는 아직 완주 전 최고 점수 · 온라인으로 보내지 않아요.':
     '✓ finished with best stars · a number is the best score before finishing · nothing is sent online.',
+  '새 버전이 준비됐어요.': 'A new version is ready.',
+  '지금 업데이트': 'Update now',
+  '새 버전이 준비됐어요. 시작 화면에서 「지금 업데이트」를 눌러 주세요.':
+    'A new version is ready. Press "Update now" on the start screen.',
+  '이 기기의 게임 버전:': 'Game version on this device:',
+  '저장 공간 {n}KB 사용 (한도 약 {n}MB의 {n}%)': 'Storage {n} KB used (about {n} MB limit, {n}% used)',
+  '저장 공간을 70% 넘게 쓰고 있어요. 설정 → 반 전체 내보내기 뒤 복원 전 사본을 정리해 주세요.':
+    'Over 70% of storage is in use. Export the whole class in Settings, then tidy the pre-restore copies.',
+  '복원 전 사본 {n}개 정리': 'Tidy {n} pre-restore copies',
+  '복원 전 사본 {n}개가 있어요. 오늘 반 전체 내보내기를 하면 정리할 수 있어요.':
+    'There are {n} pre-restore copies. Export the whole class today to tidy them.',
+  '복원 전 사본 {n}개를 정리했어요. 기록은 그대로예요.': 'Tidied {n} pre-restore copies. Records are unchanged.',
 };

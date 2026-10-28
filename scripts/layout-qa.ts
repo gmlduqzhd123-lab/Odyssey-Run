@@ -64,6 +64,31 @@ const SCAN = `(() => {
     const a = el.closest('[data-action]');
     return a ? s + ' [' + a.getAttribute('data-action') + ']' : s;
   };
+  const rgba = c => (c.match(/[0-9.]+/g) || []).map(Number);
+  const lum = ([r, g, b]) => {
+    const f = v => ((v /= 255) <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+  };
+  const contrast = el => {
+    if (el.closest(':disabled, [aria-disabled="true"]')) return '';
+    const cs = getComputedStyle(el);
+    let fg = rgba(cs.color), opacity = 1;
+    for (let a = el; a; a = a.parentElement) opacity *= Number(getComputedStyle(a).opacity);
+    if (opacity < 0.99 || (fg[3] ?? 1) < 0.99) return '';
+    let bg = null;
+    for (let a = el; a; a = a.parentElement) {
+      const s = getComputedStyle(a);
+      if (s.backgroundImage !== 'none' || getComputedStyle(a, '::before').backgroundImage !== 'none') return '';
+      const c = rgba(s.backgroundColor);
+      if ((c[3] ?? 1) >= 0.9) { bg = c; break; }
+      if ((c[3] ?? 1) > 0.05) return '';
+    }
+    if (!bg) return '';
+    const [hi, lo] = [lum(fg), lum(bg)].sort((x, y) => y - x), ratio = (hi + 0.05) / (lo + 0.05);
+    const size = parseFloat(cs.fontSize), bold = Number(cs.fontWeight) >= 700;
+    const need = size >= 24 || (bold && size >= 18.66) ? 3 : 4.5;
+    return ratio < need ? ratio.toFixed(2) + ':1 ' + cs.color + ' on rgb(' + bg.slice(0, 3).join(',') + ')' : '';
+  };
   const walker = document.createTreeWalker(document.querySelector('#app'), NodeFilter.SHOW_TEXT);
   for (let n = walker.nextNode(); n; n = walker.nextNode()) {
     const text = (n.nodeValue || '').trim(), el = n.parentElement;
@@ -86,6 +111,11 @@ const SCAN = `(() => {
       }
       boxes.push({text: text.slice(0, 40), at: label(el), el, r});
     }
+    // Contrast (WCAG AA): 4.5:1, or 3:1 for large text, against the nearest solid background.
+    // Text over pictures, gradients or the game canvas has no single background and is skipped,
+    // as are disabled controls.
+    const low = contrast(el);
+    if (low) problems.push({kind: 'contrast', text: text.slice(0, 40), at: label(el) + ' ' + low});
     // Ellipsis or line clamping hides the rest of the text.
     if (el.scrollWidth > el.clientWidth + 2 && getComputedStyle(el).textOverflow === 'ellipsis')
       problems.push({kind: 'ellipsis', text: text.slice(0, 40), at: label(el)});

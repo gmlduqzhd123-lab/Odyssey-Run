@@ -65,12 +65,29 @@ export class Sound {
         } catch {}
       }
       this.voices.clear();
-    } else this.startMusic();
+    } else {
+      this.loadMusic();
+      this.startMusic();
+    }
   }
+  // An island's track (2-4 MB) is fetched only once its run is actually playing, so choosing an
+  // island and the countdown are not slowed by it, and a browser in data-saver mode skips it.
   private loadMusic() {
     const c = this.ctx,
-      stage = this.stage;
-    if (this.dead || !c || !stage || !this.settings().music || this.buffer || this.loading || this.failed) return;
+      stage = this.stage,
+      saveData = (navigator as Navigator & {connection?: {saveData?: boolean}}).connection?.saveData === true;
+    if (
+      this.dead ||
+      !this.playing ||
+      saveData ||
+      !c ||
+      !stage ||
+      !this.settings().music ||
+      this.buffer ||
+      this.loading ||
+      this.failed
+    )
+      return;
     const id = ++this.request,
       abort = new AbortController();
     this.loadAbort = abort;

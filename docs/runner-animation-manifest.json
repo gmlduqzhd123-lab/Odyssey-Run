@@ -1,6 +1,6 @@
 {
   "source": "Generated with image_gen using the supplied Odysseus illustration as reference, 2026-10-26",
-  "reference": "assets/art/odysseus-0389a9dc53ed.webp",
+  "reference": "assets/art/odysseus-87e8d7f60dbc.webp",
   "sourceSha256": "915cb095d8930916c6790eb9bc34d2ef9623dd0a7e1065ae17615188629512be",
   "originalSize": [
     1536,
@@ -11,9 +11,9 @@
     1024
   ],
   "processing": "Native generated resolution, no resize; lossless WebP. Rendering anchors align the head horizontally and halve vertical frame jitter; source pixels unchanged.",
-  "preparedSha256": "cc298de348358349e0bb0f1315e0c8a8e00c63741db0d843938e297942d56c9d",
+  "preparedSha256": "5d3107443a41095698615213f2672361aadb8634ad5581f1ed48c54536e793c0",
   "preparedBytes": 1296700,
-  "displayTexture": "assets/art/odysseus-run-native-cc298de34835.webp",
+  "displayTexture": "assets/art/odysseus-run-native-5d3107443a41.webp",
   "frames": [
     {
       "x": 12,
@@ -155,7 +155,7 @@
       "logicalHeadY": 363.3345298771003
     }
   ],
-  "previousDisplayTexture": "assets/art/odysseus-run-fd6ec7426b32.webp",
+  "previousDisplayTexture": "assets/art/odysseus-run-6dca4df6e887.webp",
   "alignmentMeasurement": {
     "method": "Alpha >128 centroid of the first 100 native-resolution rows below each pose alpha bounds top. Rendering-origin measurements, not subjective comfort ratings.",
     "beforeSpanX": 3.2971510909916617,

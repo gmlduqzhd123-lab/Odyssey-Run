@@ -63,6 +63,9 @@ export class Offline {
         {signal: this.abort.signal},
       );
       watch();
+      // A version downloaded on an earlier visit is applied as the game opens, before any run,
+      // so classroom devices do not stay on old builds until someone finds the settings page.
+      if (reg.waiting && navigator.serviceWorker.controller && !this.busy()) void this.update();
       await navigator.serviceWorker.ready;
       if (this.disposed) return;
       await this.refresh();

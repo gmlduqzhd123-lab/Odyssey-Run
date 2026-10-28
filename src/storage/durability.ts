@@ -1,4 +1,4 @@
-import {SAVE_KEY} from './save';
+import {SAVE_KEY, validateSave} from './save';
 // Browsers may clear site storage: Safari after seven days without a visit (unless the game is
 // installed to the home screen), others when the disk runs low. Records live only here, so the
 // game asks for persistent storage and reminds the teacher to keep a whole-class backup.
@@ -67,4 +67,52 @@ export function iosBrowserTab() {
     (navigator as Navigator & {standalone?: boolean}).standalone === true ||
     (typeof matchMedia !== 'undefined' && matchMedia('(display-mode: standalone)').matches);
   return ios && !standalone;
+}
+
+// Browsers give a site about 5 MB of localStorage, counted in UTF-16 (two bytes per character).
+// A finished sailor with replays on every course is about 50 KB, so a busy class device can come
+// close; the settings page shows the share used and offers to drop superseded restore copies.
+export const STORAGE_LIMIT = 5 * 1024 * 1024;
+type Listing = Pick<Storage, 'getItem' | 'removeItem' | 'key' | 'length'>;
+const appKeys = (storage: Listing) => {
+  const out: string[] = [];
+  for (let i = 0; i < storage.length; i++) {
+    const k = storage.key(i);
+    if (k?.startsWith('odyssey-run:')) out.push(k);
+  }
+  return out;
+};
+export function storageUse(storage: Listing | null) {
+  if (!storage) return 0;
+  try {
+    return appKeys(storage).reduce((n, k) => n + (k.length + (storage.getItem(k)?.length ?? 0)) * 2, 0);
+  } catch {
+    return 0;
+  }
+}
+// Copies kept from before a record file was restored. One is only removable while the sailor's
+// current save is readable (a damaged save's copy is the original and always stays).
+export function spareCopies(storage: Listing | null) {
+  if (!storage) return [];
+  try {
+    return appKeys(storage).filter(k => {
+      if (!k.endsWith(':backup') || !k.startsWith(SAVE_KEY)) return false;
+      try {
+        validateSave(JSON.parse(storage.getItem(k.slice(0, -':backup'.length)) ?? 'null'));
+        return true;
+      } catch {
+        return false;
+      }
+    });
+  } catch {
+    return [];
+  }
+}
+export function dropSpareCopies(storage: Listing | null) {
+  const keys = spareCopies(storage);
+  for (const k of keys)
+    try {
+      storage?.removeItem(k);
+    } catch {}
+  return keys.length;
 }

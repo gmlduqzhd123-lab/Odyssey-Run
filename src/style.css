@@ -205,7 +205,7 @@ footer span:last-child {
   font-size: clamp(9px, 1cqw, 14px);
   letter-spacing: 0.2em;
   font-weight: 800;
-  color: #657b79;
+  color: #576a68;
 }
 .home .eyebrow {
   color: #457d7c;
@@ -343,7 +343,7 @@ footer span:last-child {
   margin: 10px 0;
 }
 .page-heading p {
-  color: #76847b;
+  color: #606c64;
   font-size: clamp(11px, 1.3cqw, 18px);
   line-height: 1.7;
 }
@@ -426,22 +426,22 @@ footer span:last-child {
 }
 .card-copy .eyebrow {
   font-size: clamp(8px, 0.8cqw, 12px);
-  color: #879185;
+  color: #6b7569;
 }
 .record-line {
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-size: clamp(10px, 1.1cqw, 16px);
-  color: #738172;
+  color: #677366;
 }
 .rating {
-  color: #c58d42;
+  color: #93672d;
   font-size: clamp(15px, 2cqw, 28px);
   letter-spacing: 3px;
 }
 .rating em {
-  color: #b7b69d;
+  color: #757356;
 }
 .card-bottom {
   display: flex;
@@ -482,7 +482,7 @@ footer span:last-child {
   align-items: center;
   justify-content: space-between;
   margin: 1.5% 5.2% 0;
-  color: #7d897e;
+  color: #626c63;
   font-size: clamp(10px, 1.1cqw, 16px);
   gap: 10px;
 }
@@ -515,7 +515,7 @@ footer span:last-child {
 }
 .panel p {
   font-size: clamp(12px, 1.4cqw, 19px);
-  color: #718075;
+  color: #606d64;
   line-height: 1.8;
   margin: 12px 0;
 }
@@ -561,7 +561,7 @@ footer span:last-child {
 }
 .control-guide span {
   font-size: clamp(10px, 1.1cqw, 16px);
-  color: #819080;
+  color: #616e60;
 }
 .prepare p.touch-hint {
   font-size: clamp(10px, 1.1cqw, 15px);
@@ -570,12 +570,12 @@ footer span:last-child {
   border-top: 1px solid #d8dcc5;
   padding: 14px 0;
   font-size: clamp(12px, 1.4cqw, 19px);
-  color: #a77b48;
+  color: #87633a;
 }
 .panel > small {
   display: block;
   font-size: clamp(9px, 1cqw, 14px);
-  color: #8b927d;
+  color: #676d5b;
   margin-top: 12px;
 }
 .prepare .primary {
@@ -954,7 +954,7 @@ progress::-moz-progress-bar {
 .fragment small {
   font-size: clamp(9px, 0.9cqw, 13px);
   font-weight: 400;
-  color: #87917e;
+  color: #6b7463;
 }
 .fragment-number {
   position: absolute;
@@ -963,7 +963,7 @@ progress::-moz-progress-bar {
   font:
     italic 16px Georgia,
     serif;
-  color: #a4ab91;
+  color: #6c7458;
 }
 .unknown {
   font:
@@ -999,7 +999,7 @@ progress::-moz-progress-bar {
   line-height: 1.8;
   padding-top: 20px;
   border-top: 1px solid #cdd4bb;
-  color: #8c927c;
+  color: #656a58;
 }
 .settings-body {
   padding-left: 6%;
@@ -1016,7 +1016,7 @@ progress::-moz-progress-bar {
 }
 .settings-body small {
   font-size: clamp(10px, 1.05cqw, 15px);
-  color: #939780;
+  color: #666a57;
   line-height: 1.7;
 }
 .backup-row {
@@ -1041,12 +1041,12 @@ progress::-moz-progress-bar {
   width: 100%;
 }
 .muted {
-  color: #8d957e !important;
+  color: #646a57 !important;
   font-size: clamp(10px, 1.1cqw, 16px) !important;
   line-height: 1.8;
 }
 .danger {
-  color: #ac6951;
+  color: #945a46;
   margin-top: 8px;
   padding-left: 0;
 }
@@ -1535,11 +1535,11 @@ progress::-moz-progress-bar {
 .gallery-note {
   font-size: clamp(11px, 1.15cqw, 16px);
   line-height: 1.8;
-  color: #6b7e73;
+  color: #5d6d64;
 }
 .sheet-card b {
   font-size: 12px;
-  color: #9d783e;
+  color: #8b6a37;
 }
 .gallery-note {
   margin: 18px 5.2% 25px;
@@ -1553,7 +1553,7 @@ progress::-moz-progress-bar {
 }
 .sheet-tools small {
   font-size: 12px;
-  color: #6b7e73;
+  color: #5d6d64;
 }
 .sheet-viewer {
   margin: 0 5.2% 24px;
@@ -1627,7 +1627,7 @@ progress::-moz-progress-bar {
 }
 .book-tab {
   background: transparent;
-  color: #7a897e;
+  color: #5f6c63;
   border-radius: 8px;
   padding: 8px 18px;
   font-size: clamp(11px, 1.25cqw, 17px);
@@ -1670,7 +1670,7 @@ progress::-moz-progress-bar {
 }
 .person-card small {
   font-size: clamp(9px, 0.95cqw, 13px);
-  color: #87917b;
+  color: #6b7460;
   line-height: 1.5;
   text-align: center;
 }
@@ -1707,7 +1707,7 @@ progress::-moz-progress-bar {
 }
 .relic-kind {
   display: block;
-  color: #ac8246;
+  color: #8b6939;
   font-size: clamp(9px, 0.85cqw, 12px);
   margin-bottom: 6px;
 }
@@ -1718,7 +1718,7 @@ progress::-moz-progress-bar {
 }
 .relic-card p {
   font-size: clamp(10px, 1.1cqw, 15px);
-  color: #7f8e7c;
+  color: #667364;
   line-height: 1.7;
 }
 .prepare .eyebrow > .icon {
@@ -1810,7 +1810,7 @@ progress::-moz-progress-bar {
 .monster-card small {
   display: block;
   margin-top: 8px;
-  color: #6f8276;
+  color: #63746a;
   font-size: clamp(9px, 0.95cqw, 13px);
   line-height: 1.6;
 }
@@ -1891,7 +1891,7 @@ progress::-moz-progress-bar {
 }
 .challenge-picker small {
   font-size: 10px;
-  color: #6d7c6c;
+  color: #5a6659;
 }
 .route-hint {
   font-size: 11px !important;
@@ -1948,7 +1948,7 @@ progress::-moz-progress-bar {
 .journal-section p {
   font-size: 13px;
   line-height: 1.8;
-  color: #687f72;
+  color: #5a6e63;
 }
 .stamp-grid {
   display: grid;
@@ -1966,7 +1966,7 @@ progress::-moz-progress-bar {
   justify-content: center;
   gap: 6px;
   text-align: left;
-  color: #8d9887;
+  color: #5d6658;
 }
 .stamp.earned {
   color: #285f65;
@@ -2008,7 +2008,7 @@ progress::-moz-progress-bar {
   padding: 8px 10px;
   border-radius: 7px;
   background: #e4e3d0;
-  color: #87917d;
+  color: #5e6656;
   font-size: 12px;
 }
 .harbor-checklist .complete {
@@ -2204,7 +2204,7 @@ footer .ys-credit a {
 .course-picker em {
   font-size: 11px;
   line-height: 1.6;
-  color: #647b70;
+  color: #566a61;
 }
 .course-picker > p {
   grid-column: 1/-1;
@@ -2578,7 +2578,10 @@ body {
   min-width: 42px;
   height: 42px;
   border-radius: 10px;
-  color: #173849;
+  color: #fffdf5;
+  text-shadow:
+    0 0 2px #173849,
+    0 1px 2px #173849;
   font-size: 23px;
 }
 .home-bottom {
@@ -2897,7 +2900,7 @@ body {
 .settings-credit {
   margin: 8px 0 0;
   font-size: 12px;
-  color: #6b7e73;
+  color: #5d6d64;
 }
 .settings-credit a {
   color: inherit;
@@ -2981,7 +2984,7 @@ body {
    The canvas follows #game, so the world keeps its landscape view at phone width. */
 #app[data-portrait='true']:is([data-screen='play'], [data-screen='countdown'], [data-screen='pause']) {
   --strip-top: calc(max(12px, env(safe-area-inset-top)) + 84px);
-  --strip-height: calc(100vw * 9 / 16);
+  --strip-height: calc(100vw * 3 / 4);
   --below-strip: calc(var(--strip-top) + var(--strip-height));
 }
 #app[data-portrait='true']:is([data-screen='play'], [data-screen='countdown'], [data-screen='pause']) #game {
@@ -3030,13 +3033,15 @@ body {
   flex-wrap: wrap;
 }
 #app[data-portrait='true'] .play-ui .adventure-hud {
-  top: calc(var(--below-strip) + 52px);
+  top: calc(var(--below-strip) + 46px);
   justify-content: center;
+  gap: 6px;
+  font-size: 11px;
 }
 #app[data-portrait='true'] #shell .play-ui .control {
   bottom: calc(max(16px, env(safe-area-inset-bottom)) + var(--control-bottom, 0px));
   width: calc(50vw - 24px);
-  height: min(30vh, 200px);
+  height: min(24vh, 170px);
   border-radius: 22px;
 }
 #app[data-portrait='true'] .countdown {
@@ -3121,7 +3126,7 @@ body {
   color: #234b55;
 }
 .progress-board small {
-  color: #6b7e73;
+  color: #5d6d64;
 }
 .class-board > .secondary {
   margin-top: 12px;
@@ -3130,4 +3135,31 @@ body {
 #app[data-screen='home'] #notice {
   bottom: auto;
   top: calc(max(48px, 14%) + 8px);
+}
+/* A ready update offers itself on the home page. */
+.update-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  font-size: clamp(11px, 1.1cqw, 15px);
+  color: #2f5b62;
+}
+.update-bar .secondary {
+  padding: 6px 12px;
+}
+/* Home text sits on a gradient the automatic contrast check skips; these meet 4.5:1 on its
+   lightest part. */
+.home-status {
+  color: #696955;
+}
+.hero-caption span {
+  color: #546e69;
+}
+.hero-caption i {
+  color: #4a6e6d;
+}
+.home .eyebrow {
+  color: #3e706f;
 }

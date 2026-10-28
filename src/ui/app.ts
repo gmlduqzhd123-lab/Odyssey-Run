@@ -29,6 +29,7 @@ import {
   requestProtection,
   type Protection,
 } from '../storage/durability';
+import {dropSpareCopies, spareCopies, storageUse, STORAGE_LIMIT} from '../storage/durability';
 import {classBackup, readClassBackup, restoreClass, CLASS_BACKUP_LIMIT, type ClassBackup} from '../storage/backup';
 import {buildEndless, sectionsPassed, ENDLESS_SECTIONS} from '../levels/endless';
 import type {Course} from '../levels/courses';
@@ -77,6 +78,9 @@ import {displayDensity, displayViewport} from '../rendering/display';
 import {FrameWatch} from '../rendering/frame-watch';
 const asset = assetUrl;
 const SLOW_KEY = SAVE_KEY + ':slow-device';
+// Logical width of the portrait game strip (4:3): closer than the landscape 960 so the hero and
+// hazards are drawn larger on a phone held upright.
+const PORTRAIT_VIEW = 720;
 export class App {
   private ui = document.querySelector<HTMLDivElement>('#ui')!;
   private store: SaveStore;
@@ -202,7 +206,9 @@ export class App {
       () => {
         if (!this.destroyed && this.screen === 'offline') this.offlineChanged();
         else if (!this.destroyed && this.offline?.waiting && ['home', 'islands', 'result'].includes(this.screen))
-          this.notice(this.store.warning || '새 버전이 준비됐어요. 설정 → 섬 다운로드·업데이트에서 적용할 수 있어요.');
+          if (this.screen === 'home') this.home();
+          else
+            this.notice(this.store.warning || '새 버전이 준비됐어요. 시작 화면에서 「지금 업데이트」를 눌러 주세요.');
       },
     );
     this.displayObserver = new ResizeObserver(() => this.resizeDisplay());
@@ -624,7 +630,7 @@ export class App {
     this.world.showHome();
     const done = STAGES.every(id => this.store.data.stages[id].complete);
     this.set(
-      `<div class="home">${this.header('ODYSSEY RUN', 'home')}<div class="home-copy"><span class="eyebrow"><i></i> 작은 영웅의 긴 귀환</span><h1 tabindex="-1">오디세이 런<span>이타카로!</span></h1><p>별자리를 잇고, 숨은 이야기를 찾고,<br>우리만의 항구를 완성하러 떠나요.</p><div class="home-actions">${button('islands', '항해 시작 <span>↗</span>', 'primary large')}${button('codex', icon('map') + ' 지도 도감', 'secondary')}</div><div class="home-status">${done ? '⚑ 귀환 완료 · ' : ''}도장 ${this.store.data.journal.stamps.length}/${stampIds.length} · 별자리 ${this.store.data.journal.constellations.length}/${constellationIds.length} · 이야기 ${this.store.data.journal.stories.length}/${storyIds.length}</div></div><div class="hero-caption"><span>ODYSSEUS</span><b>지혜로운 작은 영웅</b><i>“이번에는 꼭, 이타카로!”</i></div><div class="home-bottom">${button('challenges', '⚔ 특별 항해', 'text-button')}${button('wardrobe', '♧ 영웅의 옷장', 'text-button')}${button('harbor', '⚓ 나의 항구', 'text-button')}${button('journal', '✧ 모험 수첩', 'text-button')}${button('settings', '⚙ 설정', 'text-button')}${button('quit', '게임 종료', 'text-button')}</div></div>`,
+      `<div class="home">${this.header('ODYSSEY RUN', 'home')}<div class="home-copy"><span class="eyebrow"><i></i> 작은 영웅의 긴 귀환</span><h1 tabindex="-1">오디세이 런<span>이타카로!</span></h1><p>별자리를 잇고, 숨은 이야기를 찾고,<br>우리만의 항구를 완성하러 떠나요.</p><div class="home-actions">${button('islands', '항해 시작 <span>↗</span>', 'primary large')}${button('codex', icon('map') + ' 지도 도감', 'secondary')}</div><div class="home-status">${done ? '⚑ 귀환 완료 · ' : ''}도장 ${this.store.data.journal.stamps.length}/${stampIds.length} · 별자리 ${this.store.data.journal.constellations.length}/${constellationIds.length} · 이야기 ${this.store.data.journal.stories.length}/${storyIds.length}</div>${this.offline?.waiting ? `<div class="update-bar" role="status"><span>새 버전이 준비됐어요.</span>${button('update', '지금 업데이트', 'secondary')}</div>` : ''}</div><div class="hero-caption"><span>ODYSSEUS</span><b>지혜로운 작은 영웅</b><i>“이번에는 꼭, 이타카로!”</i></div><div class="home-bottom">${button('challenges', '⚔ 특별 항해', 'text-button')}${button('wardrobe', '♧ 영웅의 옷장', 'text-button')}${button('harbor', '⚓ 나의 항구', 'text-button')}${button('journal', '✧ 모험 수첩', 'text-button')}${button('settings', '⚙ 설정', 'text-button')}${button('quit', '게임 종료', 'text-button')}</div></div>`,
       'home',
     );
     if (!this.reminded) {
@@ -633,7 +639,9 @@ export class App {
         this.storage,
         this.profiles.book.list.length > 1 || this.contests.book.hosted.length > 0,
       );
-      if (message) this.notice(message);
+      if (storageUse(this.storage) > STORAGE_LIMIT * 0.7 && this.weekly('storage-full'))
+        this.notice('저장 공간을 70% 넘게 쓰고 있어요. 설정 → 반 전체 내보내기 뒤 복원 전 사본을 정리해 주세요.');
+      else if (message) this.notice(message);
       else if (iosBrowserTab() && this.weekly('ios-home-hint'))
         this.notice('아이폰·아이패드는 공유 → 홈 화면에 추가로 설치하면 주소창 없이 화면을 꽉 채워요.');
     }
@@ -852,7 +860,7 @@ export class App {
               .map(c => {
                 const open = cosmeticUnlocked(this.store.data, c.id),
                   selected = this.store.data.preferences[slot] === c.id;
-                return `<button data-action="equip:${slot}:${c.id}" class="cosmetic-choice ${selected ? 'equipped' : ''}" aria-pressed="${selected}" ${open ? '' : 'disabled'}><span class="cosmetic-swatch" style="background:${c.color}">${slot === 'emblem' ? (c.id === 'owl' ? '◉◉' : c.id === 'star' ? '☆' : '◇') : slot === 'sail' ? '◩' : '♜'}</span><span>${c.name}<small>${selected ? '✓ 사용 중' : open ? '선택할 수 있어요' : c.requirement}</small></span></button>`;
+                return `<button data-action="equip:${slot}:${c.id}" class="cosmetic-choice ${selected ? 'equipped' : ''}" aria-pressed="${selected}" ${open ? '' : 'disabled'}><span class="cosmetic-swatch" aria-hidden="true" style="background:${c.color}">${slot === 'emblem' ? (c.id === 'owl' ? '◉◉' : c.id === 'star' ? '☆' : '◇') : slot === 'sail' ? '◩' : '♜'}</span><span>${c.name}<small>${selected ? '✓ 사용 중' : open ? '선택할 수 있어요' : c.requirement}</small></span></button>`;
               })
               .join('')}</section>`,
         )
@@ -1132,6 +1140,7 @@ export class App {
         ? '이 브라우저는 기록을 지우지 않도록 보호하고 있어요.'
         : '저장 공간이 부족하거나 오래 열지 않으면 브라우저가 기록을 지울 수 있어요.',
       iosBrowserTab() ? '아이폰·아이패드는 공유 → 홈 화면에 추가로 설치해야 오래 열지 않아도 기록이 남아요.' : '',
+      `저장 공간 ${Math.ceil(storageUse(this.storage) / 1024).toLocaleString()}KB 사용 (한도 약 ${STORAGE_LIMIT / 1048576}MB의 ${Math.round((storageUse(this.storage) / STORAGE_LIMIT) * 100)}%)`,
     ]
       .filter(Boolean)
       .join(' · ');
@@ -1148,6 +1157,8 @@ export class App {
         blocked: this.store.blocked,
         protection: this.protectionLine(),
         canAskProtection: this.protectionState === 'best-effort',
+        spare: spareCopies(this.storage).length,
+        backedUpToday: backupAge(this.storage) === 0,
       }),
       'settings',
     );
@@ -1227,7 +1238,7 @@ export class App {
     this.lastOffline = this.offlineKey();
     const o = this.offline;
     this.set(
-      `<div class="page offline-page">${this.header('오프라인과 업데이트', 'settings')}<div class="page-heading"><h1 tabindex="-1">섬을 기기에 담아요</h1><p>${navigator.onLine ? '온라인 연결 상태' : '오프라인 상태'} · ${o.available ? '다운로드 준비됨' : '오프라인 기능 준비 중'}</p><p>이미 내려받은 파일을 검사해 완료 여부를 표시해요. 브라우저가 저장 공간을 비우면 다시 내려받아야 해요.</p></div><div class="trial-grid stages">${STAGES.map(id => `<section class="trial-card"><h2>${COURSES[id].name}</h2><p>${o.ready[id] ? '✓ 오프라인 이용 가능' : '아직 다운로드 전'}</p><small>공통 파일 재사용 · 음악 포함 · ${o.bytes[id] === undefined ? '크기 확인 중' : '약 ' + Math.ceil(o.bytes[id]! / 1048576) + 'MB'}</small>${button('download-stage:' + id, o.downloading === id ? `다운로드 중 ${Math.floor(o.progress * 100)}%` : o.ready[id] ? '파일 다시 확인·받기' : '섬 다운로드', 'primary', !o.available || o.downloading || !navigator.onLine ? 'disabled' : '')}</section>`).join('')}</div><section class="daily-card"><h2>새 버전</h2><p>${o.waiting ? '새 버전이 준비됐어요. 적용하면 화면을 다시 열어요.' : '현재 버전으로 플레이 중이에요.'}</p>${button('update', o.waiting ? '업데이트 적용' : '새 버전 확인', 'secondary', o.downloading ? 'disabled' : '')}${button('offline-refresh', '파일 상태 다시 확인', 'secondary')}<p role="status">${o.message}</p><small>기록은 유지해요. 다른 탭의 항해가 끝나야 업데이트할 수 있어요.</small></section></div>`,
+      `<div class="page offline-page">${this.header('오프라인과 업데이트', 'settings')}<div class="page-heading"><h1 tabindex="-1">섬을 기기에 담아요</h1><p>${navigator.onLine ? '온라인 연결 상태' : '오프라인 상태'} · ${o.available ? '다운로드 준비됨' : '오프라인 기능 준비 중'}</p><p>이미 내려받은 파일을 검사해 완료 여부를 표시해요. 브라우저가 저장 공간을 비우면 다시 내려받아야 해요.</p></div><div class="trial-grid stages">${STAGES.map(id => `<section class="trial-card"><h2>${COURSES[id].name}</h2><p>${o.ready[id] ? '✓ 오프라인 이용 가능' : '아직 다운로드 전'}</p><small>공통 파일 재사용 · 음악 포함 · ${o.bytes[id] === undefined ? '크기 확인 중' : '약 ' + Math.ceil(o.bytes[id]! / 1048576) + 'MB'}</small>${button('download-stage:' + id, o.downloading === id ? `다운로드 중 ${Math.floor(o.progress * 100)}%` : o.ready[id] ? '파일 다시 확인·받기' : '섬 다운로드', 'primary', !o.available || o.downloading || !navigator.onLine ? 'disabled' : '')}</section>`).join('')}</div><section class="daily-card"><h2>새 버전</h2><p>${o.waiting ? '새 버전이 준비됐어요. 적용하면 화면을 다시 열어요.' : '현재 버전으로 플레이 중이에요.'}</p><p class="muted" translate="no">${o.version ? 'build ' + esc(o.version) : ''}</p>${button('update', o.waiting ? '업데이트 적용' : '새 버전 확인', 'secondary', o.downloading ? 'disabled' : '')}${button('offline-refresh', '파일 상태 다시 확인', 'secondary')}<p role="status">${o.message}</p><small>기록은 유지해요. 다른 탭의 항해가 끝나야 업데이트할 수 있어요.</small></section></div>`,
       'offline',
     );
   }
@@ -1402,7 +1413,10 @@ export class App {
     progress: () => {
       this.abandon();
       this.world.showHome();
-      this.set(progressMarkup(this.header('학생별 진행 현황', 'profiles'), this.profiles.progress()), 'progress');
+      this.set(
+        progressMarkup(this.header('학생별 진행 현황', 'profiles'), this.profiles.progress(), this.offline.version),
+        'progress',
+      );
     },
     'progress-csv': () =>
       this.download(
@@ -1471,6 +1485,12 @@ export class App {
       }
     },
     'class-export': () => this.classExport(),
+    'storage-tidy': () => {
+      if (backupAge(this.storage) !== 0) return;
+      const n = dropSpareCopies(this.storage);
+      this.settings();
+      this.notice(`복원 전 사본 ${n}개를 정리했어요. 기록은 그대로예요.`);
+    },
     protect: () => this.askProtection(),
     'class-import-confirm': () => this.classRestore(),
     'import-confirm': () => this.importConfirm(),
@@ -1690,7 +1710,7 @@ export class App {
   private resizeDisplay() {
     if (!this.game?.isBooted || this.destroyed) return;
     const rect = document.querySelector('#game')!.getBoundingClientRect(),
-      view = displayViewport(rect.width, rect.height),
+      view = displayViewport(rect.width, rect.height, this.portrait ? PORTRAIT_VIEW : 960),
       density = displayDensity(rect.width, window.devicePixelRatio, rect.height, this.quality());
     if (
       density === this.renderDensity &&

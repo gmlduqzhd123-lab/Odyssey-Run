@@ -1,6 +1,6 @@
 // Native-resolution run sheet; fixed logical size, stabilized rendering anchors.
 export const RUN_ART = {
-  file: 'assets/art/odysseus-run-native-cc298de34835.webp',
+  file: 'assets/art/odysseus-run-native-5d3107443a41.webp',
   fps: 14,
   scale: 0.19298245614035087,
   frames: [
