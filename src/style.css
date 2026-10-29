@@ -2135,6 +2135,13 @@ progress::-moz-progress-bar {
   background: transparent;
   color: inherit;
   font: inherit;
+  /* Language names use the device font, so the accented-letter font file is fetched only
+     when a page is actually shown in Vietnamese or Russian. */
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
   font-weight: 700;
   padding: 0 2px;
   cursor: pointer;
