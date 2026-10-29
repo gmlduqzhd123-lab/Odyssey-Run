@@ -3244,7 +3244,8 @@ body {
   background: #fffaf0;
   color: #141414;
 }
-#app[data-contrast] :is(.muted, small, .eyebrow, .page-heading p) {
+/* Only on the light menu pages and dialogs; the run HUD keeps its light-on-dark text. */
+#app[data-contrast] :is(.page, .panel) :is(.muted, small, .eyebrow, .page-heading p) {
   color: #1d2b2a;
   opacity: 1;
 }

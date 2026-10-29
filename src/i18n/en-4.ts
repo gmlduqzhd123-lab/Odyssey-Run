@@ -373,4 +373,6 @@ export const EN_4: Record<string, string> = {
   '섬 완주!': 'Island complete!',
   '별빛 {n} · 지도 {n}/3': 'Starlight {n} · Maps {n}/3',
   '{n}번': 'No. {n}',
+  '공유 창에서 「이미지 저장」을 고르면 사진에 저장돼요.':
+    'In the share sheet, choose “Save Image” to keep it in Photos.',
 };

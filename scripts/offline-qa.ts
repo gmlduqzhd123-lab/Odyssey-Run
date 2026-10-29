@@ -153,6 +153,37 @@ try {
     ),
   );
   await c.close();
+  // A Vietnamese class device that never downloaded an island stays in Vietnamese offline.
+  const v = await b.newContext({viewport: {width: 1280, height: 720}}),
+    q = await v.newPage();
+  q.on('pageerror', e => errors.push('vi: ' + e.message));
+  await v.addInitScript(() => localStorage.setItem('odyssey-run:lang', 'vi'));
+  await q.goto(url);
+  await q.waitForSelector('.home');
+  await q.evaluate(async () => {
+    await navigator.serviceWorker.ready;
+    if (!navigator.serviceWorker.controller)
+      await new Promise<void>(resolve =>
+        navigator.serviceWorker.addEventListener('controllerchange', () => resolve(), {once: true}),
+      );
+  });
+  await q.waitForFunction(
+    async () => {
+      const name = (await caches.keys()).find(n => n.startsWith('odyssey-run-lang:'));
+      return name ? (await (await caches.open(name)).keys()).length >= 2 : false;
+    },
+    null,
+    {timeout: 30000},
+  );
+  await v.setOffline(true);
+  await q.reload();
+  await q.waitForSelector('.home');
+  await expect(q.locator('html')).toHaveAttribute('lang', 'vi');
+  await expect(q.locator('h1')).not.toContainText('오디세이');
+  results.push({offlineLanguage: 'vi', h1: await q.locator('h1').first().textContent()});
+  console.log('offline language passed vi');
+  await v.close();
+  expect(errors).toEqual([]);
 } finally {
   await b.close();
 }

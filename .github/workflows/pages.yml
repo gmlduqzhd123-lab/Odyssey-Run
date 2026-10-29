@@ -79,6 +79,13 @@ jobs:
             run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=en QA_SAVES=empty npm run test:layout
           - suite: layout-en-played
             run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=en QA_SAVES=played npm run test:layout
+          - suite: access
+            run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:access
+          # The same screens with the device's "more contrast" setting and a 20px browser font.
+          - suite: layout-contrast
+            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_CONTRAST=more QA_LANGS=ko QA_SAVES=played npm run test:layout
+          - suite: layout-large-text
+            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_ROOT_FONT=20 QA_LANGS=ko QA_SAVES=played npm run test:layout
           - suite: layout-vi
             run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=vi QA_SAVES=played npm run test:layout
           - suite: layout-zh

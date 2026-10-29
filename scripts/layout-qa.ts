@@ -164,6 +164,8 @@ try {
           isMobile: !!v.touch,
           deviceScaleFactor: v.touch ? 2 : 1,
           serviceWorkers: 'block',
+          // QA_CONTRAST=more checks the device's "more contrast" setting.
+          ...(process.env.QA_CONTRAST === 'more' ? {contrast: 'more' as const} : {}),
         });
         await ctx.addInitScript(
           ([lang, key, save]) => {
@@ -172,13 +174,14 @@ try {
           },
           [lang, SAVE, played ? (await import('node:fs')).readFileSync(legacy, 'utf8') : ''],
         );
-        // QA_ROOT_FONT=20 imitates a browser set to larger text (menus then scale up).
-        if (process.env.QA_ROOT_FONT)
-          await ctx.addInitScript(
-            px => (document.documentElement.style.fontSize = px + 'px'),
-            process.env.QA_ROOT_FONT,
-          );
         const p = await ctx.newPage();
+        // QA_ROOT_FONT=20 sets the browser's default font size, as a person raising it would.
+        if (process.env.QA_ROOT_FONT)
+          await (
+            await ctx.newCDPSession(p)
+          ).send('Page.setFontSizes', {
+            fontSizes: {standard: Number(process.env.QA_ROOT_FONT)},
+          });
         p.on('pageerror', e => errors.push(`${lang} ${v.name}: ${e.message}`));
         for (const [screen, steps, sizes] of SCREENS) {
           if ((only && !only.includes(screen)) || (sizes && !sizes.includes(v.name))) continue;

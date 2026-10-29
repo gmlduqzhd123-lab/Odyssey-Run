@@ -84,6 +84,8 @@ export class Controls {
     window.addEventListener('pointercancel', up, options);
     // Gamepads are read only after one connects, then every frame while any is connected.
     window.addEventListener('gamepadconnected', () => this.poll(), options);
+    // A pad connected before the game started (another tab, a reload) sends no new event.
+    if (typeof navigator !== 'undefined' && navigator.getGamepads?.().some(Boolean)) this.poll();
   }
   private poll() {
     if (this.polling || this.abort.signal.aborted || typeof requestAnimationFrame === 'undefined') return;
@@ -119,9 +121,15 @@ export class Controls {
     if (back || forward) {
       const all = [
         ...document.querySelectorAll<HTMLElement>('#ui button:not(:disabled), #ui a[href], #ui [data-action]'),
-      ].filter(el => el.checkVisibility?.() ?? true);
-      const at = all.indexOf(document.activeElement as HTMLElement);
-      all[at < 0 ? 0 : (at + (forward ? 1 : -1) + all.length) % all.length]?.focus();
+      ].filter(el => el.checkVisibility?.({visibilityProperty: true, opacityProperty: true}) ?? true);
+      const at = all.indexOf(document.activeElement as HTMLElement),
+        step = forward ? 1 : -1;
+      // Some buttons take no focus where they are hidden by layout; move past them.
+      for (let i = 1, from = at < 0 ? (forward ? -1 : 0) : at; i <= all.length; i++) {
+        const el = all[(((from + step * i) % all.length) + all.length) % all.length];
+        el.focus();
+        if (document.activeElement === el) break;
+      }
     }
     if (next.press && !was.press) (document.activeElement as HTMLElement | null)?.click?.();
   }

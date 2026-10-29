@@ -326,4 +326,5 @@ export const VI_4: Record<string, string> = {
   '섬 완주!': 'Hoàn thành đảo!',
   '별빛 {n} · 지도 {n}/3': 'Ánh sao {n} · Bản đồ {n}/3',
   '{n}번': 'Số {n}',
+  '공유 창에서 「이미지 저장」을 고르면 사진에 저장돼요.': 'Trong bảng chia sẻ, chọn “Lưu hình ảnh” để lưu vào Ảnh.',
 };
