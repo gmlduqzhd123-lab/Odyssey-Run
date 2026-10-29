@@ -64,6 +64,8 @@ jobs:
             run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:offline
           - suite: i18n
             run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:i18n
+          - suite: i18n-vi-zh-ru
+            run: for l in vi zh ru; do QA_LANG=$l QA_URL="http://localhost:4176$PAGES_BASE" npm run test:i18n || exit 1; done
           - suite: classroom
             run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:classroom
           - suite: loading-update
@@ -77,6 +79,12 @@ jobs:
             run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=en QA_SAVES=empty npm run test:layout
           - suite: layout-en-played
             run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=en QA_SAVES=played npm run test:layout
+          - suite: layout-vi
+            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=vi QA_SAVES=played npm run test:layout
+          - suite: layout-zh
+            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=zh QA_SAVES=played npm run test:layout
+          - suite: layout-ru
+            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=ru QA_SAVES=played npm run test:layout
     name: browser (${{ matrix.suite }})
     steps:
       - uses: actions/checkout@v4

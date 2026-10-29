@@ -8,6 +8,9 @@ import {ADVENTURE_PLANS} from '../src/levels/adventure';
 import {PEOPLE, RELICS} from '../src/assets/catalog';
 import {VARIANT_LABELS} from '../src/levels/variants';
 import {BOSSES} from '../src/levels/bosses';
+import VI from '../src/i18n/vi';
+import ZH from '../src/i18n/zh';
+import RU from '../src/i18n/ru';
 
 await loadDictionary();
 const en = (s: string) => translateTo('en', s);
@@ -18,6 +21,17 @@ test('English entries contain no Korean except the author name, and keep their p
     assert.ok(!H.test(text.replaceAll('엽쌤', '')), `${ko} → ${text}`);
     const slots = (s: string) => (s.match(/\{[xn]\}/g) ?? []).length;
     assert.equal(slots(text), slots(ko), ko);
+  }
+});
+
+test('Vietnamese, Chinese and Russian cover every English entry with the same slots in order', () => {
+  const slots = (s: string) => (s.match(/\{[xn]\}/g) ?? []).join('');
+  for (const [lang, dict] of Object.entries({vi: VI, zh: ZH, ru: RU})) {
+    assert.deepEqual(Object.keys(dict).sort(), Object.keys(EN).sort(), lang);
+    for (const [ko, text] of Object.entries(dict)) {
+      assert.equal(slots(text), slots(ko), `${lang}: ${ko} → ${text}`);
+      assert.ok(!H.test(text.replaceAll('엽쌤', '')), `${lang}: ${ko} → ${text}`);
+    }
   }
 });
 

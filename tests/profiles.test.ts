@@ -1,6 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Profiles, PROFILES_KEY, MAIN_PROFILE, profileKey, readBook, cleanName} from '../src/storage/profiles';
+import {
+  Profiles,
+  PROFILES_KEY,
+  MAIN_PROFILE,
+  profileKey,
+  readBook,
+  cleanName,
+  MAX_PROFILES,
+} from '../src/storage/profiles';
 import {SaveStore, SAVE_KEY, emptySave, mergeResult} from '../src/storage/save';
 
 class Memory {
@@ -115,4 +123,19 @@ test('the teacher progress table lists every sailor with each island and exports
   const csv = progressCsv(rows).split('\r\n');
   assert.match(csv[0], /^﻿이름,출항의 해변 · 완주,출항의 해변 · 별점/);
   assert.match(csv[2], /^민준,X,0,0,/);
+});
+test('numbered sailors fill a class at once, skip taken numbers and stop at the limit', () => {
+  const store = new Memory(),
+    p = new Profiles(store);
+  p.add('2번');
+  assert.equal(p.addNumbered(3), 3);
+  assert.deepEqual(
+    p.book.list.map(s => s.name),
+    ['첫 항해사', '2번', '1번', '3번', '4번'],
+  );
+  assert.equal(p.active.name, '2번');
+  assert.equal(p.addNumbered(100), MAX_PROFILES - 5);
+  assert.equal(p.book.list.length, MAX_PROFILES);
+  assert.equal(p.addNumbered(5), 0);
+  assert.equal(new Profiles(store).book.list.length, MAX_PROFILES);
 });

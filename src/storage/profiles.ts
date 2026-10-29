@@ -71,6 +71,20 @@ export class Profiles {
     this.save();
     return id;
   }
+  // A class of numbered sailors (1번, 2번, …, or the player's language): names already taken are
+  // skipped, the limit stops it.
+  addNumbered(count: number, label = (n: number) => `${n}번`) {
+    const names = new Set(this.book.list.map(p => p.name));
+    let made = 0;
+    for (let n = 1; made < count && this.book.list.length < MAX_PROFILES && n <= MAX_PROFILES * 2; n++) {
+      const name = cleanName(label(n));
+      if (names.has(name)) continue;
+      this.book.list.push({id: Math.random().toString(36).slice(2, 10).padEnd(6, '0'), name});
+      made++;
+    }
+    if (made && !this.save()) throw Error('저장하지 못했어요. 브라우저 저장 권한을 확인해 주세요.');
+    return made;
+  }
   rename(id: string, name: string) {
     const clean = cleanName(name),
       p = this.book.list.find(p => p.id === id);

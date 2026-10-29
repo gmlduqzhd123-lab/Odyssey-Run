@@ -1,11 +1,20 @@
-// The game is written in Korean. English mode translates text where it is shown: screen DOM text
-// and labels (via an observer) and canvas captions (callers use translate). Dictionary keys are
-// the Korean text with {x} for anything interpolated; captured parts are translated recursively.
-export type Lang = 'ko' | 'en';
+// The game is written in Korean. Other languages translate text where it is shown: screen DOM
+// text and labels (via an observer) and canvas captions (callers use translate). Dictionary keys
+// are the Korean text with {x} for anything interpolated; captured parts are translated recursively.
+export type Lang = 'ko' | 'en' | 'vi' | 'zh' | 'ru';
+// Each language names itself, so anyone can find their own in the list.
+export const LANGS: {id: Lang; name: string; html: string}[] = [
+  {id: 'ko', name: '한국어', html: 'ko'},
+  {id: 'en', name: 'English', html: 'en'},
+  {id: 'vi', name: 'Tiếng Việt', html: 'vi'},
+  {id: 'zh', name: '中文', html: 'zh-Hans'},
+  {id: 'ru', name: 'Русский', html: 'ru'},
+];
+const isLang = (v: unknown): v is Lang => LANGS.some(l => l.id === v);
 const HANGUL = /[가-힣]/;
 // Runs of spaces, including &nbsp;, compare as one space.
 const squash = (s: string) => s.replace(/\s+/g, ' ').trim();
-// The English dictionary is a separate chunk: Korean players never download it.
+// Each dictionary is a separate chunk: Korean players never download one.
 let EN: Record<string, string> = {};
 let loaded = false;
 let lang: Lang = 'ko';
@@ -14,7 +23,7 @@ const LANG_KEY = 'odyssey-run:lang';
 export function initialLang(storage: Pick<Storage, 'getItem'> | null): Lang {
   try {
     const saved = storage?.getItem(LANG_KEY);
-    if (saved === 'ko' || saved === 'en') return saved;
+    if (isLang(saved)) return saved;
   } catch {}
   // Korean unless chosen: many Korean classrooms run browsers set to English.
   return 'ko';
@@ -24,7 +33,7 @@ export function setLang(next: Lang, storage?: Pick<Storage, 'setItem'> | null) {
   try {
     storage?.setItem(LANG_KEY, next);
   } catch {}
-  if (typeof document !== 'undefined') document.documentElement.lang = next;
+  if (typeof document !== 'undefined') document.documentElement.lang = LANGS.find(l => l.id === next)!.html;
 }
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 // {x} captures any text (translated recursively); {n} captures a number such as 4,130.
@@ -46,10 +55,17 @@ const compile = () =>
         names = slots.map((_, i) => parts[i].endsWith('‘') && parts[i + 1].startsWith('’'));
       return {key: k, re: new RegExp('^' + body + '$', 's'), names};
     });
-export async function loadDictionary() {
-  if (loaded) return;
-  const {EN: source} = await import('./en');
-  EN = Object.fromEntries(Object.entries(source).map(([k, v]) => [squash(k), v]));
+const SOURCES: Record<Exclude<Lang, 'ko'>, () => Promise<Record<string, string>>> = {
+  en: () => import('./en').then(m => m.EN),
+  vi: () => import('./vi').then(m => m.default),
+  zh: () => import('./zh').then(m => m.default),
+  ru: () => import('./ru').then(m => m.default),
+};
+// Text missing from a newer language falls back to English rather than Korean.
+export async function loadDictionary(target: Lang = 'en') {
+  if (loaded || target === 'ko') return;
+  const [en, own] = await Promise.all([SOURCES.en(), target === 'en' ? null : SOURCES[target]()]);
+  EN = Object.fromEntries(Object.entries({...en, ...own}).map(([k, v]) => [squash(k), v]));
   patterns = compile();
   loaded = true;
   cache.clear();

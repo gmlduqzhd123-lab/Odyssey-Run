@@ -6,6 +6,14 @@
   font-weight: 45 930;
   font-display: swap;
 }
+/* Vietnamese and Russian letters, fetched only when they are on screen (scripts/subset-font.py). */
+@font-face {
+  font-family: 'Odyssey UI';
+  src: url('/fonts/odyssey-ui-extra.woff2') format('woff2');
+  font-weight: 45 930;
+  font-display: swap;
+  unicode-range: U+C0-D6, U+D8-F6, U+F8-24F, U+300-36F, U+400-4FF, U+1E00-1EFF;
+}
 :root {
   font-family:
     'Odyssey UI',
@@ -2115,6 +2123,27 @@ progress::-moz-progress-bar {
 .ys-chip:hover {
   background: #fff;
 }
+.lang-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+.lang-pick select {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  padding: 0 2px;
+  cursor: pointer;
+  max-width: 7.5em;
+}
+.lang-pick:focus-within {
+  outline: 3px solid #c9714c;
+  outline-offset: 2px;
+}
 footer {
   flex-wrap: wrap;
 }
@@ -2651,6 +2680,31 @@ body {
   margin-left: 0.4rem;
   max-width: 12em;
 }
+.profile-form #profile-count {
+  width: 4.5em;
+  margin-right: 0.3rem;
+}
+.numbered {
+  margin-top: 0.6rem;
+}
+.numbered summary {
+  cursor: pointer;
+  font-weight: 700;
+  padding: 0.3rem 0;
+}
+.numbered-body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.8rem;
+}
+.numbered-body small {
+  flex-basis: 100%;
+}
+.device-note {
+  display: block;
+  margin-top: 0.3rem;
+}
 .class-board ol {
   list-style: none;
   padding: 0;
@@ -3162,4 +3216,35 @@ body {
 }
 .home .eyebrow {
   color: #3e706f;
+}
+
+/* Device settings: more contrast (or Windows contrast themes) and a larger browser font. */
+#app[data-contrast] .page,
+#app[data-contrast] .panel {
+  background: #fffaf0;
+  color: #141414;
+}
+#app[data-contrast] :is(.muted, small, .eyebrow, .page-heading p) {
+  color: #1d2b2a;
+  opacity: 1;
+}
+#app[data-contrast] :is(button, .button) {
+  outline: 2px solid currentColor;
+  outline-offset: -2px;
+}
+#app[data-contrast] :is(button, .button):focus-visible {
+  outline: 4px solid #000;
+  outline-offset: 3px;
+}
+@media (forced-colors: active) {
+  :is(button, .button, .toggle i) {
+    border: 2px solid ButtonText;
+  }
+  :is(button, .button, input):focus-visible {
+    outline: 3px solid Highlight;
+  }
+}
+/* Menu pages scale with the browser's text size; the run, its HUD and the home art keep theirs. */
+#app[data-large-text] .page:not(.home) > :not(.topbar) {
+  zoom: var(--text-scale, 1);
 }

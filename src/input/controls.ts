@@ -7,7 +7,33 @@ export interface Actions {
   // Toggle mode: one press ducks until the next slide press or a jump.
   slideToggle?(): boolean;
 }
+// Accessibility switches usually send Space or Enter; Enter jumps like Space.
+const JUMP_KEYS = ['Enter', 'NumpadEnter'];
+export interface PadLike {
+  buttons: readonly {pressed: boolean}[];
+  axes: readonly number[];
+}
+// Standard gamepad layout: A or d-pad up jumps, B or d-pad down slides, Start pauses.
+export function padState(pads: readonly (PadLike | null)[]) {
+  const out = {jump: false, slide: false, pause: false, press: false, up: false, down: false};
+  for (const pad of pads) {
+    if (!pad) continue;
+    const b = (i: number) => !!pad.buttons[i]?.pressed,
+      x = pad.axes[0] ?? 0,
+      y = pad.axes[1] ?? 0;
+    out.jump ||= b(0) || b(12) || y < -0.6;
+    out.slide ||= b(1) || b(13) || y > 0.6;
+    out.pause ||= b(9);
+    out.press ||= b(0);
+    out.up ||= b(12) || b(14) || y < -0.6 || x < -0.6;
+    out.down ||= b(13) || b(15) || y > 0.6 || x > 0.6;
+  }
+  return out;
+}
+type Pad = ReturnType<typeof padState>;
 export class Controls {
+  private pad: Pad = padState([]);
+  private polling = 0;
   private keys = new Set<string>();
   private pointers = new Map<number, 'jump' | 'slide'>();
   private buttonKeys = new Map<string, 'jump' | 'slide'>();
@@ -27,16 +53,16 @@ export class Controls {
           return;
         }
         if (!actions.active()) return;
-        // Let focused semantic buttons handle Space exactly once, including Pause.
+        // Let focused semantic buttons handle Space and Enter exactly once, including Pause.
         if (
-          e.code === 'Space' &&
+          (e.code === 'Space' || JUMP_KEYS.includes(e.code)) &&
           (e.target as Element | null)?.closest?.('button,input,select,textarea,[contenteditable="true"]')
         )
           return;
-        if (['Space', 'ArrowUp', 'ArrowDown'].includes(e.code)) e.preventDefault();
+        if (['Space', 'ArrowUp', 'ArrowDown', ...JUMP_KEYS].includes(e.code)) e.preventDefault();
         if (e.repeat || this.keys.has(e.code)) return;
         this.keys.add(e.code);
-        if (e.code === 'Space' || e.code === 'ArrowUp') this.jump();
+        if (e.code === 'Space' || e.code === 'ArrowUp' || JUMP_KEYS.includes(e.code)) this.jump();
         if (e.code === 'ArrowDown') this.press();
       },
       options,
@@ -56,6 +82,48 @@ export class Controls {
     };
     window.addEventListener('pointerup', up, options);
     window.addEventListener('pointercancel', up, options);
+    // Gamepads are read only after one connects, then every frame while any is connected.
+    window.addEventListener('gamepadconnected', () => this.poll(), options);
+  }
+  private poll() {
+    if (this.polling || this.abort.signal.aborted || typeof requestAnimationFrame === 'undefined') return;
+    const step = () => {
+      const pads = navigator.getGamepads?.() ?? [];
+      if (this.abort.signal.aborted || !pads.some(Boolean)) {
+        this.polling = 0;
+        this.padInput(padState([]));
+        return;
+      }
+      this.padInput(padState(pads));
+      this.polling = requestAnimationFrame(step);
+    };
+    this.polling = requestAnimationFrame(step);
+  }
+  // Applies a gamepad reading; only changes since the last reading act, like key presses.
+  padInput(next: Pad) {
+    const was = this.pad,
+      a = this.actions;
+    this.pad = next;
+    if (next.pause && !was.pause && (a.pauseActive?.() ?? a.active())) a.pause();
+    if (a.active()) {
+      if (next.jump && !was.jump) this.jump();
+      if (next.slide && !was.slide) this.press();
+      else if (!next.slide && was.slide) this.syncSlide();
+      return;
+    }
+    if (was.slide && !next.slide) this.syncSlide();
+    // Menus: the d-pad moves between buttons and A presses the one in focus.
+    if (typeof document === 'undefined') return;
+    const back = next.up && !was.up,
+      forward = next.down && !was.down;
+    if (back || forward) {
+      const all = [
+        ...document.querySelectorAll<HTMLElement>('#ui button:not(:disabled), #ui a[href], #ui [data-action]'),
+      ].filter(el => el.checkVisibility?.() ?? true);
+      const at = all.indexOf(document.activeElement as HTMLElement);
+      all[at < 0 ? 0 : (at + (forward ? 1 : -1) + all.length) % all.length]?.focus();
+    }
+    if (next.press && !was.press) (document.activeElement as HTMLElement | null)?.click?.();
   }
   bind(root: HTMLElement) {
     this.buttonAbort.abort();
@@ -117,7 +185,8 @@ export class Controls {
     this.actions.slide(
       this.keys.has('ArrowDown') ||
         [...this.pointers.values()].includes('slide') ||
-        [...this.buttonKeys.values()].includes('slide'),
+        [...this.buttonKeys.values()].includes('slide') ||
+        this.pad.slide,
     );
   }
   clear() {
@@ -131,5 +200,6 @@ export class Controls {
   destroy() {
     this.clear();
     this.abort.abort();
+    if (this.polling) cancelAnimationFrame(this.polling);
   }
 }
