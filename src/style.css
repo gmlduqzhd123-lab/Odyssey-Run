@@ -3118,12 +3118,28 @@ body {
 }
 /* Short landscape phones: the run chips move from under the score to the strip between the two
    thumb buttons, so the sky ahead of the hero (where hazards appear) stays clear. */
+/* Both chip rows share one column there, so a row that wraps (longer languages) pushes the
+   other up instead of covering it. Elsewhere the wrapper has no box of its own. */
+.run-chips {
+  display: contents;
+}
 @media (orientation: landscape) and (max-height: 420px) {
+  #app[data-portrait='false'] .play-ui .run-chips {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    position: absolute;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    left: calc(max(12px, env(safe-area-inset-left)) + var(--control-size, 80px) + 12px);
+    right: calc(max(12px, env(safe-area-inset-right)) + var(--control-size, 80px) + 12px);
+    pointer-events: none;
+  }
+  #app[data-portrait='false'] .play-ui .run-chips > * {
+    position: static;
+    max-width: 100%;
+  }
   #app[data-portrait='false'] .play-ui .run-details {
-    top: auto;
-    bottom: calc(max(8px, env(safe-area-inset-bottom)) + 26px);
-    left: 50%;
-    transform: translateX(-50%);
     padding: 1px 8px;
     font-size: 10px;
     line-height: 1.5;
@@ -3131,11 +3147,8 @@ body {
     white-space: nowrap;
   }
   #app[data-portrait='false'] .play-ui .adventure-hud {
-    top: auto;
-    bottom: max(8px, env(safe-area-inset-bottom));
-    left: calc(max(12px, env(safe-area-inset-left)) + var(--control-size, 80px) + 12px);
-    right: calc(max(12px, env(safe-area-inset-right)) + var(--control-size, 80px) + 12px);
     justify-content: center;
+    flex-wrap: wrap;
     gap: 6px;
     font-size: 10px;
     line-height: 1.5;
