@@ -14,6 +14,9 @@ import {CROUCH_ART, MONSTER_ART} from '../assets/expansion-art';
 import {ENEMY_TYPES} from '../levels/enemies';
 import {heroPose, itemPose, enemyPose, obstaclePose} from '../rendering/poses';
 import {HOME_FILES, GAME_FILES, backgroundFiles} from '../assets/loading';
+// Phaser measures text with '|MÉqgy'; without the É the accented-letter font file is not
+// fetched for Korean and English players.
+const TEST_STRING = '|Mqgy';
 export interface SceneHost {
   frame(delta: number): void;
   loaded(): void;
@@ -67,6 +70,7 @@ export class World extends Phaser.Scene {
     const t = this.add
       .text(this.view.width / 2, 250, '항해를 준비하고 있어요…', {
         fontFamily: "'Odyssey UI', sans-serif",
+        testString: TEST_STRING,
         fontSize: '22px',
         color: '#f6e8c5',
         resolution: this.host.density(),
@@ -121,6 +125,7 @@ export class World extends Phaser.Scene {
     this.label = this.add
       .text(480, 275, '', {
         fontFamily: "'Odyssey UI', sans-serif",
+        testString: TEST_STRING,
         fontSize: '22px',
         color: '#fff2d2',
         stroke: '#223e4b',
@@ -132,6 +137,7 @@ export class World extends Phaser.Scene {
     this.warning = this.add
       .text(590, 260, '', {
         fontFamily: "'Odyssey UI', sans-serif",
+        testString: TEST_STRING,
         fontSize: '17px',
         color: '#f8e8bd',
         stroke: '#20394b',
@@ -344,6 +350,7 @@ export class World extends Phaser.Scene {
         ),
         {
           fontFamily: "'Odyssey UI', sans-serif",
+          testString: TEST_STRING,
           fontStyle: 'bold',
           fontSize: '18px',
           color: kind === 'hurt' ? '#ffb8a3' : '#ffebae',
