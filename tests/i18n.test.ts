@@ -70,3 +70,18 @@ test('patterns translate interpolated text, numbers and names, and Korean mode i
   assert.equal(translateTo('ko', '최고 4,130'), '최고 4,130');
   assert.equal(en('Plain English'), 'Plain English');
 });
+
+test('the chosen language keeps its own dictionary (and letters) for offline use', async () => {
+  const {languageFiles} = await import('../src/systems/lang-cache');
+  const font = 'https://x/Odyssey-Run/fonts/odyssey-ui-extra.woff2',
+    loaded = [
+      'https://x/Odyssey-Run/assets/index-a1.js',
+      'https://x/Odyssey-Run/assets/en-b2.js',
+      'https://x/Odyssey-Run/assets/vi-c3.js',
+      'https://x/Odyssey-Run/assets/zh-d4.js',
+    ];
+  assert.deepEqual(languageFiles('ko', loaded, font), []);
+  assert.deepEqual(languageFiles('en', loaded, font), []);
+  assert.deepEqual(languageFiles('vi', loaded, font), ['https://x/Odyssey-Run/assets/vi-c3.js', font]);
+  assert.deepEqual(languageFiles('zh', loaded, font), ['https://x/Odyssey-Run/assets/zh-d4.js']);
+});

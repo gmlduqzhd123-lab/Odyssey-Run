@@ -3,6 +3,8 @@ const VERSION = '__BUILD_VERSION__',
   ROOT = new URL('./', self.location.href).href,
   PREFIX = 'odyssey-run-v:' + new URL(ROOT).pathname + ':';
 const CORE = PREFIX + VERSION + '-core';
+// The chosen language's dictionary, kept by the page (src/systems/lang-cache.ts).
+const LANG = 'odyssey-run-lang:' + new URL(ROOT).pathname;
 // Must match STAGES in src/levels/courses.ts (checked by tests).
 const STAGES = ['beach', 'cave', 'wind', 'sea'];
 let manifest;
@@ -122,7 +124,7 @@ self.addEventListener('activate', e =>
   ),
 );
 async function cached(path) {
-  for (const n of [CORE, cacheName('shared'), ...STAGES.map(cacheName)]) {
+  for (const n of [CORE, cacheName('shared'), ...STAGES.map(cacheName), LANG]) {
     const hit = await (await caches.open(n)).match(path);
     if (hit) return hit;
   }

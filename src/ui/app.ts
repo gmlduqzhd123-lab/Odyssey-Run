@@ -70,6 +70,7 @@ import {Sound} from '../systems/audio';
 import {vibrate} from '../systems/haptics';
 import {deviceReducedMotion, followDevice} from '../systems/device-prefs';
 import {resultCard} from './result-card';
+import {keepLanguage} from '../systems/lang-cache';
 import {classPreviewMarkup, importPreviewMarkup, settingToggle, settingsMarkup} from './settings-view';
 import {progressCsv, progressMarkup} from './progress-view';
 import {BoardScanner, boardMarkup, contestCsv, contestsMarkup} from './contest-view';
@@ -146,6 +147,7 @@ export class App {
     observe(...roots);
     document.title = translate(document.title);
     followDevice(document.querySelector('#app')!, this.abort.signal);
+    void keepLanguage(getLang());
     this.pendingLink = this.takeLink();
     void protection().then(p => (this.protectionState = p));
     // A link opened in a tab that already runs the game only changes the fragment.
@@ -624,7 +626,20 @@ export class App {
         complete: r.complete,
         name: this.ui.querySelector<HTMLInputElement>('#card-name')?.checked ? this.profiles.active.name : '',
       });
-      this.download(blob, `odyssey-run-${r.stage}-${r.score}.png`, 'image/png');
+      const name = `odyssey-run-${r.stage}-${r.score}.png`,
+        file = new File([blob], name, {type: 'image/png'});
+      // Phones (iPhone Safari above all) save a picture to the photo library only through the
+      // share sheet; a download there opens the picture in a tab instead.
+      if (matchMedia('(pointer: coarse)').matches && navigator.canShare?.({files: [file]})) {
+        status.textContent = '공유 창에서 「이미지 저장」을 고르면 사진에 저장돼요.';
+        try {
+          await navigator.share({files: [file], title: '오디세이 런 기록'});
+          return;
+        } catch (e) {
+          if ((e as Error).name === 'AbortError') return;
+        }
+      }
+      this.download(blob, name, 'image/png');
       status.textContent = '그림을 저장했어요. 학급 게시판이나 메시지에 올릴 수 있어요.';
     } catch {
       status.textContent = '그림을 만들지 못했어요. 화면을 캡처해 주세요.';

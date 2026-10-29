@@ -24,7 +24,10 @@
     "format:check": "prettier --check src tests scripts public/sw.js vite.config.ts",
     "test:i18n": "tsx scripts/i18n-qa.ts",
     "test:classroom": "tsx scripts/classroom-qa.ts",
-    "test:layout": "tsx scripts/layout-qa.ts"
+    "test:layout": "tsx scripts/layout-qa.ts",
+    "test:access": "tsx scripts/access-qa.ts",
+    "translations:export": "tsx scripts/translations.ts export",
+    "translations:import": "tsx scripts/translations.ts import"
   },
   "dependencies": {
     "jsqr": "1.4.0",
