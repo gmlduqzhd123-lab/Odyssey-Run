@@ -1,7 +1,7 @@
 import {chromium, type Page} from '@playwright/test';
 import {existsSync} from 'node:fs';
 // Finds text that is cut off by a clipping box or drawn over other text, on every menu screen,
-// at the viewport sizes classrooms use, in Korean and English, with an empty and a played save.
+// at the viewport sizes classrooms use, in each language, with an empty and a played save.
 const url = process.env.QA_URL || 'http://localhost:4176/Odyssey-Run/',
   base = new URL(url).pathname,
   SAVE = `odyssey-run:${base}:save`,
@@ -172,6 +172,12 @@ try {
           },
           [lang, SAVE, played ? (await import('node:fs')).readFileSync(legacy, 'utf8') : ''],
         );
+        // QA_ROOT_FONT=20 imitates a browser set to larger text (menus then scale up).
+        if (process.env.QA_ROOT_FONT)
+          await ctx.addInitScript(
+            px => (document.documentElement.style.fontSize = px + 'px'),
+            process.env.QA_ROOT_FONT,
+          );
         const p = await ctx.newPage();
         p.on('pageerror', e => errors.push(`${lang} ${v.name}: ${e.message}`));
         for (const [screen, steps, sizes] of SCREENS) {

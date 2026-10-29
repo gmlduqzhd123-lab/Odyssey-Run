@@ -133,7 +133,8 @@ self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET' || !u.href.startsWith(ROOT)) return;
   e.respondWith(
     (async () => {
-      if (e.request.mode === 'navigate') {
+      // The game page answers its own address; other pages (the school setup guide) are files.
+      if (e.request.mode === 'navigate' && (u.href.split(/[?#]/)[0] === ROOT || u.href.startsWith(key('index.html')))) {
         const page = await (await caches.open(CORE)).match(key('index.html'));
         if (page) return page;
       }

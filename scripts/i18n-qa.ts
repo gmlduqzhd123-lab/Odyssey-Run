@@ -1,10 +1,11 @@
 import {chromium, expect, type Page} from '@playwright/test';
 import {existsSync} from 'node:fs';
 import {writeFile} from 'node:fs/promises';
-// Visits every screen in English and fails if visible Korean text or labels remain.
-// Sailor names and the author's name may stay in Hangul.
+// Visits every screen in one language (QA_LANG: en, vi, zh or ru; English by default) and fails
+// if visible Korean text or labels remain. Sailor names and the author's name may stay in Hangul.
 const url = process.env.QA_URL || 'http://localhost:4176/Odyssey-Run/',
-  allowed = [/^엽쌤/, /엽쌤/, /^첫 항해사$/, /^한국어$/, /^지우$/];
+  lang = process.env.QA_LANG || 'en',
+  allowed = [/^엽쌤/, /엽쌤/, /^첫 항해사$/, /^한국어$/, /^지우$/, /^\d+번$/];
 const b = await chromium.launch({
   executablePath: process.env.QA_CHROMIUM_PATH || (existsSync('/usr/bin/chromium') ? '/usr/bin/chromium' : undefined),
   args: ['--no-sandbox'],
@@ -42,8 +43,8 @@ async function scan(p: Page, screen: string) {
   }
 }
 try {
-  const c = await b.newContext({viewport: {width: 1280, height: 800}, serviceWorkers: 'block'});
-  await c.addInitScript(() => localStorage.setItem('odyssey-run:lang', 'en'));
+  const c = await b.newContext({viewport: {width: 1280, height: 800}, serviceWorkers: 'block', acceptDownloads: true});
+  await c.addInitScript(l => localStorage.setItem('odyssey-run:lang', l), lang);
   const p = await c.newPage();
   p.on('pageerror', e => errors.push(e.message));
   const toHome = async () => {
@@ -56,7 +57,8 @@ try {
   };
   await p.goto(url);
   await p.waitForSelector('.home');
-  await expect(p.locator('h1')).toContainText('Odyssey Run');
+  await expect(p.locator('h1')).not.toContainText('오디세이');
+  await expect(p.locator('html')).toHaveAttribute('lang', lang === 'zh' ? 'zh-Hans' : lang);
   await scan(p, 'home');
   await go('settings');
   await p.locator('#import-file').setInputFiles('artifacts/legacy-v1-save.json');
@@ -134,6 +136,11 @@ try {
   await p.waitForSelector('.result', {timeout: 120000});
   await scan(p, 'result');
   await go('share');
+  await p.locator('#card-name').check({force: true});
+  const [card] = await Promise.all([p.waitForEvent('download'), go('share-image', 'share-image')]);
+  if (!card.suggestedFilename().endsWith('.png')) errors.push('result card is not a PNG');
+  await expect(p.locator('#share-status')).not.toBeEmpty();
+  await scan(p, 'share-image');
   const rival = await p.locator('#share-url').inputValue();
   await p.goto(rival);
   await p.waitForSelector('.rival-panel');
@@ -152,6 +159,9 @@ try {
   await p.fill('#profile-name', 'Kim');
   await go('profile-add', 'profile-added');
   await go('profile-use:main', 'profile-used');
+  await p.locator('.numbered summary').click();
+  await p.fill('#profile-count', '3');
+  await go('profile-numbered', 'profile-numbered');
   await p.locator('[data-action^="profile-delete:"]').first().click();
   await scan(p, 'profile-delete');
   await go('profiles');
@@ -165,11 +175,11 @@ try {
   }
   const report = [...found].map(([text, screens]) => ({text, screens: [...screens]}));
   await writeFile(
-    'artifacts/i18n-results.json',
+    `artifacts/i18n-results${lang === 'en' ? '' : '-' + lang}.json`,
     JSON.stringify({checkedAt: new Date().toISOString(), report, errors}, null, 2),
   );
   for (const r of report) console.log(`${r.screens.join(',')}\t${r.text}`);
-  console.log(`i18n: ${report.length} untranslated, ${errors.length} page errors`);
+  console.log(`i18n ${lang}: ${report.length} untranslated, ${errors.length} page errors`);
   if (report.length || errors.length) process.exitCode = 1;
 } finally {
   await b.close();

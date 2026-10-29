@@ -1,5 +1,5 @@
 import {Offline} from '../systems/offline';
-import {getLang, initialLang, observe, setLang, translate, translateTree} from '../i18n';
+import {getLang, initialLang, LANGS, observe, setLang, translate, translateTree, type Lang} from '../i18n';
 import {dailySpec, dailyPassed, type DailySpec} from '../levels/daily';
 import {COSMETICS, cosmeticUnlocked} from '../systems/cosmetics';
 import {BOSSES, BOSS_COURSES} from '../levels/bosses';
@@ -50,7 +50,7 @@ import Phaser from 'phaser';
 import {C} from '../config';
 import {COURSES, STAGES, MAP_STORIES, type StageId} from '../levels/courses';
 import {Runner} from '../player/runner';
-import {Profiles, profileKey, readBook, PROFILES_KEY, MAX_NAME, MAIN_PROFILE} from '../storage/profiles';
+import {Profiles, profileKey, readBook, PROFILES_KEY, MAX_NAME, MAX_PROFILES, MAIN_PROFILE} from '../storage/profiles';
 import {
   SaveStore,
   mergeResult,
@@ -68,6 +68,8 @@ import {isVariant, type VariantId} from '../levels/course-ids';
 import {Controls} from '../input/controls';
 import {Sound} from '../systems/audio';
 import {vibrate} from '../systems/haptics';
+import {deviceReducedMotion, followDevice} from '../systems/device-prefs';
+import {resultCard} from './result-card';
 import {classPreviewMarkup, importPreviewMarkup, settingToggle, settingsMarkup} from './settings-view';
 import {progressCsv, progressMarkup} from './progress-view';
 import {BoardScanner, boardMarkup, contestCsv, contestsMarkup} from './contest-view';
@@ -143,6 +145,7 @@ export class App {
     roots.forEach(translateTree);
     observe(...roots);
     document.title = translate(document.title);
+    followDevice(document.querySelector('#app')!, this.abort.signal);
     this.pendingLink = this.takeLink();
     void protection().then(p => (this.protectionState = p));
     // A link opened in a tab that already runs the game only changes the fragment.
@@ -183,7 +186,7 @@ export class App {
       frame: d => this.frame(d),
       loaded: () => this.openPendingLink(),
       loadError: () => this.error(),
-      reduced: () => this.store.data.settings.reducedMotion,
+      reduced: () => this.store.data.settings.reducedMotion || deviceReducedMotion(),
       density: () => this.renderDensity,
       view: () => this.view,
       cosmetics: () => this.store.data.preferences,
@@ -350,7 +353,7 @@ export class App {
       .catch(() => {});
   }
   private header(label: string, back = 'home') {
-    return `<header class="topbar">${button(back, '← <span>돌아가기</span>', 'text-button')}<span class="brand">${icon('compass')} ${label}</span><span class="edition">ODYSSEY RUN / VOL. 01</span><span class="ys-key">${button('lang', getLang() === 'en' ? '한국어' : 'EN', 'ys-chip', `translate="no" aria-label="${getLang() === 'en' ? '한국어로 보기' : 'View in English'}"`)}${button('profiles', `👤 <span class="ys-wide">${esc(this.profiles.active.name)}</span>`, 'ys-chip', `aria-label="항해사 ${esc(this.profiles.active.name)}, 바꾸기"`)}${button('fullscreen', '⛶ <span class="ys-wide">전체 화면</span>', 'ys-chip', 'aria-label="전체 화면 전환"')}<button type="button" class="ys-chip" data-ys-install>📲 <span class="ys-wide">앱 </span>설치</button><button type="button" class="ys-chip" data-qr aria-label="QR 코드로 접속">📱 QR</button></span></header>`;
+    return `<header class="topbar">${button(back, '← <span>돌아가기</span>', 'text-button')}<span class="brand">${icon('compass')} ${label}</span><span class="edition">ODYSSEY RUN / VOL. 01</span><span class="ys-key"><label class="ys-chip lang-pick" translate="no"><span aria-hidden="true">🌐</span><select data-lang aria-label="Language · 언어">${LANGS.map(l => `<option value="${l.id}" lang="${l.html}" ${l.id === getLang() ? 'selected' : ''}>${l.name}</option>`).join('')}</select></label>${button('profiles', `👤 <span class="ys-wide">${esc(this.profiles.active.name)}</span>`, 'ys-chip', `aria-label="항해사 ${esc(this.profiles.active.name)}, 바꾸기"`)}${button('fullscreen', '⛶ <span class="ys-wide">전체 화면</span>', 'ys-chip', 'aria-label="전체 화면 전환"')}<button type="button" class="ys-chip" data-ys-install>📲 <span class="ys-wide">앱 </span>설치</button><button type="button" class="ys-chip" data-qr aria-label="QR 코드로 접속">📱 QR</button></span></header>`;
   }
   // Shared records arrive in the URL fragment; read once and drop it so a reload does not repeat it.
   private takeLink() {
@@ -601,9 +604,31 @@ export class App {
       location.href,
     );
     this.set(
-      `<div class="veil"><section class="panel share-panel"><span class="eyebrow">SHARE YOUR VOYAGE</span><h1 tabindex="-1">친구에게 기록 보내기</h1><p>${this.courseName(r.stage, r.variant ?? 'classic')} · ${r.score.toLocaleString()}점 · ${esc(this.profiles.active.name)}</p><div class="qr-box" role="img" aria-label="기록 링크 QR 코드">${qrSvg(url)}</div><p class="muted">친구가 휴대폰 카메라로 찍거나 링크를 열면 이 기록과 겨룰 수 있어요. 서버로 보내지 않고 링크 안에만 담겨요.</p><label class="share-url">링크 <input id="share-url" readonly value="${esc(url)}"></label><div class="button-row">${button('share-copy', '링크 복사', 'secondary')}${'share' in navigator ? button('share-native', '휴대폰으로 공유', 'secondary') : ''}</div><p role="status" id="share-status"></p><div class="button-row">${button('restart', '재도전', 'primary')}${button('islands', '섬 선택', 'secondary')}</div></section></div>`,
+      `<div class="veil"><section class="panel share-panel"><span class="eyebrow">SHARE YOUR VOYAGE</span><h1 tabindex="-1">친구에게 기록 보내기</h1><p>${this.courseName(r.stage, r.variant ?? 'classic')} · ${r.score.toLocaleString()}점 · ${esc(this.profiles.active.name)}</p><div class="qr-box" role="img" aria-label="기록 링크 QR 코드">${qrSvg(url)}</div><p class="muted">친구가 휴대폰 카메라로 찍거나 링크를 열면 이 기록과 겨룰 수 있어요. 서버로 보내지 않고 링크 안에만 담겨요.</p><label class="share-url">링크 <input id="share-url" readonly value="${esc(url)}"></label><div class="button-row">${button('share-copy', '링크 복사', 'secondary')}${'share' in navigator ? button('share-native', '휴대폰으로 공유', 'secondary') : ''}${button('share-image', '🖼 그림으로 저장', 'secondary')}</div><label class="toggle card-name"><span>그림에 내 이름 넣기</span><input type="checkbox" id="card-name"><i aria-hidden="true"></i></label><p role="status" id="share-status"></p><div class="button-row">${button('restart', '재도전', 'primary')}${button('islands', '섬 선택', 'secondary')}</div></section></div>`,
       'share',
     );
+  }
+  private async shareImage() {
+    const r = this.result,
+      status = this.ui.querySelector('#share-status');
+    if (!r || !status) return;
+    status.textContent = '그림을 만들고 있어요…';
+    try {
+      const blob = await resultCard({
+        view: STAGE_VIEW[r.stage],
+        course: this.courseName(r.stage, r.variant ?? 'classic'),
+        score: r.score,
+        rating: r.rating,
+        stars: r.stars,
+        maps: r.maps.length,
+        complete: r.complete,
+        name: this.ui.querySelector<HTMLInputElement>('#card-name')?.checked ? this.profiles.active.name : '',
+      });
+      this.download(blob, `odyssey-run-${r.stage}-${r.score}.png`, 'image/png');
+      status.textContent = '그림을 저장했어요. 학급 게시판이나 메시지에 올릴 수 있어요.';
+    } catch {
+      status.textContent = '그림을 만들지 못했어요. 화면을 캡처해 주세요.';
+    }
   }
   private async shareAction(kind: 'copy' | 'native') {
     const url = this.ui.querySelector<HTMLInputElement>('#share-url')?.value,
@@ -764,7 +789,7 @@ export class App {
     ].filter(Boolean);
   }
   private hud() {
-    return `<div class="play-ui" tabindex="-1" role="group" aria-label="게임 조작" data-one-button="${this.assist().autoSlide}"><div class="hud"><div class="hp-block"><span class="hud-caption">오디세우스</span><strong id="hp" role="img" aria-label="체력 3"></strong></div><div class="route-progress"><span>${this.special === 'boss' ? BOSSES[this.selected].name : this.special === 'daily' ? '오늘의 항해 · ' + this.daily!.name : this.special === 'contest' ? '대회 · ' + esc(this.contest!.title) : this.special === 'endless' ? '끝없는 항해 · ' + COURSES[this.selected].name : COURSES[this.selected].name + ' · ' + VARIANT_LABELS[this.selected][this.selectedVariant].name}</span><progress id="progress" data-course="${this.selected}/${this.selectedVariant}" max="24000" value="0" aria-label="섬 진행률"></progress><i id="ghost-marker" hidden aria-label="비교 항해 위치"></i><small id="progress-label">0%</small></div><div class="score-block"><span class="hud-caption">SCORE</span><strong id="score">0</strong></div><div class="hud-actions">${button('fullscreen', '⛶', 'fullscreen-button', 'aria-label="전체 화면 전환"')}${button('pause', 'Ⅱ', 'pause-button', 'aria-label="일시정지"')}</div></div><div class="run-details"><span id="stars">✦ 0 / 100</span><span id="maps">지도 0 / 3</span><span id="effects"></span>${this.assistLabel().length ? `<span class="assist-chip">쉬운 항해 · ${this.assistLabel().join(' · ')}</span>` : ''}</div><div class="adventure-hud"><span id="goal-progress"></span><span id="ghost-delta"></span><span id="discovery-progress"></span></div><div class="touch-controls"><button data-control="slide" class="control slide" aria-label="슬라이드, 누르고 유지"><span>⇣</span><b>슬라이드</b><small>↓ 누르기</small></button><button data-control="jump" class="control jump" aria-label="점프, 공중에서 다시 누르면 2단 점프"><span>↟</span><b>점프</b><small>Space / ↑</small></button></div></div>`;
+    return `<div class="play-ui" tabindex="-1" role="group" aria-label="게임 조작" data-one-button="${this.assist().autoSlide}"><div class="hud"><div class="hp-block"><span class="hud-caption">오디세우스</span><strong id="hp" role="img" aria-label="체력 3"></strong></div><div class="route-progress"><span>${this.special === 'boss' ? BOSSES[this.selected].name : this.special === 'daily' ? '오늘의 항해 · ' + this.daily!.name : this.special === 'contest' ? '대회 · ' + esc(this.contest!.title) : this.special === 'endless' ? '끝없는 항해 · ' + COURSES[this.selected].name : COURSES[this.selected].name + ' · ' + VARIANT_LABELS[this.selected][this.selectedVariant].name}</span><progress id="progress" data-course="${this.selected}/${this.selectedVariant}" max="24000" value="0" aria-label="섬 진행률"></progress><i id="ghost-marker" hidden aria-label="비교 항해 위치"></i><small id="progress-label">0%</small></div><div class="score-block"><span class="hud-caption">SCORE</span><strong id="score">0</strong></div><div class="hud-actions">${button('fullscreen', '⛶', 'fullscreen-button', 'aria-label="전체 화면 전환"')}${button('pause', 'Ⅱ', 'pause-button', 'aria-label="일시정지"')}</div></div><div class="run-chips"><div class="run-details"><span id="stars">✦ 0 / 100</span><span id="maps">지도 0 / 3</span><span id="effects"></span>${this.assistLabel().length ? `<span class="assist-chip">쉬운 항해 · ${this.assistLabel().join(' · ')}</span>` : ''}</div><div class="adventure-hud"><span id="goal-progress"></span><span id="ghost-delta"></span><span id="discovery-progress"></span></div></div><div class="touch-controls"><button data-control="slide" class="control slide" aria-label="슬라이드, 누르고 유지"><span>⇣</span><b>슬라이드</b><small>↓ 누르기</small></button><button data-control="jump" class="control jump" aria-label="점프, 공중에서 다시 누르면 2단 점프"><span>↟</span><b>점프</b><small>Space / ↑</small></button></div></div>`;
   }
   private beginCountdown() {
     this.countdown = 3;
@@ -1021,7 +1046,7 @@ export class App {
     const board = this.profiles.board(),
       active = this.profiles.active.id;
     this.set(
-      `<div class="page profiles">${this.header('항해사')}<div class="page-heading"><span class="eyebrow">ONE DEVICE, MANY SAILORS</span><h1 tabindex="-1">누가 항해할까요?</h1><p>항해사마다 기록·설정·옷장을 따로 저장해요. 이 기기 안에서만 보여요.</p></div><section class="profile-form"><label>항해사 이름 <input id="profile-name" maxlength="${MAX_NAME}" autocomplete="off" placeholder="예: 지우"></label><div class="button-row">${button('profile-add', '새 항해사로 시작', 'primary')}${button('profile-rename', '지금 항해사 이름 바꾸기', 'secondary')}</div><p role="status" id="profile-message">${esc(message)}</p></section><section class="class-board"><h2>우리 반 항해 순위 <small>이 기기에 저장된 기록</small></h2><ol>${board.map((p, i) => `<li class="${p.id === active ? 'active' : ''}"><span class="rank">${i + 1}</span><b translate="no">${esc(p.name)}</b><span>${p.total.toLocaleString()}점</span><span>완주 ${p.islands}/${STAGES.length}</span><span>지도 ${p.maps}</span><span>퀴즈 ${p.quiz}</span>${p.id === active ? '<em>✓ 항해 중</em>' : button('profile-use:' + p.id, '이 항해사로', 'secondary')}${p.id === active || p.id === MAIN_PROFILE ? '' : button('profile-delete:' + p.id, '지우기', 'text-button danger', `aria-label="${esc(p.name)} 지우기"`)}</li>`).join('')}</ol><small>점수는 섬별 최고 점수의 합이에요. 온라인으로 보내지 않아요.</small>${button('progress', '📋 학생별 진행 현황', 'secondary')}</section></div>`,
+      `<div class="page profiles">${this.header('항해사')}<div class="page-heading"><span class="eyebrow">ONE DEVICE, MANY SAILORS</span><h1 tabindex="-1">누가 항해할까요?</h1><p>항해사마다 기록·설정·옷장을 따로 저장해요. 이 기기 안에서만 보여요.</p></div><section class="profile-form"><label>항해사 이름 <input id="profile-name" maxlength="${MAX_NAME}" autocomplete="off" placeholder="예: 지우"></label><div class="button-row">${button('profile-add', '새 항해사로 시작', 'primary')}${button('profile-rename', '지금 항해사 이름 바꾸기', 'secondary')}</div><details class="numbered"><summary>번호로 한 번에 만들기</summary><div class="numbered-body"><label>만들 항해사 수 <input id="profile-count" type="number" inputmode="numeric" min="1" max="${MAX_PROFILES}" value="${Math.min(30, MAX_PROFILES - this.profiles.book.list.length) || 1}"></label>${button('profile-numbered', '만들기', 'secondary')}<small>1번, 2번…처럼 번호 이름을 만들어요. 학생은 자기 번호를 골라 시작해요. 최대 ${MAX_PROFILES}명.</small></div></details><p role="status" id="profile-message">${esc(message)}</p></section><section class="class-board"><h2>우리 반 항해 순위 <small>이 기기에 저장된 기록</small></h2><ol>${board.map((p, i) => `<li class="${p.id === active ? 'active' : ''}"><span class="rank">${i + 1}</span><b translate="no">${esc(p.name)}</b><span>${p.total.toLocaleString()}점</span><span>완주 ${p.islands}/${STAGES.length}</span><span>지도 ${p.maps}</span><span>퀴즈 ${p.quiz}</span>${p.id === active ? '<em>✓ 항해 중</em>' : button('profile-use:' + p.id, '이 항해사로', 'secondary')}${p.id === active || p.id === MAIN_PROFILE ? '' : button('profile-delete:' + p.id, '지우기', 'text-button danger', `aria-label="‘${esc(p.name)}’ 지우기"`)}</li>`).join('')}</ol><small>점수는 섬별 최고 점수의 합이에요. 온라인으로 보내지 않아요.</small>${button('progress', '📋 학생별 진행 현황', 'secondary')}</section></div>`,
       'profiles',
     );
   }
@@ -1046,6 +1071,14 @@ export class App {
       if (kind === 'add') {
         const created = this.profiles.add(name);
         this.switchProfile(created, `새 항해사 ‘${this.profiles.active.name}’의 기록을 시작해요.`);
+      } else if (kind === 'numbered') {
+        const want = Number(this.ui.querySelector<HTMLInputElement>('#profile-count')?.value) || 0,
+          made = this.profiles.addNumbered(Math.max(0, Math.min(MAX_PROFILES, Math.floor(want))), n =>
+            translate(`${n}번`),
+          );
+        this.profilesPage(
+          made ? `번호 항해사 ${made}명을 만들었어요.` : `더 만들 수 없어요. 항해사는 ${MAX_PROFILES}명까지예요.`,
+        );
       } else if (kind === 'rename') {
         this.profiles.rename(this.profiles.active.id, name);
         this.profilesPage('이름을 바꿨어요.');
@@ -1057,7 +1090,7 @@ export class App {
         if (!p || id === MAIN_PROFILE || id === this.profiles.active.id) return;
         this.pendingDelete = id;
         this.set(
-          `<div class="veil"><section class="panel"><h1 tabindex="-1">${esc(p.name)} 항해사를 지울까요?</h1><p>이 항해사의 기록·설정·백업을 이 기기에서 지워요. 되돌릴 수 없어요.</p><div class="button-row">${button('profiles', '취소', 'secondary')}${button('profile-delete-confirm', '지우기', 'danger-button')}</div></section></div>`,
+          `<div class="veil"><section class="panel"><h1 tabindex="-1">‘${esc(p.name)}’ 항해사를 지울까요?</h1><p>이 항해사의 기록·설정·백업을 이 기기에서 지워요. 되돌릴 수 없어요.</p><div class="button-row">${button('profiles', '취소', 'secondary')}${button('profile-delete-confirm', '지우기', 'danger-button')}</div></section></div>`,
           'profile-delete',
         );
       } else if (kind === 'delete-confirm' && this.screen === 'profile-delete' && this.pendingDelete) {
@@ -1159,6 +1192,7 @@ export class App {
         canAskProtection: this.protectionState === 'best-effort',
         spare: spareCopies(this.storage).length,
         backedUpToday: backupAge(this.storage) === 0,
+        deviceMotion: deviceReducedMotion(),
       }),
       'settings',
     );
@@ -1242,7 +1276,7 @@ export class App {
       'offline',
     );
   }
-  private download(data: string, filename: string, type = 'application/json;charset=utf-8') {
+  private download(data: string | Blob, filename: string, type = 'application/json;charset=utf-8') {
     const url = URL.createObjectURL(new Blob([data], {type}));
     const a = document.createElement('a');
     a.href = url;
@@ -1258,6 +1292,12 @@ export class App {
   }
   private async change(e: Event) {
     const input = e.target as HTMLInputElement;
+    if (input.matches('[data-lang]')) {
+      if (['play', 'countdown', 'pause'].includes(this.screen) || !LANGS.some(l => l.id === input.value)) return;
+      setLang(input.value as Lang, this.storage);
+      location.reload();
+      return;
+    }
     if (input.id === 'quality') {
       this.store.data.preferences.quality = input.value as Quality;
       this.store.persist();
@@ -1408,6 +1448,7 @@ export class App {
     share: () => this.screen === 'result' && this.sharePage(),
     'share-copy': () => void this.shareAction('copy'),
     'share-native': () => void this.shareAction('native'),
+    'share-image': () => this.screen === 'share' && void this.shareImage(),
     'rival-start': () => this.screen === 'rival' && void this.rivalStart(),
     profiles: () => this.profilesPage(),
     progress: () => {
@@ -1424,11 +1465,6 @@ export class App {
         `odyssey-run-progress-${new Date().toISOString().slice(0, 10).replaceAll('-', '')}.csv`,
         'text/csv;charset=utf-8',
       ),
-    lang: () => {
-      if (['play', 'countdown', 'pause'].includes(this.screen)) return;
-      setLang(getLang() === 'en' ? 'ko' : 'en', this.storage);
-      location.reload();
-    },
     contests: () => this.contestsPage(),
     daily: () => void this.prepareDaily(),
     challenges: () => this.challenges(),

@@ -352,4 +352,25 @@ export const EN_4: Record<string, string> = {
   '복원 전 사본 {n}개가 있어요. 오늘 반 전체 내보내기를 하면 정리할 수 있어요.':
     'There are {n} pre-restore copies. Export the whole class today to tidy them.',
   '복원 전 사본 {n}개를 정리했어요. 기록은 그대로예요.': 'Tidied {n} pre-restore copies. Records are unchanged.',
+  '학교 기기에 한꺼번에 설치하기': 'Install on all school devices',
+  '번호로 한 번에 만들기': 'Create numbered sailors at once',
+  '만들 항해사 수': 'Number of sailors',
+  만들기: 'Create',
+  '1번, 2번…처럼 번호 이름을 만들어요. 학생은 자기 번호를 골라 시작해요. 최대 {n}명.':
+    'Creates numbered names (No. 1, No. 2, …). Each student picks their own number. Up to {n}.',
+  '번호 항해사 {n}명을 만들었어요.': 'Created {n} numbered sailors.',
+  '더 만들 수 없어요. 항해사는 {n}명까지예요.': 'No more can be created. The limit is {n} sailors.',
+  '저장하지 못했어요. 브라우저 저장 권한을 확인해 주세요.':
+    'Could not save. Please check the browser storage permission.',
+  '지금은 기기 설정의 ‘동작 줄이기’를 따라 줄이고 있어요.':
+    'Motion is reduced now, following the device setting “Reduce motion”.',
+  '그림으로 저장': 'Save as picture',
+  '그림에 내 이름 넣기': 'Put my name on the picture',
+  '그림을 만들고 있어요…': 'Making the picture…',
+  '그림을 저장했어요. 학급 게시판이나 메시지에 올릴 수 있어요.':
+    'Picture saved. You can post it on the class board or in a message.',
+  '그림을 만들지 못했어요. 화면을 캡처해 주세요.': 'Could not make the picture. Please take a screenshot instead.',
+  '섬 완주!': 'Island complete!',
+  '별빛 {n} · 지도 {n}/3': 'Starlight {n} · Maps {n}/3',
+  '{n}번': 'No. {n}',
 };

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Controls} from '../src/input/controls';
+import {Controls, padState} from '../src/input/controls';
 import {C, MAX_SCORE} from '../src/config';
 import {COURSES, STAGES} from '../src/levels/courses';
 import {Runner} from '../src/player/runner';
@@ -575,5 +575,43 @@ test('six enemy behaviors give warning before activation and use game-time motio
     updateEnemyState(s, p, 4950, 2, false, true);
     assert.equal(s.active, false);
     assert.equal(s.projectile.active, false);
+  }
+});
+test('gamepads and switches: A or up jumps once, B slides while held, Start pauses, Enter jumps', () => {
+  const original = Object.getOwnPropertyDescriptor(globalThis, 'window'),
+    target = new EventTarget();
+  Object.defineProperty(globalThis, 'window', {value: target, configurable: true});
+  let jumps = 0,
+    pauses = 0,
+    sliding = false;
+  const controls = new Controls({
+    jump: () => jumps++,
+    slide: h => {
+      sliding = h;
+    },
+    pause: () => pauses++,
+    active: () => true,
+  });
+  const pad = (pressed: number[], axes = [0, 0]) =>
+    padState([{buttons: Array.from({length: 16}, (_, i) => ({pressed: pressed.includes(i)})), axes}, null]);
+  try {
+    controls.padInput(pad([0]));
+    controls.padInput(pad([0]));
+    assert.equal(jumps, 1);
+    controls.padInput(pad([]));
+    controls.padInput(pad([], [0, -1]));
+    assert.equal(jumps, 2);
+    controls.padInput(pad([1]));
+    assert.ok(sliding);
+    controls.padInput(pad([]));
+    assert.equal(sliding, false);
+    controls.padInput(pad([9]));
+    assert.equal(pauses, 1);
+    target.dispatchEvent(Object.assign(new Event('keydown', {cancelable: true}), {code: 'Enter', repeat: false}));
+    assert.equal(jumps, 3);
+  } finally {
+    controls.destroy();
+    if (original) Object.defineProperty(globalThis, 'window', original);
+    else Reflect.deleteProperty(globalThis, 'window');
   }
 });
