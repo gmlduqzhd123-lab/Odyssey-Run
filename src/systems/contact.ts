@@ -1,4 +1,5 @@
 import {CONTACT_MASKS} from '../assets/contact-masks';
+import {SCENERY_MASKS} from '../assets/scenery-art';
 import {heroPose, itemPose, enemyPose, obstaclePose, type HeroPoseState, type SpritePose} from '../rendering/poses';
 import type {Collectible, Rect, Obstacle} from '../levels/courses';
 import type {EnemyState} from '../levels/enemies';
@@ -6,7 +7,7 @@ import type {EnemyState} from '../levels/enemies';
 export const overlaps = (a: Rect, b: Rect) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
 type Shape = Rect & {mask: string; flipX?: boolean; reveal?: number};
 export function containsInk(s: Shape, x: number, y: number) {
-  const mask = CONTACT_MASKS[s.mask];
+  const mask = CONTACT_MASKS[s.mask] ?? SCENERY_MASKS[s.mask];
   if (x < s.x || x >= s.x + s.w || y < s.y || y >= s.y + s.h * (s.reveal ?? 1)) return false;
   let u = Math.floor(((x - s.x) / s.w) * mask.w);
   if (s.flipX) u = mask.w - 1 - u;

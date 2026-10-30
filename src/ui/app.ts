@@ -72,6 +72,7 @@ import {deviceReducedMotion, followDevice} from '../systems/device-prefs';
 import {saveResultPicture, shareLink, shareMarkup} from './share-view';
 import {deleteSailorMarkup, profilesMarkup} from './profiles-view';
 import {readJsonFile} from '../storage/json-file';
+import {sceneryView} from '../levels/scenery';
 import {keepLanguage} from '../systems/lang-cache';
 import {replaceMissingArt} from './missing-art';
 import {classPreviewMarkup, importPreviewMarkup, settingToggle, settingsMarkup} from './settings-view';
@@ -759,6 +760,13 @@ export class App {
       this.special === 'daily' && this.daily?.rule === 'no-shield' ? 'no-shield' : 'none',
     );
     this.run.autoSlide = this.assist().autoSlide;
+    // Each day's voyage is painted with one of the five landscapes no island owns.
+    if (this.special === 'daily' && this.daily)
+      this.run.scenery = sceneryView(
+        this.run.course,
+        'daily',
+        Math.floor(Date.parse(this.daily.date + 'T00:00:00Z') / 86_400_000),
+      );
     this.world.showRun(this.run);
     this.store.data.tutorialSeen = true;
     this.store.persist();

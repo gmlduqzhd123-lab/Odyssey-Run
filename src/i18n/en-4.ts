@@ -383,4 +383,11 @@ export const EN_4: Record<string, string> = {
   '오프라인이라 그림 일부가 비어 있어요. 설정 → 섬 다운로드·업데이트로 미리 받아 둘 수 있어요.':
     'Offline, so some pictures are empty. Download them ahead in Settings → Island downloads & updates.',
   '앱 설치': 'Install app',
+  '가시 함정': 'Spike trap',
+  '가시 앞에서 점프해 넘어가 보세요. 가시 위에는 내려앉지 않게요.':
+    "Jump before the spikes to clear them, and don't land on top of them.",
+  '틈의 앞에서 점프하고 공중 점프를 조금 늦게 눌러 보세요. 나무 다리는 밟으면 곧 무너져요.':
+    'Jump before the gap and press the air jump a little later. A wooden bridge gives way soon after you step on it.',
+  '! 가시 함정 · 점프': '! Spike trap · jump',
+  '! 무너지는 다리 · 점프로 건너기': '! Crumbling bridge · jump across',
 };
