@@ -2,6 +2,7 @@ import {assetUrl} from './catalog';
 import {sheetUrl} from './terrain';
 import {RUN_ART} from './runner-art';
 import {CROUCH_ART, MONSTER_ART} from './expansion-art';
+import {SCENERY_ART} from './scenery-art';
 import type {StageId} from '../levels/courses';
 const svg = (name: string) => `${import.meta.env.BASE_URL}assets/${name}.svg`;
 export const backgroundFiles = (stage: StageId) =>
@@ -19,6 +20,9 @@ export const GAME_FILES = [
     svg: false,
   })),
   {key: 'terrain-sheet', url: sheetUrl('terrain-sheet'), svg: false},
+  // Painted landscapes behind every voyage, and decorations and hazards cut from the terrain sheet.
+  {key: 'landscape-sheet', url: sheetUrl('landscape-sheet'), svg: false},
+  {key: 'scenery', url: `${import.meta.env.BASE_URL}${SCENERY_ART.file}`, svg: false},
   {key: 'odysseus-run', url: `${import.meta.env.BASE_URL}${RUN_ART.file}`, svg: false},
   {key: 'hero-crouch', url: `${import.meta.env.BASE_URL}${CROUCH_ART.file}`, svg: false},
   {key: 'monster-atlas', url: `${import.meta.env.BASE_URL}${MONSTER_ART.file}`, svg: false},

@@ -8,6 +8,9 @@ import {translate} from '../i18n';
 import type {Runner} from '../player/runner';
 import {assetUrl} from '../assets/catalog';
 import {REGIONS, sheetUrl} from '../assets/terrain';
+import {SCENERY_ART} from '../assets/scenery-art';
+import {CRUMBLE_DELAY} from '../levels/courses';
+import {decorFor, harborMix, type ViewId} from '../levels/scenery';
 import {RUN_ART} from '../assets/runner-art';
 import {DISPLAY, type DisplayViewport} from '../rendering/display';
 import {CROUCH_ART, MONSTER_ART} from '../assets/expansion-art';
@@ -26,6 +29,9 @@ export interface SceneHost {
   view(): DisplayViewport;
   cosmetics(): Preferences;
 }
+const PAINTED_TOP: Record<string, number> = {'view-cave': 0.5, 'view-storm': 0.5, 'view-palace': 0.55};
+// The night route's painted stars would read as collectible starlight: cool them to blue.
+const PAINTED_TINT: Record<string, number> = {'view-night': 0x8f9cc8};
 export class World extends Phaser.Scene {
   private bg: Phaser.GameObjects.Image[][] = [];
   private ground!: Phaser.GameObjects.Graphics;
@@ -36,6 +42,9 @@ export class World extends Phaser.Scene {
   private obstacles: Phaser.GameObjects.Image[] = [];
   private items: Phaser.GameObjects.Image[] = [];
   private platforms: Phaser.GameObjects.Image[] = [];
+  private decor: {sprite: Phaser.GameObjects.Image; x: number; w: number}[] = [];
+  // The painted landscape (and the harbor of Ithaca fading in near the end), between the sky and the hills.
+  private painted: Phaser.GameObjects.Image[] = [];
   private label!: Phaser.GameObjects.Text;
   private bursts: {text: Phaser.GameObjects.Text; life: number}[] = [];
   private warning!: Phaser.GameObjects.Text;
@@ -201,6 +210,15 @@ export class World extends Phaser.Scene {
     Object.entries(MONSTER_ART.frames).forEach(([id, f]) =>
       this.textures.get('monster-atlas').add(id, 0, f.x, f.y, f.w, f.h),
     );
+    Object.entries(SCENERY_ART.frames).forEach(([id, f]) =>
+      this.textures.get('scenery').add(id, 0, f.x, f.y, f.w, f.h),
+    );
+    // Only the upper part of each painted panel: its lower part shows platforms the hero cannot use.
+    Object.entries(REGIONS)
+      .filter(([id]) => id.startsWith('view-'))
+      .forEach(([id, r]) =>
+        this.textures.get(r.sheet).add('painted-' + id, 0, r.x, r.y, r.w, Math.round(r.h * (PAINTED_TOP[id] ?? 0.6))),
+      );
     for (let i = 0; i < 5; i++)
       this.groundArt.push(
         this.add.tileSprite(0, 440, 1, 33, 'terrain-sheet', 'ground-beach').setOrigin(0).setVisible(false),
@@ -212,6 +230,7 @@ export class World extends Phaser.Scene {
     this.mode = 'home';
     this.run = null;
     this.clearObjects();
+    this.painted.forEach(p => p.setVisible(false));
     this.setStage('beach');
     this.boat.setVisible(true).setPosition(744, 410).setDisplaySize(350, 230);
     this.hero
@@ -266,12 +285,34 @@ export class World extends Phaser.Scene {
     this.setStage(run.stage);
     this.boat.setVisible(false);
     this.hero.setDisplaySize(66, 88).setRotation(0);
+    if (!this.painted.length) {
+      this.painted = [0, 1].map(() => this.add.image(0, 0, 'landscape-sheet').setOrigin(0).setVisible(false));
+      // Directly above the sky, below the hills: the course and its hazards stay in front.
+      this.painted.forEach(p => this.children.moveAbove(p, this.bg[0][1]));
+      this.children.moveAbove(this.painted[1], this.painted[0]);
+    }
+    decorFor(run.course).forEach(d => {
+      const f = SCENERY_ART.frames[d.frame],
+        w = (f.w / f.h) * d.h;
+      this.decor.push({
+        sprite: this.add
+          .image(d.x, C.ground + 3, 'scenery', d.frame)
+          .setOrigin(0, 1)
+          .setDisplaySize(w, d.h)
+          .setAlpha(0.85)
+          .setTint(0xcfcac0),
+        x: d.x,
+        w,
+      });
+    });
     run.course.obstacles.forEach(o => {
       this.obstacles.push(
-        this.add
-          .image(o.x, o.y, o.kind === 'falling' ? 'rock' : o.kind === 'hand' ? 'hand' : o.kind)
-          .setOrigin(0)
-          .setDisplaySize(o.w, o.h),
+        o.kind === 'spikes'
+          ? this.add.image(o.x, o.y, 'scenery', 'spikes').setOrigin(0).setDisplaySize(o.w, o.h)
+          : this.add
+              .image(o.x, o.y, o.kind === 'falling' ? 'rock' : o.kind === 'hand' ? 'hand' : o.kind)
+              .setOrigin(0)
+              .setDisplaySize(o.w, o.h),
       );
     });
     run.course.items.forEach(i => {
@@ -280,11 +321,16 @@ export class World extends Phaser.Scene {
     });
     run.course.platforms.forEach(p =>
       this.platforms.push(
-        this.add
-          .image(p.x, p.y, 'terrain-sheet', 'wood-platform')
-          .setOrigin(0)
-          .setDisplaySize(p.w, 20)
-          .setTint(p.id.includes('branch') ? 0xf4d99c : p.id.includes('cloud') ? 0xe5efdc : 0xffffff),
+        p.crumble
+          ? this.add
+              .image(p.x, p.y, 'scenery', 'crumble')
+              .setOrigin(0, 0.12)
+              .setDisplaySize(p.w + 36, ((p.w + 36) * SCENERY_ART.frames.crumble.h) / SCENERY_ART.frames.crumble.w)
+          : this.add
+              .image(p.x, p.y, 'terrain-sheet', 'wood-platform')
+              .setOrigin(0)
+              .setDisplaySize(p.w, 20)
+              .setTint(p.id.includes('branch') ? 0xf4d99c : p.id.includes('cloud') ? 0xe5efdc : 0xffffff),
       ),
     );
     run.enemyStates.forEach(e => {
@@ -310,11 +356,13 @@ export class World extends Phaser.Scene {
     this.obstacles.forEach(o => o.destroy());
     this.items.forEach(o => o.destroy());
     this.platforms.forEach(o => o.destroy());
+    this.decor.forEach(d => d.sprite.destroy());
     this.monsters.forEach(o => o.destroy());
     this.projectiles.forEach(o => o.destroy());
     this.obstacles = [];
     this.items = [];
     this.platforms = [];
+    this.decor = [];
     this.monsters = [];
     this.projectiles = [];
     this.bursts.forEach(b => b.text.destroy());
@@ -389,6 +437,33 @@ export class World extends Phaser.Scene {
       }
     }
   }
+  // The painted landscape pans slowly from one end of the panel to the other over the whole
+  // voyage (fixed with reduced motion); near the end of an island the harbor of Ithaca fades in.
+  private drawPainted(r: Runner, reduced: boolean) {
+    const [own, harbor] = this.painted;
+    if (!own) return;
+    const place = (img: Phaser.GameObjects.Image, view: ViewId, progress: number, alpha: number) => {
+      const f = this.textures.getFrame('landscape-sheet', 'painted-' + view);
+      if (!f || alpha <= 0) {
+        img.setVisible(false);
+        return;
+      }
+      const scale = Math.max(190 / f.height, (this.view.width * 1.2) / f.width),
+        w = f.width * scale,
+        h = f.height * scale;
+      img
+        .setTexture('landscape-sheet', 'painted-' + view)
+        .setDisplaySize(w, h)
+        .setPosition(-progress * (w - this.view.width), 330 - h)
+        .setAlpha(alpha)
+        .setTint(PAINTED_TINT[view] ?? 0xffffff)
+        .setVisible(true);
+    };
+    const mix = harborMix(r.course, r.x),
+      progress = reduced ? 0.35 : Math.min(1, Math.max(0, r.x / r.length));
+    place(own, r.scenery, progress, 0.6 * (1 - mix));
+    place(harbor, 'view-ithaca', reduced ? 0.6 : 0.4 + 0.3 * mix, 0.7 * mix);
+  }
   private drawRun() {
     const r = this.run;
     if (!r) return;
@@ -398,6 +473,7 @@ export class World extends Phaser.Scene {
     this.backgroundScroll(0, 310);
     this.backgroundScroll(1, 100);
     this.backgroundScroll(2, 0);
+    this.drawPainted(r, reduced);
     const g = this.ground;
     g.clear();
     // Ground spans retain the complete logical view, including on small screens.
@@ -446,8 +522,24 @@ export class World extends Phaser.Scene {
       ).setPosition(x, item.y);
     });
     this.platforms.forEach((s, i) => {
-      const p = r.course.platforms[i];
-      s.setPosition(p.x - cam, r.platformY(p)).setVisible(p.x - cam + p.w > 0 && p.x - cam < this.view.width);
+      const p = r.course.platforms[i],
+        visible = p.x - cam + p.w + 40 > 0 && p.x - cam - 40 < this.view.width;
+      if (!p.crumble) {
+        s.setPosition(p.x - cam, r.platformY(p)).setVisible(visible);
+        return;
+      }
+      // A crumbling plank shakes once stood on, then drops away; it is whole again after a fall.
+      const age = r.crumbleAge(p),
+        shake = age >= 0 && age < CRUMBLE_DELAY && !reduced ? Math.sin(age * 90) * 2 : 0,
+        drop = age >= CRUMBLE_DELAY ? (age - CRUMBLE_DELAY) ** 2 * 900 : 0;
+      s.setPosition(p.x - 18 - cam + shake, p.y + drop)
+        .setRotation(drop ? Math.min(0.5, drop / 400) : 0)
+        .setAlpha(drop ? Math.max(0, 1 - drop / 160) : 1)
+        .setVisible(visible && drop < 160);
+    });
+    this.decor.forEach(d => {
+      const x = d.x - cam;
+      d.sprite.setPosition(x, C.ground + 3).setVisible(x + d.w > 0 && x < this.view.width);
     });
     this.monsters.forEach((s, i) => {
       const e = r.enemyStates[i],
@@ -479,12 +571,16 @@ export class World extends Phaser.Scene {
               ? '! 거인의 손 · 숙이기'
               : hazard.kind === 'falling'
                 ? '! 낙석 · 점프'
-                : '! 위험 장애물 · 점프'
+                : hazard.kind === 'spikes'
+                  ? '! 가시 함정 · 점프'
+                  : '! 위험 장애물 · 점프'
             : incoming
               ? incoming.repelled
                 ? '등불이 지켜 주고 있어요'
                 : `! ${ENEMY_TYPES[incoming.kind].name} · ${ENEMY_TYPES[incoming.kind].hint}`
-              : '',
+              : r.course.platforms.some(p => p.crumble && p.x - r.x <= 600 && p.x + p.w > r.x)
+                ? '! 무너지는 다리 · 점프로 건너기'
+                : '',
         ),
       );
     const fx = this.fx;

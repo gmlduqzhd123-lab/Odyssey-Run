@@ -335,4 +335,11 @@ export const VI_4: Record<string, string> = {
   '오프라인이라 그림 일부가 비어 있어요. 설정 → 섬 다운로드·업데이트로 미리 받아 둘 수 있어요.':
     'Đang ngoại tuyến nên một số hình bị trống. Có thể tải trước trong Cài đặt → Tải về & cập nhật đảo.',
   '앱 설치': 'Cài ứng dụng',
+  '가시 함정': 'Bẫy gai',
+  '가시 앞에서 점프해 넘어가 보세요. 가시 위에는 내려앉지 않게요.':
+    'Hãy nhảy trước bẫy gai để vượt qua, đừng đáp xuống trên gai.',
+  '틈의 앞에서 점프하고 공중 점프를 조금 늦게 눌러 보세요. 나무 다리는 밟으면 곧 무너져요.':
+    'Hãy nhảy trước khe hở và bấm nhảy trên không muộn hơn một chút. Cầu gỗ sẽ sập ngay sau khi bạn bước lên.',
+  '! 가시 함정 · 점프': '! Bẫy gai · nhảy',
+  '! 무너지는 다리 · 점프로 건너기': '! Cầu sắp sập · nhảy qua',
 };

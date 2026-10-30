@@ -108,6 +108,8 @@
 | 섬 카드·준비 화면 풍경 | `landscape-sheet`의 07 세이렌의 절벽 영역 | 사용자 제공 원화 시트의 기존 그림을 잘라 사용 |
 | 배경 3층 | `public/assets/sea-{sky,far,mid}.svg` | 자체 제작 (`scripts/create-assets.py`) |
 | 바닥 띠 | `terrain-sheet`의 해변 모래 띠 재사용 | 사용자 제공 |
+| 플레이 화면 원화 배경 | `landscape-sheet` 10개 풍경의 위쪽 부분(섬 4곳·이타카·고대 유적지·폭풍의 바다·마법의 숲·해저 궁전·밤하늘 항로) | 사용자 제공 원화 시트를 잘라 옅게 사용 |
+| 길가 장식·가시 함정·무너지는 다리 | `terrain-sheet` 02·07·09번 칸에서 오려 낸 `scenery-*.webp` (`scripts/prepare-scenery-art.py`) | 사용자 제공 원화의 종이 배경만 지움 |
 | 배경음악 | 출항의 해변 곡 재사용 | 사용자 제공 Suno 곡, 별도 곡 없음 |
 
 ## 화면 글꼴

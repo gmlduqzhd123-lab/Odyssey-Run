@@ -13,7 +13,11 @@ const guidance: Record<DamageKind, {name: string; hint: string}> = {
   hand: {name: '거인의 손', hint: '손 아래에서는 숙이기를 유지하고, 통과한 뒤 점프해 보세요.'},
   rock: {name: '바위', hint: '바위 앞에서 점프해 넘어가 보세요.'},
   falling: {name: '낙석', hint: '금빛 경고 위치를 보고 바위에 닿기 전에 점프해 보세요.'},
-  fall: {name: '낭떠러지', hint: '틈의 앞에서 점프하고 공중 점프를 조금 늦게 눌러 보세요.'},
+  spikes: {name: '가시 함정', hint: '가시 앞에서 점프해 넘어가 보세요. 가시 위에는 내려앉지 않게요.'},
+  fall: {
+    name: '낭떠러지',
+    hint: '틈의 앞에서 점프하고 공중 점프를 조금 늦게 눌러 보세요. 나무 다리는 밟으면 곧 무너져요.',
+  },
   projectile: {name: '거인이 던진 바위', hint: '거인과 바위를 함께 넘도록 2단 점프해 보세요.'},
   crab: {name: '거대 집게게', hint: '집게게의 순찰 범위 앞에서 점프해 보세요.'},
   harpy: {name: '하르피아', hint: '땅에 착지한 뒤 숙이기를 유지해 낮게 통과해 보세요.'},

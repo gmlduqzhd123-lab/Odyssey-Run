@@ -17,6 +17,12 @@ export const REGIONS = {
   'view-wind': {sheet: 'landscape-sheet', x: 779, y: 245, w: 749, h: 147},
   'view-sea': {sheet: 'landscape-sheet', x: 8, y: 648, w: 750, h: 158},
   'view-ithaca': {sheet: 'landscape-sheet', x: 8, y: 869, w: 750, h: 145},
+  // Panels no island uses as its own view: they paint the daily, boss and endless voyages.
+  'view-ruins': {sheet: 'landscape-sheet', x: 779, y: 49, w: 749, h: 140},
+  'view-storm': {sheet: 'landscape-sheet', x: 8, y: 452, w: 750, h: 143},
+  'view-forest': {sheet: 'landscape-sheet', x: 779, y: 452, w: 749, h: 143},
+  'view-palace': {sheet: 'landscape-sheet', x: 779, y: 652, w: 749, h: 154},
+  'view-night': {sheet: 'landscape-sheet', x: 779, y: 869, w: 749, h: 145},
 } satisfies Record<string, Region>;
 export const STAGE_VIEW: Record<StageId, keyof typeof REGIONS> = {
   beach: 'view-beach',

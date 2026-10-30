@@ -20,7 +20,7 @@ export interface Rect {
 }
 export interface Obstacle extends Rect {
   id: string;
-  kind: 'crate' | 'pillar' | 'gate' | 'rock' | 'falling' | 'hand';
+  kind: 'crate' | 'pillar' | 'gate' | 'rock' | 'falling' | 'hand' | 'spikes';
   role: 'structure' | 'hazard';
 }
 export interface Platform {
@@ -29,6 +29,8 @@ export interface Platform {
   y: number;
   w: number;
   moving?: boolean;
+  // A plank over a gap that gives way CRUMBLE_DELAY seconds after it is first stood on.
+  crumble?: boolean;
 }
 export interface Course {
   id: StageId;
@@ -246,9 +248,37 @@ function build(id: StageId): Course {
   items.find(i => i.id === `${id}-magnet-2`)!.x = 4800;
   items.find(i => i.id === `${id}-lantern-extra-1`)!.x =
     id === 'cave' ? 4150 : id === 'beach' || id === 'sea' ? 4300 : 6900;
+  // Spike strips from the terrain sheet: on clear ground away from every other encounter,
+  // star trail, story spot and gap, so the course keeps its rhythm. Jumped like a crate.
+  const plan = ADVENTURE_PLANS[id];
+  const clearGround = (x: number) =>
+    !gaps.some(g => x > g.x - 450 && x < g.x + g.w + 450) &&
+    !obstacles.some(o => x + SPIKES.w > o.x - 320 && x < o.x + o.w + 320) &&
+    !enemies.some(e => x + SPIKES.w > e.x - 440 && x < e.x + 340) &&
+    !items.some(i => i.y > 360 && i.x > x - 120 && i.x < x + SPIKES.w + 120) &&
+    !plan.stories.some(st => Math.abs(st.x - x) < 500) &&
+    // A compass checkpoint keeps the 400px after it clear for a safe restart.
+    !items.some(i => i.checkpoint !== undefined && x + SPIKES.w > i.checkpoint - 100 && x < i.checkpoint + 500) &&
+    // Remixed and endless courses reorder 3,200px sections, so keep clear of section edges.
+    (x - 3200) % 3200 > 600 &&
+    (x - 3200) % 3200 < 3200 - 700 &&
+    // The high map piece is reached with a double jump that is still in the air here.
+    Math.abs(x - highMapX) > 700 &&
+    !platforms.some(pl => x + SPIKES.w > pl.x - 60 && x < pl.x + pl.w + 60);
+  for (let x = 2400, placed = 0, last = -Infinity; x < 21800 && placed < 3; x += 25)
+    if (x - last >= 2500 && clearGround(x)) {
+      add(x, 'spikes', 'hazard', SPIKES.w, SPIKES.h);
+      last = x;
+      placed++;
+    }
+  // The second gap of every island is bridged by a plank that gives way under a dawdler.
+  const bridged = gaps[1];
+  platforms.push({id: `${id}-crumble-1`, x: bridged.x, y: C.ground, w: bridged.w, crumble: true});
   const safe = safePoints({gaps, obstacles, enemies}, [0, 3000, 6900, 9000, 12000, 14400, 17000, 20100, 23000]);
   return {id, ...meta[id], gaps, obstacles, platforms, winds, safe, items, enemies};
 }
+export const SPIKES = {w: 96, h: 46} as const;
+export const CRUMBLE_DELAY = 0.35;
 // A fall returns to the nearest clear ground at most this far before the gap.
 export const SAFE_LEAD = {min: 600, max: 2400} as const;
 export function safePoints(c: Pick<Course, 'gaps' | 'obstacles' | 'enemies'>, candidates: number[]): number[] {

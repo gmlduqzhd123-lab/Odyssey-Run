@@ -2,13 +2,14 @@ import type {DamageEvent, DamageKind} from '../systems/damage';
 import {ADVENTURE_PLANS, ADVENTURE_BALANCE, GOALS, type GoalId, type ComboId} from '../levels/adventure';
 import {GHOST_SECONDS} from '../storage/journal';
 import {C} from '../config';
-import {type StageId, type Rect, type Platform, type Collectible} from '../levels/courses';
+import {CRUMBLE_DELAY, type StageId, type Rect, type Platform, type Collectible} from '../levels/courses';
 import {score, rating} from '../systems/score';
 import type {RunResult} from '../storage/save';
 import {createEnemyState, updateEnemyState, type EnemyState} from '../levels/enemies';
 import {heroPose, collectibleContact, enemyContact, projectileContact, obstacleContact} from '../systems/contact';
 import {obstaclePose} from '../rendering/poses';
 import {getCourse} from '../levels/variants';
+import {sceneryView, type ViewId} from '../levels/scenery';
 import type {VariantId} from '../levels/course-ids';
 export type RunState = 'ready' | 'playing' | 'paused' | 'success' | 'failure';
 export interface RunnerEvent {
@@ -84,6 +85,10 @@ export class Runner {
   private passed = new Set<string>();
   private spentShots = new Set<string>();
   private shotHeights = new Map<string, number>();
+  // The painted landscape behind this voyage (the app sets the daily one).
+  scenery: ViewId;
+  // When each crumbling plank was first stood on (run time); a fall back to safety restores them.
+  crumbling = new Map<string, number>();
   trace: number[] = [0];
   damageLog: DamageEvent[] = [];
   safeX = 0;
@@ -103,6 +108,7 @@ export class Runner {
   ) {
     this.goal = goal;
     this.course = course;
+    this.scenery = sceneryView(course);
     this.adventure = course.adventure ?? ADVENTURE_PLANS[stage];
     this.enemyStates = this.course.enemies.map(createEnemyState);
     this.updateEnemies();
@@ -136,6 +142,14 @@ export class Runner {
   }
   platformY(p: Platform) {
     return p.y + (p.moving ? Math.sin(this.time * 1.6) * 22 : 0);
+  }
+  // Seconds since a crumbling plank was first stood on, or -1 while it is untouched.
+  crumbleAge(p: Platform) {
+    const at = this.crumbling.get(p.id);
+    return at === undefined ? -1 : this.time - at;
+  }
+  private solid(p: Platform) {
+    return !p.crumble || this.crumbleAge(p) < CRUMBLE_DELAY;
   }
   private wantsSlide() {
     if (this.slideHeld) return true;
@@ -231,10 +245,21 @@ export class Runner {
     }
     let floor = Infinity;
     if (!this.course.gaps.some(g => this.x > g.x && this.x < g.x + g.w) && oldY <= C.ground + 1) floor = C.ground;
+    let standing: Platform | null = null;
     for (const p of this.course.platforms) {
+      if (!this.solid(p)) continue;
       const py = this.platformY(p);
-      if (this.x + 18 > p.x && this.x - 18 < p.x + p.w && oldY <= py + 3 && this.y >= py && this.vy >= 0)
-        floor = Math.min(floor, py);
+      if (
+        this.x + 18 > p.x &&
+        this.x - 18 < p.x + p.w &&
+        oldY <= py + 3 &&
+        this.y >= py &&
+        this.vy >= 0 &&
+        py < floor
+      ) {
+        floor = py;
+        standing = p;
+      }
     }
     this.grounded = false;
     if (this.vy >= 0 && this.y >= floor) {
@@ -243,6 +268,7 @@ export class Runner {
       this.grounded = true;
       this.jumps = 0;
       this.coyote = C.coyote;
+      if (standing?.crumble && !this.crumbling.has(standing.id)) this.crumbling.set(standing.id, this.time);
       this.sliding = this.wantsSlide() || (this.sliding && !this.canStand());
       this.tryJump();
     }
@@ -329,6 +355,7 @@ export class Runner {
         this.jumps = 0;
         this.sliding = false;
         this.recovering = 0.35;
+        this.crumbling.clear();
         this.clearInput();
         this.updateEnemies();
       }
