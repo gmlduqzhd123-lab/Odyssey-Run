@@ -1,10 +1,10 @@
 import {COURSES, MAP_STORIES, STAGES} from '../levels/courses';
-import {ART_SHEETS, sheetUrl} from '../assets/terrain';
+import {ART_SHEETS, REGIONS, STAGE_VIEW, sheetUrl} from '../assets/terrain';
 import {assetUrl as asset, PEOPLE, RELICS} from '../assets/catalog';
 import {PERSON_MYTHS} from '../levels/quiz';
 import {ENEMY_TYPES, type EnemyKind} from '../levels/enemies';
 import {MONSTER_ART} from '../assets/expansion-art';
-import {button, icon} from './html';
+import {button} from './html';
 // The read-only book pages (maps, people, relics, monsters, artwork). Each takes the page header.
 export const TOTAL_MAPS = STAGES.length * 3;
 export function bookNav(active: string) {
@@ -21,13 +21,20 @@ export function bookNav(active: string) {
     .join('')}</nav>`;
 }
 
+// Each map fragment shows its own third of the island's painted landscape, so the three pieces
+// of an island line up into the whole view once all are found.
+function fragmentArt(stage: (typeof STAGES)[number], piece: number) {
+  const r = REGIONS[STAGE_VIEW[stage]],
+    w = r.w / 3;
+  return `<svg class="fragment-art" viewBox="${r.x + piece * w} ${r.y} ${w} ${r.h}" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><image href="${sheetUrl(r.sheet)}" width="1536" height="1024"/></svg>`;
+}
 export function codexPage(header: string, found: Set<string>) {
   return `<div class="page codex">${header}<div class="page-heading"><span class="eyebrow">FRAGMENTS OF THE ODYSSEY</span><h1 tabindex="-1">이야기를 모아, 이타카로</h1><p>${found.size ? `${TOTAL_MAPS}조각 중 ${found.size}개를 찾았어요. 조각을 눌러 이야기를 읽어 보세요.` : '아직 지도가 비어 있어요. 첫 섬으로 탐험을 떠나 보세요!'}</p></div>${bookNav('codex')}<div class="fragment-grid">${STAGES.flatMap(
     (id, i) =>
       [1, 2, 3].map((n, j) => {
         const idx = i * 3 + j,
           yes = found.has(`${id}-map-${n}`);
-        return `<button class="fragment ${yes ? 'found' : ''}" data-action="story:${idx}" ${yes ? '' : 'disabled'}>${yes ? icon('map') : '<span class="unknown">?</span>'}<span class="fragment-number">0${idx + 1}</span><b>${yes ? MAP_STORIES[idx][0] : '아직 발견하지 못했어요'}</b><small>${COURSES[id].name} · ${n}번 조각</small></button>`;
+        return `<button class="fragment ${yes ? 'found' : ''}" data-action="story:${idx}" ${yes ? '' : 'disabled'}>${yes ? fragmentArt(id, j) : '<span class="unknown">?</span>'}<span class="fragment-number">0${idx + 1}</span><b>${yes ? MAP_STORIES[idx][0] : '아직 발견하지 못했어요'}</b><small>${COURSES[id].name} · ${n}번 조각</small></button>`;
       }),
   ).join(
     '',
