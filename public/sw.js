@@ -125,7 +125,9 @@ self.addEventListener('activate', e =>
 );
 async function cached(path) {
   for (const n of [CORE, cacheName('shared'), ...STAGES.map(cacheName), LANG]) {
-    const hit = await (await caches.open(n)).match(path);
+    // Files are stored under their plain address; a page request carries headers (Origin for
+    // module scripts) that a `Vary` response header would otherwise compare against.
+    const hit = await (await caches.open(n)).match(path, {ignoreVary: true, ignoreSearch: false});
     if (hit) return hit;
   }
   return undefined;
