@@ -3,12 +3,12 @@
 // are the Korean text with {x} for anything interpolated; captured parts are translated recursively.
 export type Lang = 'ko' | 'en' | 'vi' | 'zh' | 'ru';
 // Each language names itself, so anyone can find their own in the list.
-export const LANGS: {id: Lang; name: string; html: string}[] = [
-  {id: 'ko', name: '한국어', html: 'ko'},
-  {id: 'en', name: 'English', html: 'en'},
-  {id: 'vi', name: 'Tiếng Việt', html: 'vi'},
-  {id: 'zh', name: '中文', html: 'zh-Hans'},
-  {id: 'ru', name: 'Русский', html: 'ru'},
+export const LANGS: {id: Lang; name: string; html: string; short: string}[] = [
+  {id: 'ko', name: '한국어', html: 'ko', short: 'KO'},
+  {id: 'en', name: 'English', html: 'en', short: 'EN'},
+  {id: 'vi', name: 'Tiếng Việt', html: 'vi', short: 'VI'},
+  {id: 'zh', name: '中文', html: 'zh-Hans', short: 'ZH'},
+  {id: 'ru', name: 'Русский', html: 'ru', short: 'RU'},
 ];
 const isLang = (v: unknown): v is Lang => LANGS.some(l => l.id === v);
 const HANGUL = /[가-힣]/;

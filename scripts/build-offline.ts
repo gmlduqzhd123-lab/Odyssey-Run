@@ -47,7 +47,8 @@ const core = entries.filter(
     // dictionaries; they ride with the island downloads, as does their font file.
     (/^assets\/[^/]+\.(js|css)$/.test(f.path) && !/^assets\/(jsQR|vi|zh|ru)-/.test(f.path)) ||
     /^assets\/(beach-(sky|far|mid)|boat)\.svg$/.test(f.path) ||
-    (/^assets\/art\/(odysseus-|compass-|landscape-sheet-)/.test(f.path) && !f.path.includes('-run-')),
+    // The map scroll and laurel are menu icons (home, results), so they work offline from the start.
+    (/^assets\/art\/(odysseus-|compass-|landscape-sheet-|map-|laurel-)/.test(f.path) && !f.path.includes('-run-')),
 );
 const remaining = entries.filter(f => !core.includes(f));
 // An island's group holds its own backgrounds and whichever track it plays (islands may share one).
