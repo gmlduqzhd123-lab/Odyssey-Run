@@ -382,4 +382,5 @@ export const EN_4: Record<string, string> = {
     'Some pictures could not load. Open this again when the connection is better.',
   '오프라인이라 그림 일부가 비어 있어요. 설정 → 섬 다운로드·업데이트로 미리 받아 둘 수 있어요.':
     'Offline, so some pictures are empty. Download them ahead in Settings → Island downloads & updates.',
+  '앱 설치': 'Install app',
 };

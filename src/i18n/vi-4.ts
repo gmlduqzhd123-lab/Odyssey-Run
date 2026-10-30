@@ -334,4 +334,5 @@ export const VI_4: Record<string, string> = {
     'Không tải được một số hình. Hãy mở lại khi kết nối tốt hơn.',
   '오프라인이라 그림 일부가 비어 있어요. 설정 → 섬 다운로드·업데이트로 미리 받아 둘 수 있어요.':
     'Đang ngoại tuyến nên một số hình bị trống. Có thể tải trước trong Cài đặt → Tải về & cập nhật đảo.',
+  '앱 설치': 'Cài ứng dụng',
 };
