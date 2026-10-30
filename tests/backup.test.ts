@@ -84,3 +84,9 @@ test('class backups reject other files and invalid sailor records', () => {
   b.saves.jiwoo01.stages.beach.bestScore = 999999;
   assert.throws(() => readClassBackup(b), /지우/);
 });
+test('record files are size-checked before they are read as JSON', async () => {
+  const {readJsonFile} = await import('../src/storage/json-file');
+  assert.deepEqual(await readJsonFile(new Blob(['{"a":1}']), 100, 'big'), {a: 1});
+  await assert.rejects(readJsonFile(new Blob(['x'.repeat(200)]), 100, 'big'), /big/);
+  await assert.rejects(readJsonFile(new Blob(['{nope']), 100, 'big'), /JSON 파일을 읽을 수 없어요/);
+});

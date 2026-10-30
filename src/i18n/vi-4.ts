@@ -327,4 +327,11 @@ export const VI_4: Record<string, string> = {
   '별빛 {n} · 지도 {n}/3': 'Ánh sao {n} · Bản đồ {n}/3',
   '{n}번': 'Số {n}',
   '공유 창에서 「이미지 저장」을 고르면 사진에 저장돼요.': 'Trong bảng chia sẻ, chọn “Lưu hình ảnh” để lưu vào Ảnh.',
+  'Ⓑ 꾹': 'Ⓑ giữ',
+  '게임패드: Ⓐ 점프, Ⓑ 슬라이드, Start 일시정지, 메뉴는 방향키와 Ⓐ. 보조 스위치는 Space나 Enter 키로 설정하면 점프하고, 「버튼 하나로 항해」와 함께 쓰면 슬라이드는 저절로 해요.':
+    'Tay cầm: Ⓐ nhảy, Ⓑ trượt, Start tạm dừng; menu dùng phím hướng và Ⓐ. Đặt công tắc hỗ trợ là Space hoặc Enter để nhảy; dùng cùng “Chuyến đi một nút” thì trượt sẽ tự động.',
+  '그림 일부를 불러오지 못했어요. 연결이 나아지면 다시 열어 주세요.':
+    'Không tải được một số hình. Hãy mở lại khi kết nối tốt hơn.',
+  '오프라인이라 그림 일부가 비어 있어요. 설정 → 섬 다운로드·업데이트로 미리 받아 둘 수 있어요.':
+    'Đang ngoại tuyến nên một số hình bị trống. Có thể tải trước trong Cài đặt → Tải về & cập nhật đảo.',
 };

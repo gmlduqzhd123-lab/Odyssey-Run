@@ -31,6 +31,8 @@ export function padState(pads: readonly (PadLike | null)[]) {
   return out;
 }
 type Pad = ReturnType<typeof padState>;
+// Whether a gamepad has spoken to this page (browsers list one only after a button press).
+export const padConnected = () => typeof navigator !== 'undefined' && !!navigator.getGamepads?.().some(Boolean);
 export class Controls {
   private pad: Pad = padState([]);
   private polling = 0;

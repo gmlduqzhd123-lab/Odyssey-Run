@@ -7,7 +7,8 @@ const original = JSON.parse(await readFile('dist/offline-manifest.json', 'utf8')
   sw = await readFile('dist/sw.js', 'utf8'),
   versionA = original.version,
   versionB = 'test000000000002',
-  versionC = 'test000000000003';
+  versionC = 'test000000000003',
+  versionD = 'test000000000004';
 let revision = versionA,
   deny = false;
 const root = resolve('dist'),
@@ -167,6 +168,22 @@ try {
   await p3.waitForSelector('.home', {timeout: 30000});
   expect(await p3.evaluate(() => Object.entries(localStorage))).toEqual(saved);
   results.push({waitingVersionAppliedOnOpen: true});
+  // An installed app is mostly resumed, not reopened: coming back to the screen looks for a new
+  // version and applies it at the home screen.
+  revision = versionD;
+  const visibility = (hidden: boolean) =>
+    p3.evaluate(h => {
+      Object.defineProperty(document, 'hidden', {value: h, configurable: true});
+      document.dispatchEvent(new Event('visibilitychange'));
+    }, hidden);
+  await visibility(true);
+  await visibility(false);
+  await expect
+    .poll(() => p3.evaluate(() => caches.keys()).catch(() => [] as string[]), {timeout: 60000})
+    .toContain('odyssey-run-v:/Odyssey-Run/:' + versionD + '-core');
+  await p3.waitForSelector('.home', {timeout: 30000});
+  expect(await p3.evaluate(() => Object.entries(localStorage))).toEqual(saved);
+  results.push({newVersionAppliedOnResume: true});
   await p3.close();
   await p.screenshot({path: 'artifacts/roadmap-update.png'});
   expect(errors).toEqual([]);

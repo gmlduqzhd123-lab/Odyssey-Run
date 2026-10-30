@@ -8,3 +8,11 @@ export const esc = (text: string) =>
   text.replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'})[c]!);
 export const button = (action: string, text: string, cls = '', extra = '') =>
   `<button class="${cls}" data-action="${action}" ${extra}>${text}</button>`;
+export function downloadFile(data: string | Blob, filename: string, type = 'application/json;charset=utf-8') {
+  const url = URL.createObjectURL(new Blob([data], {type}));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
