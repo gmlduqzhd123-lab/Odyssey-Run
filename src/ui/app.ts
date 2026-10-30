@@ -33,7 +33,7 @@ import {dropSpareCopies, spareCopies, storageUse, STORAGE_LIMIT} from '../storag
 import {classBackup, readClassBackup, restoreClass, CLASS_BACKUP_LIMIT, type ClassBackup} from '../storage/backup';
 import {buildEndless, sectionsPassed, ENDLESS_SECTIONS} from '../levels/endless';
 import type {Course} from '../levels/courses';
-import {button, esc, icon} from './html';
+import {button, downloadFile, esc, icon} from './html';
 import {
   bookNav,
   codexPage,
@@ -50,7 +50,7 @@ import Phaser from 'phaser';
 import {C} from '../config';
 import {COURSES, STAGES, MAP_STORIES, type StageId} from '../levels/courses';
 import {Runner} from '../player/runner';
-import {Profiles, profileKey, readBook, PROFILES_KEY, MAX_NAME, MAX_PROFILES, MAIN_PROFILE} from '../storage/profiles';
+import {Profiles, profileKey, readBook, PROFILES_KEY, MAX_PROFILES, MAIN_PROFILE} from '../storage/profiles';
 import {
   SaveStore,
   mergeResult,
@@ -65,12 +65,15 @@ import {
 } from '../storage/save';
 import {VARIANTS, VARIANT_LABELS} from '../levels/variants';
 import {isVariant, type VariantId} from '../levels/course-ids';
-import {Controls} from '../input/controls';
+import {padConnected, Controls} from '../input/controls';
 import {Sound} from '../systems/audio';
 import {vibrate} from '../systems/haptics';
 import {deviceReducedMotion, followDevice} from '../systems/device-prefs';
-import {resultCard} from './result-card';
+import {saveResultPicture, shareLink, shareMarkup} from './share-view';
+import {deleteSailorMarkup, profilesMarkup} from './profiles-view';
+import {readJsonFile} from '../storage/json-file';
 import {keepLanguage} from '../systems/lang-cache';
+import {replaceMissingArt} from './missing-art';
 import {classPreviewMarkup, importPreviewMarkup, settingToggle, settingsMarkup} from './settings-view';
 import {progressCsv, progressMarkup} from './progress-view';
 import {BoardScanner, boardMarkup, contestCsv, contestsMarkup} from './contest-view';
@@ -147,6 +150,16 @@ export class App {
     observe(...roots);
     document.title = translate(document.title);
     followDevice(document.querySelector('#app')!, this.abort.signal);
+    replaceMissingArt(
+      this.ui,
+      () =>
+        this.notice(
+          navigator.onLine
+            ? '그림 일부를 불러오지 못했어요. 연결이 나아지면 다시 열어 주세요.'
+            : '오프라인이라 그림 일부가 비어 있어요. 설정 → 섬 다운로드·업데이트로 미리 받아 둘 수 있어요.',
+        ),
+      this.abort.signal,
+    );
     void keepLanguage(getLang());
     this.pendingLink = this.takeLink();
     void protection().then(p => (this.protectionState = p));
@@ -355,7 +368,7 @@ export class App {
       .catch(() => {});
   }
   private header(label: string, back = 'home') {
-    return `<header class="topbar">${button(back, '← <span>돌아가기</span>', 'text-button')}<span class="brand">${icon('compass')} ${label}</span><span class="edition">ODYSSEY RUN / VOL. 01</span><span class="ys-key"><label class="ys-chip lang-pick" translate="no"><span aria-hidden="true">🌐 ${LANGS.find(l => l.id === getLang())!.short}</span><select data-lang aria-label="Language · 언어">${LANGS.map(l => `<option value="${l.id}" lang="${l.html}" ${l.id === getLang() ? 'selected' : ''}>${l.name}</option>`).join('')}</select></label>${button('profiles', `👤 <span class="ys-wide">${esc(this.profiles.active.name)}</span>`, 'ys-chip', `aria-label="항해사 ${esc(this.profiles.active.name)}, 바꾸기"`)}${button('fullscreen', '⛶ <span class="ys-wide">전체 화면</span>', 'ys-chip', 'aria-label="전체 화면 전환"')}<button type="button" class="ys-chip" data-ys-install>📲 <span class="ys-wide">앱 </span>설치</button><button type="button" class="ys-chip" data-qr aria-label="QR 코드로 접속">📱 QR</button></span></header>`;
+    return `<header class="topbar">${button(back, '← <span>돌아가기</span>', 'text-button')}<span class="brand">${icon('compass')} ${label}</span><span class="edition">ODYSSEY RUN / VOL. 01</span><span class="ys-key"><label class="ys-chip lang-pick" translate="no"><span aria-hidden="true">🌐 ${LANGS.find(l => l.id === getLang())!.short}</span><select data-lang aria-label="Language · 언어">${LANGS.map(l => `<option value="${l.id}" lang="${l.html}" ${l.id === getLang() ? 'selected' : ''}>${l.name}</option>`).join('')}</select></label>${button('profiles', `👤 <span class="ys-wide">${esc(this.profiles.active.name)}</span>`, 'ys-chip', `aria-label="항해사 ${esc(this.profiles.active.name)}, 바꾸기"`)}${button('fullscreen', '⛶ <span class="ys-wide">전체 화면</span>', 'ys-chip', 'aria-label="전체 화면 전환"')}<button type="button" class="ys-chip" data-ys-install aria-label="앱 설치">📲<span class="ys-wide"> 앱 설치</span></button><button type="button" class="ys-chip" data-qr aria-label="QR 코드로 접속">📱 QR</button></span></header>`;
   }
   // Shared records arrive in the URL fragment; read once and drop it so a reload does not repeat it.
   private takeLink() {
@@ -606,63 +619,23 @@ export class App {
       location.href,
     );
     this.set(
-      `<div class="veil"><section class="panel share-panel"><span class="eyebrow">SHARE YOUR VOYAGE</span><h1 tabindex="-1">친구에게 기록 보내기</h1><p>${this.courseName(r.stage, r.variant ?? 'classic')} · ${r.score.toLocaleString()}점 · ${esc(this.profiles.active.name)}</p><div class="qr-box" role="img" aria-label="기록 링크 QR 코드">${qrSvg(url)}</div><p class="muted">친구가 휴대폰 카메라로 찍거나 링크를 열면 이 기록과 겨룰 수 있어요. 서버로 보내지 않고 링크 안에만 담겨요.</p><label class="share-url">링크 <input id="share-url" readonly value="${esc(url)}"></label><div class="button-row">${button('share-copy', '링크 복사', 'secondary')}${'share' in navigator ? button('share-native', '휴대폰으로 공유', 'secondary') : ''}${button('share-image', '🖼 그림으로 저장', 'secondary')}</div><label class="toggle card-name"><span>그림에 내 이름 넣기</span><input type="checkbox" id="card-name"><i aria-hidden="true"></i></label><p role="status" id="share-status"></p><div class="button-row">${button('restart', '재도전', 'primary')}${button('islands', '섬 선택', 'secondary')}</div></section></div>`,
+      shareMarkup(this.courseName(r.stage, r.variant ?? 'classic'), r.score, this.profiles.active.name, url),
       'share',
     );
   }
-  private async shareImage() {
-    const r = this.result,
-      status = this.ui.querySelector('#share-status');
-    if (!r || !status) return;
-    status.textContent = '그림을 만들고 있어요…';
-    try {
-      const blob = await resultCard({
-        view: STAGE_VIEW[r.stage],
-        course: this.courseName(r.stage, r.variant ?? 'classic'),
-        score: r.score,
-        rating: r.rating,
-        stars: r.stars,
-        maps: r.maps.length,
-        complete: r.complete,
-        name: this.ui.querySelector<HTMLInputElement>('#card-name')?.checked ? this.profiles.active.name : '',
-      });
-      const name = `odyssey-run-${r.stage}-${r.score}.png`,
-        file = new File([blob], name, {type: 'image/png'});
-      // Phones (iPhone Safari above all) save a picture to the photo library only through the
-      // share sheet; a download there opens the picture in a tab instead.
-      if (matchMedia('(pointer: coarse)').matches && navigator.canShare?.({files: [file]})) {
-        status.textContent = '공유 창에서 「이미지 저장」을 고르면 사진에 저장돼요.';
-        try {
-          await navigator.share({files: [file], title: '오디세이 런 기록'});
-          return;
-        } catch (e) {
-          if ((e as Error).name === 'AbortError') return;
-        }
-      }
-      this.download(blob, name, 'image/png');
-      status.textContent = '그림을 저장했어요. 학급 게시판이나 메시지에 올릴 수 있어요.';
-    } catch {
-      status.textContent = '그림을 만들지 못했어요. 화면을 캡처해 주세요.';
-    }
-  }
-  private async shareAction(kind: 'copy' | 'native') {
-    const url = this.ui.querySelector<HTMLInputElement>('#share-url')?.value,
-      status = this.ui.querySelector('#share-status');
-    if (!url || !status) return;
-    try {
-      if (kind === 'copy') {
-        await navigator.clipboard.writeText(url);
-        status.textContent = '링크를 복사했어요.';
-      } else {
-        await navigator.share({title: '오디세이 런 기록', text: '내 기록과 겨뤄 볼래?', url});
-        status.textContent = '';
-      }
-    } catch {
-      if (kind === 'copy') {
-        this.ui.querySelector<HTMLInputElement>('#share-url')?.select();
-        status.textContent = '자동 복사가 막혔어요. 선택된 링크를 직접 복사해 주세요.';
-      }
-    }
+  private shareImage() {
+    const r = this.result;
+    if (!r) return;
+    return saveResultPicture(this.ui, {
+      view: STAGE_VIEW[r.stage],
+      course: this.courseName(r.stage, r.variant ?? 'classic'),
+      score: r.score,
+      rating: r.rating,
+      stars: r.stars,
+      maps: r.maps.length,
+      complete: r.complete,
+      name: this.ui.querySelector<HTMLInputElement>('#card-name')?.checked ? this.profiles.active.name : '',
+    });
   }
   home() {
     this.rival = null;
@@ -744,7 +717,7 @@ export class App {
     this.world.setStage(id);
     const c = COURSES[id];
     this.set(
-      `<div class="veil"><section class="panel prepare">${button('islands', '← 항해 지도', 'text-button back')}<span class="eyebrow">${icon(STAGE_RELIC[id])} ISLAND 0${STAGES.indexOf(id) + 1} / ${c.subtitle}</span><h1 tabindex="-1">${c.name}</h1><p>${c.description}</p>${regionArt(STAGE_VIEW[id], 'prepare-art', c.name + ' 풍경')}<div class="control-guide"><div><kbd>Space / ↑</kbd><b>점프</b><span>공중에서 한 번 더!</span></div><div><kbd>↓ 꾹</kbd><b>슬라이드</b><span>낮은 문을 통과해요</span></div><div><kbd>P / Esc</kbd><b>일시정지</b><span>잠깐 쉬어 가도 돼요</span></div></div><p class="touch-hint">스마트폰에서는 화면의 점프·슬라이드 버튼을 사용해요.<br>상자·기둥·문은 닿아도 안전해요. ! 표시 위험물·몬스터와 낭떠러지를 조심하세요.</p>${this.assistLabel().length ? `<p class="assist-note">쉬운 항해 사용 중 · ${this.assistLabel().join(' · ')} · 설정에서 바꿀 수 있어요</p>` : ''}<div class="goal-line">♡ 체력 3 &nbsp; ✦ 별빛 100 &nbsp; ${icon('map')} 지도 3</div>${this.coursePicker(id)}<fieldset class="challenge-picker"><legend>이번 항해의 도전 · 하나를 골라요</legend>${Object.entries(
+      `<div class="veil"><section class="panel prepare">${button('islands', '← 항해 지도', 'text-button back')}<span class="eyebrow">${icon(STAGE_RELIC[id])} ISLAND 0${STAGES.indexOf(id) + 1} / ${c.subtitle}</span><h1 tabindex="-1">${c.name}</h1><p>${c.description}</p>${regionArt(STAGE_VIEW[id], 'prepare-art', c.name + ' 풍경')}<div class="control-guide">${padConnected() ? '<div><kbd>Ⓐ / ↑</kbd><b>점프</b><span>공중에서 한 번 더!</span></div><div><kbd>Ⓑ 꾹</kbd><b>슬라이드</b><span>낮은 문을 통과해요</span></div><div><kbd>Start</kbd><b>일시정지</b><span>잠깐 쉬어 가도 돼요</span></div>' : '<div><kbd>Space / ↑</kbd><b>점프</b><span>공중에서 한 번 더!</span></div><div><kbd>↓ 꾹</kbd><b>슬라이드</b><span>낮은 문을 통과해요</span></div><div><kbd>P / Esc</kbd><b>일시정지</b><span>잠깐 쉬어 가도 돼요</span></div>'}</div><p class="touch-hint">스마트폰에서는 화면의 점프·슬라이드 버튼을 사용해요.<br>상자·기둥·문은 닿아도 안전해요. ! 표시 위험물·몬스터와 낭떠러지를 조심하세요.</p>${this.assistLabel().length ? `<p class="assist-note">쉬운 항해 사용 중 · ${this.assistLabel().join(' · ')} · 설정에서 바꿀 수 있어요</p>` : ''}<div class="goal-line">♡ 체력 3 &nbsp; ✦ 별빛 100 &nbsp; ${icon('map')} 지도 3</div>${this.coursePicker(id)}<fieldset class="challenge-picker"><legend>이번 항해의 도전 · 하나를 골라요</legend>${Object.entries(
         GOALS,
       )
         .map(
@@ -1060,10 +1033,7 @@ export class App {
     this.world.showHome();
     const board = this.profiles.board(),
       active = this.profiles.active.id;
-    this.set(
-      `<div class="page profiles">${this.header('항해사')}<div class="page-heading"><span class="eyebrow">ONE DEVICE, MANY SAILORS</span><h1 tabindex="-1">누가 항해할까요?</h1><p>항해사마다 기록·설정·옷장을 따로 저장해요. 이 기기 안에서만 보여요.</p></div><section class="profile-form"><label>항해사 이름 <input id="profile-name" maxlength="${MAX_NAME}" autocomplete="off" placeholder="예: 지우"></label><div class="button-row">${button('profile-add', '새 항해사로 시작', 'primary')}${button('profile-rename', '지금 항해사 이름 바꾸기', 'secondary')}</div><details class="numbered"><summary>번호로 한 번에 만들기</summary><div class="numbered-body"><label>만들 항해사 수 <input id="profile-count" type="number" inputmode="numeric" min="1" max="${MAX_PROFILES}" value="${Math.min(30, MAX_PROFILES - this.profiles.book.list.length) || 1}"></label>${button('profile-numbered', '만들기', 'secondary')}<small>1번, 2번…처럼 번호 이름을 만들어요. 학생은 자기 번호를 골라 시작해요. 최대 ${MAX_PROFILES}명.</small></div></details><p role="status" id="profile-message">${esc(message)}</p></section><section class="class-board"><h2>우리 반 항해 순위 <small>이 기기에 저장된 기록</small></h2><ol>${board.map((p, i) => `<li class="${p.id === active ? 'active' : ''}"><span class="rank">${i + 1}</span><b translate="no">${esc(p.name)}</b><span>${p.total.toLocaleString()}점</span><span>완주 ${p.islands}/${STAGES.length}</span><span>지도 ${p.maps}</span><span>퀴즈 ${p.quiz}</span>${p.id === active ? '<em>✓ 항해 중</em>' : button('profile-use:' + p.id, '이 항해사로', 'secondary')}${p.id === active || p.id === MAIN_PROFILE ? '' : button('profile-delete:' + p.id, '지우기', 'text-button danger', `aria-label="‘${esc(p.name)}’ 지우기"`)}</li>`).join('')}</ol><small>점수는 섬별 최고 점수의 합이에요. 온라인으로 보내지 않아요.</small>${button('progress', '📋 학생별 진행 현황', 'secondary')}</section></div>`,
-      'profiles',
-    );
+    this.set(profilesMarkup(this.header('항해사'), board, active, this.profiles.book.list.length, message), 'profiles');
   }
   private switchProfile(id: string, message: string) {
     if (!this.profiles.use(id)) {
@@ -1104,10 +1074,7 @@ export class App {
         const p = this.profiles.book.list.find(p => p.id === id);
         if (!p || id === MAIN_PROFILE || id === this.profiles.active.id) return;
         this.pendingDelete = id;
-        this.set(
-          `<div class="veil"><section class="panel"><h1 tabindex="-1">‘${esc(p.name)}’ 항해사를 지울까요?</h1><p>이 항해사의 기록·설정·백업을 이 기기에서 지워요. 되돌릴 수 없어요.</p><div class="button-row">${button('profiles', '취소', 'secondary')}${button('profile-delete-confirm', '지우기', 'danger-button')}</div></section></div>`,
-          'profile-delete',
-        );
+        this.set(deleteSailorMarkup(p.name), 'profile-delete');
       } else if (kind === 'delete-confirm' && this.screen === 'profile-delete' && this.pendingDelete) {
         this.profiles.remove(this.pendingDelete);
         this.pendingDelete = '';
@@ -1291,13 +1258,8 @@ export class App {
       'offline',
     );
   }
-  private download(data: string | Blob, filename: string, type = 'application/json;charset=utf-8') {
-    const url = URL.createObjectURL(new Blob([data], {type}));
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  private download(data: string | Blob, filename: string, type?: string) {
+    downloadFile(data, filename, type);
   }
   private export() {
     this.download(
@@ -1368,13 +1330,7 @@ export class App {
   private async readClassFile(input: HTMLInputElement, file: File) {
     const box = this.ui.querySelector('#import-error');
     try {
-      if (file.size > CLASS_BACKUP_LIMIT) throw Error('반 전체 백업 파일은 4MB 이하여야 해요.');
-      let raw: unknown;
-      try {
-        raw = JSON.parse(await file.text());
-      } catch {
-        throw Error('JSON 파일을 읽을 수 없어요. 올바른 기록 파일을 선택해 주세요.');
-      }
+      const raw = await readJsonFile(file, CLASS_BACKUP_LIMIT, '반 전체 백업 파일은 4MB 이하여야 해요.');
       if (this.screen !== 'settings') return;
       this.classImport = readClassBackup(raw);
       this.classPreview();
@@ -1389,15 +1345,8 @@ export class App {
     const active = () =>
       !this.destroyed && request === this.importRequest && this.screen === 'settings' && input.isConnected;
     try {
-      if (file.size > 65536) throw Error('기록 파일은 64KiB 이하여야 해요.');
-      const text = await file.text();
+      const raw = await readJsonFile(file, 65536, '기록 파일은 64KiB 이하여야 해요.');
       if (!active()) return;
-      let raw: unknown;
-      try {
-        raw = JSON.parse(text);
-      } catch {
-        throw Error('JSON 파일을 읽을 수 없어요. 올바른 기록 파일을 선택해 주세요.');
-      }
       this.imported = validateSave(raw);
       this.importPreview();
     } catch (error) {
@@ -1461,8 +1410,8 @@ export class App {
     wardrobe: () => this.wardrobe(),
     quiz: () => this.quiz(),
     share: () => this.screen === 'result' && this.sharePage(),
-    'share-copy': () => void this.shareAction('copy'),
-    'share-native': () => void this.shareAction('native'),
+    'share-copy': () => void shareLink(this.ui, 'copy'),
+    'share-native': () => void shareLink(this.ui, 'native'),
     'share-image': () => this.screen === 'share' && void this.shareImage(),
     'rival-start': () => this.screen === 'rival' && void this.rivalStart(),
     profiles: () => this.profilesPage(),

@@ -47,6 +47,8 @@ try {
   await p.waitForSelector('.island-card');
   await choose(p, 'stage:beach');
   await p.waitForSelector('[data-action="start"]');
+  // With a pad connected the guide shows the pad's buttons.
+  await expect(p.locator('.control-guide')).toContainText('Ⓐ');
   await choose(p, 'start');
   await p.waitForSelector('.countdown', {state: 'detached', timeout: 15000});
   await press(p, 0);
@@ -84,9 +86,27 @@ try {
   await expect(q.locator('.device-note')).toBeVisible();
   results.device = app;
   await d.close();
+
+  // A picture that cannot load becomes a parchment tile with one notice, never a broken image.
+  const e = await b.newContext({viewport: {width: 1280, height: 720}, serviceWorkers: 'block'});
+  await e.route(/assets\/art\/(penelope|athena)-/, route => route.abort());
+  const r = await e.newPage();
+  r.on('pageerror', err => errors.push(err.message));
+  await r.goto(url);
+  await r.waitForSelector('.home');
+  await r.locator('[data-action="codex"]:visible').first().click();
+  await r.locator('[data-action="people"]').click();
+  await r.waitForFunction(() => document.querySelectorAll('img.art-missing').length >= 2, null, {timeout: 15000});
+  const broken = await r.evaluate(
+    () => [...document.querySelectorAll('img')].filter(i => i.complete && i.naturalWidth === 0).length,
+  );
+  if (broken) throw Error(`${broken} broken images left`);
+  await expect(r.locator('#notice')).toContainText('그림 일부를 불러오지 못했어요');
+  results.missingArt = 'placeholder + notice';
+  await e.close();
 } finally {
   await b.close();
 }
 if (errors.length) throw Error(`page errors: ${errors.join(' | ')}`);
 console.log(JSON.stringify(results, null, 1));
-console.log('access: gamepad menus/run/pause, reduced motion, more contrast and larger text passed');
+console.log('access: gamepad menus/run/pause, reduced motion, more contrast, larger text and missing pictures passed');

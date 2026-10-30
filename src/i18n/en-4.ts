@@ -375,4 +375,12 @@ export const EN_4: Record<string, string> = {
   '{n}번': 'No. {n}',
   '공유 창에서 「이미지 저장」을 고르면 사진에 저장돼요.':
     'In the share sheet, choose “Save Image” to keep it in Photos.',
+  'Ⓑ 꾹': 'Ⓑ hold',
+  '게임패드: Ⓐ 점프, Ⓑ 슬라이드, Start 일시정지, 메뉴는 방향키와 Ⓐ. 보조 스위치는 Space나 Enter 키로 설정하면 점프하고, 「버튼 하나로 항해」와 함께 쓰면 슬라이드는 저절로 해요.':
+    'Gamepad: Ⓐ jump, Ⓑ slide, Start pause; menus use the d-pad and Ⓐ. Set an access switch to Space or Enter to jump; with “One-button voyage” sliding happens by itself.',
+  '그림 일부를 불러오지 못했어요. 연결이 나아지면 다시 열어 주세요.':
+    'Some pictures could not load. Open this again when the connection is better.',
+  '오프라인이라 그림 일부가 비어 있어요. 설정 → 섬 다운로드·업데이트로 미리 받아 둘 수 있어요.':
+    'Offline, so some pictures are empty. Download them ahead in Settings → Island downloads & updates.',
+  '앱 설치': 'Install app',
 };

@@ -120,6 +120,23 @@ const SCAN = `(() => {
     if (el.scrollWidth > el.clientWidth + 2 && getComputedStyle(el).textOverflow === 'ellipsis')
       problems.push({kind: 'ellipsis', text: text.slice(0, 40), at: label(el)});
   }
+  // Off screen: a control or text run reaches past the left or right edge of the window (a top
+  // bar wider than a portrait phone), unless it sits in a container that scrolls sideways.
+  const vw = document.documentElement.clientWidth;
+  const sideScroll = el => {
+    for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {
+      const cs = getComputedStyle(a);
+      if (/(auto|scroll)/.test(cs.overflowX) && a.scrollWidth > a.clientWidth + 1) return true;
+    }
+    return false;
+  };
+  const controls = [...document.querySelectorAll('#app button, #app a[href], #app select, #app input, #app .ys-chip')]
+    .filter(el => shown(el) && !el.closest('[hidden], [aria-hidden="true"], .sr-only, #rotate'))
+    .map(el => ({text: (el.textContent || el.getAttribute('aria-label') || el.tagName).trim().slice(0, 40), at: label(el), el, r: el.getBoundingClientRect()}));
+  for (const b of [...boxes, ...controls]) {
+    if (b.r.width < 1 || b.r.height < 1 || (b.r.right <= vw + 1 && b.r.left >= -1) || sideScroll(b.el)) continue;
+    problems.push({kind: 'offscreen', text: b.text, at: b.at + ' ' + Math.round(b.r.left) + '–' + Math.round(b.r.right) + ' of ' + vw});
+  }
   // Overlap: glyph boxes of two different text runs cover each other.
   for (let i = 0; i < boxes.length; i++)
     for (let j = i + 1; j < boxes.length; j++) {

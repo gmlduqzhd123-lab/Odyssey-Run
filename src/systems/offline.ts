@@ -1,4 +1,9 @@
 import type {StageId} from '../levels/courses';
+// An installed app on a phone is rarely opened afresh: it comes back from the background. It then
+// looks for a new version at most this often, and applies one when nothing is in progress.
+export const RESUME_CHECK_MS = 5 * 60_000;
+export const resumeAction = (now: number, lastCheck: number, waiting: boolean, busy: boolean) =>
+  busy ? 'none' : waiting ? 'apply' : now - lastCheck >= RESUME_CHECK_MS ? 'check' : 'none';
 export class Offline {
   registration: ServiceWorkerRegistration | null = null;
   ready: Partial<Record<StageId, boolean>> = {};
@@ -12,6 +17,10 @@ export class Offline {
   private abort = new AbortController();
   private applying = false;
   private disposed = false;
+  // The first return to the screen always looks; later ones at most every RESUME_CHECK_MS.
+  private lastCheck = 0;
+  // Set when the app came back to the screen: a version that finishes downloading then is applied.
+  private applyOnArrival = false;
   constructor(
     private busy: () => boolean,
     private changed: () => void,
@@ -52,8 +61,26 @@ export class Offline {
       const reg = this.registration;
       const watch = () => {
         this.waiting = !!reg.waiting;
+        if (this.waiting && this.applyOnArrival && navigator.serviceWorker.controller && !this.busy()) {
+          this.applyOnArrival = false;
+          void this.update();
+        }
         this.changed();
       };
+      document.addEventListener(
+        'visibilitychange',
+        () => {
+          if (document.hidden || this.applying) return;
+          const action = resumeAction(Date.now(), this.lastCheck, !!reg.waiting, this.busy());
+          if (action === 'apply' && navigator.serviceWorker.controller) void this.update();
+          else if (action === 'check' && navigator.onLine) {
+            this.lastCheck = Date.now();
+            this.applyOnArrival = true;
+            reg.update().catch(() => {});
+          }
+        },
+        {signal: this.abort.signal},
+      );
       reg.addEventListener(
         'updatefound',
         () => {

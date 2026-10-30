@@ -615,3 +615,10 @@ test('gamepads and switches: A or up jumps once, B slides while held, Start paus
     else Reflect.deleteProperty(globalThis, 'window');
   }
 });
+test('an installed app coming back to the screen applies a waiting version or looks for one, never mid-run', async () => {
+  const {resumeAction, RESUME_CHECK_MS} = await import('../src/systems/offline');
+  assert.equal(resumeAction(10, 0, true, false), 'apply');
+  assert.equal(resumeAction(RESUME_CHECK_MS, 0, false, false), 'check');
+  assert.equal(resumeAction(RESUME_CHECK_MS - 1, 0, false, false), 'none');
+  assert.equal(resumeAction(RESUME_CHECK_MS * 2, 0, true, true), 'none');
+});

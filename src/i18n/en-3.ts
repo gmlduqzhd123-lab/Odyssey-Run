@@ -106,7 +106,7 @@ export const EN_3: Record<string, string> = {
   앞: 'ahead',
   '앞선 섬을 먼저 완주한 기록이 필요해요.': 'The previous island must be finished first.',
   '앞선 섬을 완주하면 다음 항로가 열려요.': 'Finish an island to open the next route.',
-  // Header install chip: <span>앱 </span>설치
+  // Older header install chip: <span>앱 </span>설치 (now "앱 설치" as one label)
   앱: '',
   약: 'about',
   '약 10년': 'About 10 years',
