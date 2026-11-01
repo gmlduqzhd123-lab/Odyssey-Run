@@ -53,3 +53,15 @@ test('heroes open with map fragments, hidden stories and quiz answers, and saves
   delete old.preferences.hero;
   assert.equal(validateSave(old).preferences.hero, 'odysseus');
 });
+
+test('the see-through ghost runner is on by default and older saves keep it on', () => {
+  const s = emptySave();
+  assert.equal(s.preferences.ghostRunner, true);
+  s.preferences.ghostRunner = false;
+  assert.equal(validateSave(s).preferences.ghostRunner, false);
+  const old = structuredClone(s) as unknown as {preferences: Record<string, unknown>};
+  delete old.preferences.ghostRunner;
+  assert.equal(validateSave(old).preferences.ghostRunner, true);
+  old.preferences.ghostRunner = 'yes';
+  assert.throws(() => validateSave(old), /고스트/);
+});

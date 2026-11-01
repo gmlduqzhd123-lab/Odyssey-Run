@@ -30,6 +30,8 @@ export interface SceneHost {
   density(): number;
   view(): DisplayViewport;
   cosmetics(): Preferences;
+  // The comparison voyage's position now, drawn as a see-through runner.
+  ghost(): {x: number; friend: boolean} | null;
 }
 const PAINTED_TOP: Record<string, number> = {'view-cave': 0.5, 'view-storm': 0.5, 'view-palace': 0.55};
 // The night route's painted stars would read as collectible starlight: cool them to blue.
@@ -41,6 +43,8 @@ export class World extends Phaser.Scene {
   // Rain, storm and fog: in front of the course, behind the hero and the warnings.
   private weatherFx!: Phaser.GameObjects.Graphics;
   private hero!: Phaser.GameObjects.Image;
+  private ghost!: Phaser.GameObjects.Image;
+  private ghostTag!: Phaser.GameObjects.Text;
   private boat!: Phaser.GameObjects.Image;
   private giant!: Phaser.GameObjects.Image;
   private obstacles: Phaser.GameObjects.Image[] = [];
@@ -135,6 +139,20 @@ export class World extends Phaser.Scene {
     this.costume = this.add.graphics().setDepth(11);
     this.sailDecor = this.add.graphics().setDepth(2);
     this.boat = this.add.image(744, 444, 'boat').setDisplaySize(350, 230);
+    this.ghost = this.add.image(0, 440, 'odysseus').setDepth(8).setOrigin(0.5, 1).setAlpha(0.35).setVisible(false);
+    this.ghostTag = this.add
+      .text(0, 330, '', {
+        fontFamily: "'Odyssey UI', sans-serif",
+        testString: TEST_STRING,
+        fontSize: '13px',
+        color: '#eaf6ff',
+        stroke: '#20394b',
+        strokeThickness: 3,
+        resolution: this.host.density(),
+      })
+      .setOrigin(0.5)
+      .setDepth(8)
+      .setVisible(false);
     this.hero = this.add.image(744, 442, 'odysseus').setDepth(10).setOrigin(0.5, 1).setDisplaySize(180, 240);
     this.label = this.add
       .text(480, 275, '', {
@@ -262,6 +280,8 @@ export class World extends Phaser.Scene {
       .setAlpha(1)
       .clearTint();
     this.giant.setVisible(false);
+    this.ghost.setVisible(false);
+    this.ghostTag.setVisible(false);
     this.weatherFx.clear();
     this.label.setText('');
     this.warning.setText('');
@@ -287,6 +307,7 @@ export class World extends Phaser.Scene {
       .setScroll((width * (1 - d)) / (2 * d), (height * (1 - d)) / (2 * d) - v.extraHeight);
     this.bg.forEach(pair => pair.forEach(b => b.setDisplaySize(this.bgWidth, this.bgHeight)));
     if (this.label) this.label.setResolution(d);
+    if (this.ghostTag) this.ghostTag.setResolution(d);
     if (this.warning) this.warning.setResolution(d);
     this.bursts.forEach(b => b.text.setResolution(d).setX(v.width / 2));
     const context = this.game.canvas.getContext('2d');
@@ -693,6 +714,7 @@ export class World extends Phaser.Scene {
     });
     this.drawAdventure(r, cam, reduced);
     this.drawWeather(r, reduced);
+    this.drawGhost(r, cam);
     this.drawHero(r);
     this.drawCostume(this.view.heroX, r.y, r.sliding, false);
     if (r.shield) {
@@ -751,6 +773,26 @@ export class World extends Phaser.Scene {
     this.label.setPosition((this.view.width * captionX) / 960, captionY);
     caption = translate(caption);
     if (this.label.text !== caption) this.label.setText(caption);
+  }
+  // The comparison voyage runs along the ground beside the hero; only its distance is recorded.
+  private drawGhost(r: Runner, cam: number) {
+    const g = this.host.ghost(),
+      x = g ? g.x - cam : -999,
+      show = !!g && x > -60 && x < this.view.width + 60 && Math.abs(g.x - r.x) > 12;
+    this.ghost.setVisible(show);
+    this.ghostTag.setVisible(show);
+    if (!show) return;
+    const i = Math.floor(r.time * RUN_ART.fps) % RUN_ART.frames.length,
+      f = RUN_ART.frames[i];
+    this.ghost
+      .setTexture('odysseus-run', `run-${i}`)
+      .setOrigin(f.originX, f.originY)
+      .setScale(RUN_ART.scale)
+      .setPosition(x, C.ground)
+      .setTint(g!.friend ? 0xffd9a8 : 0xbfe3ff);
+    const label = translate(g!.friend ? '친구' : '나의 최고');
+    if (this.ghostTag.text !== label) this.ghostTag.setText(label);
+    this.ghostTag.setPosition(x, C.ground - 100);
   }
   private drawWeather(r: Runner, reduced: boolean) {
     const w = this.weatherFx,

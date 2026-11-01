@@ -27,6 +27,8 @@ export interface Preferences {
   sail: 'plain' | 'sun' | 'festival';
   // The hero who runs; saves from before playable heroes run as Odysseus.
   hero: HeroId;
+  // Show the comparison voyage as a see-through runner on the course (default on).
+  ghostRunner: boolean;
 }
 export const defaultPreferences = (): Preferences => ({
   quality: 'auto',
@@ -38,6 +40,7 @@ export const defaultPreferences = (): Preferences => ({
   emblem: 'plain',
   sail: 'plain',
   hero: 'odysseus',
+  ghostRunner: true,
 });
 export function readPreferences(raw: unknown): Preferences {
   const out = defaultPreferences();
@@ -68,6 +71,10 @@ export function readPreferences(raw: unknown): Preferences {
   }
   if (typeof t.swapped !== 'boolean') throw Error('버튼 좌우 설정을 확인해 주세요.');
   out.touch.swapped = t.swapped;
+  if (v.ghostRunner !== undefined) {
+    if (typeof v.ghostRunner !== 'boolean') throw Error('고스트 표시 설정을 확인해 주세요.');
+    out.ghostRunner = v.ghostRunner;
+  }
   if (v.haptics !== undefined) {
     if (typeof v.haptics !== 'boolean') throw Error('진동 설정을 확인해 주세요.');
     out.haptics = v.haptics;

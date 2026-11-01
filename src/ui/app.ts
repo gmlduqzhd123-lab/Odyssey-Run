@@ -209,6 +209,7 @@ export class App {
       density: () => this.renderDensity,
       view: () => this.view,
       cosmetics: () => this.store.data.preferences,
+      ghost: () => this.ghostNow(),
     });
     this.game = new Phaser.Game({
       type: Phaser.CANVAS,
@@ -602,6 +603,14 @@ export class App {
       `<div class="veil"><section class="panel"><span class="eyebrow">A FRIEND’S VOYAGE</span><h1 tabindex="-1">‘${esc(link.name)}’의 기록과 나란히</h1><p>${this.courseName(link.stage, link.variant)} · 친구 ${link.score.toLocaleString()}점</p><p>일반 항해와 똑같이 기록·지도·해금이 남아요.</p>${button('start', '출발 →', 'primary large')}${button('home', '그만두기', 'secondary')}</section></div>`,
       'prepare',
     );
+  }
+  // Where the comparison voyage is now: a friend's link first, else this sailor's best on the course.
+  private ghostNow(): {x: number; friend: boolean} | null {
+    const r = this.run;
+    if (!r || this.special || !this.store.data.preferences.ghostRunner) return null;
+    const rival = this.rivalFor(this.selected, r.variant),
+      x = ghostDistance(rival?.ghost ?? courseGhost(this.store.data, this.selected, r.variant), r.time);
+    return x === null ? null : {x, friend: !!rival};
   }
   private rivalFor(stage: StageId, variant: VariantId) {
     const r = this.rival;
@@ -1344,6 +1353,11 @@ export class App {
     }
     if (input.hasAttribute('data-autofs')) {
       this.store.data.preferences.autoFullscreen = input.checked;
+      this.store.persist();
+      return;
+    }
+    if (input.hasAttribute('data-ghost')) {
+      this.store.data.preferences.ghostRunner = input.checked;
       this.store.persist();
       return;
     }
