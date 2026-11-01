@@ -4,6 +4,7 @@ import {STAGES, type StageId} from '../levels/courses';
 import {isVariant, type VariantId} from '../levels/course-ids';
 import {validateGhost, GHOST_SECONDS, type Ghost} from '../storage/journal';
 import {cleanName} from '../storage/profiles';
+import {isBlocks} from '../levels/maker';
 // Links carry records in the URL fragment, so nothing is sent to a server. They cannot be
 // verified either: anything parsed here is checked for shape and range, never trusted as proof.
 const enc = new TextEncoder(),
@@ -102,7 +103,14 @@ export interface ContestResult {
   hpLoss: number;
   time: number;
 }
-export type Link = RivalLink | ContestLink | ContestResult;
+// A course a student built: island, ten block letters and a title.
+export interface CourseLink {
+  kind: 'course';
+  stage: StageId;
+  blocks: string;
+  title: string;
+}
+export type Link = RivalLink | ContestLink | ContestResult | CourseLink;
 // A tiny check digit catches mistyped or truncated codes; it is not a signature.
 const check = (s: string) => {
   let h = 7;
@@ -119,6 +127,7 @@ export function encodeLink(link: Link): string {
   }
   if (link.kind === 'contest')
     return seal(['c1', link.id, link.stage, link.variant, link.assist ? 1 : 0, textOut(link.title)].join('.'));
+  if (link.kind === 'course') return seal(['m1', link.stage, link.blocks, textOut(link.title)].join('.'));
   return seal(
     [
       'r1',
@@ -161,6 +170,13 @@ export function decodeLink(code: string): Link {
         assist: f[3] === '1',
         title: (cleanName(textIn(f[4])) || '우리 반 대회').slice(0, 12),
       };
+    if (kind === 'm1' && f.length === 3 && isBlocks(f[1]))
+      return {
+        kind: 'course',
+        stage: stage(f[0]),
+        blocks: f[1],
+        title: (cleanName(textIn(f[2])) || '나만의 코스').slice(0, 12),
+      };
     if (kind === 'r1' && f.length === 8 && /^[a-z0-9]{6}$/.test(f[0]) && /^[01]$/.test(f[2]))
       return {
         kind: 'result',
@@ -178,14 +194,14 @@ export function decodeLink(code: string): Link {
   }
   throw Error('알 수 없는 코드예요.');
 }
-const PREFIX = {ghost: 'g', contest: 'c', result: 'r'} as const;
+const PREFIX = {ghost: 'g', contest: 'c', result: 'r', course: 'm'} as const;
 export function linkUrl(link: Link, base: string) {
   return `${base.split('#')[0]}#${PREFIX[link.kind]}=${encodeLink(link)}`;
 }
 // Accepts a full link, a bare fragment or just the code a student read out.
 export function parseLinkText(text: string): Link | null {
   const t = text.trim(),
-    m = t.match(/#?(?:[gcr]=)?([A-Za-z0-9_.-]+)$/);
+    m = t.match(/#?(?:[gcrm]=)?([A-Za-z0-9_.-]+)$/);
   return m ? decodeLink(m[1]) : null;
 }
 export function qrSvg(text: string) {
