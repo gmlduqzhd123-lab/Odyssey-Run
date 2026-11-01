@@ -78,10 +78,10 @@ export const VI_5: Record<string, string> = {
   '맞바람에 조금 느려지고 점프가 짧아져요.': 'Gió ngược làm bạn chậm lại một chút và nhảy ngắn hơn.',
   안개: 'Sương mù',
   '멀리 있는 것이 흐려 보여요. 경고 표시는 그대로예요.': 'Những thứ ở xa trông mờ đi. Biển cảnh báo vẫn hiện.',
-  '☀ 맑음': '☀ Trời quang',
-  '☂ 비': '☂ Mưa',
-  '⚡ 폭풍': '⚡ Bão',
-  '☁ 안개': '☁ Sương mù',
+  '☀️ 맑음': '☀️ Trời quang',
+  '🌧️ 비': '🌧️ Mưa',
+  '⛈️ 폭풍': '⛈️ Bão',
+  '🌫️ 안개': '🌫️ Sương mù',
   '날씨 · {x}': 'Thời tiết · {x}',
   '골라서 달려요': 'chọn rồi chạy',
   '이 섬을 완주하면 열려요': 'mở khi bạn hoàn thành đảo này',
@@ -271,5 +271,6 @@ export const VI_5: Record<string, string> = {
   '나의 최고 기록이나 친구가 보낸 기록이 반투명한 영웅으로 코스 위를 함께 달려요.':
     'Kỷ lục của bạn hoặc bạn bè gửi sẽ chạy cùng dưới dạng anh hùng trong suốt.',
   '· 인원 초과로 건너뜀 {n}명': '· bỏ qua vì quá số người: {n}',
+  '코스 링크 QR 코드': 'Mã QR liên kết đường chạy',
   별점: 'Xếp hạng sao',
 };

@@ -45,6 +45,8 @@ const SCREENS: [string, string[], string[]?][] = [
   ['quiz', ['journal', 'quiz']],
   ['profiles', ['profiles']],
   ['progress', ['profiles', 'progress']],
+  ['feats', ['feats']],
+  ['maker', ['challenges', 'maker']],
   ['settings', ['settings']],
   ['offline', ['settings', 'offline']],
   // A run: the countdown, a moment of play, then the pause dialog (wait:ms and key:Name are steps).

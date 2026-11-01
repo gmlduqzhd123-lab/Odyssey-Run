@@ -13,7 +13,15 @@ export const defaultFleetGoal = (sailors: number) => Math.max(100, sailors * 150
 export function fleetMarkup(stars: number, goal: number, sailors: number) {
   const share = Math.min(1, stars / Math.max(1, goal)),
     reached = Math.min(FLEET_STEPS.length - 1, Math.floor(share * (FLEET_STEPS.length - 1) + 1e-9));
-  return `<section class="fleet"><h2>⛵ 우리 반 함대 <small>항해사 ${sailors}명이 함께 노를 저어요</small></h2><div class="fleet-route" role="img" aria-label="함대 진행 ${Math.round(share * 100)}%"><span class="fleet-line"><i style="width:${share * 100}%"></i></span><span class="fleet-ship" style="left:${share * 100}%">⛵</span>${FLEET_STEPS.map((name, i) => `<span class="fleet-stop ${i <= reached ? 'passed' : ''}" style="left:${(i / (FLEET_STEPS.length - 1)) * 100}%"><b>${name}</b></span>`).join('')}</div><p><b>별빛 ${stars.toLocaleString()} / ${goal.toLocaleString()}</b> · <span>${share >= 1 ? '⚑ 함대가 이타카에 도착했어요!' : `지금 ${FLEET_STEPS[reached]} 근처 · 이타카까지 ${Math.round((1 - share) * 100)}%`}</span></p><p class="muted">각 항해사가 섬마다 모은 최고 별빛을 모두 더해요. 목표는 선생님이 정해요.</p><label class="fleet-goal">함대 목표 별빛 <input id="fleet-goal" type="number" inputmode="numeric" min="50" max="100000" step="50" value="${goal}"></label>${button('fleet-goal', '목표 바꾸기', 'secondary')}</section>`;
+  return `<section class="fleet"><h2>⛵ 우리 반 함대 <small>항해사 ${sailors}명이 함께 노를 저어요</small></h2><div class="fleet-route" role="img" aria-label="함대 진행 ${Math.round(share * 100)}%"><span class="fleet-line"><i style="width:${share * 100}%"></i></span><span class="fleet-ship" style="left:${share * 100}%">⛵</span>${FLEET_STEPS.map(
+    (name, i) => {
+      const left = (i / (FLEET_STEPS.length - 1)) * 100,
+        edge = i === 0 ? 'first' : i === FLEET_STEPS.length - 1 ? 'last' : '';
+      return `<span class="fleet-stop ${i <= reached ? 'passed' : ''}" style="left:${left}%"></span><b class="fleet-label ${edge} ${i % 2 ? 'low' : ''}" style="left:${left}%">${name}</b>`;
+    },
+  ).join(
+    '',
+  )}</div><p><b>별빛 ${stars.toLocaleString()} / ${goal.toLocaleString()}</b> · <span>${share >= 1 ? '⚑ 함대가 이타카에 도착했어요!' : `지금 ${FLEET_STEPS[reached]} 근처 · 이타카까지 ${Math.round((1 - share) * 100)}%`}</span></p><p class="muted">각 항해사가 섬마다 모은 최고 별빛을 모두 더해요. 목표는 선생님이 정해요.</p><label class="fleet-goal">함대 목표 별빛 <input id="fleet-goal" type="number" inputmode="numeric" min="50" max="100000" step="50" value="${goal}"></label>${button('fleet-goal', '목표 바꾸기', 'secondary')}</section>`;
 }
 export interface QuestionReport {
   id: string;

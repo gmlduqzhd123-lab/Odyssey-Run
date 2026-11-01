@@ -78,10 +78,10 @@ export const EN_5: Record<string, string> = {
   '맞바람에 조금 느려지고 점프가 짧아져요.': 'A headwind slows you a little and shortens jumps.',
   안개: 'Fog',
   '멀리 있는 것이 흐려 보여요. 경고 표시는 그대로예요.': 'Things far ahead look hazy. Warnings still show.',
-  '☀ 맑음': '☀ Clear',
-  '☂ 비': '☂ Rain',
-  '⚡ 폭풍': '⚡ Storm',
-  '☁ 안개': '☁ Fog',
+  '☀️ 맑음': '☀️ Clear',
+  '🌧️ 비': '🌧️ Rain',
+  '⛈️ 폭풍': '⛈️ Storm',
+  '🌫️ 안개': '🌫️ Fog',
   '날씨 · {x}': 'Weather · {x}',
   '골라서 달려요': 'pick one and run',
   '이 섬을 완주하면 열려요': 'opens once you finish this island',
@@ -273,5 +273,6 @@ export const EN_5: Record<string, string> = {
   '나의 최고 기록이나 친구가 보낸 기록이 반투명한 영웅으로 코스 위를 함께 달려요.':
     "Your best or a friend's shared record runs beside you as a see-through hero.",
   '· 인원 초과로 건너뜀 {n}명': '· skipped (full): {n}',
+  '코스 링크 QR 코드': 'Course link QR code',
   별점: 'Rating',
 };

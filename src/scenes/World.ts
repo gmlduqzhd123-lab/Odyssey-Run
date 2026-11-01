@@ -805,9 +805,10 @@ export class World extends Phaser.Scene {
       // Thin near the hero, thick toward the right edge; warnings are drawn above it.
       const from = this.view.heroX + FOG.clear,
         to = this.view.heroX + FOG.hidden;
-      for (let x = from; x < width; x += 20) {
-        const a = Math.min(0.88, ((x - from) / (to - from)) * 0.88);
-        w.fillStyle(0xe8ecef, a).fillRect(x, top, 20, height);
+      // Thin slices with a smooth ramp, so the haze has no visible bands.
+      for (let x = from; x < width; x += 4) {
+        const t = Math.min(1, (x - from) / (to - from));
+        w.fillStyle(0xe8ecef, 0.88 * t * t * (3 - 2 * t)).fillRect(x, top, 4, height);
       }
       w.fillStyle(0xdfe5e8, 0.12).fillRect(0, top, width, height);
       return;
