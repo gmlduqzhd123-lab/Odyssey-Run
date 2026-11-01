@@ -28,7 +28,12 @@ export function inkOverlap(a: Shape, b: Shape, clipA: Rect = a, clipB: Rect = b)
   return false;
 }
 export function collectibleContact(hero: SpritePose, body: Rect, item: Collectible) {
-  return inkOverlap(hero, {...itemPose(item.kind, item.x, item.y), mask: item.kind}, body);
+  // Moly has no traced outline of its own; the round apple outline is about the same size.
+  return inkOverlap(
+    hero,
+    {...itemPose(item.kind, item.x, item.y), mask: item.kind === 'moly' ? 'apple' : item.kind},
+    body,
+  );
 }
 export function obstacleContact(hero: SpritePose, body: Rect, obstacle: Obstacle, playerX: number) {
   if (obstacle.role !== 'hazard') return false;

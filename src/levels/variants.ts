@@ -19,6 +19,11 @@ export const VARIANT_LABELS: Record<StageId, Record<VariantId, {name: string; de
     'remix-a': {name: '구름 순례길', description: '구름다리와 유적을 새로운 순서로 건너요.'},
     'remix-b': {name: '순풍 우회길', description: '달라진 바람길과 끊어진 다리를 살펴봐요.'},
   },
+  circe: {
+    classic: {name: '기본 항로', description: '마법의 숲을 익숙한 길로 지나요.'},
+    'remix-a': {name: '돼지우리 샛길', description: '마법에 걸린 동료들을 새로운 순서로 찾아가요.'},
+    'remix-b': {name: '헤르메스의 숲길', description: '몰리 약초를 따라 달라진 숲길을 달려요.'},
+  },
   sea: {
     classic: {name: '기본 항로', description: '노래가 들리는 바다를 익숙한 길로 건너요.'},
     'remix-a': {name: '절벽 신전길', description: '세이렌 석상 사이를 새로운 순서로 지나요.'},
@@ -33,6 +38,7 @@ export const COURSE_ORDERS: Record<StageId, Record<Exclude<VariantId, 'classic'>
   beach: {'remix-a': [2, 0, 1, 4, 3, 5], 'remix-b': [1, 0, 2, 3, 5, 4]},
   cave: {'remix-a': [3, 0, 1, 2, 4, 5], 'remix-b': [4, 5, 0, 1, 2, 3]},
   wind: {'remix-a': [3, 4, 5, 0, 1, 2], 'remix-b': [5, 0, 1, 2, 3, 4]},
+  circe: {'remix-a': [2, 0, 1, 5, 3, 4], 'remix-b': [4, 0, 3, 1, 5, 2]},
   sea: {'remix-a': [1, 2, 0, 4, 5, 3], 'remix-b': [3, 0, 2, 1, 5, 4]},
 };
 export function rearrangeCourse(
@@ -51,7 +57,7 @@ export function rearrangeCourse(
   };
   out.variant = variant;
   out.routeName = VARIANT_LABELS[stage][variant].name;
-  for (const objects of [out.obstacles, out.enemies, out.platforms, out.winds, out.gaps])
+  for (const objects of [out.obstacles, out.enemies, out.platforms, out.winds, out.gaps, out.spells ?? []])
     for (const o of objects) o.x = move(o.x);
   for (const i of out.items) {
     i.x = move(i.x);
@@ -67,7 +73,8 @@ export function rearrangeCourse(
   plan.stories.forEach(s => {
     s.x = move(s.x);
   });
-  const anchor = stage === 'beach' ? 8500 : stage === 'cave' ? 13400 : stage === 'sea' ? 13300 : 19800,
+  const anchor =
+      stage === 'beach' ? 8500 : stage === 'cave' ? 13400 : stage === 'sea' ? 13300 : stage === 'circe' ? 10100 : 19800,
     delta = move(anchor) - anchor;
   plan.highlight.start = Math.max(0, plan.highlight.start + delta);
   plan.highlight.end = Math.min(C.length, plan.highlight.end + delta);

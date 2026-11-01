@@ -23,8 +23,8 @@ export const VI_1: Record<string, string> = {
   'QR 코드로 접속': 'Vào bằng mã QR',
   'Space / ↑ · 점프, 한 번 더 누르면 2단 점프': 'Space / ↑ · nhảy, bấm thêm lần nữa để nhảy đôi',
   'TODAY’S VOYAGE · {x} 한국 날짜': 'TODAY’S VOYAGE · {x} (ngày Hàn Quốc)',
-  'UTF-8 JSON · 최대 64KiB · 복원 전 내용을 확인해요.':
-    'UTF-8 JSON · tối đa 64KiB · bạn được xem lại trước khi khôi phục.',
+  'UTF-8 JSON · 최대 128KiB · 복원 전 내용을 확인해요.':
+    'UTF-8 JSON · tối đa 128KiB · bạn được xem lại trước khi khôi phục.',
   '{x} {x}마리': '{x} ×{x}',
   '{x} · {x}번 조각': '{x} · mảnh {x}',
   '{x} · {x}점 · {x}': '{x} · {x} điểm · {x}',
@@ -196,7 +196,7 @@ export const VI_1: Record<string, string> = {
   '기록 보관함': 'Kho kỷ lục',
   '기록 코드의 내용이 올바르지 않아요.': 'Mã kỷ lục có dữ liệu không hợp lệ.',
   '기록 파일로 옮길 수 있어요.': 'Bạn có thể chuyển chúng bằng tệp kỷ lục.',
-  '기록 파일은 64KiB 이하여야 해요.': 'Tệp kỷ lục phải từ 64KiB trở xuống.',
+  '기록 파일은 128KiB 이하여야 해요.': 'Tệp kỷ lục phải từ 128KiB trở xuống.',
   '기록 파일을 복원했어요.': 'Đã khôi phục kỷ lục từ tệp.',
   '기록 형식을 확인해 주세요.': 'Hãy kiểm tra định dạng kỷ lục.',
   '기록은 유지해요. 다른 탭의 항해가 끝나야 업데이트할 수 있어요.':

@@ -53,6 +53,7 @@ export function adventurePlan(stage: StageId): AdventurePlan {
     beach: ['나우시카의 리본', '선원의 작은 약속'],
     cave: ['아무도 아닌 이름', '조언자의 등불'],
     wind: ['바람의 편지', '길잡이의 별'],
+    circe: ['하얀 꽃 몰리', '돌아온 동료들'],
     sea: ['밀랍 귀마개', '돛대의 약속'],
   }[stage];
   const words = {
@@ -86,6 +87,16 @@ export function adventurePlan(stage: StageId): AdventurePlan {
         '길잡이는 낮은 돌에 별 세 개를 새겼어요. 첫 별은 배, 둘째 별은 등대, 셋째 별은 기다리는 가족을 뜻했어요. 항해의 끝에는 장소보다 사람이 기다리고 있었지요.',
       ],
     ],
+    circe: [
+      [
+        '하얀 꽃은 마법보다 강한 지혜예요.',
+        '헤르메스는 숲길에서 오디세우스를 만나 뿌리는 검고 꽃은 하얀 약초를 건넸어요. “이것을 지니면 키르케의 잔도 너를 바꾸지 못할 것이다.”',
+      ],
+      [
+        '친구를 포기하지 않는 마음이 길을 열어요.',
+        '오디세우스는 혼자 도망치지 않고 동료들을 구하러 궁전으로 갔어요. 마법에서 풀려난 선원들은 눈물을 흘리며 그를 끌어안았지요.',
+      ],
+    ],
     sea: [
       [
         '귀를 막으면 마음의 방향을 지킬 수 있어요.',
@@ -109,7 +120,7 @@ export function adventurePlan(stage: StageId): AdventurePlan {
     },
     {
       id: `${stage}-story-2`,
-      x: stage === 'beach' ? 16750 : stage === 'cave' ? 17300 : stage === 'sea' ? 16850 : 18800,
+      x: stage === 'beach' ? 16750 : stage === 'cave' ? 17300 : stage === 'sea' || stage === 'circe' ? 16850 : 18800,
       y: 440,
       pose: 'duck' as const,
       title: titles[1],
@@ -139,27 +150,36 @@ export function adventurePlan(stage: StageId): AdventurePlan {
               name: '거인의 손을 피해!',
               hint: '손 아래로 숙인 뒤 끊어진 길에서 점프!',
             }
-          : stage === 'sea'
+          : stage === 'circe'
             ? {
-                id: 'sea-sirens',
-                start: 12700,
-                end: 14200,
-                name: '세이렌의 노래',
-                hint: '노래에 끌리지 말고 2단 점프로 바다를 건너요!',
+                id: 'circe-spell',
+                start: 9900,
+                end: 12300,
+                name: '키르케의 마법',
+                hint: '몰리 약초를 먹으면 마법이 풀려요 · 2단 점프 봉인',
               }
-            : {
-                id: 'wind-clouds',
-                start: 19200,
-                end: 20750,
-                name: '구름 징검다리',
-                hint: '바람과 2단 점프로 높은 구름길에 도전!',
-              },
+            : stage === 'sea'
+              ? {
+                  id: 'sea-sirens',
+                  start: 12700,
+                  end: 14200,
+                  name: '세이렌의 노래',
+                  hint: '노래에 끌리지 말고 2단 점프로 바다를 건너요!',
+                }
+              : {
+                  id: 'wind-clouds',
+                  start: 19200,
+                  end: 20750,
+                  name: '구름 징검다리',
+                  hint: '바람과 2단 점프로 높은 구름길에 도전!',
+                },
   };
 }
 export const ADVENTURE_PLANS = {
   beach: adventurePlan('beach'),
   cave: adventurePlan('cave'),
   wind: adventurePlan('wind'),
+  circe: adventurePlan('circe'),
   sea: adventurePlan('sea'),
 };
 export const storyIds = Object.values(ADVENTURE_PLANS).flatMap(p => p.stories.map(s => s.id));

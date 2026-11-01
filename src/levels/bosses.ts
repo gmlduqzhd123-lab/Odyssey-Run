@@ -19,6 +19,11 @@ export const BOSSES = {
     description: '공중의 경고를 숙여 피하고 바람길과 절벽을 건너요.',
     phases: ['바람의 하르피아 · 숙이기', '안개 속 수호자 · 숙이기', '폭풍의 틈 · 바람과 점프'],
   },
+  circe: {
+    name: '키르케의 궁전',
+    description: '그림자를 숙여 피하고, 석상병을 넘고, 마법 속에서 한 번의 점프로 버텨요.',
+    phases: ['마법의 그림자 · 숙이기', '궁전의 석상병 · 점프', '키르케의 마법 · 한 번 점프'],
+  },
   sea: {
     name: '세이렌의 노래',
     description: '세이렌의 날갯짓 → 스킬라의 머리 → 바위섬 집게를 읽어요.',
@@ -42,6 +47,7 @@ function build(stage: StageId): Course {
     beach: ['crab', 'crab', 'scylla', 'scylla', 'harpy', 'harpy'],
     cave: ['stone', 'stone', 'cyclops', 'cyclops', 'shade', 'shade'],
     wind: ['harpy', 'harpy', 'shade', 'shade', 'scylla', 'scylla'],
+    circe: ['shade', 'shade', 'stone', 'stone', 'crab', 'crab'],
     sea: ['harpy', 'harpy', 'scylla', 'scylla', 'crab', 'crab'],
   };
   const obstacles: Obstacle[] =
@@ -58,6 +64,8 @@ function build(stage: StageId): Course {
     obstacles,
     gaps: stage === 'wind' ? [{x: 8500, w: 180}] : [],
     winds: stage === 'wind' ? [{x: 8200, y: 70, w: 650, h: 370}] : [],
+    // The last phase runs inside Circe's spell: one jump only.
+    spells: stage === 'circe' ? [{x: 5800, w: 2600}] : [],
     safe: [0, 2800, 6000, 9000],
     enemies: kinds[stage].map((kind, i) => ({id: `${stage}-boss-${i + 1}`, kind, x: 1500 + i * 1200})),
   };

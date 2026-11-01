@@ -1135,7 +1135,7 @@ export class App {
     if (!STAGES.some(s => this.store.data.stages[s].maps.includes(id))) return;
     const [title, text] = MAP_STORIES[index];
     this.set(
-      `<div class="veil"><section class="panel story">${icon('map')}<span class="eyebrow">FRAGMENT 0${index + 1}</span><h1 tabindex="-1">${title}</h1><p>${text}</p>${button('codex', '도감으로 돌아가기', 'primary')}</section></div>`,
+      `<div class="veil"><section class="panel story">${icon('map')}<span class="eyebrow">FRAGMENT ${String(index + 1).padStart(2, '0')}</span><h1 tabindex="-1">${title}</h1><p>${text}</p>${button('codex', '도감으로 돌아가기', 'primary')}</section></div>`,
       'story',
     );
   }
@@ -1353,7 +1353,7 @@ export class App {
     const active = () =>
       !this.destroyed && request === this.importRequest && this.screen === 'settings' && input.isConnected;
     try {
-      const raw = await readJsonFile(file, 65536, '기록 파일은 64KiB 이하여야 해요.');
+      const raw = await readJsonFile(file, 131072, '기록 파일은 128KiB 이하여야 해요.');
       if (!active()) return;
       this.imported = validateSave(raw);
       this.importPreview();

@@ -8,7 +8,7 @@ export const PEOPLE = [
     id: 'odysseus',
     name: '오디세우스',
     role: '이타카로 돌아가는 영웅',
-    story: '이 모험의 주인공이에요. 용기와 지혜로 네 섬을 지나 고향 이타카로 돌아가요.',
+    story: '이 모험의 주인공이에요. 용기와 지혜로 다섯 섬을 지나 고향 이타카로 돌아가요.',
   },
   {
     id: 'penelope',
@@ -62,7 +62,7 @@ export const PEOPLE = [
     id: 'navigator',
     name: '별빛 길잡이',
     role: '지도를 읽는 탐험가',
-    story: '이 게임의 안내 인물이에요. 열두 조각의 지도를 모으며 이타카로 가는 길을 찾아요.',
+    story: '이 게임의 안내 인물이에요. 열다섯 조각의 지도를 모으며 이타카로 가는 길을 찾아요.',
   },
 ] as const;
 export const RELICS = [
@@ -127,5 +127,17 @@ export const RELICS = [
     description:
       '6초 동안 하르피아·망령과 날아오는 바위를 막아요. 다시 얻으면 6초로 갱신해요. 다른 장애물과 추락은 막지 못해요.',
   },
+  {
+    id: 'moly',
+    name: '몰리 약초',
+    kind: '달리기 아이템',
+    description: '헤르메스가 준 하얀 꽃이에요. 9초 동안 키르케의 마법을 막아 마법 구간에서도 2단 점프를 할 수 있어요.',
+  },
 ] as const;
-export const STAGE_RELIC = {beach: 'trident', cave: 'lantern', wind: 'wind-bag', sea: 'compass'} as const;
+export const STAGE_RELIC = {
+  beach: 'trident',
+  cave: 'lantern',
+  wind: 'wind-bag',
+  circe: 'moly',
+  sea: 'compass',
+} as const;

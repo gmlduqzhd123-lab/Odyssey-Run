@@ -24,7 +24,7 @@
         "stars": 100,
         "maps": 3,
         "monsters": 7,
-        "obstacles": 9
+        "obstacles": 10
       },
       "gaps": [
         {
@@ -121,6 +121,15 @@
           "h": 125,
           "kind": "gate",
           "role": "structure"
+        },
+        {
+          "id": "beach-spikes-20925",
+          "x": 20925,
+          "y": 394,
+          "w": 96,
+          "h": 46,
+          "kind": "spikes",
+          "role": "hazard"
         }
       ],
       "enemies": [
@@ -152,12 +161,12 @@
         {
           "id": "beach-enemy-air-2",
           "kind": "harpy",
-          "x": 13900
+          "x": 14000
         },
         {
           "id": "beach-enemy-air-3",
           "kind": "harpy",
-          "x": 18100
+          "x": 18200
         }
       ],
       "platforms": [
@@ -166,6 +175,13 @@
           "x": 4140,
           "y": 330,
           "w": 600
+        },
+        {
+          "id": "beach-crumble-1",
+          "x": 13200,
+          "y": 440,
+          "w": 150,
+          "crumble": true
         }
       ],
       "winds": [],
@@ -173,7 +189,10 @@
         0,
         3000,
         6900,
+        7900,
         12000,
+        12600,
+        19100,
         23000
       ],
       "items": [
@@ -991,7 +1010,8 @@
               18655,
               19605,
               19710,
-              20280
+              20280,
+              20815
             ],
             "slides": [
               {
@@ -1007,8 +1027,8 @@
                 "end": 11030
               },
               {
-                "start": 13760,
-                "end": 14060
+                "start": 13860,
+                "end": 14160
               },
               {
                 "start": 16670,
@@ -1019,8 +1039,8 @@
                 "end": 17630
               },
               {
-                "start": 17960,
-                "end": 18260
+                "start": 18060,
+                "end": 18360
               },
               {
                 "start": 21530,
@@ -1066,7 +1086,8 @@
               18655,
               19605,
               19710,
-              20280
+              20280,
+              20815
             ],
             "slides": [
               {
@@ -1082,8 +1103,8 @@
                 "end": 11030
               },
               {
-                "start": 13760,
-                "end": 14060
+                "start": 13860,
+                "end": 14160
               },
               {
                 "start": 16670,
@@ -1094,8 +1115,8 @@
                 "end": 17630
               },
               {
-                "start": 17960,
-                "end": 18260
+                "start": 18060,
+                "end": 18360
               },
               {
                 "start": 21530,
@@ -1123,7 +1144,7 @@
         "stars": 100,
         "maps": 3,
         "monsters": 7,
-        "obstacles": 9
+        "obstacles": 10
       },
       "gaps": [
         {
@@ -1220,6 +1241,15 @@
           "h": 125,
           "kind": "gate",
           "role": "structure"
+        },
+        {
+          "id": "beach-spikes-20925",
+          "x": 20925,
+          "y": 394,
+          "w": 96,
+          "h": 46,
+          "kind": "spikes",
+          "role": "hazard"
         }
       ],
       "enemies": [
@@ -1251,12 +1281,12 @@
         {
           "id": "beach-enemy-air-2",
           "kind": "harpy",
-          "x": 17100
+          "x": 17200
         },
         {
           "id": "beach-enemy-air-3",
           "kind": "harpy",
-          "x": 14900
+          "x": 15000
         }
       ],
       "platforms": [
@@ -1265,13 +1295,25 @@
           "x": 7340,
           "y": 330,
           "w": 600
+        },
+        {
+          "id": "beach-crumble-1",
+          "x": 16400,
+          "y": 440,
+          "w": 150,
+          "crumble": true
         }
       ],
       "winds": [],
       "safe": [
         0,
         5600,
+        6200,
         10100,
+        11100,
+        15800,
+        15900,
+        19100,
         23000
       ],
       "items": [
@@ -2089,7 +2131,8 @@
               18510,
               19605,
               19710,
-              20280
+              20280,
+              20815
             ],
             "slides": [
               {
@@ -2113,12 +2156,12 @@
                 "end": 14430
               },
               {
-                "start": 14760,
-                "end": 15060
+                "start": 14860,
+                "end": 15160
               },
               {
-                "start": 16960,
-                "end": 17260
+                "start": 17060,
+                "end": 17360
               },
               {
                 "start": 21530,
@@ -2164,7 +2207,8 @@
               18510,
               19605,
               19710,
-              20280
+              20280,
+              20815
             ],
             "slides": [
               {
@@ -2188,12 +2232,12 @@
                 "end": 14430
               },
               {
-                "start": 14760,
-                "end": 15060
+                "start": 14860,
+                "end": 15160
               },
               {
-                "start": 16960,
-                "end": 17260
+                "start": 17060,
+                "end": 17360
               },
               {
                 "start": 21530,
@@ -2221,7 +2265,7 @@
         "stars": 100,
         "maps": 3,
         "monsters": 7,
-        "obstacles": 9
+        "obstacles": 10
       },
       "gaps": [
         {
@@ -2318,6 +2362,15 @@
           "h": 125,
           "kind": "gate",
           "role": "structure"
+        },
+        {
+          "id": "beach-spikes-20925",
+          "x": 17725,
+          "y": 394,
+          "w": 96,
+          "h": 46,
+          "kind": "spikes",
+          "role": "hazard"
         }
       ],
       "enemies": [
@@ -2349,12 +2402,12 @@
         {
           "id": "beach-enemy-air-2",
           "kind": "harpy",
-          "x": 13900
+          "x": 14000
         },
         {
           "id": "beach-enemy-air-3",
           "kind": "harpy",
-          "x": 21300
+          "x": 21400
         }
       ],
       "platforms": [
@@ -2363,13 +2416,24 @@
           "x": 7340,
           "y": 330,
           "w": 600
+        },
+        {
+          "id": "beach-crumble-1",
+          "x": 13200,
+          "y": 440,
+          "w": 150,
+          "crumble": true
         }
       ],
       "winds": [],
       "safe": [
         0,
         3700,
+        4700,
         12000,
+        12600,
+        15900,
+        22300,
         23000
       ],
       "items": [
@@ -3185,6 +3249,7 @@
               16405,
               16510,
               17080,
+              17615,
               19290,
               21760,
               21855
@@ -3203,8 +3268,8 @@
                 "end": 11030
               },
               {
-                "start": 13760,
-                "end": 14060
+                "start": 13860,
+                "end": 14160
               },
               {
                 "start": 18330,
@@ -3219,8 +3284,8 @@
                 "end": 20830
               },
               {
-                "start": 21160,
-                "end": 21460
+                "start": 21260,
+                "end": 21560
               }
             ]
           }
@@ -3260,6 +3325,7 @@
               16405,
               16510,
               17080,
+              17615,
               19290,
               21760,
               21855
@@ -3278,8 +3344,8 @@
                 "end": 11030
               },
               {
-                "start": 13760,
-                "end": 14060
+                "start": 13860,
+                "end": 14160
               },
               {
                 "start": 18330,
@@ -3294,8 +3360,8 @@
                 "end": 20830
               },
               {
-                "start": 21160,
-                "end": 21460
+                "start": 21260,
+                "end": 21560
               }
             ]
           }
@@ -3319,7 +3385,7 @@
         "stars": 100,
         "maps": 3,
         "monsters": 9,
-        "obstacles": 14
+        "obstacles": 15
       },
       "gaps": [
         {
@@ -3461,6 +3527,15 @@
           "h": 39,
           "kind": "hand",
           "role": "hazard"
+        },
+        {
+          "id": "cave-spikes-10450",
+          "x": 10450,
+          "y": 394,
+          "w": 96,
+          "h": 46,
+          "kind": "spikes",
+          "role": "hazard"
         }
       ],
       "enemies": [
@@ -3518,12 +3593,22 @@
           "x": 7540,
           "y": 330,
           "w": 460
+        },
+        {
+          "id": "cave-crumble-1",
+          "x": 13900,
+          "y": 440,
+          "w": 150,
+          "crumble": true
         }
       ],
       "winds": [],
       "safe": [
         0,
-        17000
+        7800,
+        12450,
+        17000,
+        18400
       ],
       "items": [
         {
@@ -4332,6 +4417,7 @@
               9090,
               9860,
               9955,
+              10340,
               11990,
               12120,
               13805,
@@ -4417,6 +4503,7 @@
               9090,
               9860,
               9955,
+              10340,
               11990,
               12120,
               13805,
@@ -4492,7 +4579,7 @@
         "stars": 100,
         "maps": 3,
         "monsters": 9,
-        "obstacles": 14
+        "obstacles": 15
       },
       "gaps": [
         {
@@ -4634,6 +4721,15 @@
           "h": 39,
           "kind": "hand",
           "role": "hazard"
+        },
+        {
+          "id": "cave-spikes-10450",
+          "x": 13650,
+          "y": 394,
+          "w": 96,
+          "h": 46,
+          "kind": "spikes",
+          "role": "hazard"
         }
       ],
       "enemies": [
@@ -4691,12 +4787,23 @@
           "x": 10740,
           "y": 330,
           "w": 460
+        },
+        {
+          "id": "cave-crumble-1",
+          "x": 4300,
+          "y": 440,
+          "w": 150,
+          "crumble": true
         }
       ],
       "winds": [],
       "safe": [
         0,
-        17000
+        2850,
+        11000,
+        15650,
+        17000,
+        18400
       ],
       "items": [
         {
@@ -5510,6 +5617,7 @@
               12290,
               13060,
               13155,
+              13540,
               15190,
               15320,
               17830,
@@ -5595,6 +5703,7 @@
               12290,
               13060,
               13155,
+              13540,
               15190,
               15320,
               17830,
@@ -5665,7 +5774,7 @@
         "stars": 100,
         "maps": 3,
         "monsters": 9,
-        "obstacles": 14
+        "obstacles": 15
       },
       "gaps": [
         {
@@ -5807,6 +5916,15 @@
           "h": 39,
           "kind": "hand",
           "role": "hazard"
+        },
+        {
+          "id": "cave-spikes-10450",
+          "x": 16850,
+          "y": 394,
+          "w": 96,
+          "h": 46,
+          "kind": "spikes",
+          "role": "hazard"
         }
       ],
       "enemies": [
@@ -5864,12 +5982,22 @@
           "x": 13940,
           "y": 330,
           "w": 460
+        },
+        {
+          "id": "cave-crumble-1",
+          "x": 20300,
+          "y": 440,
+          "w": 150,
+          "crumble": true
         }
       ],
       "winds": [],
       "safe": [
         0,
-        4200
+        4200,
+        5600,
+        14200,
+        18850
       ],
       "items": [
         {
@@ -6686,6 +6814,7 @@
               15490,
               16260,
               16355,
+              16740,
               18390,
               18520,
               20205,
@@ -6771,6 +6900,7 @@
               15490,
               16260,
               16355,
+              16740,
               18390,
               18520,
               20205,
@@ -6838,7 +6968,7 @@
         "stars": 100,
         "maps": 3,
         "monsters": 7,
-        "obstacles": 8
+        "obstacles": 10
       },
       "gaps": [
         {
@@ -6926,6 +7056,24 @@
           "h": 125,
           "kind": "gate",
           "role": "structure"
+        },
+        {
+          "id": "wind-spikes-4950",
+          "x": 4950,
+          "y": 394,
+          "w": 96,
+          "h": 46,
+          "kind": "spikes",
+          "role": "hazard"
+        },
+        {
+          "id": "wind-spikes-15050",
+          "x": 15050,
+          "y": 394,
+          "w": 96,
+          "h": 46,
+          "kind": "spikes",
+          "role": "hazard"
         }
       ],
       "enemies": [
@@ -7004,6 +7152,13 @@
           "x": 20500,
           "y": 365,
           "w": 180
+        },
+        {
+          "id": "wind-crumble-1",
+          "x": 14000,
+          "y": 440,
+          "w": 210,
+          "crumble": true
         }
       ],
       "winds": [
@@ -7036,7 +7191,10 @@
         0,
         3000,
         6900,
+        7900,
+        13400,
         17000,
+        19200,
         23000
       ],
       "items": [
@@ -7835,6 +7993,7 @@
           "input": {
             "jumps": [
               3590,
+              4840,
               5260,
               5355,
               7460,
@@ -7847,6 +8006,7 @@
               12490,
               13905,
               14010,
+              14940,
               15660,
               15755,
               17430,
@@ -7906,6 +8066,7 @@
             "jumps": [
               3590,
               4040,
+              4840,
               5260,
               5355,
               7460,
@@ -7918,6 +8079,7 @@
               12490,
               13905,
               14010,
+              14940,
               15660,
               15755,
               17430,
@@ -7974,7 +8136,7 @@
         "stars": 100,
         "maps": 3,
         "monsters": 7,
-        "obstacles": 8
+        "obstacles": 10
       },
       "gaps": [
         {
@@ -8062,6 +8224,24 @@
           "h": 125,
           "kind": "gate",
           "role": "structure"
+        },
+        {
+          "id": "wind-spikes-4950",
+          "x": 14550,
+          "y": 394,
+          "w": 96,
+          "h": 46,
+          "kind": "spikes",
+          "role": "hazard"
+        },
+        {
+          "id": "wind-spikes-15050",
+          "x": 5450,
+          "y": 394,
+          "w": 96,
+          "h": 46,
+          "kind": "spikes",
+          "role": "hazard"
         }
       ],
       "enemies": [
@@ -8140,6 +8320,13 @@
           "x": 10900,
           "y": 365,
           "w": 180
+        },
+        {
+          "id": "wind-crumble-1",
+          "x": 4400,
+          "y": 440,
+          "w": 210,
+          "crumble": true
         }
       ],
       "winds": [
@@ -8171,8 +8358,11 @@
       "safe": [
         0,
         3000,
+        3800,
         7400,
+        9600,
         16500,
+        17500,
         23000
       ],
       "items": [
@@ -8972,6 +9162,7 @@
             "jumps": [
               4305,
               4410,
+              5340,
               6060,
               6155,
               7830,
@@ -8981,6 +9172,7 @@
               12560,
               12655,
               13190,
+              14440,
               14860,
               14955,
               17060,
@@ -9042,6 +9234,7 @@
             "jumps": [
               4305,
               4410,
+              5340,
               6060,
               6155,
               7830,
@@ -9052,6 +9245,7 @@
               12655,
               13190,
               13640,
+              14440,
               14860,
               14955,
               17060,
@@ -9110,7 +9304,7 @@
         "stars": 100,
         "maps": 3,
         "monsters": 7,
-        "obstacles": 8
+        "obstacles": 10
       },
       "gaps": [
         {
@@ -9198,6 +9392,24 @@
           "h": 125,
           "kind": "gate",
           "role": "structure"
+        },
+        {
+          "id": "wind-spikes-4950",
+          "x": 8150,
+          "y": 394,
+          "w": 96,
+          "h": 46,
+          "kind": "spikes",
+          "role": "hazard"
+        },
+        {
+          "id": "wind-spikes-15050",
+          "x": 18250,
+          "y": 394,
+          "w": 96,
+          "h": 46,
+          "kind": "spikes",
+          "role": "hazard"
         }
       ],
       "enemies": [
@@ -9276,6 +9488,13 @@
           "x": 4500,
           "y": 365,
           "w": 180
+        },
+        {
+          "id": "wind-crumble-1",
+          "x": 17200,
+          "y": 440,
+          "w": 210,
+          "crumble": true
         }
       ],
       "winds": [
@@ -9307,7 +9526,10 @@
       "safe": [
         0,
         3000,
+        3200,
         10100,
+        11100,
+        16600,
         20200,
         23000
       ],
@@ -10112,6 +10334,7 @@
               6160,
               6255,
               6790,
+              8040,
               8460,
               8555,
               10660,
@@ -10124,6 +10347,7 @@
               15690,
               17105,
               17210,
+              18140,
               18860,
               18955,
               20630
@@ -10183,6 +10407,7 @@
               6255,
               6790,
               7240,
+              8040,
               8460,
               8555,
               10660,
@@ -10195,6 +10420,7 @@
               15690,
               17105,
               17210,
+              18140,
               18860,
               18955,
               20630
@@ -10223,6 +10449,6823 @@
               {
                 "start": 21920,
                 "end": 22080
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "stage": "circe",
+      "variant": "classic",
+      "name": "기본 항로",
+      "description": "마법의 숲을 익숙한 길로 지나요.",
+      "sectionOrder": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "counts": {
+        "stars": 100,
+        "maps": 3,
+        "monsters": 7,
+        "obstacles": 11
+      },
+      "gaps": [
+        {
+          "x": 8600,
+          "w": 165
+        },
+        {
+          "x": 13100,
+          "w": 165
+        },
+        {
+          "x": 19600,
+          "w": 165
+        }
+      ],
+      "obstacles": [
+        {
+          "id": "circe-crate-3500",
+          "x": 3500,
+          "y": 392,
+          "w": 70,
+          "h": 48,
+          "kind": "crate",
+          "role": "structure"
+        },
+        {
+          "id": "circe-pillar-5300",
+          "x": 5300,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "circe-pillar-9700",
+          "x": 9700,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "circe-pillar-14500",
+          "x": 14500,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "circe-pillar-18600",
+          "x": 18600,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "circe-gate-6300",
+          "x": 6300,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "circe-gate-10700",
+          "x": 10700,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "circe-gate-17300",
+          "x": 17300,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "circe-gate-21500",
+          "x": 21500,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "circe-spikes-3900",
+          "x": 3900,
+          "y": 394,
+          "w": 96,
+          "h": 46,
+          "kind": "spikes",
+          "role": "hazard"
+        },
+        {
+          "id": "circe-spikes-20450",
+          "x": 20450,
+          "y": 394,
+          "w": 96,
+          "h": 46,
+          "kind": "spikes",
+          "role": "hazard"
+        }
+      ],
+      "enemies": [
+        {
+          "id": "circe-enemy-ground-1",
+          "kind": "stone",
+          "x": 7300
+        },
+        {
+          "id": "circe-enemy-ground-2",
+          "kind": "crab",
+          "x": 11900
+        },
+        {
+          "id": "circe-enemy-ground-3",
+          "kind": "stone",
+          "x": 16100
+        },
+        {
+          "id": "circe-enemy-ground-4",
+          "kind": "scylla",
+          "x": 20100
+        },
+        {
+          "id": "circe-enemy-air-1",
+          "kind": "shade",
+          "x": 5700
+        },
+        {
+          "id": "circe-enemy-air-2",
+          "kind": "shade",
+          "x": 14000
+        },
+        {
+          "id": "circe-enemy-air-3",
+          "kind": "shade",
+          "x": 18200
+        }
+      ],
+      "platforms": [
+        {
+          "id": "circe-branch",
+          "x": 4140,
+          "y": 330,
+          "w": 600
+        },
+        {
+          "id": "circe-crumble-1",
+          "x": 13100,
+          "y": 440,
+          "w": 165,
+          "crumble": true
+        }
+      ],
+      "winds": [],
+      "safe": [
+        0,
+        3000,
+        8000,
+        12500,
+        19000,
+        23000
+      ],
+      "items": [
+        {
+          "id": "circe-star-1",
+          "kind": "star",
+          "x": 850,
+          "y": 405
+        },
+        {
+          "id": "circe-star-2",
+          "kind": "star",
+          "x": 915,
+          "y": 405
+        },
+        {
+          "id": "circe-star-3",
+          "kind": "star",
+          "x": 980,
+          "y": 405
+        },
+        {
+          "id": "circe-star-4",
+          "kind": "star",
+          "x": 1045,
+          "y": 405
+        },
+        {
+          "id": "circe-star-5",
+          "kind": "star",
+          "x": 1110,
+          "y": 405
+        },
+        {
+          "id": "circe-star-6",
+          "kind": "star",
+          "x": 2000,
+          "y": 405
+        },
+        {
+          "id": "circe-star-7",
+          "kind": "star",
+          "x": 2065,
+          "y": 405
+        },
+        {
+          "id": "circe-star-8",
+          "kind": "star",
+          "x": 2130,
+          "y": 405
+        },
+        {
+          "id": "circe-star-9",
+          "kind": "star",
+          "x": 2195,
+          "y": 405
+        },
+        {
+          "id": "circe-star-10",
+          "kind": "star",
+          "x": 2260,
+          "y": 405
+        },
+        {
+          "id": "circe-star-11",
+          "kind": "star",
+          "x": 3150,
+          "y": 405
+        },
+        {
+          "id": "circe-star-12",
+          "kind": "star",
+          "x": 3215,
+          "y": 405
+        },
+        {
+          "id": "circe-star-13",
+          "kind": "star",
+          "x": 3280,
+          "y": 405
+        },
+        {
+          "id": "circe-star-14",
+          "kind": "star",
+          "x": 3345,
+          "y": 303.02943725152284
+        },
+        {
+          "id": "circe-star-15",
+          "kind": "star",
+          "x": 3410,
+          "y": 320
+        },
+        {
+          "id": "circe-star-16",
+          "kind": "star",
+          "x": 4310,
+          "y": 285
+        },
+        {
+          "id": "circe-star-17",
+          "kind": "star",
+          "x": 4370,
+          "y": 305
+        },
+        {
+          "id": "circe-star-18",
+          "kind": "star",
+          "x": 4430,
+          "y": 265
+        },
+        {
+          "id": "circe-star-19",
+          "kind": "star",
+          "x": 4490,
+          "y": 305
+        },
+        {
+          "id": "circe-star-20",
+          "kind": "star",
+          "x": 4550,
+          "y": 285
+        },
+        {
+          "id": "circe-star-21",
+          "kind": "star",
+          "x": 5450,
+          "y": 225
+        },
+        {
+          "id": "circe-star-22",
+          "kind": "star",
+          "x": 5515,
+          "y": 405
+        },
+        {
+          "id": "circe-star-23",
+          "kind": "star",
+          "x": 5580,
+          "y": 405
+        },
+        {
+          "id": "circe-star-24",
+          "kind": "star",
+          "x": 5645,
+          "y": 405
+        },
+        {
+          "id": "circe-star-25",
+          "kind": "star",
+          "x": 5710,
+          "y": 405
+        },
+        {
+          "id": "circe-star-26",
+          "kind": "star",
+          "x": 6600,
+          "y": 405
+        },
+        {
+          "id": "circe-star-27",
+          "kind": "star",
+          "x": 6665,
+          "y": 405
+        },
+        {
+          "id": "circe-star-28",
+          "kind": "star",
+          "x": 6730,
+          "y": 405
+        },
+        {
+          "id": "circe-star-29",
+          "kind": "star",
+          "x": 6795,
+          "y": 405
+        },
+        {
+          "id": "circe-star-30",
+          "kind": "star",
+          "x": 6860,
+          "y": 405
+        },
+        {
+          "id": "circe-star-31",
+          "kind": "star",
+          "x": 7680,
+          "y": 405
+        },
+        {
+          "id": "circe-star-32",
+          "kind": "star",
+          "x": 7740,
+          "y": 370
+        },
+        {
+          "id": "circe-star-33",
+          "kind": "star",
+          "x": 7800,
+          "y": 395
+        },
+        {
+          "id": "circe-star-34",
+          "kind": "star",
+          "x": 7860,
+          "y": 370
+        },
+        {
+          "id": "circe-star-35",
+          "kind": "star",
+          "x": 7920,
+          "y": 405
+        },
+        {
+          "id": "circe-star-36",
+          "kind": "star",
+          "x": 8900,
+          "y": 405
+        },
+        {
+          "id": "circe-star-37",
+          "kind": "star",
+          "x": 8965,
+          "y": 405
+        },
+        {
+          "id": "circe-star-38",
+          "kind": "star",
+          "x": 9030,
+          "y": 405
+        },
+        {
+          "id": "circe-star-39",
+          "kind": "star",
+          "x": 9095,
+          "y": 405
+        },
+        {
+          "id": "circe-star-40",
+          "kind": "star",
+          "x": 9160,
+          "y": 405
+        },
+        {
+          "id": "circe-star-41",
+          "kind": "star",
+          "x": 10050,
+          "y": 405
+        },
+        {
+          "id": "circe-star-42",
+          "kind": "star",
+          "x": 10115,
+          "y": 405
+        },
+        {
+          "id": "circe-star-43",
+          "kind": "star",
+          "x": 10180,
+          "y": 405
+        },
+        {
+          "id": "circe-star-44",
+          "kind": "star",
+          "x": 10245,
+          "y": 405
+        },
+        {
+          "id": "circe-star-45",
+          "kind": "star",
+          "x": 10310,
+          "y": 405
+        },
+        {
+          "id": "circe-star-46",
+          "kind": "star",
+          "x": 11200,
+          "y": 405
+        },
+        {
+          "id": "circe-star-47",
+          "kind": "star",
+          "x": 11265,
+          "y": 405
+        },
+        {
+          "id": "circe-star-48",
+          "kind": "star",
+          "x": 11330,
+          "y": 405
+        },
+        {
+          "id": "circe-star-49",
+          "kind": "star",
+          "x": 11395,
+          "y": 405
+        },
+        {
+          "id": "circe-star-50",
+          "kind": "star",
+          "x": 11460,
+          "y": 405
+        },
+        {
+          "id": "circe-star-51",
+          "kind": "star",
+          "x": 12350,
+          "y": 405
+        },
+        {
+          "id": "circe-star-52",
+          "kind": "star",
+          "x": 12415,
+          "y": 405
+        },
+        {
+          "id": "circe-star-53",
+          "kind": "star",
+          "x": 12480,
+          "y": 405
+        },
+        {
+          "id": "circe-star-54",
+          "kind": "star",
+          "x": 12545,
+          "y": 405
+        },
+        {
+          "id": "circe-star-55",
+          "kind": "star",
+          "x": 12610,
+          "y": 405
+        },
+        {
+          "id": "circe-star-56",
+          "kind": "star",
+          "x": 13500,
+          "y": 405
+        },
+        {
+          "id": "circe-star-57",
+          "kind": "star",
+          "x": 13565,
+          "y": 405
+        },
+        {
+          "id": "circe-star-58",
+          "kind": "star",
+          "x": 13630,
+          "y": 405
+        },
+        {
+          "id": "circe-star-59",
+          "kind": "star",
+          "x": 13695,
+          "y": 405
+        },
+        {
+          "id": "circe-star-60",
+          "kind": "star",
+          "x": 13760,
+          "y": 405
+        },
+        {
+          "id": "circe-star-61",
+          "kind": "star",
+          "x": 14650,
+          "y": 225
+        },
+        {
+          "id": "circe-star-62",
+          "kind": "star",
+          "x": 14715,
+          "y": 405
+        },
+        {
+          "id": "circe-star-63",
+          "kind": "star",
+          "x": 14780,
+          "y": 405
+        },
+        {
+          "id": "circe-star-64",
+          "kind": "star",
+          "x": 15460,
+          "y": 260
+        },
+        {
+          "id": "circe-star-65",
+          "kind": "star",
+          "x": 15340,
+          "y": 225
+        },
+        {
+          "id": "circe-star-66",
+          "kind": "star",
+          "x": 15220,
+          "y": 355
+        },
+        {
+          "id": "circe-star-67",
+          "kind": "star",
+          "x": 15280,
+          "y": 290
+        },
+        {
+          "id": "circe-star-68",
+          "kind": "star",
+          "x": 15400,
+          "y": 205
+        },
+        {
+          "id": "circe-star-69",
+          "kind": "star",
+          "x": 15995,
+          "y": 303.02943725152284
+        },
+        {
+          "id": "circe-star-70",
+          "kind": "star",
+          "x": 16060,
+          "y": 320
+        },
+        {
+          "id": "circe-star-71",
+          "kind": "star",
+          "x": 16950,
+          "y": 405
+        },
+        {
+          "id": "circe-star-72",
+          "kind": "star",
+          "x": 17015,
+          "y": 405
+        },
+        {
+          "id": "circe-star-73",
+          "kind": "star",
+          "x": 17080,
+          "y": 405
+        },
+        {
+          "id": "circe-star-74",
+          "kind": "star",
+          "x": 17145,
+          "y": 421
+        },
+        {
+          "id": "circe-star-75",
+          "kind": "star",
+          "x": 17210,
+          "y": 421
+        },
+        {
+          "id": "circe-star-76",
+          "kind": "star",
+          "x": 18100,
+          "y": 405
+        },
+        {
+          "id": "circe-star-77",
+          "kind": "star",
+          "x": 18165,
+          "y": 405
+        },
+        {
+          "id": "circe-star-78",
+          "kind": "star",
+          "x": 18230,
+          "y": 405
+        },
+        {
+          "id": "circe-star-79",
+          "kind": "star",
+          "x": 18295,
+          "y": 405
+        },
+        {
+          "id": "circe-star-80",
+          "kind": "star",
+          "x": 18360,
+          "y": 405
+        },
+        {
+          "id": "circe-star-81",
+          "kind": "star",
+          "x": 19250,
+          "y": 405
+        },
+        {
+          "id": "circe-star-82",
+          "kind": "star",
+          "x": 19315,
+          "y": 405
+        },
+        {
+          "id": "circe-star-83",
+          "kind": "star",
+          "x": 19380,
+          "y": 405
+        },
+        {
+          "id": "circe-star-84",
+          "kind": "star",
+          "x": 19445,
+          "y": 405
+        },
+        {
+          "id": "circe-star-85",
+          "kind": "star",
+          "x": 19510,
+          "y": 300
+        },
+        {
+          "id": "circe-star-86",
+          "kind": "star",
+          "x": 22080,
+          "y": 405
+        },
+        {
+          "id": "circe-star-87",
+          "kind": "star",
+          "x": 22140,
+          "y": 370
+        },
+        {
+          "id": "circe-star-88",
+          "kind": "star",
+          "x": 22200,
+          "y": 405
+        },
+        {
+          "id": "circe-star-89",
+          "kind": "star",
+          "x": 22260,
+          "y": 370
+        },
+        {
+          "id": "circe-star-90",
+          "kind": "star",
+          "x": 22320,
+          "y": 405
+        },
+        {
+          "id": "circe-star-91",
+          "kind": "star",
+          "x": 21550,
+          "y": 421
+        },
+        {
+          "id": "circe-star-92",
+          "kind": "star",
+          "x": 21615,
+          "y": 421
+        },
+        {
+          "id": "circe-star-93",
+          "kind": "star",
+          "x": 21680,
+          "y": 421
+        },
+        {
+          "id": "circe-star-94",
+          "kind": "star",
+          "x": 21745,
+          "y": 421
+        },
+        {
+          "id": "circe-star-95",
+          "kind": "star",
+          "x": 21810,
+          "y": 405
+        },
+        {
+          "id": "circe-star-96",
+          "kind": "star",
+          "x": 22700,
+          "y": 405
+        },
+        {
+          "id": "circe-star-97",
+          "kind": "star",
+          "x": 22765,
+          "y": 405
+        },
+        {
+          "id": "circe-star-98",
+          "kind": "star",
+          "x": 22830,
+          "y": 405
+        },
+        {
+          "id": "circe-star-99",
+          "kind": "star",
+          "x": 22895,
+          "y": 405
+        },
+        {
+          "id": "circe-star-100",
+          "kind": "star",
+          "x": 22960,
+          "y": 405
+        },
+        {
+          "id": "circe-map-1",
+          "kind": "map",
+          "x": 2700,
+          "y": 395
+        },
+        {
+          "id": "circe-map-2",
+          "kind": "map",
+          "x": 15400,
+          "y": 205
+        },
+        {
+          "id": "circe-map-3",
+          "kind": "map",
+          "x": 10780,
+          "y": 421
+        },
+        {
+          "id": "circe-shield-0",
+          "kind": "shield",
+          "x": 1900,
+          "y": 395
+        },
+        {
+          "id": "circe-wings-1",
+          "kind": "wings",
+          "x": 4600,
+          "y": 395
+        },
+        {
+          "id": "circe-magnet-2",
+          "kind": "magnet",
+          "x": 4800,
+          "y": 395
+        },
+        {
+          "id": "circe-apple-3",
+          "kind": "apple",
+          "x": 10000,
+          "y": 395
+        },
+        {
+          "id": "circe-shield-4",
+          "kind": "shield",
+          "x": 12700,
+          "y": 395
+        },
+        {
+          "id": "circe-wings-5",
+          "kind": "wings",
+          "x": 15400,
+          "y": 395
+        },
+        {
+          "id": "circe-magnet-6",
+          "kind": "magnet",
+          "x": 18100,
+          "y": 395
+        },
+        {
+          "id": "circe-apple-7",
+          "kind": "apple",
+          "x": 20800,
+          "y": 395
+        },
+        {
+          "id": "circe-trident-extra-1",
+          "kind": "trident",
+          "x": 4200,
+          "y": 395
+        },
+        {
+          "id": "circe-trident-extra-2",
+          "kind": "trident",
+          "x": 15100,
+          "y": 395
+        },
+        {
+          "id": "circe-lantern-extra-1",
+          "kind": "lantern",
+          "x": 4300,
+          "y": 395
+        },
+        {
+          "id": "circe-lantern-extra-2",
+          "kind": "lantern",
+          "x": 17800,
+          "y": 395
+        },
+        {
+          "id": "circe-compass-extra-1",
+          "kind": "compass",
+          "x": 7800,
+          "y": 395,
+          "checkpoint": 7720
+        },
+        {
+          "id": "circe-compass-extra-2",
+          "kind": "compass",
+          "x": 16800,
+          "y": 395,
+          "checkpoint": 16720
+        },
+        {
+          "id": "circe-moly-1",
+          "kind": "moly",
+          "x": 10040,
+          "y": 405
+        },
+        {
+          "id": "circe-moly-2",
+          "kind": "moly",
+          "x": 20340,
+          "y": 405
+        }
+      ],
+      "adventure": {
+        "branch": {
+          "id": "circe-branch",
+          "start": 4140,
+          "end": 4740,
+          "y": 330
+        },
+        "stories": [
+          {
+            "id": "circe-story-1",
+            "x": 4440,
+            "y": 330,
+            "pose": "upper",
+            "title": "하얀 꽃 몰리",
+            "quote": "발견 · 하얀 꽃은 마법보다 강한 지혜예요.",
+            "story": "헤르메스는 숲길에서 오디세우스를 만나 뿌리는 검고 꽃은 하얀 약초를 건넸어요. “이것을 지니면 키르케의 잔도 너를 바꾸지 못할 것이다.”"
+          },
+          {
+            "id": "circe-story-2",
+            "x": 16850,
+            "y": 440,
+            "pose": "duck",
+            "title": "돌아온 동료들",
+            "quote": "발견 · 친구를 포기하지 않는 마음이 길을 열어요.",
+            "story": "오디세우스는 혼자 도망치지 않고 동료들을 구하러 궁전으로 갔어요. 마법에서 풀려난 선원들은 눈물을 흘리며 그를 끌어안았지요."
+          }
+        ],
+        "constellations": [
+          {
+            "id": "circe-constellation-1",
+            "name": "귀환의 배",
+            "shape": "ship",
+            "stars": [
+              "circe-star-16",
+              "circe-star-17",
+              "circe-star-18",
+              "circe-star-19",
+              "circe-star-20"
+            ]
+          },
+          {
+            "id": "circe-constellation-2",
+            "name": "아테나의 부엉이",
+            "shape": "owl",
+            "stars": [
+              "circe-star-31",
+              "circe-star-32",
+              "circe-star-33",
+              "circe-star-34",
+              "circe-star-35"
+            ]
+          },
+          {
+            "id": "circe-constellation-3",
+            "name": "이타카의 왕관",
+            "shape": "crown",
+            "stars": [
+              "circe-star-86",
+              "circe-star-87",
+              "circe-star-88",
+              "circe-star-89",
+              "circe-star-90"
+            ]
+          }
+        ],
+        "highlight": {
+          "id": "circe-spell",
+          "start": 9900,
+          "end": 12300,
+          "name": "키르케의 마법",
+          "hint": "몰리 약초를 먹으면 마법이 풀려요 · 2단 점프 봉인"
+        }
+      },
+      "paths": [
+        {
+          "path": "lower",
+          "seconds": 75.0166666666637,
+          "hpLoss": 0,
+          "maps": [
+            "circe-map-1",
+            "circe-map-3",
+            "circe-map-2"
+          ],
+          "stars": 89,
+          "stories": [
+            "circe-story-2"
+          ],
+          "input": {
+            "jumps": [
+              3390,
+              3790,
+              5160,
+              5255,
+              7130,
+              8505,
+              8610,
+              9560,
+              9655,
+              11790,
+              13005,
+              13110,
+              14360,
+              14455,
+              15220,
+              15310,
+              15930,
+              18460,
+              18555,
+              19505,
+              19610,
+              19980,
+              20340
+            ],
+            "slides": [
+              {
+                "start": 5540,
+                "end": 5860
+              },
+              {
+                "start": 6230,
+                "end": 6530
+              },
+              {
+                "start": 10630,
+                "end": 10930
+              },
+              {
+                "start": 13840,
+                "end": 14160
+              },
+              {
+                "start": 16770,
+                "end": 16930
+              },
+              {
+                "start": 17230,
+                "end": 17530
+              },
+              {
+                "start": 18040,
+                "end": 18360
+              },
+              {
+                "start": 21430,
+                "end": 21730
+              }
+            ]
+          }
+        },
+        {
+          "path": "upper",
+          "seconds": 75.0166666666637,
+          "hpLoss": 0,
+          "maps": [
+            "circe-map-1",
+            "circe-map-3",
+            "circe-map-2"
+          ],
+          "stars": 94,
+          "stories": [
+            "circe-story-1",
+            "circe-story-2"
+          ],
+          "input": {
+            "jumps": [
+              3390,
+              3790,
+              4040,
+              5160,
+              5255,
+              7130,
+              8505,
+              8610,
+              9560,
+              9655,
+              11790,
+              13005,
+              13110,
+              14360,
+              14455,
+              15220,
+              15310,
+              15930,
+              18460,
+              18555,
+              19505,
+              19610,
+              19980,
+              20340
+            ],
+            "slides": [
+              {
+                "start": 5540,
+                "end": 5860
+              },
+              {
+                "start": 6230,
+                "end": 6530
+              },
+              {
+                "start": 10630,
+                "end": 10930
+              },
+              {
+                "start": 13840,
+                "end": 14160
+              },
+              {
+                "start": 16770,
+                "end": 16930
+              },
+              {
+                "start": 17230,
+                "end": 17530
+              },
+              {
+                "start": 18040,
+                "end": 18360
+              },
+              {
+                "start": 21430,
+                "end": 21730
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "stage": "circe",
+      "variant": "remix-a",
+      "name": "돼지우리 샛길",
+      "description": "마법에 걸린 동료들을 새로운 순서로 찾아가요.",
+      "sectionOrder": [
+        2,
+        0,
+        1,
+        5,
+        3,
+        4
+      ],
+      "counts": {
+        "stars": 100,
+        "maps": 3,
+        "monsters": 7,
+        "obstacles": 11
+      },
+      "gaps": [
+        {
+          "x": 11800,
+          "w": 165
+        },
+        {
+          "x": 13200,
+          "w": 165
+        },
+        {
+          "x": 16300,
+          "w": 165
+        }
+      ],
+      "obstacles": [
+        {
+          "id": "circe-crate-3500",
+          "x": 6700,
+          "y": 392,
+          "w": 70,
+          "h": 48,
+          "kind": "crate",
+          "role": "structure"
+        },
+        {
+          "id": "circe-pillar-5300",
+          "x": 8500,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "circe-pillar-9700",
+          "x": 3300,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "circe-pillar-14500",
+          "x": 17700,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "circe-pillar-18600",
+          "x": 21800,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "circe-gate-6300",
+          "x": 9500,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "circe-gate-10700",
+          "x": 4300,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "circe-gate-17300",
+          "x": 20500,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "circe-gate-21500",
+          "x": 15100,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "circe-spikes-3900",
+          "x": 7100,
+          "y": 394,
+          "w": 96,
+          "h": 46,
+          "kind": "spikes",
+          "role": "hazard"
+        },
+        {
+          "id": "circe-spikes-20450",
+          "x": 14050,
+          "y": 394,
+          "w": 96,
+          "h": 46,
+          "kind": "spikes",
+          "role": "hazard"
+        }
+      ],
+      "enemies": [
+        {
+          "id": "circe-enemy-ground-1",
+          "kind": "stone",
+          "x": 10500
+        },
+        {
+          "id": "circe-enemy-ground-2",
+          "kind": "crab",
+          "x": 5500
+        },
+        {
+          "id": "circe-enemy-ground-3",
+          "kind": "stone",
+          "x": 19300
+        },
+        {
+          "id": "circe-enemy-ground-4",
+          "kind": "scylla",
+          "x": 13700
+        },
+        {
+          "id": "circe-enemy-air-1",
+          "kind": "shade",
+          "x": 8900
+        },
+        {
+          "id": "circe-enemy-air-2",
+          "kind": "shade",
+          "x": 17200
+        },
+        {
+          "id": "circe-enemy-air-3",
+          "kind": "shade",
+          "x": 21400
+        }
+      ],
+      "platforms": [
+        {
+          "id": "circe-branch",
+          "x": 7340,
+          "y": 330,
+          "w": 600
+        },
+        {
+          "id": "circe-crumble-1",
+          "x": 16300,
+          "y": 440,
+          "w": 165,
+          "crumble": true
+        }
+      ],
+      "winds": [],
+      "safe": [
+        0,
+        6100,
+        11200,
+        12600,
+        15700,
+        22200,
+        23000
+      ],
+      "items": [
+        {
+          "id": "circe-star-1",
+          "kind": "star",
+          "x": 850,
+          "y": 405
+        },
+        {
+          "id": "circe-star-2",
+          "kind": "star",
+          "x": 915,
+          "y": 405
+        },
+        {
+          "id": "circe-star-3",
+          "kind": "star",
+          "x": 980,
+          "y": 405
+        },
+        {
+          "id": "circe-star-4",
+          "kind": "star",
+          "x": 1045,
+          "y": 405
+        },
+        {
+          "id": "circe-star-5",
+          "kind": "star",
+          "x": 1110,
+          "y": 405
+        },
+        {
+          "id": "circe-star-6",
+          "kind": "star",
+          "x": 2000,
+          "y": 405
+        },
+        {
+          "id": "circe-star-7",
+          "kind": "star",
+          "x": 2065,
+          "y": 405
+        },
+        {
+          "id": "circe-star-8",
+          "kind": "star",
+          "x": 2130,
+          "y": 405
+        },
+        {
+          "id": "circe-star-9",
+          "kind": "star",
+          "x": 2195,
+          "y": 405
+        },
+        {
+          "id": "circe-star-10",
+          "kind": "star",
+          "x": 2260,
+          "y": 405
+        },
+        {
+          "id": "circe-star-11",
+          "kind": "star",
+          "x": 3150,
+          "y": 405
+        },
+        {
+          "id": "circe-star-12",
+          "kind": "star",
+          "x": 6415,
+          "y": 405
+        },
+        {
+          "id": "circe-star-13",
+          "kind": "star",
+          "x": 6480,
+          "y": 405
+        },
+        {
+          "id": "circe-star-14",
+          "kind": "star",
+          "x": 6545,
+          "y": 303.02943725152284
+        },
+        {
+          "id": "circe-star-15",
+          "kind": "star",
+          "x": 6610,
+          "y": 320
+        },
+        {
+          "id": "circe-star-16",
+          "kind": "star",
+          "x": 7510,
+          "y": 285
+        },
+        {
+          "id": "circe-star-17",
+          "kind": "star",
+          "x": 7570,
+          "y": 305
+        },
+        {
+          "id": "circe-star-18",
+          "kind": "star",
+          "x": 7630,
+          "y": 265
+        },
+        {
+          "id": "circe-star-19",
+          "kind": "star",
+          "x": 7690,
+          "y": 305
+        },
+        {
+          "id": "circe-star-20",
+          "kind": "star",
+          "x": 7750,
+          "y": 285
+        },
+        {
+          "id": "circe-star-21",
+          "kind": "star",
+          "x": 8650,
+          "y": 225
+        },
+        {
+          "id": "circe-star-22",
+          "kind": "star",
+          "x": 8715,
+          "y": 405
+        },
+        {
+          "id": "circe-star-23",
+          "kind": "star",
+          "x": 8780,
+          "y": 405
+        },
+        {
+          "id": "circe-star-24",
+          "kind": "star",
+          "x": 8845,
+          "y": 405
+        },
+        {
+          "id": "circe-star-25",
+          "kind": "star",
+          "x": 8910,
+          "y": 405
+        },
+        {
+          "id": "circe-star-26",
+          "kind": "star",
+          "x": 9800,
+          "y": 405
+        },
+        {
+          "id": "circe-star-27",
+          "kind": "star",
+          "x": 9865,
+          "y": 405
+        },
+        {
+          "id": "circe-star-28",
+          "kind": "star",
+          "x": 9930,
+          "y": 405
+        },
+        {
+          "id": "circe-star-29",
+          "kind": "star",
+          "x": 9995,
+          "y": 405
+        },
+        {
+          "id": "circe-star-30",
+          "kind": "star",
+          "x": 10060,
+          "y": 405
+        },
+        {
+          "id": "circe-star-31",
+          "kind": "star",
+          "x": 10880,
+          "y": 405
+        },
+        {
+          "id": "circe-star-32",
+          "kind": "star",
+          "x": 10940,
+          "y": 370
+        },
+        {
+          "id": "circe-star-33",
+          "kind": "star",
+          "x": 11000,
+          "y": 395
+        },
+        {
+          "id": "circe-star-34",
+          "kind": "star",
+          "x": 11060,
+          "y": 370
+        },
+        {
+          "id": "circe-star-35",
+          "kind": "star",
+          "x": 11120,
+          "y": 405
+        },
+        {
+          "id": "circe-star-36",
+          "kind": "star",
+          "x": 12100,
+          "y": 405
+        },
+        {
+          "id": "circe-star-37",
+          "kind": "star",
+          "x": 12165,
+          "y": 405
+        },
+        {
+          "id": "circe-star-38",
+          "kind": "star",
+          "x": 12230,
+          "y": 405
+        },
+        {
+          "id": "circe-star-39",
+          "kind": "star",
+          "x": 12295,
+          "y": 405
+        },
+        {
+          "id": "circe-star-40",
+          "kind": "star",
+          "x": 12360,
+          "y": 405
+        },
+        {
+          "id": "circe-star-41",
+          "kind": "star",
+          "x": 3650,
+          "y": 405
+        },
+        {
+          "id": "circe-star-42",
+          "kind": "star",
+          "x": 3715,
+          "y": 405
+        },
+        {
+          "id": "circe-star-43",
+          "kind": "star",
+          "x": 3780,
+          "y": 405
+        },
+        {
+          "id": "circe-star-44",
+          "kind": "star",
+          "x": 3845,
+          "y": 405
+        },
+        {
+          "id": "circe-star-45",
+          "kind": "star",
+          "x": 3910,
+          "y": 405
+        },
+        {
+          "id": "circe-star-46",
+          "kind": "star",
+          "x": 4800,
+          "y": 405
+        },
+        {
+          "id": "circe-star-47",
+          "kind": "star",
+          "x": 4865,
+          "y": 405
+        },
+        {
+          "id": "circe-star-48",
+          "kind": "star",
+          "x": 4930,
+          "y": 405
+        },
+        {
+          "id": "circe-star-49",
+          "kind": "star",
+          "x": 4995,
+          "y": 405
+        },
+        {
+          "id": "circe-star-50",
+          "kind": "star",
+          "x": 5060,
+          "y": 405
+        },
+        {
+          "id": "circe-star-51",
+          "kind": "star",
+          "x": 5950,
+          "y": 405
+        },
+        {
+          "id": "circe-star-52",
+          "kind": "star",
+          "x": 6015,
+          "y": 405
+        },
+        {
+          "id": "circe-star-53",
+          "kind": "star",
+          "x": 6080,
+          "y": 405
+        },
+        {
+          "id": "circe-star-54",
+          "kind": "star",
+          "x": 6145,
+          "y": 405
+        },
+        {
+          "id": "circe-star-55",
+          "kind": "star",
+          "x": 6210,
+          "y": 405
+        },
+        {
+          "id": "circe-star-56",
+          "kind": "star",
+          "x": 16700,
+          "y": 405
+        },
+        {
+          "id": "circe-star-57",
+          "kind": "star",
+          "x": 16765,
+          "y": 405
+        },
+        {
+          "id": "circe-star-58",
+          "kind": "star",
+          "x": 16830,
+          "y": 405
+        },
+        {
+          "id": "circe-star-59",
+          "kind": "star",
+          "x": 16895,
+          "y": 405
+        },
+        {
+          "id": "circe-star-60",
+          "kind": "star",
+          "x": 16960,
+          "y": 405
+        },
+        {
+          "id": "circe-star-61",
+          "kind": "star",
+          "x": 17850,
+          "y": 225
+        },
+        {
+          "id": "circe-star-62",
+          "kind": "star",
+          "x": 17915,
+          "y": 405
+        },
+        {
+          "id": "circe-star-63",
+          "kind": "star",
+          "x": 17980,
+          "y": 405
+        },
+        {
+          "id": "circe-star-64",
+          "kind": "star",
+          "x": 18660,
+          "y": 260
+        },
+        {
+          "id": "circe-star-65",
+          "kind": "star",
+          "x": 18540,
+          "y": 225
+        },
+        {
+          "id": "circe-star-66",
+          "kind": "star",
+          "x": 18420,
+          "y": 355
+        },
+        {
+          "id": "circe-star-67",
+          "kind": "star",
+          "x": 18480,
+          "y": 290
+        },
+        {
+          "id": "circe-star-68",
+          "kind": "star",
+          "x": 18600,
+          "y": 205
+        },
+        {
+          "id": "circe-star-69",
+          "kind": "star",
+          "x": 19195,
+          "y": 303.02943725152284
+        },
+        {
+          "id": "circe-star-70",
+          "kind": "star",
+          "x": 19260,
+          "y": 320
+        },
+        {
+          "id": "circe-star-71",
+          "kind": "star",
+          "x": 20150,
+          "y": 405
+        },
+        {
+          "id": "circe-star-72",
+          "kind": "star",
+          "x": 20215,
+          "y": 405
+        },
+        {
+          "id": "circe-star-73",
+          "kind": "star",
+          "x": 20280,
+          "y": 405
+        },
+        {
+          "id": "circe-star-74",
+          "kind": "star",
+          "x": 20345,
+          "y": 421
+        },
+        {
+          "id": "circe-star-75",
+          "kind": "star",
+          "x": 20410,
+          "y": 421
+        },
+        {
+          "id": "circe-star-76",
+          "kind": "star",
+          "x": 21300,
+          "y": 405
+        },
+        {
+          "id": "circe-star-77",
+          "kind": "star",
+          "x": 21365,
+          "y": 405
+        },
+        {
+          "id": "circe-star-78",
+          "kind": "star",
+          "x": 21430,
+          "y": 405
+        },
+        {
+          "id": "circe-star-79",
+          "kind": "star",
+          "x": 21495,
+          "y": 405
+        },
+        {
+          "id": "circe-star-80",
+          "kind": "star",
+          "x": 21560,
+          "y": 405
+        },
+        {
+          "id": "circe-star-81",
+          "kind": "star",
+          "x": 12850,
+          "y": 405
+        },
+        {
+          "id": "circe-star-82",
+          "kind": "star",
+          "x": 12915,
+          "y": 405
+        },
+        {
+          "id": "circe-star-83",
+          "kind": "star",
+          "x": 12980,
+          "y": 405
+        },
+        {
+          "id": "circe-star-84",
+          "kind": "star",
+          "x": 13045,
+          "y": 405
+        },
+        {
+          "id": "circe-star-85",
+          "kind": "star",
+          "x": 13110,
+          "y": 300
+        },
+        {
+          "id": "circe-star-86",
+          "kind": "star",
+          "x": 15680,
+          "y": 405
+        },
+        {
+          "id": "circe-star-87",
+          "kind": "star",
+          "x": 15740,
+          "y": 370
+        },
+        {
+          "id": "circe-star-88",
+          "kind": "star",
+          "x": 15800,
+          "y": 405
+        },
+        {
+          "id": "circe-star-89",
+          "kind": "star",
+          "x": 15860,
+          "y": 370
+        },
+        {
+          "id": "circe-star-90",
+          "kind": "star",
+          "x": 15920,
+          "y": 405
+        },
+        {
+          "id": "circe-star-91",
+          "kind": "star",
+          "x": 15150,
+          "y": 421
+        },
+        {
+          "id": "circe-star-92",
+          "kind": "star",
+          "x": 15215,
+          "y": 421
+        },
+        {
+          "id": "circe-star-93",
+          "kind": "star",
+          "x": 15280,
+          "y": 421
+        },
+        {
+          "id": "circe-star-94",
+          "kind": "star",
+          "x": 15345,
+          "y": 421
+        },
+        {
+          "id": "circe-star-95",
+          "kind": "star",
+          "x": 15410,
+          "y": 405
+        },
+        {
+          "id": "circe-star-96",
+          "kind": "star",
+          "x": 22700,
+          "y": 405
+        },
+        {
+          "id": "circe-star-97",
+          "kind": "star",
+          "x": 22765,
+          "y": 405
+        },
+        {
+          "id": "circe-star-98",
+          "kind": "star",
+          "x": 22830,
+          "y": 405
+        },
+        {
+          "id": "circe-star-99",
+          "kind": "star",
+          "x": 22895,
+          "y": 405
+        },
+        {
+          "id": "circe-star-100",
+          "kind": "star",
+          "x": 22960,
+          "y": 405
+        },
+        {
+          "id": "circe-map-1",
+          "kind": "map",
+          "x": 2700,
+          "y": 395
+        },
+        {
+          "id": "circe-map-2",
+          "kind": "map",
+          "x": 18600,
+          "y": 205
+        },
+        {
+          "id": "circe-map-3",
+          "kind": "map",
+          "x": 4380,
+          "y": 421
+        },
+        {
+          "id": "circe-shield-0",
+          "kind": "shield",
+          "x": 1900,
+          "y": 395
+        },
+        {
+          "id": "circe-wings-1",
+          "kind": "wings",
+          "x": 7800,
+          "y": 395
+        },
+        {
+          "id": "circe-magnet-2",
+          "kind": "magnet",
+          "x": 8000,
+          "y": 395
+        },
+        {
+          "id": "circe-apple-3",
+          "kind": "apple",
+          "x": 3600,
+          "y": 395
+        },
+        {
+          "id": "circe-shield-4",
+          "kind": "shield",
+          "x": 6300,
+          "y": 395
+        },
+        {
+          "id": "circe-wings-5",
+          "kind": "wings",
+          "x": 18600,
+          "y": 395
+        },
+        {
+          "id": "circe-magnet-6",
+          "kind": "magnet",
+          "x": 21300,
+          "y": 395
+        },
+        {
+          "id": "circe-apple-7",
+          "kind": "apple",
+          "x": 14400,
+          "y": 395
+        },
+        {
+          "id": "circe-trident-extra-1",
+          "kind": "trident",
+          "x": 7400,
+          "y": 395
+        },
+        {
+          "id": "circe-trident-extra-2",
+          "kind": "trident",
+          "x": 18300,
+          "y": 395
+        },
+        {
+          "id": "circe-lantern-extra-1",
+          "kind": "lantern",
+          "x": 7500,
+          "y": 395
+        },
+        {
+          "id": "circe-lantern-extra-2",
+          "kind": "lantern",
+          "x": 21000,
+          "y": 395
+        },
+        {
+          "id": "circe-compass-extra-1",
+          "kind": "compass",
+          "x": 11000,
+          "y": 395,
+          "checkpoint": 10920
+        },
+        {
+          "id": "circe-compass-extra-2",
+          "kind": "compass",
+          "x": 20000,
+          "y": 395,
+          "checkpoint": 19920
+        },
+        {
+          "id": "circe-moly-1",
+          "kind": "moly",
+          "x": 3640,
+          "y": 405
+        },
+        {
+          "id": "circe-moly-2",
+          "kind": "moly",
+          "x": 13940,
+          "y": 405
+        }
+      ],
+      "adventure": {
+        "branch": {
+          "id": "circe-branch",
+          "start": 7340,
+          "end": 7940,
+          "y": 330
+        },
+        "stories": [
+          {
+            "id": "circe-story-1",
+            "x": 7640,
+            "y": 330,
+            "pose": "upper",
+            "title": "하얀 꽃 몰리",
+            "quote": "발견 · 하얀 꽃은 마법보다 강한 지혜예요.",
+            "story": "헤르메스는 숲길에서 오디세우스를 만나 뿌리는 검고 꽃은 하얀 약초를 건넸어요. “이것을 지니면 키르케의 잔도 너를 바꾸지 못할 것이다.”"
+          },
+          {
+            "id": "circe-story-2",
+            "x": 20050,
+            "y": 440,
+            "pose": "duck",
+            "title": "돌아온 동료들",
+            "quote": "발견 · 친구를 포기하지 않는 마음이 길을 열어요.",
+            "story": "오디세우스는 혼자 도망치지 않고 동료들을 구하러 궁전으로 갔어요. 마법에서 풀려난 선원들은 눈물을 흘리며 그를 끌어안았지요."
+          }
+        ],
+        "constellations": [
+          {
+            "id": "circe-constellation-1",
+            "name": "귀환의 배",
+            "shape": "ship",
+            "stars": [
+              "circe-star-16",
+              "circe-star-17",
+              "circe-star-18",
+              "circe-star-19",
+              "circe-star-20"
+            ]
+          },
+          {
+            "id": "circe-constellation-2",
+            "name": "아테나의 부엉이",
+            "shape": "owl",
+            "stars": [
+              "circe-star-31",
+              "circe-star-32",
+              "circe-star-33",
+              "circe-star-34",
+              "circe-star-35"
+            ]
+          },
+          {
+            "id": "circe-constellation-3",
+            "name": "이타카의 왕관",
+            "shape": "crown",
+            "stars": [
+              "circe-star-86",
+              "circe-star-87",
+              "circe-star-88",
+              "circe-star-89",
+              "circe-star-90"
+            ]
+          }
+        ],
+        "highlight": {
+          "id": "circe-spell",
+          "start": 3500,
+          "end": 5900,
+          "name": "키르케의 마법",
+          "hint": "몰리 약초를 먹으면 마법이 풀려요 · 2단 점프 봉인"
+        }
+      },
+      "paths": [
+        {
+          "path": "lower",
+          "seconds": 75.0166666666637,
+          "hpLoss": 0,
+          "maps": [
+            "circe-map-1",
+            "circe-map-3",
+            "circe-map-2"
+          ],
+          "stars": 89,
+          "stories": [
+            "circe-story-2"
+          ],
+          "input": {
+            "jumps": [
+              3160,
+              3255,
+              5390,
+              6590,
+              6990,
+              8360,
+              8455,
+              10330,
+              11705,
+              11810,
+              13105,
+              13210,
+              13580,
+              13940,
+              16205,
+              16310,
+              17560,
+              17655,
+              18420,
+              18510,
+              19130,
+              21660,
+              21755
+            ],
+            "slides": [
+              {
+                "start": 4230,
+                "end": 4530
+              },
+              {
+                "start": 8740,
+                "end": 9060
+              },
+              {
+                "start": 9430,
+                "end": 9730
+              },
+              {
+                "start": 15030,
+                "end": 15330
+              },
+              {
+                "start": 17040,
+                "end": 17360
+              },
+              {
+                "start": 19970,
+                "end": 20130
+              },
+              {
+                "start": 20430,
+                "end": 20730
+              },
+              {
+                "start": 21240,
+                "end": 21560
+              }
+            ]
+          }
+        },
+        {
+          "path": "upper",
+          "seconds": 75.0166666666637,
+          "hpLoss": 0,
+          "maps": [
+            "circe-map-1",
+            "circe-map-3",
+            "circe-map-2"
+          ],
+          "stars": 94,
+          "stories": [
+            "circe-story-1",
+            "circe-story-2"
+          ],
+          "input": {
+            "jumps": [
+              3160,
+              3255,
+              5390,
+              6590,
+              6990,
+              7240,
+              8360,
+              8455,
+              10330,
+              11705,
+              11810,
+              13105,
+              13210,
+              13580,
+              13940,
+              16205,
+              16310,
+              17560,
+              17655,
+              18420,
+              18510,
+              19130,
+              21660,
+              21755
+            ],
+            "slides": [
+              {
+                "start": 4230,
+                "end": 4530
+              },
+              {
+                "start": 8740,
+                "end": 9060
+              },
+              {
+                "start": 9430,
+                "end": 9730
+              },
+              {
+                "start": 15030,
+                "end": 15330
+              },
+              {
+                "start": 17040,
+                "end": 17360
+              },
+              {
+                "start": 19970,
+                "end": 20130
+              },
+              {
+                "start": 20430,
+                "end": 20730
+              },
+              {
+                "start": 21240,
+                "end": 21560
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "stage": "circe",
+      "variant": "remix-b",
+      "name": "헤르메스의 숲길",
+      "description": "몰리 약초를 따라 달라진 숲길을 달려요.",
+      "sectionOrder": [
+        4,
+        0,
+        3,
+        1,
+        5,
+        2
+      ],
+      "counts": {
+        "stars": 100,
+        "maps": 3,
+        "monsters": 7,
+        "obstacles": 11
+      },
+      "gaps": [
+        {
+          "x": 9900,
+          "w": 165
+        },
+        {
+          "x": 15000,
+          "w": 165
+        },
+        {
+          "x": 16400,
+          "w": 165
+        }
+      ],
+      "obstacles": [
+        {
+          "id": "circe-crate-3500",
+          "x": 6700,
+          "y": 392,
+          "w": 70,
+          "h": 48,
+          "kind": "crate",
+          "role": "structure"
+        },
+        {
+          "id": "circe-pillar-5300",
+          "x": 8500,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "circe-pillar-9700",
+          "x": 19300,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "circe-pillar-14500",
+          "x": 11300,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "circe-pillar-18600",
+          "x": 5800,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "circe-gate-6300",
+          "x": 9500,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "circe-gate-10700",
+          "x": 20300,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "circe-gate-17300",
+          "x": 4500,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "circe-gate-21500",
+          "x": 18300,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "circe-spikes-3900",
+          "x": 7100,
+          "y": 394,
+          "w": 96,
+          "h": 46,
+          "kind": "spikes",
+          "role": "hazard"
+        },
+        {
+          "id": "circe-spikes-20450",
+          "x": 17250,
+          "y": 394,
+          "w": 96,
+          "h": 46,
+          "kind": "spikes",
+          "role": "hazard"
+        }
+      ],
+      "enemies": [
+        {
+          "id": "circe-enemy-ground-1",
+          "kind": "stone",
+          "x": 13700
+        },
+        {
+          "id": "circe-enemy-ground-2",
+          "kind": "crab",
+          "x": 21500
+        },
+        {
+          "id": "circe-enemy-ground-3",
+          "kind": "stone",
+          "x": 3300
+        },
+        {
+          "id": "circe-enemy-ground-4",
+          "kind": "scylla",
+          "x": 16900
+        },
+        {
+          "id": "circe-enemy-air-1",
+          "kind": "shade",
+          "x": 8900
+        },
+        {
+          "id": "circe-enemy-air-2",
+          "kind": "shade",
+          "x": 10800
+        },
+        {
+          "id": "circe-enemy-air-3",
+          "kind": "shade",
+          "x": 5400
+        }
+      ],
+      "platforms": [
+        {
+          "id": "circe-branch",
+          "x": 7340,
+          "y": 330,
+          "w": 600
+        },
+        {
+          "id": "circe-crumble-1",
+          "x": 9900,
+          "y": 440,
+          "w": 165,
+          "crumble": true
+        }
+      ],
+      "winds": [],
+      "safe": [
+        0,
+        6200,
+        8000,
+        14400,
+        15800,
+        22100,
+        23000
+      ],
+      "items": [
+        {
+          "id": "circe-star-1",
+          "kind": "star",
+          "x": 850,
+          "y": 405
+        },
+        {
+          "id": "circe-star-2",
+          "kind": "star",
+          "x": 915,
+          "y": 405
+        },
+        {
+          "id": "circe-star-3",
+          "kind": "star",
+          "x": 980,
+          "y": 405
+        },
+        {
+          "id": "circe-star-4",
+          "kind": "star",
+          "x": 1045,
+          "y": 405
+        },
+        {
+          "id": "circe-star-5",
+          "kind": "star",
+          "x": 1110,
+          "y": 405
+        },
+        {
+          "id": "circe-star-6",
+          "kind": "star",
+          "x": 2000,
+          "y": 405
+        },
+        {
+          "id": "circe-star-7",
+          "kind": "star",
+          "x": 2065,
+          "y": 405
+        },
+        {
+          "id": "circe-star-8",
+          "kind": "star",
+          "x": 2130,
+          "y": 405
+        },
+        {
+          "id": "circe-star-9",
+          "kind": "star",
+          "x": 2195,
+          "y": 405
+        },
+        {
+          "id": "circe-star-10",
+          "kind": "star",
+          "x": 2260,
+          "y": 405
+        },
+        {
+          "id": "circe-star-11",
+          "kind": "star",
+          "x": 3150,
+          "y": 405
+        },
+        {
+          "id": "circe-star-12",
+          "kind": "star",
+          "x": 6415,
+          "y": 405
+        },
+        {
+          "id": "circe-star-13",
+          "kind": "star",
+          "x": 6480,
+          "y": 405
+        },
+        {
+          "id": "circe-star-14",
+          "kind": "star",
+          "x": 6545,
+          "y": 303.02943725152284
+        },
+        {
+          "id": "circe-star-15",
+          "kind": "star",
+          "x": 6610,
+          "y": 320
+        },
+        {
+          "id": "circe-star-16",
+          "kind": "star",
+          "x": 7510,
+          "y": 285
+        },
+        {
+          "id": "circe-star-17",
+          "kind": "star",
+          "x": 7570,
+          "y": 305
+        },
+        {
+          "id": "circe-star-18",
+          "kind": "star",
+          "x": 7630,
+          "y": 265
+        },
+        {
+          "id": "circe-star-19",
+          "kind": "star",
+          "x": 7690,
+          "y": 305
+        },
+        {
+          "id": "circe-star-20",
+          "kind": "star",
+          "x": 7750,
+          "y": 285
+        },
+        {
+          "id": "circe-star-21",
+          "kind": "star",
+          "x": 8650,
+          "y": 225
+        },
+        {
+          "id": "circe-star-22",
+          "kind": "star",
+          "x": 8715,
+          "y": 405
+        },
+        {
+          "id": "circe-star-23",
+          "kind": "star",
+          "x": 8780,
+          "y": 405
+        },
+        {
+          "id": "circe-star-24",
+          "kind": "star",
+          "x": 8845,
+          "y": 405
+        },
+        {
+          "id": "circe-star-25",
+          "kind": "star",
+          "x": 8910,
+          "y": 405
+        },
+        {
+          "id": "circe-star-26",
+          "kind": "star",
+          "x": 13000,
+          "y": 405
+        },
+        {
+          "id": "circe-star-27",
+          "kind": "star",
+          "x": 13065,
+          "y": 405
+        },
+        {
+          "id": "circe-star-28",
+          "kind": "star",
+          "x": 13130,
+          "y": 405
+        },
+        {
+          "id": "circe-star-29",
+          "kind": "star",
+          "x": 13195,
+          "y": 405
+        },
+        {
+          "id": "circe-star-30",
+          "kind": "star",
+          "x": 13260,
+          "y": 405
+        },
+        {
+          "id": "circe-star-31",
+          "kind": "star",
+          "x": 14080,
+          "y": 405
+        },
+        {
+          "id": "circe-star-32",
+          "kind": "star",
+          "x": 14140,
+          "y": 370
+        },
+        {
+          "id": "circe-star-33",
+          "kind": "star",
+          "x": 14200,
+          "y": 395
+        },
+        {
+          "id": "circe-star-34",
+          "kind": "star",
+          "x": 14260,
+          "y": 370
+        },
+        {
+          "id": "circe-star-35",
+          "kind": "star",
+          "x": 14320,
+          "y": 405
+        },
+        {
+          "id": "circe-star-36",
+          "kind": "star",
+          "x": 15300,
+          "y": 405
+        },
+        {
+          "id": "circe-star-37",
+          "kind": "star",
+          "x": 15365,
+          "y": 405
+        },
+        {
+          "id": "circe-star-38",
+          "kind": "star",
+          "x": 15430,
+          "y": 405
+        },
+        {
+          "id": "circe-star-39",
+          "kind": "star",
+          "x": 15495,
+          "y": 405
+        },
+        {
+          "id": "circe-star-40",
+          "kind": "star",
+          "x": 15560,
+          "y": 405
+        },
+        {
+          "id": "circe-star-41",
+          "kind": "star",
+          "x": 19650,
+          "y": 405
+        },
+        {
+          "id": "circe-star-42",
+          "kind": "star",
+          "x": 19715,
+          "y": 405
+        },
+        {
+          "id": "circe-star-43",
+          "kind": "star",
+          "x": 19780,
+          "y": 405
+        },
+        {
+          "id": "circe-star-44",
+          "kind": "star",
+          "x": 19845,
+          "y": 405
+        },
+        {
+          "id": "circe-star-45",
+          "kind": "star",
+          "x": 19910,
+          "y": 405
+        },
+        {
+          "id": "circe-star-46",
+          "kind": "star",
+          "x": 20800,
+          "y": 405
+        },
+        {
+          "id": "circe-star-47",
+          "kind": "star",
+          "x": 20865,
+          "y": 405
+        },
+        {
+          "id": "circe-star-48",
+          "kind": "star",
+          "x": 20930,
+          "y": 405
+        },
+        {
+          "id": "circe-star-49",
+          "kind": "star",
+          "x": 20995,
+          "y": 405
+        },
+        {
+          "id": "circe-star-50",
+          "kind": "star",
+          "x": 21060,
+          "y": 405
+        },
+        {
+          "id": "circe-star-51",
+          "kind": "star",
+          "x": 21950,
+          "y": 405
+        },
+        {
+          "id": "circe-star-52",
+          "kind": "star",
+          "x": 22015,
+          "y": 405
+        },
+        {
+          "id": "circe-star-53",
+          "kind": "star",
+          "x": 22080,
+          "y": 405
+        },
+        {
+          "id": "circe-star-54",
+          "kind": "star",
+          "x": 22145,
+          "y": 405
+        },
+        {
+          "id": "circe-star-55",
+          "kind": "star",
+          "x": 22210,
+          "y": 405
+        },
+        {
+          "id": "circe-star-56",
+          "kind": "star",
+          "x": 10300,
+          "y": 405
+        },
+        {
+          "id": "circe-star-57",
+          "kind": "star",
+          "x": 10365,
+          "y": 405
+        },
+        {
+          "id": "circe-star-58",
+          "kind": "star",
+          "x": 10430,
+          "y": 405
+        },
+        {
+          "id": "circe-star-59",
+          "kind": "star",
+          "x": 10495,
+          "y": 405
+        },
+        {
+          "id": "circe-star-60",
+          "kind": "star",
+          "x": 10560,
+          "y": 405
+        },
+        {
+          "id": "circe-star-61",
+          "kind": "star",
+          "x": 11450,
+          "y": 225
+        },
+        {
+          "id": "circe-star-62",
+          "kind": "star",
+          "x": 11515,
+          "y": 405
+        },
+        {
+          "id": "circe-star-63",
+          "kind": "star",
+          "x": 11580,
+          "y": 405
+        },
+        {
+          "id": "circe-star-64",
+          "kind": "star",
+          "x": 12260,
+          "y": 260
+        },
+        {
+          "id": "circe-star-65",
+          "kind": "star",
+          "x": 12140,
+          "y": 225
+        },
+        {
+          "id": "circe-star-66",
+          "kind": "star",
+          "x": 12020,
+          "y": 355
+        },
+        {
+          "id": "circe-star-67",
+          "kind": "star",
+          "x": 12080,
+          "y": 290
+        },
+        {
+          "id": "circe-star-68",
+          "kind": "star",
+          "x": 12200,
+          "y": 205
+        },
+        {
+          "id": "circe-star-69",
+          "kind": "star",
+          "x": 12795,
+          "y": 303.02943725152284
+        },
+        {
+          "id": "circe-star-70",
+          "kind": "star",
+          "x": 3260,
+          "y": 320
+        },
+        {
+          "id": "circe-star-71",
+          "kind": "star",
+          "x": 4150,
+          "y": 405
+        },
+        {
+          "id": "circe-star-72",
+          "kind": "star",
+          "x": 4215,
+          "y": 405
+        },
+        {
+          "id": "circe-star-73",
+          "kind": "star",
+          "x": 4280,
+          "y": 405
+        },
+        {
+          "id": "circe-star-74",
+          "kind": "star",
+          "x": 4345,
+          "y": 421
+        },
+        {
+          "id": "circe-star-75",
+          "kind": "star",
+          "x": 4410,
+          "y": 421
+        },
+        {
+          "id": "circe-star-76",
+          "kind": "star",
+          "x": 5300,
+          "y": 405
+        },
+        {
+          "id": "circe-star-77",
+          "kind": "star",
+          "x": 5365,
+          "y": 405
+        },
+        {
+          "id": "circe-star-78",
+          "kind": "star",
+          "x": 5430,
+          "y": 405
+        },
+        {
+          "id": "circe-star-79",
+          "kind": "star",
+          "x": 5495,
+          "y": 405
+        },
+        {
+          "id": "circe-star-80",
+          "kind": "star",
+          "x": 5560,
+          "y": 405
+        },
+        {
+          "id": "circe-star-81",
+          "kind": "star",
+          "x": 16050,
+          "y": 405
+        },
+        {
+          "id": "circe-star-82",
+          "kind": "star",
+          "x": 16115,
+          "y": 405
+        },
+        {
+          "id": "circe-star-83",
+          "kind": "star",
+          "x": 16180,
+          "y": 405
+        },
+        {
+          "id": "circe-star-84",
+          "kind": "star",
+          "x": 16245,
+          "y": 405
+        },
+        {
+          "id": "circe-star-85",
+          "kind": "star",
+          "x": 16310,
+          "y": 300
+        },
+        {
+          "id": "circe-star-86",
+          "kind": "star",
+          "x": 18880,
+          "y": 405
+        },
+        {
+          "id": "circe-star-87",
+          "kind": "star",
+          "x": 18940,
+          "y": 370
+        },
+        {
+          "id": "circe-star-88",
+          "kind": "star",
+          "x": 19000,
+          "y": 405
+        },
+        {
+          "id": "circe-star-89",
+          "kind": "star",
+          "x": 19060,
+          "y": 370
+        },
+        {
+          "id": "circe-star-90",
+          "kind": "star",
+          "x": 19120,
+          "y": 405
+        },
+        {
+          "id": "circe-star-91",
+          "kind": "star",
+          "x": 18350,
+          "y": 421
+        },
+        {
+          "id": "circe-star-92",
+          "kind": "star",
+          "x": 18415,
+          "y": 421
+        },
+        {
+          "id": "circe-star-93",
+          "kind": "star",
+          "x": 18480,
+          "y": 421
+        },
+        {
+          "id": "circe-star-94",
+          "kind": "star",
+          "x": 18545,
+          "y": 421
+        },
+        {
+          "id": "circe-star-95",
+          "kind": "star",
+          "x": 18610,
+          "y": 405
+        },
+        {
+          "id": "circe-star-96",
+          "kind": "star",
+          "x": 22700,
+          "y": 405
+        },
+        {
+          "id": "circe-star-97",
+          "kind": "star",
+          "x": 22765,
+          "y": 405
+        },
+        {
+          "id": "circe-star-98",
+          "kind": "star",
+          "x": 22830,
+          "y": 405
+        },
+        {
+          "id": "circe-star-99",
+          "kind": "star",
+          "x": 22895,
+          "y": 405
+        },
+        {
+          "id": "circe-star-100",
+          "kind": "star",
+          "x": 22960,
+          "y": 405
+        },
+        {
+          "id": "circe-map-1",
+          "kind": "map",
+          "x": 2700,
+          "y": 395
+        },
+        {
+          "id": "circe-map-2",
+          "kind": "map",
+          "x": 12200,
+          "y": 205
+        },
+        {
+          "id": "circe-map-3",
+          "kind": "map",
+          "x": 20380,
+          "y": 421
+        },
+        {
+          "id": "circe-shield-0",
+          "kind": "shield",
+          "x": 1900,
+          "y": 395
+        },
+        {
+          "id": "circe-wings-1",
+          "kind": "wings",
+          "x": 7800,
+          "y": 395
+        },
+        {
+          "id": "circe-magnet-2",
+          "kind": "magnet",
+          "x": 8000,
+          "y": 395
+        },
+        {
+          "id": "circe-apple-3",
+          "kind": "apple",
+          "x": 19600,
+          "y": 395
+        },
+        {
+          "id": "circe-shield-4",
+          "kind": "shield",
+          "x": 22300,
+          "y": 395
+        },
+        {
+          "id": "circe-wings-5",
+          "kind": "wings",
+          "x": 12200,
+          "y": 395
+        },
+        {
+          "id": "circe-magnet-6",
+          "kind": "magnet",
+          "x": 5300,
+          "y": 395
+        },
+        {
+          "id": "circe-apple-7",
+          "kind": "apple",
+          "x": 17600,
+          "y": 395
+        },
+        {
+          "id": "circe-trident-extra-1",
+          "kind": "trident",
+          "x": 7400,
+          "y": 395
+        },
+        {
+          "id": "circe-trident-extra-2",
+          "kind": "trident",
+          "x": 11900,
+          "y": 395
+        },
+        {
+          "id": "circe-lantern-extra-1",
+          "kind": "lantern",
+          "x": 7500,
+          "y": 395
+        },
+        {
+          "id": "circe-lantern-extra-2",
+          "kind": "lantern",
+          "x": 5000,
+          "y": 395
+        },
+        {
+          "id": "circe-compass-extra-1",
+          "kind": "compass",
+          "x": 14200,
+          "y": 395,
+          "checkpoint": 14120
+        },
+        {
+          "id": "circe-compass-extra-2",
+          "kind": "compass",
+          "x": 4000,
+          "y": 395,
+          "checkpoint": 3920
+        },
+        {
+          "id": "circe-moly-1",
+          "kind": "moly",
+          "x": 19640,
+          "y": 405
+        },
+        {
+          "id": "circe-moly-2",
+          "kind": "moly",
+          "x": 17140,
+          "y": 405
+        }
+      ],
+      "adventure": {
+        "branch": {
+          "id": "circe-branch",
+          "start": 7340,
+          "end": 7940,
+          "y": 330
+        },
+        "stories": [
+          {
+            "id": "circe-story-1",
+            "x": 7640,
+            "y": 330,
+            "pose": "upper",
+            "title": "하얀 꽃 몰리",
+            "quote": "발견 · 하얀 꽃은 마법보다 강한 지혜예요.",
+            "story": "헤르메스는 숲길에서 오디세우스를 만나 뿌리는 검고 꽃은 하얀 약초를 건넸어요. “이것을 지니면 키르케의 잔도 너를 바꾸지 못할 것이다.”"
+          },
+          {
+            "id": "circe-story-2",
+            "x": 4050,
+            "y": 440,
+            "pose": "duck",
+            "title": "돌아온 동료들",
+            "quote": "발견 · 친구를 포기하지 않는 마음이 길을 열어요.",
+            "story": "오디세우스는 혼자 도망치지 않고 동료들을 구하러 궁전으로 갔어요. 마법에서 풀려난 선원들은 눈물을 흘리며 그를 끌어안았지요."
+          }
+        ],
+        "constellations": [
+          {
+            "id": "circe-constellation-1",
+            "name": "귀환의 배",
+            "shape": "ship",
+            "stars": [
+              "circe-star-16",
+              "circe-star-17",
+              "circe-star-18",
+              "circe-star-19",
+              "circe-star-20"
+            ]
+          },
+          {
+            "id": "circe-constellation-2",
+            "name": "아테나의 부엉이",
+            "shape": "owl",
+            "stars": [
+              "circe-star-31",
+              "circe-star-32",
+              "circe-star-33",
+              "circe-star-34",
+              "circe-star-35"
+            ]
+          },
+          {
+            "id": "circe-constellation-3",
+            "name": "이타카의 왕관",
+            "shape": "crown",
+            "stars": [
+              "circe-star-86",
+              "circe-star-87",
+              "circe-star-88",
+              "circe-star-89",
+              "circe-star-90"
+            ]
+          }
+        ],
+        "highlight": {
+          "id": "circe-spell",
+          "start": 19500,
+          "end": 21900,
+          "name": "키르케의 마법",
+          "hint": "몰리 약초를 먹으면 마법이 풀려요 · 2단 점프 봉인"
+        }
+      },
+      "paths": [
+        {
+          "path": "lower",
+          "seconds": 75.0166666666637,
+          "hpLoss": 0,
+          "maps": [
+            "circe-map-1",
+            "circe-map-2",
+            "circe-map-3"
+          ],
+          "stars": 88,
+          "stories": [
+            "circe-story-2"
+          ],
+          "input": {
+            "jumps": [
+              3130,
+              5660,
+              5755,
+              6590,
+              6990,
+              8360,
+              8455,
+              9805,
+              9910,
+              11160,
+              11255,
+              12020,
+              12110,
+              13530,
+              14905,
+              15010,
+              16305,
+              16410,
+              16780,
+              17140,
+              19160,
+              19255,
+              21390
+            ],
+            "slides": [
+              {
+                "start": 3970,
+                "end": 4130
+              },
+              {
+                "start": 4430,
+                "end": 4730
+              },
+              {
+                "start": 5240,
+                "end": 5560
+              },
+              {
+                "start": 8740,
+                "end": 9060
+              },
+              {
+                "start": 9430,
+                "end": 9730
+              },
+              {
+                "start": 10640,
+                "end": 10960
+              },
+              {
+                "start": 18230,
+                "end": 18530
+              },
+              {
+                "start": 20230,
+                "end": 20530
+              }
+            ]
+          }
+        },
+        {
+          "path": "upper",
+          "seconds": 75.0166666666637,
+          "hpLoss": 0,
+          "maps": [
+            "circe-map-1",
+            "circe-map-2",
+            "circe-map-3"
+          ],
+          "stars": 93,
+          "stories": [
+            "circe-story-2",
+            "circe-story-1"
+          ],
+          "input": {
+            "jumps": [
+              3130,
+              5660,
+              5755,
+              6590,
+              6990,
+              7240,
+              8360,
+              8455,
+              9805,
+              9910,
+              11160,
+              11255,
+              12020,
+              12110,
+              13530,
+              14905,
+              15010,
+              16305,
+              16410,
+              16780,
+              17140,
+              19160,
+              19255,
+              21390
+            ],
+            "slides": [
+              {
+                "start": 3970,
+                "end": 4130
+              },
+              {
+                "start": 4430,
+                "end": 4730
+              },
+              {
+                "start": 5240,
+                "end": 5560
+              },
+              {
+                "start": 8740,
+                "end": 9060
+              },
+              {
+                "start": 9430,
+                "end": 9730
+              },
+              {
+                "start": 10640,
+                "end": 10960
+              },
+              {
+                "start": 18230,
+                "end": 18530
+              },
+              {
+                "start": 20230,
+                "end": 20530
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "stage": "sea",
+      "variant": "classic",
+      "name": "기본 항로",
+      "description": "노래가 들리는 바다를 익숙한 길로 건너요.",
+      "sectionOrder": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "counts": {
+        "stars": 100,
+        "maps": 3,
+        "monsters": 7,
+        "obstacles": 11
+      },
+      "gaps": [
+        {
+          "x": 8600,
+          "w": 180
+        },
+        {
+          "x": 13300,
+          "w": 180
+        },
+        {
+          "x": 19800,
+          "w": 180
+        }
+      ],
+      "obstacles": [
+        {
+          "id": "sea-crate-3600",
+          "x": 3600,
+          "y": 392,
+          "w": 70,
+          "h": 48,
+          "kind": "crate",
+          "role": "structure"
+        },
+        {
+          "id": "sea-pillar-5100",
+          "x": 5100,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "sea-pillar-9800",
+          "x": 9800,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "sea-pillar-14700",
+          "x": 14700,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "sea-pillar-18800",
+          "x": 18800,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "sea-gate-6300",
+          "x": 6300,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "sea-gate-10900",
+          "x": 10900,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "sea-gate-17500",
+          "x": 17500,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "sea-gate-21700",
+          "x": 21700,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "sea-spikes-10450",
+          "x": 10450,
+          "y": 394,
+          "w": 96,
+          "h": 46,
+          "kind": "spikes",
+          "role": "hazard"
+        },
+        {
+          "id": "sea-spikes-20925",
+          "x": 20925,
+          "y": 394,
+          "w": 96,
+          "h": 46,
+          "kind": "spikes",
+          "role": "hazard"
+        }
+      ],
+      "enemies": [
+        {
+          "id": "sea-enemy-ground-1",
+          "kind": "scylla",
+          "x": 7300
+        },
+        {
+          "id": "sea-enemy-ground-2",
+          "kind": "crab",
+          "x": 12000
+        },
+        {
+          "id": "sea-enemy-ground-3",
+          "kind": "crab",
+          "x": 16300
+        },
+        {
+          "id": "sea-enemy-ground-4",
+          "kind": "scylla",
+          "x": 20500
+        },
+        {
+          "id": "sea-enemy-air-1",
+          "kind": "harpy",
+          "x": 5700
+        },
+        {
+          "id": "sea-enemy-air-2",
+          "kind": "harpy",
+          "x": 14000
+        },
+        {
+          "id": "sea-enemy-air-3",
+          "kind": "harpy",
+          "x": 18200
+        }
+      ],
+      "platforms": [
+        {
+          "id": "sea-branch",
+          "x": 4140,
+          "y": 330,
+          "w": 600
+        },
+        {
+          "id": "sea-crumble-1",
+          "x": 13300,
+          "y": 440,
+          "w": 180,
+          "crumble": true
+        }
+      ],
+      "winds": [],
+      "safe": [
+        0,
+        3000,
+        8000,
+        12700,
+        17000,
+        19200,
+        23000
+      ],
+      "items": [
+        {
+          "id": "sea-star-1",
+          "kind": "star",
+          "x": 850,
+          "y": 405
+        },
+        {
+          "id": "sea-star-2",
+          "kind": "star",
+          "x": 915,
+          "y": 405
+        },
+        {
+          "id": "sea-star-3",
+          "kind": "star",
+          "x": 980,
+          "y": 405
+        },
+        {
+          "id": "sea-star-4",
+          "kind": "star",
+          "x": 1045,
+          "y": 405
+        },
+        {
+          "id": "sea-star-5",
+          "kind": "star",
+          "x": 1110,
+          "y": 405
+        },
+        {
+          "id": "sea-star-6",
+          "kind": "star",
+          "x": 2000,
+          "y": 405
+        },
+        {
+          "id": "sea-star-7",
+          "kind": "star",
+          "x": 2065,
+          "y": 405
+        },
+        {
+          "id": "sea-star-8",
+          "kind": "star",
+          "x": 2130,
+          "y": 405
+        },
+        {
+          "id": "sea-star-9",
+          "kind": "star",
+          "x": 2195,
+          "y": 405
+        },
+        {
+          "id": "sea-star-10",
+          "kind": "star",
+          "x": 2260,
+          "y": 405
+        },
+        {
+          "id": "sea-star-11",
+          "kind": "star",
+          "x": 3150,
+          "y": 405
+        },
+        {
+          "id": "sea-star-12",
+          "kind": "star",
+          "x": 3215,
+          "y": 405
+        },
+        {
+          "id": "sea-star-13",
+          "kind": "star",
+          "x": 3280,
+          "y": 405
+        },
+        {
+          "id": "sea-star-14",
+          "kind": "star",
+          "x": 3345,
+          "y": 405
+        },
+        {
+          "id": "sea-star-15",
+          "kind": "star",
+          "x": 3410,
+          "y": 405
+        },
+        {
+          "id": "sea-star-16",
+          "kind": "star",
+          "x": 4310,
+          "y": 285
+        },
+        {
+          "id": "sea-star-17",
+          "kind": "star",
+          "x": 4370,
+          "y": 305
+        },
+        {
+          "id": "sea-star-18",
+          "kind": "star",
+          "x": 4430,
+          "y": 265
+        },
+        {
+          "id": "sea-star-19",
+          "kind": "star",
+          "x": 4490,
+          "y": 305
+        },
+        {
+          "id": "sea-star-20",
+          "kind": "star",
+          "x": 4550,
+          "y": 285
+        },
+        {
+          "id": "sea-star-21",
+          "kind": "star",
+          "x": 5450,
+          "y": 405
+        },
+        {
+          "id": "sea-star-22",
+          "kind": "star",
+          "x": 5515,
+          "y": 405
+        },
+        {
+          "id": "sea-star-23",
+          "kind": "star",
+          "x": 5580,
+          "y": 405
+        },
+        {
+          "id": "sea-star-24",
+          "kind": "star",
+          "x": 5645,
+          "y": 405
+        },
+        {
+          "id": "sea-star-25",
+          "kind": "star",
+          "x": 5710,
+          "y": 405
+        },
+        {
+          "id": "sea-star-26",
+          "kind": "star",
+          "x": 6600,
+          "y": 405
+        },
+        {
+          "id": "sea-star-27",
+          "kind": "star",
+          "x": 6665,
+          "y": 405
+        },
+        {
+          "id": "sea-star-28",
+          "kind": "star",
+          "x": 6730,
+          "y": 405
+        },
+        {
+          "id": "sea-star-29",
+          "kind": "star",
+          "x": 6795,
+          "y": 405
+        },
+        {
+          "id": "sea-star-30",
+          "kind": "star",
+          "x": 6860,
+          "y": 405
+        },
+        {
+          "id": "sea-star-31",
+          "kind": "star",
+          "x": 7680,
+          "y": 405
+        },
+        {
+          "id": "sea-star-32",
+          "kind": "star",
+          "x": 7740,
+          "y": 370
+        },
+        {
+          "id": "sea-star-33",
+          "kind": "star",
+          "x": 7800,
+          "y": 395
+        },
+        {
+          "id": "sea-star-34",
+          "kind": "star",
+          "x": 7860,
+          "y": 370
+        },
+        {
+          "id": "sea-star-35",
+          "kind": "star",
+          "x": 7920,
+          "y": 405
+        },
+        {
+          "id": "sea-star-36",
+          "kind": "star",
+          "x": 8900,
+          "y": 405
+        },
+        {
+          "id": "sea-star-37",
+          "kind": "star",
+          "x": 8965,
+          "y": 405
+        },
+        {
+          "id": "sea-star-38",
+          "kind": "star",
+          "x": 9030,
+          "y": 405
+        },
+        {
+          "id": "sea-star-39",
+          "kind": "star",
+          "x": 9095,
+          "y": 405
+        },
+        {
+          "id": "sea-star-40",
+          "kind": "star",
+          "x": 9160,
+          "y": 405
+        },
+        {
+          "id": "sea-star-41",
+          "kind": "star",
+          "x": 10050,
+          "y": 405
+        },
+        {
+          "id": "sea-star-42",
+          "kind": "star",
+          "x": 10115,
+          "y": 405
+        },
+        {
+          "id": "sea-star-43",
+          "kind": "star",
+          "x": 10180,
+          "y": 405
+        },
+        {
+          "id": "sea-star-44",
+          "kind": "star",
+          "x": 10245,
+          "y": 405
+        },
+        {
+          "id": "sea-star-45",
+          "kind": "star",
+          "x": 10310,
+          "y": 405
+        },
+        {
+          "id": "sea-star-46",
+          "kind": "star",
+          "x": 11200,
+          "y": 405
+        },
+        {
+          "id": "sea-star-47",
+          "kind": "star",
+          "x": 11265,
+          "y": 405
+        },
+        {
+          "id": "sea-star-48",
+          "kind": "star",
+          "x": 11330,
+          "y": 405
+        },
+        {
+          "id": "sea-star-49",
+          "kind": "star",
+          "x": 11395,
+          "y": 405
+        },
+        {
+          "id": "sea-star-50",
+          "kind": "star",
+          "x": 11460,
+          "y": 405
+        },
+        {
+          "id": "sea-star-51",
+          "kind": "star",
+          "x": 12350,
+          "y": 405
+        },
+        {
+          "id": "sea-star-52",
+          "kind": "star",
+          "x": 12415,
+          "y": 405
+        },
+        {
+          "id": "sea-star-53",
+          "kind": "star",
+          "x": 12480,
+          "y": 405
+        },
+        {
+          "id": "sea-star-54",
+          "kind": "star",
+          "x": 12545,
+          "y": 405
+        },
+        {
+          "id": "sea-star-55",
+          "kind": "star",
+          "x": 12610,
+          "y": 405
+        },
+        {
+          "id": "sea-star-56",
+          "kind": "star",
+          "x": 13500,
+          "y": 300
+        },
+        {
+          "id": "sea-star-57",
+          "kind": "star",
+          "x": 13565,
+          "y": 300
+        },
+        {
+          "id": "sea-star-58",
+          "kind": "star",
+          "x": 13630,
+          "y": 405
+        },
+        {
+          "id": "sea-star-59",
+          "kind": "star",
+          "x": 13695,
+          "y": 405
+        },
+        {
+          "id": "sea-star-60",
+          "kind": "star",
+          "x": 13760,
+          "y": 405
+        },
+        {
+          "id": "sea-star-61",
+          "kind": "star",
+          "x": 14650,
+          "y": 225
+        },
+        {
+          "id": "sea-star-62",
+          "kind": "star",
+          "x": 14715,
+          "y": 225
+        },
+        {
+          "id": "sea-star-63",
+          "kind": "star",
+          "x": 14780,
+          "y": 225
+        },
+        {
+          "id": "sea-star-64",
+          "kind": "star",
+          "x": 15460,
+          "y": 260
+        },
+        {
+          "id": "sea-star-65",
+          "kind": "star",
+          "x": 15340,
+          "y": 225
+        },
+        {
+          "id": "sea-star-66",
+          "kind": "star",
+          "x": 15220,
+          "y": 355
+        },
+        {
+          "id": "sea-star-67",
+          "kind": "star",
+          "x": 15280,
+          "y": 290
+        },
+        {
+          "id": "sea-star-68",
+          "kind": "star",
+          "x": 15400,
+          "y": 205
+        },
+        {
+          "id": "sea-star-69",
+          "kind": "star",
+          "x": 15995,
+          "y": 405
+        },
+        {
+          "id": "sea-star-70",
+          "kind": "star",
+          "x": 16060,
+          "y": 405
+        },
+        {
+          "id": "sea-star-71",
+          "kind": "star",
+          "x": 16950,
+          "y": 405
+        },
+        {
+          "id": "sea-star-72",
+          "kind": "star",
+          "x": 17015,
+          "y": 405
+        },
+        {
+          "id": "sea-star-73",
+          "kind": "star",
+          "x": 17080,
+          "y": 405
+        },
+        {
+          "id": "sea-star-74",
+          "kind": "star",
+          "x": 17145,
+          "y": 405
+        },
+        {
+          "id": "sea-star-75",
+          "kind": "star",
+          "x": 17210,
+          "y": 405
+        },
+        {
+          "id": "sea-star-76",
+          "kind": "star",
+          "x": 18100,
+          "y": 405
+        },
+        {
+          "id": "sea-star-77",
+          "kind": "star",
+          "x": 18165,
+          "y": 405
+        },
+        {
+          "id": "sea-star-78",
+          "kind": "star",
+          "x": 18230,
+          "y": 405
+        },
+        {
+          "id": "sea-star-79",
+          "kind": "star",
+          "x": 18295,
+          "y": 405
+        },
+        {
+          "id": "sea-star-80",
+          "kind": "star",
+          "x": 18360,
+          "y": 405
+        },
+        {
+          "id": "sea-star-81",
+          "kind": "star",
+          "x": 19250,
+          "y": 405
+        },
+        {
+          "id": "sea-star-82",
+          "kind": "star",
+          "x": 19315,
+          "y": 405
+        },
+        {
+          "id": "sea-star-83",
+          "kind": "star",
+          "x": 19380,
+          "y": 405
+        },
+        {
+          "id": "sea-star-84",
+          "kind": "star",
+          "x": 19445,
+          "y": 405
+        },
+        {
+          "id": "sea-star-85",
+          "kind": "star",
+          "x": 19510,
+          "y": 405
+        },
+        {
+          "id": "sea-star-86",
+          "kind": "star",
+          "x": 22080,
+          "y": 405
+        },
+        {
+          "id": "sea-star-87",
+          "kind": "star",
+          "x": 22140,
+          "y": 370
+        },
+        {
+          "id": "sea-star-88",
+          "kind": "star",
+          "x": 22200,
+          "y": 405
+        },
+        {
+          "id": "sea-star-89",
+          "kind": "star",
+          "x": 22260,
+          "y": 370
+        },
+        {
+          "id": "sea-star-90",
+          "kind": "star",
+          "x": 22320,
+          "y": 405
+        },
+        {
+          "id": "sea-star-91",
+          "kind": "star",
+          "x": 21550,
+          "y": 421
+        },
+        {
+          "id": "sea-star-92",
+          "kind": "star",
+          "x": 21615,
+          "y": 421
+        },
+        {
+          "id": "sea-star-93",
+          "kind": "star",
+          "x": 21680,
+          "y": 421
+        },
+        {
+          "id": "sea-star-94",
+          "kind": "star",
+          "x": 21745,
+          "y": 421
+        },
+        {
+          "id": "sea-star-95",
+          "kind": "star",
+          "x": 21810,
+          "y": 421
+        },
+        {
+          "id": "sea-star-96",
+          "kind": "star",
+          "x": 22700,
+          "y": 405
+        },
+        {
+          "id": "sea-star-97",
+          "kind": "star",
+          "x": 22765,
+          "y": 405
+        },
+        {
+          "id": "sea-star-98",
+          "kind": "star",
+          "x": 22830,
+          "y": 405
+        },
+        {
+          "id": "sea-star-99",
+          "kind": "star",
+          "x": 22895,
+          "y": 405
+        },
+        {
+          "id": "sea-star-100",
+          "kind": "star",
+          "x": 22960,
+          "y": 405
+        },
+        {
+          "id": "sea-map-1",
+          "kind": "map",
+          "x": 2700,
+          "y": 395
+        },
+        {
+          "id": "sea-map-2",
+          "kind": "map",
+          "x": 15400,
+          "y": 205
+        },
+        {
+          "id": "sea-map-3",
+          "kind": "map",
+          "x": 10980,
+          "y": 421
+        },
+        {
+          "id": "sea-shield-0",
+          "kind": "shield",
+          "x": 1900,
+          "y": 395
+        },
+        {
+          "id": "sea-wings-1",
+          "kind": "wings",
+          "x": 4600,
+          "y": 395
+        },
+        {
+          "id": "sea-magnet-2",
+          "kind": "magnet",
+          "x": 4800,
+          "y": 395
+        },
+        {
+          "id": "sea-apple-3",
+          "kind": "apple",
+          "x": 10000,
+          "y": 395
+        },
+        {
+          "id": "sea-shield-4",
+          "kind": "shield",
+          "x": 12700,
+          "y": 395
+        },
+        {
+          "id": "sea-wings-5",
+          "kind": "wings",
+          "x": 15400,
+          "y": 395
+        },
+        {
+          "id": "sea-magnet-6",
+          "kind": "magnet",
+          "x": 18100,
+          "y": 395
+        },
+        {
+          "id": "sea-apple-7",
+          "kind": "apple",
+          "x": 20800,
+          "y": 395
+        },
+        {
+          "id": "sea-trident-extra-1",
+          "kind": "trident",
+          "x": 4200,
+          "y": 395
+        },
+        {
+          "id": "sea-trident-extra-2",
+          "kind": "trident",
+          "x": 15100,
+          "y": 395
+        },
+        {
+          "id": "sea-lantern-extra-1",
+          "kind": "lantern",
+          "x": 4300,
+          "y": 395
+        },
+        {
+          "id": "sea-lantern-extra-2",
+          "kind": "lantern",
+          "x": 17800,
+          "y": 395
+        },
+        {
+          "id": "sea-compass-extra-1",
+          "kind": "compass",
+          "x": 7800,
+          "y": 395,
+          "checkpoint": 7720
+        },
+        {
+          "id": "sea-compass-extra-2",
+          "kind": "compass",
+          "x": 16800,
+          "y": 395,
+          "checkpoint": 16720
+        }
+      ],
+      "adventure": {
+        "branch": {
+          "id": "sea-branch",
+          "start": 4140,
+          "end": 4740,
+          "y": 330
+        },
+        "stories": [
+          {
+            "id": "sea-story-1",
+            "x": 4440,
+            "y": 330,
+            "pose": "upper",
+            "title": "밀랍 귀마개",
+            "quote": "발견 · 귀를 막으면 마음의 방향을 지킬 수 있어요.",
+            "story": "세이렌의 노래는 듣는 사람을 바위섬으로 끌어당겼어요. 오디세우스는 선원들의 귀를 밀랍으로 막아 주었어요. 함께 정한 약속이 모두를 지켜 주었지요."
+          },
+          {
+            "id": "sea-story-2",
+            "x": 16850,
+            "y": 440,
+            "pose": "duck",
+            "title": "돛대의 약속",
+            "quote": "발견 · 스스로를 묶는 용기도 있어요.",
+            "story": "오디세우스는 노래를 듣고 싶었지만 자신을 돛대에 단단히 묶어 달라고 부탁했어요. “내가 풀어 달라고 하면 더 꽁꽁 묶어 주게.” 배는 노래를 지나 무사히 나아갔어요."
+          }
+        ],
+        "constellations": [
+          {
+            "id": "sea-constellation-1",
+            "name": "귀환의 배",
+            "shape": "ship",
+            "stars": [
+              "sea-star-16",
+              "sea-star-17",
+              "sea-star-18",
+              "sea-star-19",
+              "sea-star-20"
+            ]
+          },
+          {
+            "id": "sea-constellation-2",
+            "name": "아테나의 부엉이",
+            "shape": "owl",
+            "stars": [
+              "sea-star-31",
+              "sea-star-32",
+              "sea-star-33",
+              "sea-star-34",
+              "sea-star-35"
+            ]
+          },
+          {
+            "id": "sea-constellation-3",
+            "name": "이타카의 왕관",
+            "shape": "crown",
+            "stars": [
+              "sea-star-86",
+              "sea-star-87",
+              "sea-star-88",
+              "sea-star-89",
+              "sea-star-90"
+            ]
+          }
+        ],
+        "highlight": {
+          "id": "sea-sirens",
+          "start": 12700,
+          "end": 14200,
+          "name": "세이렌의 노래",
+          "hint": "노래에 끌리지 말고 2단 점프로 바다를 건너요!"
+        }
+      },
+      "paths": [
+        {
+          "path": "lower",
+          "seconds": 75.0166666666637,
+          "hpLoss": 0,
+          "maps": [
+            "sea-map-1",
+            "sea-map-3",
+            "sea-map-2"
+          ],
+          "stars": 92,
+          "stories": [
+            "sea-story-2"
+          ],
+          "input": {
+            "jumps": [
+              3490,
+              4960,
+              5055,
+              7180,
+              8505,
+              8610,
+              9660,
+              9755,
+              10340,
+              11890,
+              13205,
+              13310,
+              14560,
+              14655,
+              15220,
+              15310,
+              16190,
+              18660,
+              18755,
+              19705,
+              19810,
+              20380,
+              20815
+            ],
+            "slides": [
+              {
+                "start": 5560,
+                "end": 5860
+              },
+              {
+                "start": 6230,
+                "end": 6530
+              },
+              {
+                "start": 10830,
+                "end": 11130
+              },
+              {
+                "start": 13860,
+                "end": 14160
+              },
+              {
+                "start": 16770,
+                "end": 16930
+              },
+              {
+                "start": 17430,
+                "end": 17730
+              },
+              {
+                "start": 18060,
+                "end": 18360
+              },
+              {
+                "start": 21630,
+                "end": 21930
+              }
+            ]
+          }
+        },
+        {
+          "path": "upper",
+          "seconds": 75.0166666666637,
+          "hpLoss": 0,
+          "maps": [
+            "sea-map-1",
+            "sea-map-3",
+            "sea-map-2"
+          ],
+          "stars": 97,
+          "stories": [
+            "sea-story-1",
+            "sea-story-2"
+          ],
+          "input": {
+            "jumps": [
+              3490,
+              4040,
+              4960,
+              5055,
+              7180,
+              8505,
+              8610,
+              9660,
+              9755,
+              10340,
+              11890,
+              13205,
+              13310,
+              14560,
+              14655,
+              15220,
+              15310,
+              16190,
+              18660,
+              18755,
+              19705,
+              19810,
+              20380,
+              20815
+            ],
+            "slides": [
+              {
+                "start": 5560,
+                "end": 5860
+              },
+              {
+                "start": 6230,
+                "end": 6530
+              },
+              {
+                "start": 10830,
+                "end": 11130
+              },
+              {
+                "start": 13860,
+                "end": 14160
+              },
+              {
+                "start": 16770,
+                "end": 16930
+              },
+              {
+                "start": 17430,
+                "end": 17730
+              },
+              {
+                "start": 18060,
+                "end": 18360
+              },
+              {
+                "start": 21630,
+                "end": 21930
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "stage": "sea",
+      "variant": "remix-a",
+      "name": "절벽 신전길",
+      "description": "세이렌 석상 사이를 새로운 순서로 지나요.",
+      "sectionOrder": [
+        1,
+        2,
+        0,
+        4,
+        5,
+        3
+      ],
+      "counts": {
+        "stars": 100,
+        "maps": 3,
+        "monsters": 7,
+        "obstacles": 11
+      },
+      "gaps": [
+        {
+          "x": 5400,
+          "w": 180
+        },
+        {
+          "x": 16600,
+          "w": 180
+        },
+        {
+          "x": 19700,
+          "w": 180
+        }
+      ],
+      "obstacles": [
+        {
+          "id": "sea-crate-3600",
+          "x": 10000,
+          "y": 392,
+          "w": 70,
+          "h": 48,
+          "kind": "crate",
+          "role": "structure"
+        },
+        {
+          "id": "sea-pillar-5100",
+          "x": 11500,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "sea-pillar-9800",
+          "x": 6600,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "sea-pillar-14700",
+          "x": 21100,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "sea-pillar-18800",
+          "x": 15600,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "sea-gate-6300",
+          "x": 12700,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "sea-gate-10900",
+          "x": 7700,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "sea-gate-17500",
+          "x": 14300,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "sea-gate-21700",
+          "x": 18500,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "sea-spikes-10450",
+          "x": 7250,
+          "y": 394,
+          "w": 96,
+          "h": 46,
+          "kind": "spikes",
+          "role": "hazard"
+        },
+        {
+          "id": "sea-spikes-20925",
+          "x": 17725,
+          "y": 394,
+          "w": 96,
+          "h": 46,
+          "kind": "spikes",
+          "role": "hazard"
+        }
+      ],
+      "enemies": [
+        {
+          "id": "sea-enemy-ground-1",
+          "kind": "scylla",
+          "x": 4100
+        },
+        {
+          "id": "sea-enemy-ground-2",
+          "kind": "crab",
+          "x": 8800
+        },
+        {
+          "id": "sea-enemy-ground-3",
+          "kind": "crab",
+          "x": 13100
+        },
+        {
+          "id": "sea-enemy-ground-4",
+          "kind": "scylla",
+          "x": 17300
+        },
+        {
+          "id": "sea-enemy-air-1",
+          "kind": "harpy",
+          "x": 12100
+        },
+        {
+          "id": "sea-enemy-air-2",
+          "kind": "harpy",
+          "x": 20400
+        },
+        {
+          "id": "sea-enemy-air-3",
+          "kind": "harpy",
+          "x": 15000
+        }
+      ],
+      "platforms": [
+        {
+          "id": "sea-branch",
+          "x": 10540,
+          "y": 330,
+          "w": 600
+        },
+        {
+          "id": "sea-crumble-1",
+          "x": 19700,
+          "y": 440,
+          "w": 180,
+          "crumble": true
+        }
+      ],
+      "winds": [],
+      "safe": [
+        0,
+        3000,
+        4800,
+        9500,
+        13800,
+        16000,
+        19100,
+        23000
+      ],
+      "items": [
+        {
+          "id": "sea-star-1",
+          "kind": "star",
+          "x": 850,
+          "y": 405
+        },
+        {
+          "id": "sea-star-2",
+          "kind": "star",
+          "x": 915,
+          "y": 405
+        },
+        {
+          "id": "sea-star-3",
+          "kind": "star",
+          "x": 980,
+          "y": 405
+        },
+        {
+          "id": "sea-star-4",
+          "kind": "star",
+          "x": 1045,
+          "y": 405
+        },
+        {
+          "id": "sea-star-5",
+          "kind": "star",
+          "x": 1110,
+          "y": 405
+        },
+        {
+          "id": "sea-star-6",
+          "kind": "star",
+          "x": 2000,
+          "y": 405
+        },
+        {
+          "id": "sea-star-7",
+          "kind": "star",
+          "x": 2065,
+          "y": 405
+        },
+        {
+          "id": "sea-star-8",
+          "kind": "star",
+          "x": 2130,
+          "y": 405
+        },
+        {
+          "id": "sea-star-9",
+          "kind": "star",
+          "x": 2195,
+          "y": 405
+        },
+        {
+          "id": "sea-star-10",
+          "kind": "star",
+          "x": 2260,
+          "y": 405
+        },
+        {
+          "id": "sea-star-11",
+          "kind": "star",
+          "x": 3150,
+          "y": 405
+        },
+        {
+          "id": "sea-star-12",
+          "kind": "star",
+          "x": 9615,
+          "y": 405
+        },
+        {
+          "id": "sea-star-13",
+          "kind": "star",
+          "x": 9680,
+          "y": 405
+        },
+        {
+          "id": "sea-star-14",
+          "kind": "star",
+          "x": 9745,
+          "y": 405
+        },
+        {
+          "id": "sea-star-15",
+          "kind": "star",
+          "x": 9810,
+          "y": 405
+        },
+        {
+          "id": "sea-star-16",
+          "kind": "star",
+          "x": 10710,
+          "y": 285
+        },
+        {
+          "id": "sea-star-17",
+          "kind": "star",
+          "x": 10770,
+          "y": 305
+        },
+        {
+          "id": "sea-star-18",
+          "kind": "star",
+          "x": 10830,
+          "y": 265
+        },
+        {
+          "id": "sea-star-19",
+          "kind": "star",
+          "x": 10890,
+          "y": 305
+        },
+        {
+          "id": "sea-star-20",
+          "kind": "star",
+          "x": 10950,
+          "y": 285
+        },
+        {
+          "id": "sea-star-21",
+          "kind": "star",
+          "x": 11850,
+          "y": 405
+        },
+        {
+          "id": "sea-star-22",
+          "kind": "star",
+          "x": 11915,
+          "y": 405
+        },
+        {
+          "id": "sea-star-23",
+          "kind": "star",
+          "x": 11980,
+          "y": 405
+        },
+        {
+          "id": "sea-star-24",
+          "kind": "star",
+          "x": 12045,
+          "y": 405
+        },
+        {
+          "id": "sea-star-25",
+          "kind": "star",
+          "x": 12110,
+          "y": 405
+        },
+        {
+          "id": "sea-star-26",
+          "kind": "star",
+          "x": 3400,
+          "y": 405
+        },
+        {
+          "id": "sea-star-27",
+          "kind": "star",
+          "x": 3465,
+          "y": 405
+        },
+        {
+          "id": "sea-star-28",
+          "kind": "star",
+          "x": 3530,
+          "y": 405
+        },
+        {
+          "id": "sea-star-29",
+          "kind": "star",
+          "x": 3595,
+          "y": 405
+        },
+        {
+          "id": "sea-star-30",
+          "kind": "star",
+          "x": 3660,
+          "y": 405
+        },
+        {
+          "id": "sea-star-31",
+          "kind": "star",
+          "x": 4480,
+          "y": 405
+        },
+        {
+          "id": "sea-star-32",
+          "kind": "star",
+          "x": 4540,
+          "y": 370
+        },
+        {
+          "id": "sea-star-33",
+          "kind": "star",
+          "x": 4600,
+          "y": 395
+        },
+        {
+          "id": "sea-star-34",
+          "kind": "star",
+          "x": 4660,
+          "y": 370
+        },
+        {
+          "id": "sea-star-35",
+          "kind": "star",
+          "x": 4720,
+          "y": 405
+        },
+        {
+          "id": "sea-star-36",
+          "kind": "star",
+          "x": 5700,
+          "y": 405
+        },
+        {
+          "id": "sea-star-37",
+          "kind": "star",
+          "x": 5765,
+          "y": 405
+        },
+        {
+          "id": "sea-star-38",
+          "kind": "star",
+          "x": 5830,
+          "y": 405
+        },
+        {
+          "id": "sea-star-39",
+          "kind": "star",
+          "x": 5895,
+          "y": 405
+        },
+        {
+          "id": "sea-star-40",
+          "kind": "star",
+          "x": 5960,
+          "y": 405
+        },
+        {
+          "id": "sea-star-41",
+          "kind": "star",
+          "x": 6850,
+          "y": 405
+        },
+        {
+          "id": "sea-star-42",
+          "kind": "star",
+          "x": 6915,
+          "y": 405
+        },
+        {
+          "id": "sea-star-43",
+          "kind": "star",
+          "x": 6980,
+          "y": 405
+        },
+        {
+          "id": "sea-star-44",
+          "kind": "star",
+          "x": 7045,
+          "y": 405
+        },
+        {
+          "id": "sea-star-45",
+          "kind": "star",
+          "x": 7110,
+          "y": 405
+        },
+        {
+          "id": "sea-star-46",
+          "kind": "star",
+          "x": 8000,
+          "y": 405
+        },
+        {
+          "id": "sea-star-47",
+          "kind": "star",
+          "x": 8065,
+          "y": 405
+        },
+        {
+          "id": "sea-star-48",
+          "kind": "star",
+          "x": 8130,
+          "y": 405
+        },
+        {
+          "id": "sea-star-49",
+          "kind": "star",
+          "x": 8195,
+          "y": 405
+        },
+        {
+          "id": "sea-star-50",
+          "kind": "star",
+          "x": 8260,
+          "y": 405
+        },
+        {
+          "id": "sea-star-51",
+          "kind": "star",
+          "x": 9150,
+          "y": 405
+        },
+        {
+          "id": "sea-star-52",
+          "kind": "star",
+          "x": 9215,
+          "y": 405
+        },
+        {
+          "id": "sea-star-53",
+          "kind": "star",
+          "x": 9280,
+          "y": 405
+        },
+        {
+          "id": "sea-star-54",
+          "kind": "star",
+          "x": 9345,
+          "y": 405
+        },
+        {
+          "id": "sea-star-55",
+          "kind": "star",
+          "x": 9410,
+          "y": 405
+        },
+        {
+          "id": "sea-star-56",
+          "kind": "star",
+          "x": 19900,
+          "y": 300
+        },
+        {
+          "id": "sea-star-57",
+          "kind": "star",
+          "x": 19965,
+          "y": 300
+        },
+        {
+          "id": "sea-star-58",
+          "kind": "star",
+          "x": 20030,
+          "y": 405
+        },
+        {
+          "id": "sea-star-59",
+          "kind": "star",
+          "x": 20095,
+          "y": 405
+        },
+        {
+          "id": "sea-star-60",
+          "kind": "star",
+          "x": 20160,
+          "y": 405
+        },
+        {
+          "id": "sea-star-61",
+          "kind": "star",
+          "x": 21050,
+          "y": 225
+        },
+        {
+          "id": "sea-star-62",
+          "kind": "star",
+          "x": 21115,
+          "y": 225
+        },
+        {
+          "id": "sea-star-63",
+          "kind": "star",
+          "x": 21180,
+          "y": 225
+        },
+        {
+          "id": "sea-star-64",
+          "kind": "star",
+          "x": 21860,
+          "y": 260
+        },
+        {
+          "id": "sea-star-65",
+          "kind": "star",
+          "x": 21740,
+          "y": 225
+        },
+        {
+          "id": "sea-star-66",
+          "kind": "star",
+          "x": 21620,
+          "y": 355
+        },
+        {
+          "id": "sea-star-67",
+          "kind": "star",
+          "x": 21680,
+          "y": 290
+        },
+        {
+          "id": "sea-star-68",
+          "kind": "star",
+          "x": 21800,
+          "y": 205
+        },
+        {
+          "id": "sea-star-69",
+          "kind": "star",
+          "x": 22395,
+          "y": 405
+        },
+        {
+          "id": "sea-star-70",
+          "kind": "star",
+          "x": 12860,
+          "y": 405
+        },
+        {
+          "id": "sea-star-71",
+          "kind": "star",
+          "x": 13750,
+          "y": 405
+        },
+        {
+          "id": "sea-star-72",
+          "kind": "star",
+          "x": 13815,
+          "y": 405
+        },
+        {
+          "id": "sea-star-73",
+          "kind": "star",
+          "x": 13880,
+          "y": 405
+        },
+        {
+          "id": "sea-star-74",
+          "kind": "star",
+          "x": 13945,
+          "y": 405
+        },
+        {
+          "id": "sea-star-75",
+          "kind": "star",
+          "x": 14010,
+          "y": 405
+        },
+        {
+          "id": "sea-star-76",
+          "kind": "star",
+          "x": 14900,
+          "y": 405
+        },
+        {
+          "id": "sea-star-77",
+          "kind": "star",
+          "x": 14965,
+          "y": 405
+        },
+        {
+          "id": "sea-star-78",
+          "kind": "star",
+          "x": 15030,
+          "y": 405
+        },
+        {
+          "id": "sea-star-79",
+          "kind": "star",
+          "x": 15095,
+          "y": 405
+        },
+        {
+          "id": "sea-star-80",
+          "kind": "star",
+          "x": 15160,
+          "y": 405
+        },
+        {
+          "id": "sea-star-81",
+          "kind": "star",
+          "x": 16050,
+          "y": 405
+        },
+        {
+          "id": "sea-star-82",
+          "kind": "star",
+          "x": 16115,
+          "y": 405
+        },
+        {
+          "id": "sea-star-83",
+          "kind": "star",
+          "x": 16180,
+          "y": 405
+        },
+        {
+          "id": "sea-star-84",
+          "kind": "star",
+          "x": 16245,
+          "y": 405
+        },
+        {
+          "id": "sea-star-85",
+          "kind": "star",
+          "x": 16310,
+          "y": 405
+        },
+        {
+          "id": "sea-star-86",
+          "kind": "star",
+          "x": 18880,
+          "y": 405
+        },
+        {
+          "id": "sea-star-87",
+          "kind": "star",
+          "x": 18940,
+          "y": 370
+        },
+        {
+          "id": "sea-star-88",
+          "kind": "star",
+          "x": 19000,
+          "y": 405
+        },
+        {
+          "id": "sea-star-89",
+          "kind": "star",
+          "x": 19060,
+          "y": 370
+        },
+        {
+          "id": "sea-star-90",
+          "kind": "star",
+          "x": 19120,
+          "y": 405
+        },
+        {
+          "id": "sea-star-91",
+          "kind": "star",
+          "x": 18350,
+          "y": 421
+        },
+        {
+          "id": "sea-star-92",
+          "kind": "star",
+          "x": 18415,
+          "y": 421
+        },
+        {
+          "id": "sea-star-93",
+          "kind": "star",
+          "x": 18480,
+          "y": 421
+        },
+        {
+          "id": "sea-star-94",
+          "kind": "star",
+          "x": 18545,
+          "y": 421
+        },
+        {
+          "id": "sea-star-95",
+          "kind": "star",
+          "x": 18610,
+          "y": 421
+        },
+        {
+          "id": "sea-star-96",
+          "kind": "star",
+          "x": 22700,
+          "y": 405
+        },
+        {
+          "id": "sea-star-97",
+          "kind": "star",
+          "x": 22765,
+          "y": 405
+        },
+        {
+          "id": "sea-star-98",
+          "kind": "star",
+          "x": 22830,
+          "y": 405
+        },
+        {
+          "id": "sea-star-99",
+          "kind": "star",
+          "x": 22895,
+          "y": 405
+        },
+        {
+          "id": "sea-star-100",
+          "kind": "star",
+          "x": 22960,
+          "y": 405
+        },
+        {
+          "id": "sea-map-1",
+          "kind": "map",
+          "x": 2700,
+          "y": 395
+        },
+        {
+          "id": "sea-map-2",
+          "kind": "map",
+          "x": 21800,
+          "y": 205
+        },
+        {
+          "id": "sea-map-3",
+          "kind": "map",
+          "x": 7780,
+          "y": 421
+        },
+        {
+          "id": "sea-shield-0",
+          "kind": "shield",
+          "x": 1900,
+          "y": 395
+        },
+        {
+          "id": "sea-wings-1",
+          "kind": "wings",
+          "x": 11000,
+          "y": 395
+        },
+        {
+          "id": "sea-magnet-2",
+          "kind": "magnet",
+          "x": 11200,
+          "y": 395
+        },
+        {
+          "id": "sea-apple-3",
+          "kind": "apple",
+          "x": 6800,
+          "y": 395
+        },
+        {
+          "id": "sea-shield-4",
+          "kind": "shield",
+          "x": 9500,
+          "y": 395
+        },
+        {
+          "id": "sea-wings-5",
+          "kind": "wings",
+          "x": 21800,
+          "y": 395
+        },
+        {
+          "id": "sea-magnet-6",
+          "kind": "magnet",
+          "x": 14900,
+          "y": 395
+        },
+        {
+          "id": "sea-apple-7",
+          "kind": "apple",
+          "x": 17600,
+          "y": 395
+        },
+        {
+          "id": "sea-trident-extra-1",
+          "kind": "trident",
+          "x": 10600,
+          "y": 395
+        },
+        {
+          "id": "sea-trident-extra-2",
+          "kind": "trident",
+          "x": 21500,
+          "y": 395
+        },
+        {
+          "id": "sea-lantern-extra-1",
+          "kind": "lantern",
+          "x": 10700,
+          "y": 395
+        },
+        {
+          "id": "sea-lantern-extra-2",
+          "kind": "lantern",
+          "x": 14600,
+          "y": 395
+        },
+        {
+          "id": "sea-compass-extra-1",
+          "kind": "compass",
+          "x": 4600,
+          "y": 395,
+          "checkpoint": 4520
+        },
+        {
+          "id": "sea-compass-extra-2",
+          "kind": "compass",
+          "x": 13600,
+          "y": 395,
+          "checkpoint": 13520
+        }
+      ],
+      "adventure": {
+        "branch": {
+          "id": "sea-branch",
+          "start": 10540,
+          "end": 11140,
+          "y": 330
+        },
+        "stories": [
+          {
+            "id": "sea-story-1",
+            "x": 10840,
+            "y": 330,
+            "pose": "upper",
+            "title": "밀랍 귀마개",
+            "quote": "발견 · 귀를 막으면 마음의 방향을 지킬 수 있어요.",
+            "story": "세이렌의 노래는 듣는 사람을 바위섬으로 끌어당겼어요. 오디세우스는 선원들의 귀를 밀랍으로 막아 주었어요. 함께 정한 약속이 모두를 지켜 주었지요."
+          },
+          {
+            "id": "sea-story-2",
+            "x": 13650,
+            "y": 440,
+            "pose": "duck",
+            "title": "돛대의 약속",
+            "quote": "발견 · 스스로를 묶는 용기도 있어요.",
+            "story": "오디세우스는 노래를 듣고 싶었지만 자신을 돛대에 단단히 묶어 달라고 부탁했어요. “내가 풀어 달라고 하면 더 꽁꽁 묶어 주게.” 배는 노래를 지나 무사히 나아갔어요."
+          }
+        ],
+        "constellations": [
+          {
+            "id": "sea-constellation-1",
+            "name": "귀환의 배",
+            "shape": "ship",
+            "stars": [
+              "sea-star-16",
+              "sea-star-17",
+              "sea-star-18",
+              "sea-star-19",
+              "sea-star-20"
+            ]
+          },
+          {
+            "id": "sea-constellation-2",
+            "name": "아테나의 부엉이",
+            "shape": "owl",
+            "stars": [
+              "sea-star-31",
+              "sea-star-32",
+              "sea-star-33",
+              "sea-star-34",
+              "sea-star-35"
+            ]
+          },
+          {
+            "id": "sea-constellation-3",
+            "name": "이타카의 왕관",
+            "shape": "crown",
+            "stars": [
+              "sea-star-86",
+              "sea-star-87",
+              "sea-star-88",
+              "sea-star-89",
+              "sea-star-90"
+            ]
+          }
+        ],
+        "highlight": {
+          "id": "sea-sirens",
+          "start": 19100,
+          "end": 20600,
+          "name": "세이렌의 노래",
+          "hint": "노래에 끌리지 말고 2단 점프로 바다를 건너요!"
+        }
+      },
+      "paths": [
+        {
+          "path": "lower",
+          "seconds": 75.0166666666637,
+          "hpLoss": 0,
+          "maps": [
+            "sea-map-1",
+            "sea-map-3",
+            "sea-map-2"
+          ],
+          "stars": 92,
+          "stories": [
+            "sea-story-2"
+          ],
+          "input": {
+            "jumps": [
+              3980,
+              5305,
+              5410,
+              6460,
+              6555,
+              7140,
+              8690,
+              9890,
+              11360,
+              11455,
+              12990,
+              15460,
+              15555,
+              16505,
+              16610,
+              17180,
+              17615,
+              19605,
+              19710,
+              20960,
+              21055,
+              21620,
+              21710
+            ],
+            "slides": [
+              {
+                "start": 7630,
+                "end": 7930
+              },
+              {
+                "start": 11960,
+                "end": 12260
+              },
+              {
+                "start": 12630,
+                "end": 12930
+              },
+              {
+                "start": 13570,
+                "end": 13730
+              },
+              {
+                "start": 14230,
+                "end": 14530
+              },
+              {
+                "start": 14860,
+                "end": 15160
+              },
+              {
+                "start": 18430,
+                "end": 18730
+              },
+              {
+                "start": 20260,
+                "end": 20560
+              }
+            ]
+          }
+        },
+        {
+          "path": "upper",
+          "seconds": 75.0166666666637,
+          "hpLoss": 0,
+          "maps": [
+            "sea-map-1",
+            "sea-map-3",
+            "sea-map-2"
+          ],
+          "stars": 97,
+          "stories": [
+            "sea-story-1",
+            "sea-story-2"
+          ],
+          "input": {
+            "jumps": [
+              3980,
+              5305,
+              5410,
+              6460,
+              6555,
+              7140,
+              8690,
+              9890,
+              10440,
+              11360,
+              11455,
+              12990,
+              15460,
+              15555,
+              16505,
+              16610,
+              17180,
+              17615,
+              19605,
+              19710,
+              20960,
+              21055,
+              21620,
+              21710
+            ],
+            "slides": [
+              {
+                "start": 7630,
+                "end": 7930
+              },
+              {
+                "start": 11960,
+                "end": 12260
+              },
+              {
+                "start": 12630,
+                "end": 12930
+              },
+              {
+                "start": 13570,
+                "end": 13730
+              },
+              {
+                "start": 14230,
+                "end": 14530
+              },
+              {
+                "start": 14860,
+                "end": 15160
+              },
+              {
+                "start": 18430,
+                "end": 18730
+              },
+              {
+                "start": 20260,
+                "end": 20560
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "stage": "sea",
+      "variant": "remix-b",
+      "name": "밀랍 항로",
+      "description": "귀를 막고 달라진 파도의 위험을 살펴봐요.",
+      "sectionOrder": [
+        3,
+        0,
+        2,
+        1,
+        5,
+        4
+      ],
+      "counts": {
+        "stars": 100,
+        "maps": 3,
+        "monsters": 7,
+        "obstacles": 11
+      },
+      "gaps": [
+        {
+          "x": 3700,
+          "w": 180
+        },
+        {
+          "x": 15000,
+          "w": 180
+        },
+        {
+          "x": 16600,
+          "w": 180
+        }
+      ],
+      "obstacles": [
+        {
+          "id": "sea-crate-3600",
+          "x": 6800,
+          "y": 392,
+          "w": 70,
+          "h": 48,
+          "kind": "crate",
+          "role": "structure"
+        },
+        {
+          "id": "sea-pillar-5100",
+          "x": 8300,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "sea-pillar-9800",
+          "x": 9800,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "sea-pillar-14700",
+          "x": 5100,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "sea-pillar-18800",
+          "x": 22000,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "sea-gate-6300",
+          "x": 9500,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "sea-gate-10900",
+          "x": 10900,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "sea-gate-17500",
+          "x": 20700,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "sea-gate-21700",
+          "x": 18500,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "sea-spikes-10450",
+          "x": 10450,
+          "y": 394,
+          "w": 96,
+          "h": 46,
+          "kind": "spikes",
+          "role": "hazard"
+        },
+        {
+          "id": "sea-spikes-20925",
+          "x": 17725,
+          "y": 394,
+          "w": 96,
+          "h": 46,
+          "kind": "spikes",
+          "role": "hazard"
+        }
+      ],
+      "enemies": [
+        {
+          "id": "sea-enemy-ground-1",
+          "kind": "scylla",
+          "x": 13700
+        },
+        {
+          "id": "sea-enemy-ground-2",
+          "kind": "crab",
+          "x": 12000
+        },
+        {
+          "id": "sea-enemy-ground-3",
+          "kind": "crab",
+          "x": 19500
+        },
+        {
+          "id": "sea-enemy-ground-4",
+          "kind": "scylla",
+          "x": 17300
+        },
+        {
+          "id": "sea-enemy-air-1",
+          "kind": "harpy",
+          "x": 8900
+        },
+        {
+          "id": "sea-enemy-air-2",
+          "kind": "harpy",
+          "x": 4400
+        },
+        {
+          "id": "sea-enemy-air-3",
+          "kind": "harpy",
+          "x": 21400
+        }
+      ],
+      "platforms": [
+        {
+          "id": "sea-branch",
+          "x": 7340,
+          "y": 330,
+          "w": 600
+        },
+        {
+          "id": "sea-crumble-1",
+          "x": 3700,
+          "y": 440,
+          "w": 180,
+          "crumble": true
+        }
+      ],
+      "winds": [],
+      "safe": [
+        0,
+        3000,
+        3100,
+        12700,
+        14400,
+        16000,
+        20200,
+        23000
+      ],
+      "items": [
+        {
+          "id": "sea-star-1",
+          "kind": "star",
+          "x": 850,
+          "y": 405
+        },
+        {
+          "id": "sea-star-2",
+          "kind": "star",
+          "x": 915,
+          "y": 405
+        },
+        {
+          "id": "sea-star-3",
+          "kind": "star",
+          "x": 980,
+          "y": 405
+        },
+        {
+          "id": "sea-star-4",
+          "kind": "star",
+          "x": 1045,
+          "y": 405
+        },
+        {
+          "id": "sea-star-5",
+          "kind": "star",
+          "x": 1110,
+          "y": 405
+        },
+        {
+          "id": "sea-star-6",
+          "kind": "star",
+          "x": 2000,
+          "y": 405
+        },
+        {
+          "id": "sea-star-7",
+          "kind": "star",
+          "x": 2065,
+          "y": 405
+        },
+        {
+          "id": "sea-star-8",
+          "kind": "star",
+          "x": 2130,
+          "y": 405
+        },
+        {
+          "id": "sea-star-9",
+          "kind": "star",
+          "x": 2195,
+          "y": 405
+        },
+        {
+          "id": "sea-star-10",
+          "kind": "star",
+          "x": 2260,
+          "y": 405
+        },
+        {
+          "id": "sea-star-11",
+          "kind": "star",
+          "x": 3150,
+          "y": 405
+        },
+        {
+          "id": "sea-star-12",
+          "kind": "star",
+          "x": 6415,
+          "y": 405
+        },
+        {
+          "id": "sea-star-13",
+          "kind": "star",
+          "x": 6480,
+          "y": 405
+        },
+        {
+          "id": "sea-star-14",
+          "kind": "star",
+          "x": 6545,
+          "y": 405
+        },
+        {
+          "id": "sea-star-15",
+          "kind": "star",
+          "x": 6610,
+          "y": 405
+        },
+        {
+          "id": "sea-star-16",
+          "kind": "star",
+          "x": 7510,
+          "y": 285
+        },
+        {
+          "id": "sea-star-17",
+          "kind": "star",
+          "x": 7570,
+          "y": 305
+        },
+        {
+          "id": "sea-star-18",
+          "kind": "star",
+          "x": 7630,
+          "y": 265
+        },
+        {
+          "id": "sea-star-19",
+          "kind": "star",
+          "x": 7690,
+          "y": 305
+        },
+        {
+          "id": "sea-star-20",
+          "kind": "star",
+          "x": 7750,
+          "y": 285
+        },
+        {
+          "id": "sea-star-21",
+          "kind": "star",
+          "x": 8650,
+          "y": 405
+        },
+        {
+          "id": "sea-star-22",
+          "kind": "star",
+          "x": 8715,
+          "y": 405
+        },
+        {
+          "id": "sea-star-23",
+          "kind": "star",
+          "x": 8780,
+          "y": 405
+        },
+        {
+          "id": "sea-star-24",
+          "kind": "star",
+          "x": 8845,
+          "y": 405
+        },
+        {
+          "id": "sea-star-25",
+          "kind": "star",
+          "x": 8910,
+          "y": 405
+        },
+        {
+          "id": "sea-star-26",
+          "kind": "star",
+          "x": 13000,
+          "y": 405
+        },
+        {
+          "id": "sea-star-27",
+          "kind": "star",
+          "x": 13065,
+          "y": 405
+        },
+        {
+          "id": "sea-star-28",
+          "kind": "star",
+          "x": 13130,
+          "y": 405
+        },
+        {
+          "id": "sea-star-29",
+          "kind": "star",
+          "x": 13195,
+          "y": 405
+        },
+        {
+          "id": "sea-star-30",
+          "kind": "star",
+          "x": 13260,
+          "y": 405
+        },
+        {
+          "id": "sea-star-31",
+          "kind": "star",
+          "x": 14080,
+          "y": 405
+        },
+        {
+          "id": "sea-star-32",
+          "kind": "star",
+          "x": 14140,
+          "y": 370
+        },
+        {
+          "id": "sea-star-33",
+          "kind": "star",
+          "x": 14200,
+          "y": 395
+        },
+        {
+          "id": "sea-star-34",
+          "kind": "star",
+          "x": 14260,
+          "y": 370
+        },
+        {
+          "id": "sea-star-35",
+          "kind": "star",
+          "x": 14320,
+          "y": 405
+        },
+        {
+          "id": "sea-star-36",
+          "kind": "star",
+          "x": 15300,
+          "y": 405
+        },
+        {
+          "id": "sea-star-37",
+          "kind": "star",
+          "x": 15365,
+          "y": 405
+        },
+        {
+          "id": "sea-star-38",
+          "kind": "star",
+          "x": 15430,
+          "y": 405
+        },
+        {
+          "id": "sea-star-39",
+          "kind": "star",
+          "x": 15495,
+          "y": 405
+        },
+        {
+          "id": "sea-star-40",
+          "kind": "star",
+          "x": 15560,
+          "y": 405
+        },
+        {
+          "id": "sea-star-41",
+          "kind": "star",
+          "x": 10050,
+          "y": 405
+        },
+        {
+          "id": "sea-star-42",
+          "kind": "star",
+          "x": 10115,
+          "y": 405
+        },
+        {
+          "id": "sea-star-43",
+          "kind": "star",
+          "x": 10180,
+          "y": 405
+        },
+        {
+          "id": "sea-star-44",
+          "kind": "star",
+          "x": 10245,
+          "y": 405
+        },
+        {
+          "id": "sea-star-45",
+          "kind": "star",
+          "x": 10310,
+          "y": 405
+        },
+        {
+          "id": "sea-star-46",
+          "kind": "star",
+          "x": 11200,
+          "y": 405
+        },
+        {
+          "id": "sea-star-47",
+          "kind": "star",
+          "x": 11265,
+          "y": 405
+        },
+        {
+          "id": "sea-star-48",
+          "kind": "star",
+          "x": 11330,
+          "y": 405
+        },
+        {
+          "id": "sea-star-49",
+          "kind": "star",
+          "x": 11395,
+          "y": 405
+        },
+        {
+          "id": "sea-star-50",
+          "kind": "star",
+          "x": 11460,
+          "y": 405
+        },
+        {
+          "id": "sea-star-51",
+          "kind": "star",
+          "x": 12350,
+          "y": 405
+        },
+        {
+          "id": "sea-star-52",
+          "kind": "star",
+          "x": 12415,
+          "y": 405
+        },
+        {
+          "id": "sea-star-53",
+          "kind": "star",
+          "x": 12480,
+          "y": 405
+        },
+        {
+          "id": "sea-star-54",
+          "kind": "star",
+          "x": 12545,
+          "y": 405
+        },
+        {
+          "id": "sea-star-55",
+          "kind": "star",
+          "x": 12610,
+          "y": 405
+        },
+        {
+          "id": "sea-star-56",
+          "kind": "star",
+          "x": 3900,
+          "y": 300
+        },
+        {
+          "id": "sea-star-57",
+          "kind": "star",
+          "x": 3965,
+          "y": 300
+        },
+        {
+          "id": "sea-star-58",
+          "kind": "star",
+          "x": 4030,
+          "y": 405
+        },
+        {
+          "id": "sea-star-59",
+          "kind": "star",
+          "x": 4095,
+          "y": 405
+        },
+        {
+          "id": "sea-star-60",
+          "kind": "star",
+          "x": 4160,
+          "y": 405
+        },
+        {
+          "id": "sea-star-61",
+          "kind": "star",
+          "x": 5050,
+          "y": 225
+        },
+        {
+          "id": "sea-star-62",
+          "kind": "star",
+          "x": 5115,
+          "y": 225
+        },
+        {
+          "id": "sea-star-63",
+          "kind": "star",
+          "x": 5180,
+          "y": 225
+        },
+        {
+          "id": "sea-star-64",
+          "kind": "star",
+          "x": 5860,
+          "y": 260
+        },
+        {
+          "id": "sea-star-65",
+          "kind": "star",
+          "x": 5740,
+          "y": 225
+        },
+        {
+          "id": "sea-star-66",
+          "kind": "star",
+          "x": 5620,
+          "y": 355
+        },
+        {
+          "id": "sea-star-67",
+          "kind": "star",
+          "x": 5680,
+          "y": 290
+        },
+        {
+          "id": "sea-star-68",
+          "kind": "star",
+          "x": 5800,
+          "y": 205
+        },
+        {
+          "id": "sea-star-69",
+          "kind": "star",
+          "x": 6395,
+          "y": 405
+        },
+        {
+          "id": "sea-star-70",
+          "kind": "star",
+          "x": 19260,
+          "y": 405
+        },
+        {
+          "id": "sea-star-71",
+          "kind": "star",
+          "x": 20150,
+          "y": 405
+        },
+        {
+          "id": "sea-star-72",
+          "kind": "star",
+          "x": 20215,
+          "y": 405
+        },
+        {
+          "id": "sea-star-73",
+          "kind": "star",
+          "x": 20280,
+          "y": 405
+        },
+        {
+          "id": "sea-star-74",
+          "kind": "star",
+          "x": 20345,
+          "y": 405
+        },
+        {
+          "id": "sea-star-75",
+          "kind": "star",
+          "x": 20410,
+          "y": 405
+        },
+        {
+          "id": "sea-star-76",
+          "kind": "star",
+          "x": 21300,
+          "y": 405
+        },
+        {
+          "id": "sea-star-77",
+          "kind": "star",
+          "x": 21365,
+          "y": 405
+        },
+        {
+          "id": "sea-star-78",
+          "kind": "star",
+          "x": 21430,
+          "y": 405
+        },
+        {
+          "id": "sea-star-79",
+          "kind": "star",
+          "x": 21495,
+          "y": 405
+        },
+        {
+          "id": "sea-star-80",
+          "kind": "star",
+          "x": 21560,
+          "y": 405
+        },
+        {
+          "id": "sea-star-81",
+          "kind": "star",
+          "x": 16050,
+          "y": 405
+        },
+        {
+          "id": "sea-star-82",
+          "kind": "star",
+          "x": 16115,
+          "y": 405
+        },
+        {
+          "id": "sea-star-83",
+          "kind": "star",
+          "x": 16180,
+          "y": 405
+        },
+        {
+          "id": "sea-star-84",
+          "kind": "star",
+          "x": 16245,
+          "y": 405
+        },
+        {
+          "id": "sea-star-85",
+          "kind": "star",
+          "x": 16310,
+          "y": 405
+        },
+        {
+          "id": "sea-star-86",
+          "kind": "star",
+          "x": 18880,
+          "y": 405
+        },
+        {
+          "id": "sea-star-87",
+          "kind": "star",
+          "x": 18940,
+          "y": 370
+        },
+        {
+          "id": "sea-star-88",
+          "kind": "star",
+          "x": 19000,
+          "y": 405
+        },
+        {
+          "id": "sea-star-89",
+          "kind": "star",
+          "x": 19060,
+          "y": 370
+        },
+        {
+          "id": "sea-star-90",
+          "kind": "star",
+          "x": 19120,
+          "y": 405
+        },
+        {
+          "id": "sea-star-91",
+          "kind": "star",
+          "x": 18350,
+          "y": 421
+        },
+        {
+          "id": "sea-star-92",
+          "kind": "star",
+          "x": 18415,
+          "y": 421
+        },
+        {
+          "id": "sea-star-93",
+          "kind": "star",
+          "x": 18480,
+          "y": 421
+        },
+        {
+          "id": "sea-star-94",
+          "kind": "star",
+          "x": 18545,
+          "y": 421
+        },
+        {
+          "id": "sea-star-95",
+          "kind": "star",
+          "x": 18610,
+          "y": 421
+        },
+        {
+          "id": "sea-star-96",
+          "kind": "star",
+          "x": 22700,
+          "y": 405
+        },
+        {
+          "id": "sea-star-97",
+          "kind": "star",
+          "x": 22765,
+          "y": 405
+        },
+        {
+          "id": "sea-star-98",
+          "kind": "star",
+          "x": 22830,
+          "y": 405
+        },
+        {
+          "id": "sea-star-99",
+          "kind": "star",
+          "x": 22895,
+          "y": 405
+        },
+        {
+          "id": "sea-star-100",
+          "kind": "star",
+          "x": 22960,
+          "y": 405
+        },
+        {
+          "id": "sea-map-1",
+          "kind": "map",
+          "x": 2700,
+          "y": 395
+        },
+        {
+          "id": "sea-map-2",
+          "kind": "map",
+          "x": 5800,
+          "y": 205
+        },
+        {
+          "id": "sea-map-3",
+          "kind": "map",
+          "x": 10980,
+          "y": 421
+        },
+        {
+          "id": "sea-shield-0",
+          "kind": "shield",
+          "x": 1900,
+          "y": 395
+        },
+        {
+          "id": "sea-wings-1",
+          "kind": "wings",
+          "x": 7800,
+          "y": 395
+        },
+        {
+          "id": "sea-magnet-2",
+          "kind": "magnet",
+          "x": 8000,
+          "y": 395
+        },
+        {
+          "id": "sea-apple-3",
+          "kind": "apple",
+          "x": 10000,
+          "y": 395
+        },
+        {
+          "id": "sea-shield-4",
+          "kind": "shield",
+          "x": 12700,
+          "y": 395
+        },
+        {
+          "id": "sea-wings-5",
+          "kind": "wings",
+          "x": 5800,
+          "y": 395
+        },
+        {
+          "id": "sea-magnet-6",
+          "kind": "magnet",
+          "x": 21300,
+          "y": 395
+        },
+        {
+          "id": "sea-apple-7",
+          "kind": "apple",
+          "x": 17600,
+          "y": 395
+        },
+        {
+          "id": "sea-trident-extra-1",
+          "kind": "trident",
+          "x": 7400,
+          "y": 395
+        },
+        {
+          "id": "sea-trident-extra-2",
+          "kind": "trident",
+          "x": 5500,
+          "y": 395
+        },
+        {
+          "id": "sea-lantern-extra-1",
+          "kind": "lantern",
+          "x": 7500,
+          "y": 395
+        },
+        {
+          "id": "sea-lantern-extra-2",
+          "kind": "lantern",
+          "x": 21000,
+          "y": 395
+        },
+        {
+          "id": "sea-compass-extra-1",
+          "kind": "compass",
+          "x": 14200,
+          "y": 395,
+          "checkpoint": 14120
+        },
+        {
+          "id": "sea-compass-extra-2",
+          "kind": "compass",
+          "x": 20000,
+          "y": 395,
+          "checkpoint": 19920
+        }
+      ],
+      "adventure": {
+        "branch": {
+          "id": "sea-branch",
+          "start": 7340,
+          "end": 7940,
+          "y": 330
+        },
+        "stories": [
+          {
+            "id": "sea-story-1",
+            "x": 7640,
+            "y": 330,
+            "pose": "upper",
+            "title": "밀랍 귀마개",
+            "quote": "발견 · 귀를 막으면 마음의 방향을 지킬 수 있어요.",
+            "story": "세이렌의 노래는 듣는 사람을 바위섬으로 끌어당겼어요. 오디세우스는 선원들의 귀를 밀랍으로 막아 주었어요. 함께 정한 약속이 모두를 지켜 주었지요."
+          },
+          {
+            "id": "sea-story-2",
+            "x": 20050,
+            "y": 440,
+            "pose": "duck",
+            "title": "돛대의 약속",
+            "quote": "발견 · 스스로를 묶는 용기도 있어요.",
+            "story": "오디세우스는 노래를 듣고 싶었지만 자신을 돛대에 단단히 묶어 달라고 부탁했어요. “내가 풀어 달라고 하면 더 꽁꽁 묶어 주게.” 배는 노래를 지나 무사히 나아갔어요."
+          }
+        ],
+        "constellations": [
+          {
+            "id": "sea-constellation-1",
+            "name": "귀환의 배",
+            "shape": "ship",
+            "stars": [
+              "sea-star-16",
+              "sea-star-17",
+              "sea-star-18",
+              "sea-star-19",
+              "sea-star-20"
+            ]
+          },
+          {
+            "id": "sea-constellation-2",
+            "name": "아테나의 부엉이",
+            "shape": "owl",
+            "stars": [
+              "sea-star-31",
+              "sea-star-32",
+              "sea-star-33",
+              "sea-star-34",
+              "sea-star-35"
+            ]
+          },
+          {
+            "id": "sea-constellation-3",
+            "name": "이타카의 왕관",
+            "shape": "crown",
+            "stars": [
+              "sea-star-86",
+              "sea-star-87",
+              "sea-star-88",
+              "sea-star-89",
+              "sea-star-90"
+            ]
+          }
+        ],
+        "highlight": {
+          "id": "sea-sirens",
+          "start": 3100,
+          "end": 4600,
+          "name": "세이렌의 노래",
+          "hint": "노래에 끌리지 말고 2단 점프로 바다를 건너요!"
+        }
+      },
+      "paths": [
+        {
+          "path": "lower",
+          "seconds": 75.0166666666637,
+          "hpLoss": 0,
+          "maps": [
+            "sea-map-1",
+            "sea-map-2",
+            "sea-map-3"
+          ],
+          "stars": 92,
+          "stories": [
+            "sea-story-2"
+          ],
+          "input": {
+            "jumps": [
+              3605,
+              3710,
+              4960,
+              5055,
+              5620,
+              5710,
+              6690,
+              8160,
+              8255,
+              9660,
+              9755,
+              10340,
+              11890,
+              13580,
+              14905,
+              15010,
+              16505,
+              16610,
+              17180,
+              17615,
+              19390,
+              21860,
+              21955
+            ],
+            "slides": [
+              {
+                "start": 4260,
+                "end": 4560
+              },
+              {
+                "start": 8760,
+                "end": 9060
+              },
+              {
+                "start": 9430,
+                "end": 9730
+              },
+              {
+                "start": 10830,
+                "end": 11130
+              },
+              {
+                "start": 18430,
+                "end": 18730
+              },
+              {
+                "start": 19970,
+                "end": 20130
+              },
+              {
+                "start": 20630,
+                "end": 20930
+              },
+              {
+                "start": 21260,
+                "end": 21560
+              }
+            ]
+          }
+        },
+        {
+          "path": "upper",
+          "seconds": 75.0166666666637,
+          "hpLoss": 0,
+          "maps": [
+            "sea-map-1",
+            "sea-map-2",
+            "sea-map-3"
+          ],
+          "stars": 97,
+          "stories": [
+            "sea-story-1",
+            "sea-story-2"
+          ],
+          "input": {
+            "jumps": [
+              3605,
+              3710,
+              4960,
+              5055,
+              5620,
+              5710,
+              6690,
+              7240,
+              8160,
+              8255,
+              9660,
+              9755,
+              10340,
+              11890,
+              13580,
+              14905,
+              15010,
+              16505,
+              16610,
+              17180,
+              17615,
+              19390,
+              21860,
+              21955
+            ],
+            "slides": [
+              {
+                "start": 4260,
+                "end": 4560
+              },
+              {
+                "start": 8760,
+                "end": 9060
+              },
+              {
+                "start": 9430,
+                "end": 9730
+              },
+              {
+                "start": 10830,
+                "end": 11130
+              },
+              {
+                "start": 18430,
+                "end": 18730
+              },
+              {
+                "start": 19970,
+                "end": 20130
+              },
+              {
+                "start": 20630,
+                "end": 20930
+              },
+              {
+                "start": 21260,
+                "end": 21560
               }
             ]
           }

@@ -10,6 +10,7 @@ import {
   MAX_PROFILES,
 } from '../src/storage/profiles';
 import {SaveStore, SAVE_KEY, emptySave, mergeResult} from '../src/storage/save';
+import {STAGES} from '../src/levels/courses';
 
 class Memory {
   map = new Map<string, string>();
@@ -118,7 +119,7 @@ test('the teacher progress table lists every sailor with each island and exports
     rows.map(r => r.name),
     ['첫 항해사', '민준'],
   );
-  assert.equal(rows[0].stages.length, 4);
+  assert.equal(rows[0].stages.length, STAGES.length);
   assert.equal(rows[1].saved, '');
   const csv = progressCsv(rows).split('\r\n');
   assert.match(csv[0], /^﻿이름,출항의 해변 · 완주,출항의 해변 · 별점/);

@@ -2,7 +2,7 @@ import type {DamageEvent, DamageKind} from '../systems/damage';
 import {ADVENTURE_PLANS, ADVENTURE_BALANCE, GOALS, type GoalId, type ComboId} from '../levels/adventure';
 import {GHOST_SECONDS} from '../storage/journal';
 import {C} from '../config';
-import {CRUMBLE_DELAY, type StageId, type Rect, type Platform, type Collectible} from '../levels/courses';
+import {CRUMBLE_DELAY, MOLY_TIME, type StageId, type Rect, type Platform, type Collectible} from '../levels/courses';
 import {score, rating} from '../systems/score';
 import type {RunResult} from '../storage/save';
 import {createEnemyState, updateEnemyState, type EnemyState} from '../levels/enemies';
@@ -24,6 +24,8 @@ export interface RunnerEvent {
     | 'trident'
     | 'lantern'
     | 'compass'
+    | 'moly'
+    | 'charm'
     | 'strike'
     | 'hurt'
     | 'fall'
@@ -66,6 +68,10 @@ export class Runner {
   magnet = 0;
   trident = false;
   lantern = 0;
+  // Seconds left of moly's protection against Circe's spell.
+  moly = 0;
+  // Inside a spell stretch without moly: the air jump is sealed.
+  charmed = false;
   defeated = new Set<string>();
   readonly enemyStates: EnemyState[];
   readonly adventure;
@@ -172,7 +178,7 @@ export class Runner {
   private tryJump() {
     if (this.buffer <= 0 || !this.canStand()) return;
     const groundJump = this.grounded || this.coyote > 0;
-    if (!groundJump && this.jumps >= 2) return;
+    if (!groundJump && (this.jumps >= 2 || this.charmed)) return;
     this.jumps = groundJump ? 1 : 2;
     this.grounded = false;
     this.coyote = 0;
@@ -192,6 +198,7 @@ export class Runner {
     if (item.kind === 'apple') this.hp = Math.min(3, this.hp + 1);
     if (item.kind === 'trident') this.trident = true;
     if (item.kind === 'lantern') this.lantern = C.effect;
+    if (item.kind === 'moly') this.moly = MOLY_TIME;
     if (item.kind === 'compass' && item.checkpoint !== undefined && this.x >= item.checkpoint)
       this.safeX = Math.max(this.safeX, item.checkpoint);
     if (item.kind === 'shield' && this.rule === 'no-shield') return;
@@ -219,6 +226,13 @@ export class Runner {
     this.wings = Math.max(0, this.wings - dt);
     this.magnet = Math.max(0, this.magnet - dt);
     this.lantern = Math.max(0, this.lantern - dt);
+    this.moly = Math.max(0, this.moly - dt);
+    const spelled = !!this.course.spells?.some(z => this.x >= z.x && this.x < z.x + z.w) && this.moly <= 0;
+    if (spelled && !this.charmed) {
+      this.charmed = true;
+      this.message = '키르케의 마법! 2단 점프 봉인';
+      this.emit('charm');
+    } else if (!spelled) this.charmed = false;
     this.recovering = Math.max(0, this.recovering - dt);
     if (this.grounded) this.coyote = C.coyote;
     else this.coyote = Math.max(0, this.coyote - dt);

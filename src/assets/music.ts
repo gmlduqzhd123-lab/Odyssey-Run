@@ -12,6 +12,11 @@ export const MUSIC = {
     file: 'assets/audio/wind-135cdecfaf1b.mp3',
     gain: 0.22,
   },
+  // No separate Circe track yet: the magic forest plays the wind theme.
+  circe: {
+    file: 'assets/audio/wind-135cdecfaf1b.mp3',
+    gain: 0.22,
+  },
   // No separate Sirens track yet: the sea plays the beach theme.
   sea: {
     file: 'assets/audio/beach-78e90c47be32.mp3',

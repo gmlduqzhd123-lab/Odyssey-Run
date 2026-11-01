@@ -239,7 +239,8 @@ export class World extends Phaser.Scene {
       .setDisplaySize(180, 240)
       .setPosition(744, 442)
       .setRotation(0)
-      .setAlpha(1);
+      .setAlpha(1)
+      .clearTint();
     this.giant.setVisible(false);
     this.label.setText('');
     this.warning.setText('');
@@ -381,6 +382,7 @@ export class World extends Phaser.Scene {
       trident: '삼지창 · 다음 몬스터 격퇴',
       lantern: '등불 · 공중 위협 방어 6초',
       compass: '나침반 · 안전지점 갱신',
+      moly: '몰리 약초 · 9초간 마법을 막아요',
       strike: '삼지창으로 격퇴!',
       hurt: '체력 −1',
       fall: '안전지점으로!',
@@ -392,7 +394,9 @@ export class World extends Phaser.Scene {
         this.view.width / 2,
         180,
         translate(
-          ['near', 'discovery', 'constellation', 'combo', 'route', 'highlight', 'trick', 'strike'].includes(kind)
+          ['near', 'discovery', 'constellation', 'combo', 'route', 'highlight', 'trick', 'strike', 'charm'].includes(
+            kind,
+          )
             ? message || words[kind] || '새로운 발견!'
             : words[kind] || '',
         ),
@@ -401,7 +405,7 @@ export class World extends Phaser.Scene {
           testString: TEST_STRING,
           fontStyle: 'bold',
           fontSize: '18px',
-          color: kind === 'hurt' ? '#ffb8a3' : '#ffebae',
+          color: kind === 'hurt' ? '#ffb8a3' : kind === 'charm' ? '#e6c8ff' : '#ffebae',
           stroke: '#20394b',
           strokeThickness: 4,
           resolution: this.host.density(),
@@ -482,7 +486,9 @@ export class World extends Phaser.Scene {
     this.groundArt.forEach(s => s.setVisible(false));
     const groundSpan = (a: number, b: number) => {
       if (b <= a) return;
-      g.fillStyle(dark ? 0x505b68 : this.stage === 'wind' ? 0x9aaca5 : 0xcab28c).fillRect(a - cam, 440, b - a, 100);
+      g.fillStyle(
+        dark ? 0x505b68 : this.stage === 'wind' ? 0x9aaca5 : this.stage === 'circe' ? 0x8f9a7e : 0xcab28c,
+      ).fillRect(a - cam, 440, b - a, 100);
       g.fillStyle(dark ? 0x465360 : 0x81988e, 0.12).fillRect(a - cam, 516, b - a, 24);
       const band = this.groundArt[spanIndex++];
       if (band && b - a >= 1) {
@@ -580,11 +586,28 @@ export class World extends Phaser.Scene {
                 : `! ${ENEMY_TYPES[incoming.kind].name} · ${ENEMY_TYPES[incoming.kind].hint}`
               : r.course.platforms.some(p => p.crumble && p.x - r.x <= 600 && p.x + p.w > r.x)
                 ? '! 무너지는 다리 · 점프로 건너기'
-                : '',
+                : r.course.spells?.some(z => z.x - r.x <= 600 && z.x + z.w > r.x)
+                  ? r.moly > 0
+                    ? `몰리 약초가 지켜 주고 있어요 · ${Math.ceil(r.moly)}초`
+                    : '! 키르케의 마법 · 2단 점프 봉인'
+                  : '',
         ),
       );
     const fx = this.fx;
     fx.clear();
+    // Circe's spell: a violet haze over the stretch, with slow sparkles; it thins once moly is eaten.
+    r.course.spells?.forEach(z => {
+      const x = z.x - cam;
+      if (x + z.w < 0 || x > this.view.width) return;
+      const strength = r.moly > 0 ? 0.08 : 0.2;
+      fx.fillStyle(0xb48ad8, strength).fillRect(x, 60, z.w, 380);
+      fx.fillStyle(0xe9d5ff, strength * 3);
+      for (let k = 0; k < z.w / 120; k++) {
+        const sx = x + 50 + k * 120,
+          sy = 160 + ((k * 53 + (reduced ? 0 : r.time * 25)) % 240);
+        if (sx > -10 && sx < this.view.width + 10) fx.fillCircle(sx, sy, 2.5);
+      }
+    });
     r.course.winds.forEach(w => {
       const x = w.x - cam;
       if (x + w.w < 0 || x > this.view.width) return;
@@ -806,7 +829,8 @@ export class World extends Phaser.Scene {
       .setOrigin(p.originX, p.originY)
       .setPosition(this.view.heroX, p.anchorY)
       .setRotation(0)
-      .setAlpha(r.invincible > 0 ? 0.72 : 1);
+      .setAlpha(r.invincible > 0 ? 0.72 : 1)
+      .setTint(r.charmed ? 0xf3c6e4 : 0xffffff);
     if (p.scale !== undefined) this.hero.setScale(p.scale);
     else this.hero.setDisplaySize(p.w, p.h);
   }
