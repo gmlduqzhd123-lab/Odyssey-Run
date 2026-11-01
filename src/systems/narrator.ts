@@ -24,14 +24,10 @@ export class Narrator {
       lang = document.documentElement.lang || 'ko',
       voice = speechSynthesis.getVoices().find(v => v.lang.toLowerCase().startsWith(lang.slice(0, 2).toLowerCase()));
     for (const block of blocks) {
+      const text = block.textContent ?? '';
       this.originals.set(block, block.innerHTML);
       block.innerHTML = '';
-      for (const s of sentences(
-        this.originals
-          .get(block)!
-          .replace(/<[^>]+>/g, ' ')
-          .replace(/&nbsp;/g, ' '),
-      )) {
+      for (const s of sentences(text)) {
         const span = document.createElement('span');
         span.className = 'say';
         span.textContent = s + ' ';
