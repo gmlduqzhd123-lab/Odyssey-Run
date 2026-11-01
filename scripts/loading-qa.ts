@@ -69,6 +69,7 @@ try {
   // Islands added after the save was written start empty; the original records stay exact.
   expect(current.stages).toEqual({
     ...old.stages,
+    circe: {complete: false, bestScore: 0, bestRating: 0, bestStars: 0, maps: []},
     sea: {complete: false, bestScore: 0, bestRating: 0, bestStars: 0, maps: []},
   });
   expect(current.settings).toEqual(old.settings);
