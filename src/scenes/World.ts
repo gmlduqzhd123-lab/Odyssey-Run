@@ -12,6 +12,7 @@ import {SCENERY_ART} from '../assets/scenery-art';
 import {CRUMBLE_DELAY} from '../levels/courses';
 import {decorFor, harborMix, type ViewId} from '../levels/scenery';
 import {FOG} from '../levels/weather';
+import {heroInfo} from '../systems/heroes';
 import {RUN_ART} from '../assets/runner-art';
 import {DISPLAY, type DisplayViewport} from '../rendering/display';
 import {CROUCH_ART, MONSTER_ART} from '../assets/expansion-art';
@@ -451,7 +452,7 @@ export class World extends Phaser.Scene {
       this.backgroundScroll(1, 100);
       this.backgroundScroll(2, 0);
       this.boat.setPosition(this.view.width * 0.775, 410);
-      this.hero.setPosition(this.view.width * 0.775, 442);
+      this.hero.setPosition(this.view.width * 0.775, 442).setTint(heroInfo(this.host.cosmetics().hero).tint);
       this.ground.clear();
       this.fx.clear();
       this.drawCostume(this.view.width * 0.775, 442, false, true);
@@ -719,7 +720,7 @@ export class World extends Phaser.Scene {
       captionX = 590;
       caption =
         r.x < 1000
-          ? '이타카로 가는 여정, 출발!'
+          ? heroInfo(this.host.cosmetics().hero).start
           : this.stage === 'wind'
             ? '↑ 바람길에서 가볍게 뛰어 보세요'
             : r.x < 2100
@@ -874,6 +875,34 @@ export class World extends Phaser.Scene {
       );
       g.lineStyle(2, 0xe4c373, 0.9).lineBetween(x - 24 * scale, cy + 26 * scale, x - 11 * scale, cy + 30 * scale);
     }
+    // Each playable hero wears one small sign: a traveller's hat, a veil or a crested helmet.
+    const head = cy - (crouch && !home ? 9 : 27) * scale;
+    if (c.hero === 'telemachus') {
+      g.fillStyle(0x8a6a3c, 1).fillEllipse(x + 2 * scale, head + 2 * scale, 30 * scale, 7 * scale);
+      g.fillStyle(0xa9844c, 1).fillEllipse(x + 2 * scale, head - 3 * scale, 15 * scale, 10 * scale);
+    } else if (c.hero === 'penelope') {
+      g.fillStyle(0xf3ecf6, 0.9).fillPoints(
+        [
+          {x: x - 6 * scale, y: head - 6 * scale},
+          {x: x + 8 * scale, y: head - 8 * scale},
+          {x: x - 4 * scale, y: head + 10 * scale},
+          {x: x - 18 * scale, y: head + 26 * scale},
+          {x: x - 14 * scale, y: head + 4 * scale},
+        ],
+        true,
+      );
+    } else if (c.hero === 'athena') {
+      g.fillStyle(0xb8bccb, 1).fillEllipse(x + 2 * scale, head, 20 * scale, 12 * scale);
+      g.fillStyle(0xc0503e, 1).fillPoints(
+        [
+          {x: x - 9 * scale, y: head - 4 * scale},
+          {x: x + 2 * scale, y: head - 16 * scale},
+          {x: x + 13 * scale, y: head - 4 * scale},
+          {x: x + 2 * scale, y: head - 8 * scale},
+        ],
+        true,
+      );
+    }
     if (c.emblem !== 'plain') {
       const fx = this.fx,
         bx = x + 9 * scale,
@@ -917,7 +946,7 @@ export class World extends Phaser.Scene {
       .setPosition(this.view.heroX, p.anchorY)
       .setRotation(0)
       .setAlpha(r.invincible > 0 ? 0.72 : 1)
-      .setTint(r.charmed ? 0xf3c6e4 : 0xffffff);
+      .setTint(r.charmed ? 0xf3c6e4 : heroInfo(this.host.cosmetics().hero).tint);
     if (p.scale !== undefined) this.hero.setScale(p.scale);
     else this.hero.setDisplaySize(p.w, p.h);
   }

@@ -84,6 +84,7 @@ import {STAGE_VIEW, regionArt} from '../assets/terrain';
 import {displayDensity, displayViewport} from '../rendering/display';
 import {FrameWatch} from '../rendering/frame-watch';
 import {WEATHERS, STORM_SPEED, isWeather, type WeatherId} from '../levels/weather';
+import {HEROES, heroInfo, heroUnlocked} from '../systems/heroes';
 const asset = assetUrl;
 const SLOW_KEY = SAVE_KEY + ':slow-device';
 // Logical width of the portrait game strip (4:3): closer than the landscape 960 so the hero and
@@ -646,7 +647,7 @@ export class App {
     this.world.showHome();
     const done = STAGES.every(id => this.store.data.stages[id].complete);
     this.set(
-      `<div class="home">${this.header('ODYSSEY RUN', 'home')}<div class="home-copy"><span class="eyebrow"><i></i> 작은 영웅의 긴 귀환</span><h1 tabindex="-1">오디세이 런<span>이타카로!</span></h1><p>별자리를 잇고, 숨은 이야기를 찾고,<br>우리만의 항구를 완성하러 떠나요.</p><div class="home-actions">${button('islands', '항해 시작 <span>↗</span>', 'primary large')}${button('codex', icon('map') + ' 지도 도감', 'secondary')}</div><div class="home-status">${done ? '⚑ 귀환 완료 · ' : ''}도장 ${this.store.data.journal.stamps.length}/${stampIds.length} · 별자리 ${this.store.data.journal.constellations.length}/${constellationIds.length} · 이야기 ${this.store.data.journal.stories.length}/${storyIds.length}</div>${this.offline?.waiting ? `<div class="update-bar" role="status"><span>새 버전이 준비됐어요.</span>${button('update', '지금 업데이트', 'secondary')}</div>` : ''}</div><div class="hero-caption"><span>ODYSSEUS</span><b>지혜로운 작은 영웅</b><i>“이번에는 꼭, 이타카로!”</i></div><div class="home-bottom">${button('challenges', '⚔ 특별 항해', 'text-button')}${button('wardrobe', '♧ 영웅의 옷장', 'text-button')}${button('harbor', '⚓ 나의 항구', 'text-button')}${button('journal', '✧ 모험 수첩', 'text-button')}${button('settings', '⚙ 설정', 'text-button')}${button('quit', '게임 종료', 'text-button')}</div></div>`,
+      `<div class="home">${this.header('ODYSSEY RUN', 'home')}<div class="home-copy"><span class="eyebrow"><i></i> 작은 영웅의 긴 귀환</span><h1 tabindex="-1">오디세이 런<span>이타카로!</span></h1><p>별자리를 잇고, 숨은 이야기를 찾고,<br>우리만의 항구를 완성하러 떠나요.</p><div class="home-actions">${button('islands', '항해 시작 <span>↗</span>', 'primary large')}${button('codex', icon('map') + ' 지도 도감', 'secondary')}</div><div class="home-status">${done ? '⚑ 귀환 완료 · ' : ''}도장 ${this.store.data.journal.stamps.length}/${stampIds.length} · 별자리 ${this.store.data.journal.constellations.length}/${constellationIds.length} · 이야기 ${this.store.data.journal.stories.length}/${storyIds.length}</div>${this.offline?.waiting ? `<div class="update-bar" role="status"><span>새 버전이 준비됐어요.</span>${button('update', '지금 업데이트', 'secondary')}</div>` : ''}</div><div class="hero-caption"><span>${this.hero().eyebrow}</span><b>${this.hero().title}</b><i>${this.hero().line}</i></div><div class="home-bottom">${button('challenges', '⚔ 특별 항해', 'text-button')}${button('wardrobe', '♧ 영웅의 옷장', 'text-button')}${button('harbor', '⚓ 나의 항구', 'text-button')}${button('journal', '✧ 모험 수첩', 'text-button')}${button('settings', '⚙ 설정', 'text-button')}${button('quit', '게임 종료', 'text-button')}</div></div>`,
       'home',
     );
     if (!this.reminded) {
@@ -805,7 +806,7 @@ export class App {
     ].filter(Boolean);
   }
   private hud() {
-    return `<div class="play-ui" tabindex="-1" role="group" aria-label="게임 조작" data-one-button="${this.assist().autoSlide}"><div class="hud"><div class="hp-block"><span class="hud-caption">오디세우스</span><strong id="hp" role="img" aria-label="체력 3"></strong></div><div class="route-progress"><span>${this.special === 'boss' ? BOSSES[this.selected].name : this.special === 'daily' ? '오늘의 항해 · ' + this.daily!.name : this.special === 'contest' ? '대회 · ' + esc(this.contest!.title) : this.special === 'endless' ? '끝없는 항해 · ' + COURSES[this.selected].name : COURSES[this.selected].name + ' · ' + VARIANT_LABELS[this.selected][this.selectedVariant].name}${this.weatherOn() === 'clear' ? '' : ` · ${WEATHERS[this.weatherOn()].icon} ${WEATHERS[this.weatherOn()].name}`}</span><progress id="progress" data-course="${this.selected}/${this.selectedVariant}" max="24000" value="0" aria-label="섬 진행률"></progress><i id="ghost-marker" hidden aria-label="비교 항해 위치"></i><small id="progress-label">0%</small></div><div class="score-block"><span class="hud-caption">SCORE</span><strong id="score">0</strong></div><div class="hud-actions">${button('fullscreen', '⛶', 'fullscreen-button', 'aria-label="전체 화면 전환"')}${button('pause', 'Ⅱ', 'pause-button', 'aria-label="일시정지"')}</div></div><div class="run-chips"><div class="run-details"><span id="stars">✦ 0 / 100</span><span id="maps">지도 0 / 3</span><span id="effects"></span>${this.assistLabel().length ? `<span class="assist-chip">쉬운 항해 · ${this.assistLabel().join(' · ')}</span>` : ''}</div><div class="adventure-hud"><span id="goal-progress"></span><span id="ghost-delta"></span><span id="discovery-progress"></span></div></div><div class="touch-controls"><button data-control="slide" class="control slide" aria-label="슬라이드, 누르고 유지"><span>⇣</span><b>슬라이드</b><small>↓ 누르기</small></button><button data-control="jump" class="control jump" aria-label="점프, 공중에서 다시 누르면 2단 점프"><span>↟</span><b>점프</b><small>Space / ↑</small></button></div></div>`;
+    return `<div class="play-ui" tabindex="-1" role="group" aria-label="게임 조작" data-one-button="${this.assist().autoSlide}"><div class="hud"><div class="hp-block"><span class="hud-caption">${this.hero().name}</span><strong id="hp" role="img" aria-label="체력 3"></strong></div><div class="route-progress"><span>${this.special === 'boss' ? BOSSES[this.selected].name : this.special === 'daily' ? '오늘의 항해 · ' + this.daily!.name : this.special === 'contest' ? '대회 · ' + esc(this.contest!.title) : this.special === 'endless' ? '끝없는 항해 · ' + COURSES[this.selected].name : COURSES[this.selected].name + ' · ' + VARIANT_LABELS[this.selected][this.selectedVariant].name}${this.weatherOn() === 'clear' ? '' : ` · ${WEATHERS[this.weatherOn()].icon} ${WEATHERS[this.weatherOn()].name}`}</span><progress id="progress" data-course="${this.selected}/${this.selectedVariant}" max="24000" value="0" aria-label="섬 진행률"></progress><i id="ghost-marker" hidden aria-label="비교 항해 위치"></i><small id="progress-label">0%</small></div><div class="score-block"><span class="hud-caption">SCORE</span><strong id="score">0</strong></div><div class="hud-actions">${button('fullscreen', '⛶', 'fullscreen-button', 'aria-label="전체 화면 전환"')}${button('pause', 'Ⅱ', 'pause-button', 'aria-label="일시정지"')}</div></div><div class="run-chips"><div class="run-details"><span id="stars">✦ 0 / 100</span><span id="maps">지도 0 / 3</span><span id="effects"></span>${this.assistLabel().length ? `<span class="assist-chip">쉬운 항해 · ${this.assistLabel().join(' · ')}</span>` : ''}</div><div class="adventure-hud"><span id="goal-progress"></span><span id="ghost-delta"></span><span id="discovery-progress"></span></div></div><div class="touch-controls"><button data-control="slide" class="control slide" aria-label="슬라이드, 누르고 유지"><span>⇣</span><b>슬라이드</b><small>↓ 누르기</small></button><button data-control="jump" class="control jump" aria-label="점프, 공중에서 다시 누르면 2단 점프"><span>↟</span><b>점프</b><small>Space / ↑</small></button></div></div>`;
   }
   private beginCountdown() {
     this.countdown = 3;
@@ -886,11 +887,24 @@ export class App {
     const diff = r.score - rival.score;
     return `<p class="rival-result"><b>친구 ‘${esc(rival.name)}’ ${rival.score.toLocaleString()}점</b> · ${diff > 0 ? `${diff.toLocaleString()}점 앞섰어요!` : diff === 0 ? '똑같은 점수예요!' : `${(-diff).toLocaleString()}점 차이, 다시 도전해 봐요`}</p>`;
   }
+  private hero() {
+    return heroInfo(this.store.data.preferences.hero);
+  }
+  private heroChoices() {
+    const p = this.store.data.preferences;
+    return `<section class="trial-card hero-choices"><h2>달리는 영웅</h2><p class="muted">누가 달려도 점프·속도·점수는 똑같아요. 모습과 대사만 바뀌어요.</p><div class="hero-grid">${HEROES.map(
+      h => {
+        const open = heroUnlocked(this.store.data, h.id),
+          selected = p.hero === h.id;
+        return `<button data-action="hero:${h.id}" class="cosmetic-choice hero-choice ${selected ? 'equipped' : ''}" aria-pressed="${selected}" ${open ? '' : 'disabled'}><img src="${asset(h.id)}" alt="" loading="lazy" decoding="async"><span>${h.name}<small>${selected ? '✓ 달리는 중' : open ? h.line : '🔒 ' + h.requirement}</small></span></button>`;
+      },
+    ).join('')}</div></section>`;
+  }
   private wardrobe() {
     this.abandon();
     this.world.showHome();
     this.set(
-      `<div class="page wardrobe">${this.header('영웅의 옷장')}<div class="page-heading"><span class="eyebrow">EARNED ON YOUR JOURNEY</span><h1 tabindex="-1">모험의 색을 입어요</h1><p>성과를 달성하면 자동으로 열려요. 점수는 소비하지 않고 능력치도 바뀌지 않아요.</p></div><div class="trial-grid">${(
+      `<div class="page wardrobe">${this.header('영웅의 옷장')}<div class="page-heading"><span class="eyebrow">EARNED ON YOUR JOURNEY</span><h1 tabindex="-1">모험의 색을 입어요</h1><p>성과를 달성하면 자동으로 열려요. 점수는 소비하지 않고 능력치도 바뀌지 않아요.</p></div>${this.heroChoices()}<div class="trial-grid">${(
         ['cape', 'emblem', 'sail'] as const
       )
         .map(
@@ -1421,6 +1435,7 @@ export class App {
   private readonly argRoutes: [string, (arg: string) => void][] = [
     ['download-stage:', id => STAGES.includes(id as StageId) && void this.offline.download(id as StageId)],
     ['equip:', arg => this.equip(arg)],
+    ['hero:', id => this.chooseHero(id)],
     ['endless:', id => STAGES.includes(id as StageId) && void this.prepareEndless(id as StageId)],
     ['boss:', id => STAGES.includes(id as StageId) && void this.prepareBoss(id as StageId)],
     ['discovery:', id => this.discovery(id)],
@@ -1550,6 +1565,13 @@ export class App {
       entry = COSMETICS.find(c => c.slot === slot && c.id === id);
     if (!entry || !cosmeticUnlocked(this.store.data, id)) return;
     this.store.data.preferences[entry.slot] = entry.id as never;
+    this.store.persist();
+    this.wardrobe();
+  }
+  private chooseHero(id: string) {
+    const h = HEROES.find(h => h.id === id);
+    if (!h || !heroUnlocked(this.store.data, h.id) || this.screen !== 'wardrobe') return;
+    this.store.data.preferences.hero = h.id;
     this.store.persist();
     this.wardrobe();
   }

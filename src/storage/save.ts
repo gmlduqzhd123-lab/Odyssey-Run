@@ -1,4 +1,5 @@
 import {cosmeticUnlocked} from '../systems/cosmetics';
+import {heroUnlocked} from '../systems/heroes';
 import {emptyExpeditions, readExpeditions, type Expeditions} from './expeditions';
 import {defaultPreferences, readPreferences, type Preferences} from './preferences';
 import {emptyJournal, validateJournal, validateGhost, type Ghost, type Journal, type AdventureResult} from './journal';
@@ -191,6 +192,7 @@ export function validateSave(raw: unknown): Save {
       throw Error('신화 퀴즈 기록을 확인해 주세요.');
     out.quiz = [...v.quiz];
   }
+  if (!heroUnlocked(out, out.preferences.hero)) throw Error('아직 열리지 않은 영웅이 선택돼 있어요.');
   if (v.endless !== undefined) {
     const e = obj(v.endless);
     for (const [id, raw] of Object.entries(e)) {
