@@ -11,6 +11,7 @@ import {REGIONS, sheetUrl} from '../assets/terrain';
 import {SCENERY_ART} from '../assets/scenery-art';
 import {CRUMBLE_DELAY} from '../levels/courses';
 import {decorFor, harborMix, type ViewId} from '../levels/scenery';
+import {FOG} from '../levels/weather';
 import {RUN_ART} from '../assets/runner-art';
 import {DISPLAY, type DisplayViewport} from '../rendering/display';
 import {CROUCH_ART, MONSTER_ART} from '../assets/expansion-art';
@@ -36,6 +37,8 @@ export class World extends Phaser.Scene {
   private bg: Phaser.GameObjects.Image[][] = [];
   private ground!: Phaser.GameObjects.Graphics;
   private fx!: Phaser.GameObjects.Graphics;
+  // Rain, storm and fog: in front of the course, behind the hero and the warnings.
+  private weatherFx!: Phaser.GameObjects.Graphics;
   private hero!: Phaser.GameObjects.Image;
   private boat!: Phaser.GameObjects.Image;
   private giant!: Phaser.GameObjects.Image;
@@ -127,6 +130,7 @@ export class World extends Phaser.Scene {
     this.giant = this.add.image(-100, 440, 'boat').setOrigin(0.5, 1).setAlpha(0.8).setVisible(false);
     this.ground = this.add.graphics();
     this.fx = this.add.graphics();
+    this.weatherFx = this.add.graphics().setDepth(9);
     this.costume = this.add.graphics().setDepth(11);
     this.sailDecor = this.add.graphics().setDepth(2);
     this.boat = this.add.image(744, 444, 'boat').setDisplaySize(350, 230);
@@ -257,6 +261,7 @@ export class World extends Phaser.Scene {
       .setAlpha(1)
       .clearTint();
     this.giant.setVisible(false);
+    this.weatherFx.clear();
     this.label.setText('');
     this.warning.setText('');
   }
@@ -686,6 +691,7 @@ export class World extends Phaser.Scene {
       fx.fillStyle(0xe8be72, 0.7).fillTriangle(x, 300, x - 6, 310, x + 6, 310);
     });
     this.drawAdventure(r, cam, reduced);
+    this.drawWeather(r, reduced);
     this.drawHero(r);
     this.drawCostume(this.view.heroX, r.y, r.sliding, false);
     if (r.shield) {
@@ -744,6 +750,38 @@ export class World extends Phaser.Scene {
     this.label.setPosition((this.view.width * captionX) / 960, captionY);
     caption = translate(caption);
     if (this.label.text !== caption) this.label.setText(caption);
+  }
+  private drawWeather(r: Runner, reduced: boolean) {
+    const w = this.weatherFx,
+      top = -this.view.extraHeight,
+      height = this.view.height,
+      width = this.view.width;
+    w.clear();
+    if (r.weather === 'clear') return;
+    if (r.weather === 'fog') {
+      // Thin near the hero, thick toward the right edge; warnings are drawn above it.
+      const from = this.view.heroX + FOG.clear,
+        to = this.view.heroX + FOG.hidden;
+      for (let x = from; x < width; x += 20) {
+        const a = Math.min(0.88, ((x - from) / (to - from)) * 0.88);
+        w.fillStyle(0xe8ecef, a).fillRect(x, top, 20, height);
+      }
+      w.fillStyle(0xdfe5e8, 0.12).fillRect(0, top, width, height);
+      return;
+    }
+    const storm = r.weather === 'storm';
+    w.fillStyle(0x24364a, storm ? 0.22 : 0.12).fillRect(0, top, width, height);
+    w.lineStyle(storm ? 2 : 1.5, 0xd8e6f2, storm ? 0.55 : 0.45);
+    const drops = reduced ? 30 : storm ? 90 : 60,
+      slant = storm ? 18 : 6,
+      fall = reduced ? 0 : r.time * (storm ? 900 : 650);
+    for (let i = 0; i < drops; i++) {
+      const x = (i * 97 + (reduced ? 0 : r.time * 60)) % (width + 40),
+        y = top + ((i * 61 + fall) % (height + 40)) - 20;
+      w.lineBetween(x, y, x - slant, y + (storm ? 26 : 18));
+    }
+    // A short lightning flash every few seconds; never with reduced motion.
+    if (storm && !reduced && r.time % 7 < 0.1) w.fillStyle(0xffffff, 0.22).fillRect(0, top, width, height);
   }
   private drawAdventure(r: Runner, cam: number, reduced: boolean) {
     const fx = this.fx,

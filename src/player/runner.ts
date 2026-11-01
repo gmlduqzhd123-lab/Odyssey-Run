@@ -21,6 +21,7 @@ import {obstaclePose} from '../rendering/poses';
 import {getCourse} from '../levels/variants';
 import {sceneryView, type ViewId} from '../levels/scenery';
 import type {VariantId} from '../levels/course-ids';
+import type {WeatherId} from '../levels/weather';
 export type RunState = 'ready' | 'playing' | 'paused' | 'success' | 'failure';
 export interface RunnerEvent {
   kind:
@@ -82,6 +83,9 @@ export class Runner {
   moly = 0;
   // Inside a spell stretch without moly: the air jump is sealed.
   charmed = false;
+  // Running speed; a storm's headwind lowers it (see weather.ts).
+  speed: number = C.speed;
+  weather: WeatherId = 'clear';
   defeated = new Set<string>();
   readonly enemyStates: EnemyState[];
   readonly adventure;
@@ -261,7 +265,7 @@ export class Runner {
     this.buffer = Math.max(0, this.buffer - dt);
     const oldY = this.y,
       oldTop = this.body.y;
-    this.x += C.speed * dt;
+    this.x += this.speed * dt;
     this.sliding = this.grounded && (this.wantsSlide() || (this.sliding && !this.canStand()));
     this.vy += C.gravity * dt;
     const inWind = this.course.winds.some(w => overlap(this.body, w));
