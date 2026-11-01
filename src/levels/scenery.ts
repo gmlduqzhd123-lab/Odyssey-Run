@@ -51,7 +51,7 @@ export function decorFor(course: Pick<Course, 'id' | 'gaps' | 'obstacles' | 'pla
   const clear = (x: number) =>
     !course.gaps.some(g => x > g.x - 160 && x < g.x + g.w + 120) &&
     !course.obstacles.some(o => x > o.x - 240 && x < o.x + o.w + 180) &&
-    !course.platforms.some(p => p.crumble && x > p.x - 160 && x < p.x + p.w + 120);
+    !course.platforms.some(p => (p.crumble || p.lift || p.seesaw) && x > p.x - 160 && x < p.x + p.w + 120);
   for (let x = 520, n = 0; x < end; x += 25) {
     if (!clear(x)) continue;
     const frame = set[n % set.length];

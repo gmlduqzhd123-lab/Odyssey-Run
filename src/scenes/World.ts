@@ -223,8 +223,23 @@ export class World extends Phaser.Scene {
       this.groundArt.push(
         this.add.tileSprite(0, 440, 1, 33, 'terrain-sheet', 'ground-beach').setOrigin(0).setVisible(false),
       );
+    this.drawnTextures();
     this.giant.setTexture('giant');
     this.gameplayReady = true;
+  }
+  // Pieces with no painted art: the pounding column and the lift's cage, drawn once into textures.
+  private drawnTextures() {
+    if (this.textures.exists('pounder')) return;
+    const g = this.make.graphics({x: 0, y: 0}, false);
+    g.fillStyle(0x8c8a86).fillRect(10, 0, 54, 168);
+    g.fillStyle(0xa9a59d).fillRect(16, 0, 10, 168);
+    g.lineStyle(3, 0x5f5c58, 1);
+    for (let y = 24; y < 168; y += 36) g.lineBetween(10, y, 64, y);
+    g.fillStyle(0x6f6b66).fillRoundedRect(0, 160, 74, 30, 6);
+    g.fillStyle(0x4d4a46);
+    for (let x = 6; x < 74; x += 14) g.fillTriangle(x, 186, x + 7, 190, x + 14, 186);
+    g.generateTexture('pounder', 74, 190);
+    g.destroy();
   }
   showHome() {
     this.mode = 'home';
@@ -311,7 +326,7 @@ export class World extends Phaser.Scene {
         o.kind === 'spikes'
           ? this.add.image(o.x, o.y, 'scenery', 'spikes').setOrigin(0).setDisplaySize(o.w, o.h)
           : this.add
-              .image(o.x, o.y, o.kind === 'falling' ? 'rock' : o.kind === 'hand' ? 'hand' : o.kind)
+              .image(o.x, o.y, o.kind === 'falling' ? 'rock' : o.kind)
               .setOrigin(0)
               .setDisplaySize(o.w, o.h),
       );
@@ -327,11 +342,19 @@ export class World extends Phaser.Scene {
               .image(p.x, p.y, 'scenery', 'crumble')
               .setOrigin(0, 0.12)
               .setDisplaySize(p.w + 36, ((p.w + 36) * SCENERY_ART.frames.crumble.h) / SCENERY_ART.frames.crumble.w)
-          : this.add
-              .image(p.x, p.y, 'terrain-sheet', 'wood-platform')
-              .setOrigin(0)
-              .setDisplaySize(p.w, 20)
-              .setTint(p.id.includes('branch') ? 0xf4d99c : p.id.includes('cloud') ? 0xe5efdc : 0xffffff),
+          : p.seesaw
+            ? this.add
+                .image(p.x, p.y, 'terrain-sheet', 'wood-platform')
+                .setOrigin(0.5, 0)
+                .setDisplaySize(p.w, 18)
+                .setTint(0xe8c48a)
+            : this.add
+                .image(p.x, p.y, 'terrain-sheet', 'wood-platform')
+                .setOrigin(0)
+                .setDisplaySize(p.w, 20)
+                .setTint(
+                  p.id.includes('branch') ? 0xf4d99c : p.id.includes('cloud') ? 0xe5efdc : p.lift ? 0xd9e6f0 : 0xffffff,
+                ),
       ),
     );
     run.enemyStates.forEach(e => {
@@ -530,6 +553,14 @@ export class World extends Phaser.Scene {
     this.platforms.forEach((s, i) => {
       const p = r.course.platforms[i],
         visible = p.x - cam + p.w + 40 > 0 && p.x - cam - 40 < this.view.width;
+      if (p.seesaw) {
+        // Pivot in the middle; the plank turns with the slope under the hero.
+        const mid = p.x + p.w / 2;
+        s.setPosition(mid - cam, r.seesawY(p, mid))
+          .setRotation(Math.atan(r.seesawSlope(p)))
+          .setVisible(visible);
+        return;
+      }
       if (!p.crumble) {
         s.setPosition(p.x - cam, r.platformY(p)).setVisible(visible);
         return;
@@ -575,22 +606,26 @@ export class World extends Phaser.Scene {
           hazardFirst
             ? hazard.kind === 'hand'
               ? '! 거인의 손 · 숙이기'
-              : hazard.kind === 'falling'
-                ? '! 낙석 · 점프'
-                : hazard.kind === 'spikes'
-                  ? '! 가시 함정 · 점프'
-                  : '! 위험 장애물 · 점프'
+              : hazard.kind === 'pounder'
+                ? '! 내려치는 기둥 · 숙이기'
+                : hazard.kind === 'falling'
+                  ? '! 낙석 · 점프'
+                  : hazard.kind === 'spikes'
+                    ? '! 가시 함정 · 점프'
+                    : '! 위험 장애물 · 점프'
             : incoming
               ? incoming.repelled
                 ? '등불이 지켜 주고 있어요'
                 : `! ${ENEMY_TYPES[incoming.kind].name} · ${ENEMY_TYPES[incoming.kind].hint}`
               : r.course.platforms.some(p => p.crumble && p.x - r.x <= 600 && p.x + p.w > r.x)
                 ? '! 무너지는 다리 · 점프로 건너기'
-                : r.course.spells?.some(z => z.x - r.x <= 600 && z.x + z.w > r.x)
-                  ? r.moly > 0
-                    ? `몰리 약초가 지켜 주고 있어요 · ${Math.ceil(r.moly)}초`
-                    : '! 키르케의 마법 · 2단 점프 봉인'
-                  : '',
+                : r.course.platforms.some(p => p.lift && p.x - r.x <= 600 && p.x + p.w > r.x)
+                  ? '! 오르내리는 발판 · 낮을 때 올라타거나 점프'
+                  : r.course.spells?.some(z => z.x - r.x <= 600 && z.x + z.w > r.x)
+                    ? r.moly > 0
+                      ? `몰리 약초가 지켜 주고 있어요 · ${Math.ceil(r.moly)}초`
+                      : '! 키르케의 마법 · 2단 점프 봉인'
+                    : '',
         ),
       );
     const fx = this.fx;
@@ -606,6 +641,20 @@ export class World extends Phaser.Scene {
         const sx = x + 50 + k * 120,
           sy = 160 + ((k * 53 + (reduced ? 0 : r.time * 25)) % 240);
         if (sx > -10 && sx < this.view.width + 10) fx.fillCircle(sx, sy, 2.5);
+      }
+    });
+    r.course.platforms.forEach(p => {
+      const x = p.x - cam;
+      if (x + p.w < -20 || x > this.view.width + 20) return;
+      if (p.lift) {
+        const y = r.platformY(p);
+        fx.lineStyle(2, 0x6d6a64, 0.8)
+          .lineBetween(x + 6, 40, x + 6, y)
+          .lineBetween(x + p.w - 6, 40, x + p.w - 6, y);
+      } else if (p.seesaw) {
+        const mid = x + p.w / 2,
+          top = r.seesawY(p, p.x + p.w / 2) + 16;
+        fx.fillStyle(0x7a5a3a, 1).fillTriangle(mid, top, mid - 14, C.ground + 30, mid + 14, C.ground + 30);
       }
     });
     r.course.winds.forEach(w => {

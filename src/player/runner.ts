@@ -2,7 +2,17 @@ import type {DamageEvent, DamageKind} from '../systems/damage';
 import {ADVENTURE_PLANS, ADVENTURE_BALANCE, GOALS, type GoalId, type ComboId} from '../levels/adventure';
 import {GHOST_SECONDS} from '../storage/journal';
 import {C} from '../config';
-import {CRUMBLE_DELAY, MOLY_TIME, type StageId, type Rect, type Platform, type Collectible} from '../levels/courses';
+import {
+  CRUMBLE_DELAY,
+  MOLY_TIME,
+  LIFT,
+  SEESAW,
+  isCeiling,
+  type StageId,
+  type Rect,
+  type Platform,
+  type Collectible,
+} from '../levels/courses';
 import {score, rating} from '../systems/score';
 import type {RunResult} from '../storage/save';
 import {createEnemyState, updateEnemyState, type EnemyState} from '../levels/enemies';
@@ -146,8 +156,21 @@ export class Runner {
   slide(held: boolean) {
     this.slideHeld = held;
   }
-  platformY(p: Platform) {
+  platformY(p: Platform, x = this.x) {
+    if (p.lift) return p.y - (LIFT.rise * (1 - Math.cos((this.time * 2 * Math.PI) / LIFT.period))) / 2;
+    if (p.seesaw) return this.seesawY(p, x);
     return p.y + (p.moving ? Math.sin(this.time * 1.6) * 22 : 0);
+  }
+  // The seesaw tilts toward the hero: the end nearer the hero dips to the ground line and the
+  // far end rises, so the plank surface under the hero runs from the ground up to the middle.
+  seesawSlope(p: Platform) {
+    const half = p.w / 2,
+      t = Math.max(-1, Math.min(1, (this.x - (p.x + half)) / half));
+    return (t * SEESAW.rise) / half;
+  }
+  seesawY(p: Platform, x = this.x) {
+    const half = p.w / 2;
+    return p.y - SEESAW.rise + (x - (p.x + half)) * this.seesawSlope(p);
   }
   // Seconds since a crumbling plank was first stood on, or -1 while it is untouched.
   crumbleAge(p: Platform) {
@@ -162,14 +185,12 @@ export class Runner {
     if (!this.autoSlide || this.y !== C.ground) return false;
     return this.course.obstacles.some(
       o =>
-        (o.kind === 'gate' || o.kind === 'hand') &&
-        o.x - (this.x + C.bodyWidth / 2) < AUTO_SLIDE_LEAD &&
-        this.x - C.bodyWidth / 2 < o.x + o.w,
+        isCeiling(o.kind) && o.x - (this.x + C.bodyWidth / 2) < AUTO_SLIDE_LEAD && this.x - C.bodyWidth / 2 < o.x + o.w,
     );
   }
   private canStand(x = this.x, y = this.y) {
     return !this.course.obstacles.some(
-      o => (o.kind === 'gate' || o.kind === 'hand') && overlap({x: x - 21, y: y - C.stand, w: 42, h: C.stand}, o),
+      o => isCeiling(o.kind) && overlap({x: x - 21, y: y - C.stand, w: 42, h: C.stand}, o),
     );
   }
   private emit(kind: RunnerEvent['kind']) {
@@ -252,7 +273,7 @@ export class Runner {
     // Solid ceiling undersides do not spend jumps or allow clipping through the gate.
     // Rising into the side only stops the climb; snapping below would teleport the hero.
     for (const o of this.course.obstacles) {
-      if ((o.kind === 'gate' || o.kind === 'hand') && this.vy < 0 && overlap(this.body, o)) {
+      if (isCeiling(o.kind) && this.vy < 0 && overlap(this.body, o)) {
         if (oldTop >= o.y + o.h) this.y = o.y + o.h + (this.sliding ? C.slide : C.stand);
         this.vy = 0;
       }
@@ -266,7 +287,8 @@ export class Runner {
       if (
         this.x + 18 > p.x &&
         this.x - 18 < p.x + p.w &&
-        oldY <= py + 3 &&
+        // A seesaw's surface climbs under the hero by up to about 3px a step.
+        oldY <= py + (p.seesaw ? 8 : 3) &&
         this.y >= py &&
         this.vy >= 0 &&
         py < floor

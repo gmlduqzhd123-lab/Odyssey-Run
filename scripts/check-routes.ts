@@ -1,5 +1,5 @@
 import {Runner} from '../src/player/runner';
-import {STAGES} from '../src/levels/courses';
+import {STAGES, isCeiling} from '../src/levels/courses';
 import {ADVENTURE_PLANS} from '../src/levels/adventure';
 import {ENEMY_TYPES} from '../src/levels/enemies';
 import {getCourse} from '../src/levels/variants';
@@ -16,7 +16,7 @@ export function routeInputs(
     adventure = c.adventure ?? ADVENTURE_PLANS[id];
   const jumps: number[] = [];
   c.obstacles.forEach(o => {
-    if (o.kind === 'gate' || o.kind === 'hand') return;
+    if (isCeiling(o.kind)) return;
     if (o.kind === 'pillar') {
       jumps.push(o.x - 140, o.x - 45);
     } else jumps.push(o.x - 110);
@@ -24,9 +24,7 @@ export function routeInputs(
   c.gaps.forEach(g => jumps.push(g.x - 95, g.x + 10));
   const map = c.items.find(i => i.id === `${id}-map-2`);
   if (map) jumps.push(map.x - 180, map.x - 90);
-  const slides = c.obstacles
-    .filter(o => o.kind === 'gate' || o.kind === 'hand')
-    .map(o => ({start: o.x - 70, end: o.x + o.w + 70}));
+  const slides = c.obstacles.filter(o => isCeiling(o.kind)).map(o => ({start: o.x - 70, end: o.x + o.w + 70}));
   c.enemies.forEach(e => {
     if (
       e.bait ||

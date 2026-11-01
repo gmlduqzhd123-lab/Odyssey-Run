@@ -22,7 +22,7 @@ export interface Rect {
 }
 export interface Obstacle extends Rect {
   id: string;
-  kind: 'crate' | 'pillar' | 'gate' | 'rock' | 'falling' | 'hand' | 'spikes';
+  kind: 'crate' | 'pillar' | 'gate' | 'rock' | 'falling' | 'hand' | 'spikes' | 'pounder';
   role: 'structure' | 'hazard';
 }
 export interface Platform {
@@ -33,7 +33,13 @@ export interface Platform {
   moving?: boolean;
   // A plank over a gap that gives way CRUMBLE_DELAY seconds after it is first stood on.
   crumble?: boolean;
+  // A lift that rises and sinks over a gap (LIFT): ride it when it is low, or jump the gap.
+  lift?: boolean;
+  // A seesaw plank over a gap: it tilts toward the hero, so the ends dip and the middle rises.
+  seesaw?: boolean;
 }
+// Low ceilings: slide under them; standing up underneath is blocked.
+export const isCeiling = (kind: Obstacle['kind']) => kind === 'gate' || kind === 'hand' || kind === 'pounder';
 export interface Course {
   id: StageId;
   length?: number;
@@ -276,29 +282,52 @@ function build(id: StageId): Course {
   // Spike strips from the terrain sheet: on clear ground away from every other encounter,
   // star trail, story spot and gap, so the course keeps its rhythm. Jumped like a crate.
   const plan = ADVENTURE_PLANS[id];
-  const clearGround = (x: number) =>
+  // Low items stay clear of spikes; a slide under a pounding column still collects them.
+  const clearGround = (x: number, w: number = SPIKES.w, lowItems = true) =>
     !gaps.some(g => x > g.x - 450 && x < g.x + g.w + 450) &&
-    !obstacles.some(o => x + SPIKES.w > o.x - 320 && x < o.x + o.w + 320) &&
-    !enemies.some(e => x + SPIKES.w > e.x - 440 && x < e.x + 340) &&
-    !items.some(i => i.y > 360 && i.x > x - 120 && i.x < x + SPIKES.w + 120) &&
+    !obstacles.some(o => x + w > o.x - 320 && x < o.x + o.w + 320) &&
+    !enemies.some(e => x + w > e.x - 440 && x < e.x + 340) &&
+    (!lowItems || !items.some(i => i.y > 360 && i.x > x - 120 && i.x < x + w + 120)) &&
+    // A pillar's double jump (longer still while gliding) must land before anything to jump.
+    !obstacles.some(o => o.kind === 'pillar' && x > o.x && x < o.x + o.w + 560) &&
     !plan.stories.some(st => Math.abs(st.x - x) < 500) &&
     // A compass checkpoint keeps the 400px after it clear for a safe restart.
-    !items.some(i => i.checkpoint !== undefined && x + SPIKES.w > i.checkpoint - 100 && x < i.checkpoint + 500) &&
+    !items.some(i => i.checkpoint !== undefined && x + w > i.checkpoint - 100 && x < i.checkpoint + 500) &&
     // Remixed and endless courses reorder 3,200px sections, so keep clear of section edges.
     (x - 3200) % 3200 > 600 &&
     (x - 3200) % 3200 < 3200 - 700 &&
     // The high map piece is reached with a double jump that is still in the air here.
     Math.abs(x - highMapX) > 700 &&
-    !platforms.some(pl => x + SPIKES.w > pl.x - 60 && x < pl.x + pl.w + 60);
+    !platforms.some(pl => x + w > pl.x - 60 && x < pl.x + pl.w + 60);
   for (let x = 2400, placed = 0, last = -Infinity; x < 21800 && placed < 3; x += 25)
     if (x - last >= 2500 && clearGround(x)) {
       add(x, 'spikes', 'hazard', SPIKES.w, SPIKES.h);
       last = x;
       placed++;
     }
+  // A pounding column: it slams down as the hero comes near and stops just above a slide.
+  for (let x = 2400, placed = 0; x < 21800 && placed < POUNDERS; x += 25)
+    if (
+      clearGround(x, POUNDER.w, false) &&
+      !items.some(i => i.x > x - 100 && i.x < x + POUNDER.w + 100 && i.y < 340) &&
+      !(id === 'circe' && SPELLS.some(s => x > s.x - 200 && x < s.x + 260)) &&
+      !obstacles.some(o => o.kind === 'pounder' && Math.abs(o.x - x) < 6000)
+    ) {
+      add(x, 'pounder', 'hazard', POUNDER.w, POUNDER.h, POUNDER.bottom - POUNDER.h);
+      placed++;
+    }
   // The second gap of every island is bridged by a plank that gives way under a dawdler.
   const bridged = gaps[1];
   platforms.push({id: `${id}-crumble-1`, x: bridged.x, y: C.ground, w: bridged.w, crumble: true});
+  // The last gap gets a seesaw, and the first a lift (not on the beach pier or the windy island).
+  if (id !== 'wind') {
+    const last = gaps[2];
+    platforms.push({id: `${id}-seesaw-1`, x: last.x - 20, y: C.ground, w: last.w + 40, seesaw: true});
+  }
+  if (id !== 'wind' && id !== 'beach') {
+    const first = gaps[0];
+    platforms.push({id: `${id}-lift-1`, x: first.x + 8, y: C.ground, w: first.w - 16, lift: true});
+  }
   // Circe's spell: two stretches clear of gaps and the high map piece, each inside one 3,200px
   // section so remixes move them whole; a sprig of moly lies on the ground at the start of each.
   const spells = id === 'circe' ? SPELLS.map(s => ({...s})) : [];
@@ -314,6 +343,13 @@ export const SPELLS = [
 // Seconds of protection from one sprig of moly; long enough for the longest spell stretch.
 export const MOLY_TIME = 9;
 export const CRUMBLE_DELAY = 0.35;
+// The column's foot stops at 404 like the giant's hand: a slide (top 410) passes, standing (376) is hit.
+export const POUNDER = {w: 74, h: 190, bottom: 404} as const;
+const POUNDERS = 2;
+// A lift rises up to LIFT.rise above the ground and back, once every LIFT.period seconds.
+export const LIFT = {rise: 120, period: 3.4} as const;
+// A seesaw's middle stands SEESAW.rise above its ends while the hero is in the middle.
+export const SEESAW = {rise: 28} as const;
 // A fall returns to the nearest clear ground at most this far before the gap.
 export const SAFE_LEAD = {min: 600, max: 2400} as const;
 export function safePoints(c: Pick<Course, 'gaps' | 'obstacles' | 'enemies'>, candidates: number[]): number[] {
