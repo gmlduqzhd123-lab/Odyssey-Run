@@ -149,6 +149,29 @@ export const QUIZ: readonly QuizQuestion[] = [
   },
 ];
 export const quizIds = QUIZ.map(q => q.id);
+// What to read again when a class keeps missing a question: a map fragment's story or a person.
+export const QUIZ_READ: Record<string, {story: number} | {person: string}> = {
+  home: {story: 14},
+  horse: {story: 2},
+  nobody: {story: 4},
+  polyphemus: {story: 3},
+  sheep: {story: 5},
+  bag: {story: 6},
+  opened: {story: 8},
+  weaving: {person: 'penelope'},
+  owl: {person: 'athena'},
+  hermes: {story: 10},
+  nausicaa: {person: 'nausicaa'},
+  son: {person: 'telemachus'},
+  book: {story: 14},
+  homer: {story: 14},
+  years: {story: 0},
+  wax: {story: 12},
+  mast: {story: 13},
+  pigs: {story: 9},
+  moly: {story: 10},
+  friends: {story: 11},
+};
 // Real figures get one line from the Odyssey; the game's own guides have none.
 export const PERSON_MYTHS: Partial<Record<string, string>> = {
   odysseus: '『오디세이아』의 주인공이에요. 트로이 전쟁에서 나무 목마 꾀를 냈고, 약 10년을 항해해 고향으로 돌아왔어요.',

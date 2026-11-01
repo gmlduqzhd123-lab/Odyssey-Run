@@ -87,8 +87,11 @@ import {WEATHERS, STORM_SPEED, isWeather, type WeatherId} from '../levels/weathe
 import {HEROES, heroInfo, heroUnlocked} from '../systems/heroes';
 import {recordQuiz, recordRun} from '../storage/feats';
 import {featsMarkup} from './feats-view';
+import {defaultFleetGoal, fleetMarkup, quizReportCsv, quizReportMarkup} from './class-view';
 const asset = assetUrl;
 const SLOW_KEY = SAVE_KEY + ':slow-device';
+// The class fleet's goal belongs to the device (the teacher sets it), not to one sailor.
+const FLEET_KEY = SAVE_KEY + ':fleet-goal';
 // Logical width of the portrait game strip (4:3): closer than the landscape 960 so the hero and
 // hazards are drawn larger on a phone held upright.
 const PORTRAIT_VIEW = 720;
@@ -1091,7 +1094,42 @@ export class App {
     this.world.showHome();
     const board = this.profiles.board(),
       active = this.profiles.active.id;
-    this.set(profilesMarkup(this.header('항해사'), board, active, this.profiles.book.list.length, message), 'profiles');
+    this.set(
+      profilesMarkup(
+        this.header('항해사'),
+        board,
+        active,
+        this.profiles.book.list.length,
+        message,
+        this.fleet(
+          board.reduce((n, p) => n + p.stars, 0),
+          board.length,
+        ),
+      ),
+      'profiles',
+    );
+  }
+  private fleetGoal(sailors: number) {
+    try {
+      const n = Number(this.storage?.getItem(FLEET_KEY));
+      if (Number.isSafeInteger(n) && n >= 50 && n <= 100_000) return n;
+    } catch {}
+    return defaultFleetGoal(sailors);
+  }
+  private fleet(stars: number, sailors: number) {
+    return fleetMarkup(stars, this.fleetGoal(sailors), sailors);
+  }
+  private setFleetGoal() {
+    const n = Math.round(Number(this.ui.querySelector<HTMLInputElement>('#fleet-goal')?.value) / 50) * 50;
+    if (!Number.isFinite(n) || n < 50 || n > 100_000) {
+      this.notice('함대 목표는 별빛 50에서 100,000 사이로 정해 주세요.');
+      return;
+    }
+    try {
+      this.storage?.setItem(FLEET_KEY, String(n));
+    } catch {}
+    if (this.screen === 'progress') this.routes.progress();
+    else this.profilesPage('함대 목표를 바꿨어요.');
   }
   private switchProfile(id: string, message: string) {
     if (!this.profiles.use(id)) {
@@ -1485,11 +1523,27 @@ export class App {
     progress: () => {
       this.abandon();
       this.world.showHome();
+      const rows = this.profiles.progress();
       this.set(
-        progressMarkup(this.header('학생별 진행 현황', 'profiles'), this.profiles.progress(), this.offline.version),
+        progressMarkup(
+          this.header('학생별 진행 현황', 'profiles'),
+          rows,
+          this.offline.version,
+          this.fleet(
+            rows.reduce((n, r) => n + r.stars, 0),
+            rows.length,
+          ) + quizReportMarkup(rows),
+        ),
         'progress',
       );
     },
+    'fleet-goal': () => this.setFleetGoal(),
+    'quiz-csv': () =>
+      this.download(
+        quizReportCsv(this.profiles.progress()),
+        `odyssey-run-quiz-${new Date().toISOString().slice(0, 10).replaceAll('-', '')}.csv`,
+        'text/csv;charset=utf-8',
+      ),
     'progress-csv': () =>
       this.download(
         progressCsv(this.profiles.progress()),

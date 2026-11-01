@@ -143,12 +143,14 @@ export function progress(save: Save | null) {
     })),
     stamps: save?.journal.stamps.length ?? 0,
     saved: save ? save.savedAt.slice(0, 10) : '',
+    picks: save?.quizPicks ?? {},
   };
 }
 export function summary(save: Save | null) {
-  if (!save) return {total: 0, islands: 0, maps: 0, quiz: 0};
+  if (!save) return {total: 0, islands: 0, maps: 0, quiz: 0, stars: 0};
   return {
     total: STAGES.reduce((n, id) => n + save.stages[id].bestScore, 0),
+    stars: STAGES.reduce((n, id) => n + save.stages[id].bestStars, 0),
     islands: STAGES.filter(id => save.stages[id].complete).length,
     maps: STAGES.reduce((n, id) => n + save.stages[id].maps.length, 0),
     quiz: save.quiz.length,

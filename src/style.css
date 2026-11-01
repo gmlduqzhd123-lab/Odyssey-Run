@@ -3456,3 +3456,86 @@ body {
     grid-template-columns: 1fr;
   }
 }
+/* The class fleet: one ship sailing past the five islands to Ithaca on everyone's starlight. */
+.fleet,
+.quiz-report {
+  background: #fbf6e8;
+  border: 1px solid #ddd3b8;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin: 14px 0;
+}
+.fleet h2 small,
+.quiz-report h2 small {
+  font-size: 13px;
+  color: #5b6f66;
+  margin-left: 6px;
+}
+.fleet-route {
+  position: relative;
+  height: 70px;
+  margin: 10px 24px 6px;
+}
+.fleet-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 30px;
+  height: 6px;
+  border-radius: 3px;
+  background: #d9d1bb;
+}
+.fleet-line i {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: #3f7f7a;
+}
+.fleet-ship {
+  position: absolute;
+  top: 2px;
+  font-size: 24px;
+  transform: translateX(-50%);
+}
+.fleet-stop {
+  position: absolute;
+  top: 26px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #efe8d3;
+  border: 2px solid #9c9176;
+  transform: translateX(-50%);
+}
+.fleet-stop.passed {
+  background: #3f7f7a;
+  border-color: #2f615d;
+}
+.fleet-stop b {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  color: #36585c;
+}
+.fleet-goal input {
+  width: 110px;
+  margin: 0 6px;
+}
+.quiz-report tr.weak td,
+.quiz-report tr.weak th {
+  background: #fbe6d9;
+}
+.weak-note {
+  background: #fff2d6;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+@media (max-width: 700px) {
+  .fleet-stop b {
+    display: none;
+  }
+}
