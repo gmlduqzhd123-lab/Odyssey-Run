@@ -1,5 +1,6 @@
 import {cosmeticUnlocked} from '../systems/cosmetics';
 import {heroUnlocked} from '../systems/heroes';
+import {emptyWeekly, readDays, readQuizPicks, readWeekly, type Weekly} from './feats';
 import {emptyExpeditions, readExpeditions, type Expeditions} from './expeditions';
 import {defaultPreferences, readPreferences, type Preferences} from './preferences';
 import {emptyJournal, validateJournal, validateGhost, type Ghost, type Journal, type AdventureResult} from './journal';
@@ -40,6 +41,11 @@ export interface Save {
   quiz: string[];
   // Endless voyage bests, kept apart from course records and unlocks.
   endless: Partial<Record<StageId, EndlessRecord>>;
+  // Korean dates with a finished voyage or quiz answer (the voyage calendar), oldest first.
+  days: string[];
+  weekly: Weekly;
+  // How often each quiz option was chosen, for the teacher's question report.
+  quizPicks: Partial<Record<string, [number, number, number]>>;
 }
 export interface EndlessRecord {
   bestScore: number;
@@ -63,6 +69,9 @@ export const emptySave = (): Save => ({
   courses: {},
   quiz: [],
   endless: {},
+  days: [],
+  weekly: emptyWeekly(),
+  quizPicks: {},
 });
 const obj = (v: unknown): Record<string, unknown> => {
   if (!v || typeof v !== 'object' || Array.isArray(v)) throw Error('기록 형식을 확인해 주세요.');
@@ -193,6 +202,9 @@ export function validateSave(raw: unknown): Save {
     out.quiz = [...v.quiz];
   }
   if (!heroUnlocked(out, out.preferences.hero)) throw Error('아직 열리지 않은 영웅이 선택돼 있어요.');
+  out.days = readDays(v.days);
+  out.weekly = readWeekly(v.weekly);
+  out.quizPicks = readQuizPicks(v.quizPicks);
   if (v.endless !== undefined) {
     const e = obj(v.endless);
     for (const [id, raw] of Object.entries(e)) {
