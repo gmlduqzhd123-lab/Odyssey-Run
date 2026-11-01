@@ -3539,3 +3539,13 @@ body {
     display: none;
   }
 }
+/* Read aloud: the sentence being read is highlighted like a subtitle. */
+.say.speaking {
+  background: #fff0b8;
+  box-shadow: 0 0 0 3px #fff0b8;
+  border-radius: 3px;
+}
+.read-aloud {
+  display: block;
+  margin: 4px auto 10px;
+}

@@ -33,7 +33,8 @@ import {dropSpareCopies, spareCopies, storageUse, STORAGE_LIMIT} from '../storag
 import {classBackup, readClassBackup, restoreClass, CLASS_BACKUP_LIMIT, type ClassBackup} from '../storage/backup';
 import {buildEndless, sectionsPassed, ENDLESS_SECTIONS} from '../levels/endless';
 import type {Course} from '../levels/courses';
-import {button, downloadFile, esc, icon} from './html';
+import {button, downloadFile, esc, icon, readButton} from './html';
+import {Narrator} from '../systems/narrator';
 import {
   bookNav,
   codexPage,
@@ -147,6 +148,12 @@ export class App {
   private protectionAsked = false;
   private reminded = false;
   private frameWatch = new FrameWatch();
+  private narrator = new Narrator(reading => {
+    const b = this.ui.querySelector('[data-action="read-aloud"]');
+    if (!b) return;
+    b.setAttribute('aria-pressed', String(reading));
+    b.textContent = translate(reading ? '⏹ 그만 읽기' : '🔊 읽어 주기');
+  });
   constructor() {
     let storage: Storage | null = null;
     try {
@@ -325,6 +332,7 @@ export class App {
     n.hidden = !message;
   }
   private set(html: string, screen: string) {
+    this.narrator.stop();
     this.importRequest++;
     this.stopScanner();
     this.screen = screen;
@@ -859,6 +867,7 @@ export class App {
     this.updateHud();
   }
   private suspend() {
+    this.narrator.stop();
     if (['play', 'countdown'].includes(this.screen)) this.pause();
     this.controls.clear();
     this.sound.setPlaying(false);
@@ -1085,7 +1094,7 @@ export class App {
       .find(s => s.id === id);
     if (!story || !this.store.data.journal.stories.includes(id)) return;
     this.set(
-      `<div class="veil"><section class="panel story"><span class="eyebrow">HIDDEN WORDS</span><h1 tabindex="-1">${story.title}</h1><p>${story.story}</p>${button('journal', '모험 수첩으로', 'primary')}</section></div>`,
+      `<div class="veil"><section class="panel story"><span class="eyebrow">HIDDEN WORDS</span><h1 tabindex="-1">${story.title}</h1><p class="read-text">${story.story}</p>${readButton()}${button('journal', '모험 수첩으로', 'primary')}</section></div>`,
       'discovery',
     );
   }
@@ -1192,7 +1201,7 @@ export class App {
     this.question = pool[Math.floor(Math.random() * pool.length)];
     const q = this.question;
     this.set(
-      `<div class="veil"><section class="panel quiz-panel"><span class="eyebrow">MYTH QUIZ · 맞힌 문제 ${done.length}/${QUIZ.length}</span><h1 tabindex="-1">${q.question}</h1><div class="quiz-options">${q.options.map((o, i) => button('quiz-answer:' + i, `<b>${'ABC'[i]}</b> ${o}`, 'secondary')).join('')}</div>${button(this.quizReturn, '그만 풀기', 'text-button')}<small>점수·해금과 상관없이 언제든 풀 수 있어요.</small></section></div>`,
+      `<div class="veil"><section class="panel quiz-panel"><span class="eyebrow">MYTH QUIZ · 맞힌 문제 ${done.length}/${QUIZ.length}</span><h1 tabindex="-1">${q.question}</h1><div class="quiz-options">${q.options.map((o, i) => button('quiz-answer:' + i, `<b>${'ABC'[i]}</b> ${o}`, 'secondary')).join('')}</div>${readButton()}${button(this.quizReturn, '그만 풀기', 'text-button')}<small>점수·해금과 상관없이 언제든 풀 수 있어요.</small></section></div>`,
       'quiz',
     );
   }
@@ -1204,7 +1213,7 @@ export class App {
     if (right && !this.store.data.quiz.includes(q.id)) this.store.data.quiz.push(q.id);
     this.store.persist();
     this.set(
-      `<div class="veil"><section class="panel quiz-panel" data-correct="${right}"><span class="eyebrow">MYTH QUIZ · 맞힌 문제 ${this.store.data.quiz.length}/${QUIZ.length}</span><h1 tabindex="-1">${right ? '정답이에요!' : '아쉬워요, 다음엔 맞힐 수 있어요'}</h1><p><b>정답: ${q.options[q.answer]}</b></p><p>${q.explain}</p><div class="button-row">${button('quiz', '한 문제 더', 'primary')}${button(this.quizReturn, '돌아가기', 'secondary')}</div></section></div>`,
+      `<div class="veil"><section class="panel quiz-panel" data-correct="${right}"><span class="eyebrow">MYTH QUIZ · 맞힌 문제 ${this.store.data.quiz.length}/${QUIZ.length}</span><h1 tabindex="-1">${right ? '정답이에요!' : '아쉬워요, 다음엔 맞힐 수 있어요'}</h1><p><b>정답: ${q.options[q.answer]}</b></p><p class="read-text">${q.explain}</p>${readButton()}<div class="button-row">${button('quiz', '한 문제 더', 'primary')}${button(this.quizReturn, '돌아가기', 'secondary')}</div></section></div>`,
       'quiz-answer',
     );
   }
@@ -1222,7 +1231,7 @@ export class App {
     if (!STAGES.some(s => this.store.data.stages[s].maps.includes(id))) return;
     const [title, text] = MAP_STORIES[index];
     this.set(
-      `<div class="veil"><section class="panel story">${icon('map')}<span class="eyebrow">FRAGMENT ${String(index + 1).padStart(2, '0')}</span><h1 tabindex="-1">${title}</h1><p>${text}</p>${button('codex', '도감으로 돌아가기', 'primary')}</section></div>`,
+      `<div class="veil"><section class="panel story">${icon('map')}<span class="eyebrow">FRAGMENT ${String(index + 1).padStart(2, '0')}</span><h1 tabindex="-1">${title}</h1><p class="read-text">${text}</p>${readButton()}${button('codex', '도감으로 돌아가기', 'primary')}</section></div>`,
       'story',
     );
   }
@@ -1561,6 +1570,13 @@ export class App {
     },
     harbor: () => this.harbor(),
     quit: () => this.quit(),
+    'read-aloud': () => {
+      if (this.narrator.reading) this.narrator.stop();
+      else
+        this.narrator.read(
+          [...this.ui.querySelectorAll<HTMLElement>('.panel h1, .panel .read-text')].filter(e => e.textContent?.trim()),
+        );
+    },
     'close-tab': () => {
       try {
         window.close();

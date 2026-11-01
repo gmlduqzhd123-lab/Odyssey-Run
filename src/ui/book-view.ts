@@ -4,7 +4,7 @@ import {assetUrl as asset, PEOPLE, RELICS} from '../assets/catalog';
 import {PERSON_MYTHS} from '../levels/quiz';
 import {ENEMY_TYPES, type EnemyKind} from '../levels/enemies';
 import {MONSTER_ART} from '../assets/expansion-art';
-import {button} from './html';
+import {button, readButton} from './html';
 // The read-only book pages (maps, people, relics, monsters, artwork). Each takes the page header.
 export const TOTAL_MAPS = STAGES.length * 3;
 export function bookNav(active: string) {
@@ -58,7 +58,7 @@ export function peoplePage(header: string) {
 export function personPage(id: string) {
   const p = PEOPLE.find(person => person.id === id);
   if (!p) return null;
-  return `<div class="veil"><section class="panel character-story"><img class="character-portrait" src="${asset(p.id)}" alt="${p.name}"><span class="eyebrow">${p.role}</span><h1 tabindex="-1">${p.name}</h1><p>${p.story}</p>${PERSON_MYTHS[p.id] ? `<p class="myth-line"><b>『오디세이아』 속 이야기</b>${PERSON_MYTHS[p.id]}</p>` : ''}${button('people', '인물 도감으로 돌아가기', 'primary')}</section></div>`;
+  return `<div class="veil"><section class="panel character-story"><img class="character-portrait" src="${asset(p.id)}" alt="${p.name}"><span class="eyebrow">${p.role}</span><h1 tabindex="-1">${p.name}</h1><p class="read-text">${p.story}</p>${PERSON_MYTHS[p.id] ? `<p class="myth-line"><b>『오디세이아』 속 이야기</b><span class="read-text">${PERSON_MYTHS[p.id]}</span></p>` : ''}${readButton()}${button('people', '인물 도감으로 돌아가기', 'primary')}</section></div>`;
 }
 
 export function relicsPage(header: string) {
