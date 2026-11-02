@@ -3660,9 +3660,13 @@ body {
   position: absolute;
   top: 14px;
   left: 16px;
+  min-width: 24px;
+  padding: 0 6px;
+  border-radius: 12px;
   font-weight: 800;
+  text-align: center;
   color: #fff8e3;
-  text-shadow: 0 1px 3px #1d3b4c;
+  background: #1d3b4c;
 }
 .scene-panel {
   max-width: 760px;

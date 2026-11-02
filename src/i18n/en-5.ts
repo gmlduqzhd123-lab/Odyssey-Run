@@ -473,6 +473,7 @@ export const EN_5: Record<string, string> = {
   '스위치로 메뉴 고르기': 'Choose menus with a switch',
   '메뉴의 버튼이 차례로 하나씩 강조되고, Space나 Enter(보조 스위치)를 누르면 강조된 버튼을 골라요.':
     'Menu buttons are highlighted one at a time; press Space or Enter (an access switch) to choose the highlighted one.',
+  '예: 민준': 'e.g. Minjun',
   '배경음 크기': 'Music volume',
   '효과음·날씨 소리 크기': 'Effects & weather volume',
   '읽어 주기 크기': 'Read-aloud volume',

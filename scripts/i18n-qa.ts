@@ -78,7 +78,17 @@ try {
   await go('reset-confirm');
   await go('settings');
   await toHome();
-  for (const screen of ['islands', 'codex', 'journal', 'harbor', 'wardrobe', 'challenges', 'profiles', 'feats']) {
+  for (const screen of [
+    'islands',
+    'codex',
+    'journal',
+    'harbor',
+    'wardrobe',
+    'challenges',
+    'profiles',
+    'feats',
+    'chronicle',
+  ]) {
     await toHome();
     await go(screen);
   }
@@ -167,6 +177,26 @@ try {
   await scan(p, 'profile-delete');
   await go('profiles');
   await go('progress');
+  await go('worksheet');
+  await go('progress');
+  await p.locator('[data-action^="report:"]').first().click();
+  await scan(p, 'report');
+  await toHome();
+  await go('chronicle');
+  await go('scene:troy', 'scene');
+  await go('scene:troy:1', 'scene-2');
+  await toHome();
+  await go('challenges');
+  await go('duo');
+  await p.fill('#duo-a', 'A');
+  await p.fill('#duo-b', 'B');
+  await go('duo-start', 'duo-prepare');
+  await p.waitForSelector('[data-action="start"]');
+  await scan(p, 'duo-prepare');
+  await toHome();
+  await go('challenges');
+  await go('contests');
+  await go('gallery');
   await toHome();
   // The course maker, a check, the share page and a friend's course link.
   await go('challenges');
@@ -178,6 +208,15 @@ try {
   await p.goto(course);
   await p.waitForSelector('[data-action="maker-run"]');
   await scan(p, 'maker-received');
+  await go('gallery-add', 'gallery-added');
+  await go('gallery-run:0', 'gallery-run');
+  await toHome();
+  await go('challenges');
+  await go('contests');
+  await go('gallery');
+  await go('gallery-contest:0', 'gallery-contest');
+  await p.goto(course);
+  await p.waitForSelector('[data-action="maker-run"]');
   await go('maker-run', 'maker-prepare');
   await p.waitForSelector('[data-action="start"]');
   await scan(p, 'maker-prepare');

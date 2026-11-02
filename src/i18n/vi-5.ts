@@ -468,6 +468,7 @@ export const VI_5: Record<string, string> = {
   '스위치로 메뉴 고르기': 'Chọn menu bằng công tắc',
   '메뉴의 버튼이 차례로 하나씩 강조되고, Space나 Enter(보조 스위치)를 누르면 강조된 버튼을 골라요.':
     'Các nút trong menu lần lượt được tô sáng; nhấn Space hoặc Enter (công tắc hỗ trợ) để chọn nút đang sáng.',
+  '예: 민준': 'VD: Minjun',
   '배경음 크기': 'Âm lượng nhạc nền',
   '효과음·날씨 소리 크기': 'Âm lượng hiệu ứng và thời tiết',
   '읽어 주기 크기': 'Âm lượng đọc to',
