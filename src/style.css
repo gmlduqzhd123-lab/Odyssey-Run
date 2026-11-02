@@ -3622,3 +3622,65 @@ body {
   max-width: 760px;
   margin: 1rem auto;
 }
+/* The chronicle: chapter cards along a line, and one chapter's picture story. */
+.chronicle-line {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 5.2% 18px;
+  padding: 0;
+}
+.chapter-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 12px;
+  background: #ece6d4;
+  color: #4f5a50;
+}
+.chapter-card.open {
+  background: #fbf6e8;
+  outline: 2px solid #d9b45a;
+  color: #244c5a;
+}
+.chapter-art {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 7;
+  border-radius: 8px;
+  background: #d9cfb5;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+}
+.chapter-number {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  font-weight: 800;
+  color: #fff8e3;
+  text-shadow: 0 1px 3px #1d3b4c;
+}
+.scene-panel {
+  max-width: 760px;
+}
+.scene-art {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 7;
+  border-radius: 10px;
+  margin: 10px 0;
+}
+.scene-line {
+  font-size: 18px;
+  line-height: 1.7;
+  min-height: 3.4em;
+}
+@media (max-width: 700px) {
+  .chronicle-line {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
