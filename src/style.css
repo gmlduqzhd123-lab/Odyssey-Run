@@ -3778,3 +3778,40 @@ body {
     break-before: page;
   }
 }
+/* Weekly activity and the one-page student summary. */
+.activity {
+  background: #fbf6e8;
+  border: 1px solid #ddd3b8;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin: 14px 5.2%;
+}
+.activity h2 small {
+  font-size: 13px;
+  color: #5b6f66;
+  margin-left: 6px;
+}
+.activity-chart {
+  width: 100%;
+  max-width: 620px;
+  height: auto;
+}
+.activity-chart text {
+  fill: #36585c;
+}
+.report-names {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.report-islands {
+  columns: 2;
+  padding-left: 18px;
+}
+.note-lines {
+  min-height: 90px;
+  border-bottom: 1px solid #9c9176;
+}
+.student-report > .no-print {
+  margin: 0 5.2%;
+}

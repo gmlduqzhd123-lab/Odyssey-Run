@@ -24,6 +24,7 @@ import {Contests, contestLength, newContestId, type Entry} from '../storage/cont
 import {Gallery} from '../storage/gallery';
 import {galleryMarkup} from './gallery-view';
 import {worksheetMarkup} from './worksheet-view';
+import {activityMarkup, studentReportMarkup} from './report-view';
 import {
   backupAge,
   backupReminder,
@@ -1779,6 +1780,16 @@ export class App {
     ['person:', id => this.person(id)],
     ['contest-', arg => this.contestAction(...(arg.split(':') as [string, string]))],
     ['maker-', kind => this.makerAction(kind)],
+    [
+      'report:',
+      id => {
+        const r = this.profiles.progress().find(r => r.id === id);
+        if (!r) return;
+        this.abandon();
+        this.world.showHome();
+        this.set(studentReportMarkup(this.header('학생 요약', 'progress'), r, koreanDay()), 'report');
+      },
+    ],
     ['gallery-', arg => this.galleryAction(...(arg.split(':') as [string, string]))],
     ['profile-', arg => this.profileAction(...(arg.split(':') as [string, string]))],
     ['quiz-answer:', n => this.quizAnswer(Number(n))],
@@ -1812,7 +1823,9 @@ export class App {
           this.fleet(
             rows.reduce((n, r) => n + r.stars, 0),
             rows.length,
-          ) + quizReportMarkup(rows),
+          ) +
+            activityMarkup(rows, koreanDay()) +
+            quizReportMarkup(rows),
         ),
         'progress',
       );
