@@ -14,6 +14,7 @@ const guidance: Record<DamageKind, {name: string; hint: string}> = {
   rock: {name: '바위', hint: '바위 앞에서 점프해 넘어가 보세요.'},
   falling: {name: '낙석', hint: '금빛 경고 위치를 보고 바위에 닿기 전에 점프해 보세요.'},
   spikes: {name: '가시 함정', hint: '가시 앞에서 점프해 넘어가 보세요. 가시 위에는 내려앉지 않게요.'},
+  pounder: {name: '내려치는 기둥', hint: '기둥이 내려오기 전에 숙이기를 시작하고, 지나갈 때까지 유지해 보세요.'},
   fall: {
     name: '낭떠러지',
     hint: '틈의 앞에서 점프하고 공중 점프를 조금 늦게 눌러 보세요. 나무 다리는 밟으면 곧 무너져요.',

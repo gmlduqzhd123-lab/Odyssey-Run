@@ -11,6 +11,8 @@ import {REGIONS, sheetUrl} from '../assets/terrain';
 import {SCENERY_ART} from '../assets/scenery-art';
 import {CRUMBLE_DELAY} from '../levels/courses';
 import {decorFor, harborMix, type ViewId} from '../levels/scenery';
+import {FOG} from '../levels/weather';
+import {heroInfo} from '../systems/heroes';
 import {RUN_ART} from '../assets/runner-art';
 import {DISPLAY, type DisplayViewport} from '../rendering/display';
 import {CROUCH_ART, MONSTER_ART} from '../assets/expansion-art';
@@ -28,6 +30,8 @@ export interface SceneHost {
   density(): number;
   view(): DisplayViewport;
   cosmetics(): Preferences;
+  // The comparison voyage's position now, drawn as a see-through runner.
+  ghost(): {x: number; friend: boolean} | null;
 }
 const PAINTED_TOP: Record<string, number> = {'view-cave': 0.5, 'view-storm': 0.5, 'view-palace': 0.55};
 // The night route's painted stars would read as collectible starlight: cool them to blue.
@@ -36,7 +40,11 @@ export class World extends Phaser.Scene {
   private bg: Phaser.GameObjects.Image[][] = [];
   private ground!: Phaser.GameObjects.Graphics;
   private fx!: Phaser.GameObjects.Graphics;
+  // Rain, storm and fog: in front of the course, behind the hero and the warnings.
+  private weatherFx!: Phaser.GameObjects.Graphics;
   private hero!: Phaser.GameObjects.Image;
+  private ghost!: Phaser.GameObjects.Image;
+  private ghostTag!: Phaser.GameObjects.Text;
   private boat!: Phaser.GameObjects.Image;
   private giant!: Phaser.GameObjects.Image;
   private obstacles: Phaser.GameObjects.Image[] = [];
@@ -127,9 +135,24 @@ export class World extends Phaser.Scene {
     this.giant = this.add.image(-100, 440, 'boat').setOrigin(0.5, 1).setAlpha(0.8).setVisible(false);
     this.ground = this.add.graphics();
     this.fx = this.add.graphics();
+    this.weatherFx = this.add.graphics().setDepth(9);
     this.costume = this.add.graphics().setDepth(11);
     this.sailDecor = this.add.graphics().setDepth(2);
     this.boat = this.add.image(744, 444, 'boat').setDisplaySize(350, 230);
+    this.ghost = this.add.image(0, 440, 'odysseus').setDepth(8).setOrigin(0.5, 1).setAlpha(0.35).setVisible(false);
+    this.ghostTag = this.add
+      .text(0, 330, '', {
+        fontFamily: "'Odyssey UI', sans-serif",
+        testString: TEST_STRING,
+        fontSize: '13px',
+        color: '#eaf6ff',
+        stroke: '#20394b',
+        strokeThickness: 3,
+        resolution: this.host.density(),
+      })
+      .setOrigin(0.5)
+      .setDepth(8)
+      .setVisible(false);
     this.hero = this.add.image(744, 442, 'odysseus').setDepth(10).setOrigin(0.5, 1).setDisplaySize(180, 240);
     this.label = this.add
       .text(480, 275, '', {
@@ -223,8 +246,23 @@ export class World extends Phaser.Scene {
       this.groundArt.push(
         this.add.tileSprite(0, 440, 1, 33, 'terrain-sheet', 'ground-beach').setOrigin(0).setVisible(false),
       );
+    this.drawnTextures();
     this.giant.setTexture('giant');
     this.gameplayReady = true;
+  }
+  // Pieces with no painted art: the pounding column and the lift's cage, drawn once into textures.
+  private drawnTextures() {
+    if (this.textures.exists('pounder')) return;
+    const g = this.make.graphics({x: 0, y: 0}, false);
+    g.fillStyle(0x8c8a86).fillRect(10, 0, 54, 168);
+    g.fillStyle(0xa9a59d).fillRect(16, 0, 10, 168);
+    g.lineStyle(3, 0x5f5c58, 1);
+    for (let y = 24; y < 168; y += 36) g.lineBetween(10, y, 64, y);
+    g.fillStyle(0x6f6b66).fillRoundedRect(0, 160, 74, 30, 6);
+    g.fillStyle(0x4d4a46);
+    for (let x = 6; x < 74; x += 14) g.fillTriangle(x, 186, x + 7, 190, x + 14, 186);
+    g.generateTexture('pounder', 74, 190);
+    g.destroy();
   }
   showHome() {
     this.mode = 'home';
@@ -239,8 +277,12 @@ export class World extends Phaser.Scene {
       .setDisplaySize(180, 240)
       .setPosition(744, 442)
       .setRotation(0)
-      .setAlpha(1);
+      .setAlpha(1)
+      .clearTint();
     this.giant.setVisible(false);
+    this.ghost.setVisible(false);
+    this.ghostTag.setVisible(false);
+    this.weatherFx.clear();
     this.label.setText('');
     this.warning.setText('');
   }
@@ -265,6 +307,7 @@ export class World extends Phaser.Scene {
       .setScroll((width * (1 - d)) / (2 * d), (height * (1 - d)) / (2 * d) - v.extraHeight);
     this.bg.forEach(pair => pair.forEach(b => b.setDisplaySize(this.bgWidth, this.bgHeight)));
     if (this.label) this.label.setResolution(d);
+    if (this.ghostTag) this.ghostTag.setResolution(d);
     if (this.warning) this.warning.setResolution(d);
     this.bursts.forEach(b => b.text.setResolution(d).setX(v.width / 2));
     const context = this.game.canvas.getContext('2d');
@@ -310,7 +353,7 @@ export class World extends Phaser.Scene {
         o.kind === 'spikes'
           ? this.add.image(o.x, o.y, 'scenery', 'spikes').setOrigin(0).setDisplaySize(o.w, o.h)
           : this.add
-              .image(o.x, o.y, o.kind === 'falling' ? 'rock' : o.kind === 'hand' ? 'hand' : o.kind)
+              .image(o.x, o.y, o.kind === 'falling' ? 'rock' : o.kind)
               .setOrigin(0)
               .setDisplaySize(o.w, o.h),
       );
@@ -326,11 +369,19 @@ export class World extends Phaser.Scene {
               .image(p.x, p.y, 'scenery', 'crumble')
               .setOrigin(0, 0.12)
               .setDisplaySize(p.w + 36, ((p.w + 36) * SCENERY_ART.frames.crumble.h) / SCENERY_ART.frames.crumble.w)
-          : this.add
-              .image(p.x, p.y, 'terrain-sheet', 'wood-platform')
-              .setOrigin(0)
-              .setDisplaySize(p.w, 20)
-              .setTint(p.id.includes('branch') ? 0xf4d99c : p.id.includes('cloud') ? 0xe5efdc : 0xffffff),
+          : p.seesaw
+            ? this.add
+                .image(p.x, p.y, 'terrain-sheet', 'wood-platform')
+                .setOrigin(0.5, 0)
+                .setDisplaySize(p.w, 18)
+                .setTint(0xe8c48a)
+            : this.add
+                .image(p.x, p.y, 'terrain-sheet', 'wood-platform')
+                .setOrigin(0)
+                .setDisplaySize(p.w, 20)
+                .setTint(
+                  p.id.includes('branch') ? 0xf4d99c : p.id.includes('cloud') ? 0xe5efdc : p.lift ? 0xd9e6f0 : 0xffffff,
+                ),
       ),
     );
     run.enemyStates.forEach(e => {
@@ -381,6 +432,7 @@ export class World extends Phaser.Scene {
       trident: '삼지창 · 다음 몬스터 격퇴',
       lantern: '등불 · 공중 위협 방어 6초',
       compass: '나침반 · 안전지점 갱신',
+      moly: '몰리 약초 · 9초간 마법을 막아요',
       strike: '삼지창으로 격퇴!',
       hurt: '체력 −1',
       fall: '안전지점으로!',
@@ -392,7 +444,9 @@ export class World extends Phaser.Scene {
         this.view.width / 2,
         180,
         translate(
-          ['near', 'discovery', 'constellation', 'combo', 'route', 'highlight', 'trick', 'strike'].includes(kind)
+          ['near', 'discovery', 'constellation', 'combo', 'route', 'highlight', 'trick', 'strike', 'charm'].includes(
+            kind,
+          )
             ? message || words[kind] || '새로운 발견!'
             : words[kind] || '',
         ),
@@ -401,7 +455,7 @@ export class World extends Phaser.Scene {
           testString: TEST_STRING,
           fontStyle: 'bold',
           fontSize: '18px',
-          color: kind === 'hurt' ? '#ffb8a3' : '#ffebae',
+          color: kind === 'hurt' ? '#ffb8a3' : kind === 'charm' ? '#e6c8ff' : '#ffebae',
           stroke: '#20394b',
           strokeThickness: 4,
           resolution: this.host.density(),
@@ -419,7 +473,7 @@ export class World extends Phaser.Scene {
       this.backgroundScroll(1, 100);
       this.backgroundScroll(2, 0);
       this.boat.setPosition(this.view.width * 0.775, 410);
-      this.hero.setPosition(this.view.width * 0.775, 442);
+      this.hero.setPosition(this.view.width * 0.775, 442).setTint(heroInfo(this.host.cosmetics().hero).tint);
       this.ground.clear();
       this.fx.clear();
       this.drawCostume(this.view.width * 0.775, 442, false, true);
@@ -482,7 +536,9 @@ export class World extends Phaser.Scene {
     this.groundArt.forEach(s => s.setVisible(false));
     const groundSpan = (a: number, b: number) => {
       if (b <= a) return;
-      g.fillStyle(dark ? 0x505b68 : this.stage === 'wind' ? 0x9aaca5 : 0xcab28c).fillRect(a - cam, 440, b - a, 100);
+      g.fillStyle(
+        dark ? 0x505b68 : this.stage === 'wind' ? 0x9aaca5 : this.stage === 'circe' ? 0x8f9a7e : 0xcab28c,
+      ).fillRect(a - cam, 440, b - a, 100);
       g.fillStyle(dark ? 0x465360 : 0x81988e, 0.12).fillRect(a - cam, 516, b - a, 24);
       const band = this.groundArt[spanIndex++];
       if (band && b - a >= 1) {
@@ -524,6 +580,14 @@ export class World extends Phaser.Scene {
     this.platforms.forEach((s, i) => {
       const p = r.course.platforms[i],
         visible = p.x - cam + p.w + 40 > 0 && p.x - cam - 40 < this.view.width;
+      if (p.seesaw) {
+        // Pivot in the middle; the plank turns with the slope under the hero.
+        const mid = p.x + p.w / 2;
+        s.setPosition(mid - cam, r.seesawY(p, mid))
+          .setRotation(Math.atan(r.seesawSlope(p)))
+          .setVisible(visible);
+        return;
+      }
       if (!p.crumble) {
         s.setPosition(p.x - cam, r.platformY(p)).setVisible(visible);
         return;
@@ -569,22 +633,57 @@ export class World extends Phaser.Scene {
           hazardFirst
             ? hazard.kind === 'hand'
               ? '! 거인의 손 · 숙이기'
-              : hazard.kind === 'falling'
-                ? '! 낙석 · 점프'
-                : hazard.kind === 'spikes'
-                  ? '! 가시 함정 · 점프'
-                  : '! 위험 장애물 · 점프'
+              : hazard.kind === 'pounder'
+                ? '! 내려치는 기둥 · 숙이기'
+                : hazard.kind === 'falling'
+                  ? '! 낙석 · 점프'
+                  : hazard.kind === 'spikes'
+                    ? '! 가시 함정 · 점프'
+                    : '! 위험 장애물 · 점프'
             : incoming
               ? incoming.repelled
                 ? '등불이 지켜 주고 있어요'
                 : `! ${ENEMY_TYPES[incoming.kind].name} · ${ENEMY_TYPES[incoming.kind].hint}`
               : r.course.platforms.some(p => p.crumble && p.x - r.x <= 600 && p.x + p.w > r.x)
                 ? '! 무너지는 다리 · 점프로 건너기'
-                : '',
+                : r.course.platforms.some(p => p.lift && p.x - r.x <= 600 && p.x + p.w > r.x)
+                  ? '! 오르내리는 발판 · 낮을 때 올라타거나 점프'
+                  : r.course.spells?.some(z => z.x - r.x <= 600 && z.x + z.w > r.x)
+                    ? r.moly > 0
+                      ? `몰리 약초가 지켜 주고 있어요 · ${Math.ceil(r.moly)}초`
+                      : '! 키르케의 마법 · 2단 점프 봉인'
+                    : '',
         ),
       );
     const fx = this.fx;
     fx.clear();
+    // Circe's spell: a violet haze over the stretch, with slow sparkles; it thins once moly is eaten.
+    r.course.spells?.forEach(z => {
+      const x = z.x - cam;
+      if (x + z.w < 0 || x > this.view.width) return;
+      const strength = r.moly > 0 ? 0.08 : 0.2;
+      fx.fillStyle(0xb48ad8, strength).fillRect(x, 60, z.w, 380);
+      fx.fillStyle(0xe9d5ff, strength * 3);
+      for (let k = 0; k < z.w / 120; k++) {
+        const sx = x + 50 + k * 120,
+          sy = 160 + ((k * 53 + (reduced ? 0 : r.time * 25)) % 240);
+        if (sx > -10 && sx < this.view.width + 10) fx.fillCircle(sx, sy, 2.5);
+      }
+    });
+    r.course.platforms.forEach(p => {
+      const x = p.x - cam;
+      if (x + p.w < -20 || x > this.view.width + 20) return;
+      if (p.lift) {
+        const y = r.platformY(p);
+        fx.lineStyle(2, 0x6d6a64, 0.8)
+          .lineBetween(x + 6, 40, x + 6, y)
+          .lineBetween(x + p.w - 6, 40, x + p.w - 6, y);
+      } else if (p.seesaw) {
+        const mid = x + p.w / 2,
+          top = r.seesawY(p, p.x + p.w / 2) + 16;
+        fx.fillStyle(0x7a5a3a, 1).fillTriangle(mid, top, mid - 14, C.ground + 30, mid + 14, C.ground + 30);
+      }
+    });
     r.course.winds.forEach(w => {
       const x = w.x - cam;
       if (x + w.w < 0 || x > this.view.width) return;
@@ -614,6 +713,8 @@ export class World extends Phaser.Scene {
       fx.fillStyle(0xe8be72, 0.7).fillTriangle(x, 300, x - 6, 310, x + 6, 310);
     });
     this.drawAdventure(r, cam, reduced);
+    this.drawWeather(r, reduced);
+    this.drawGhost(r, cam);
     this.drawHero(r);
     this.drawCostume(this.view.heroX, r.y, r.sliding, false);
     if (r.shield) {
@@ -641,7 +742,7 @@ export class World extends Phaser.Scene {
       captionX = 590;
       caption =
         r.x < 1000
-          ? '이타카로 가는 여정, 출발!'
+          ? heroInfo(this.host.cosmetics().hero).start
           : this.stage === 'wind'
             ? '↑ 바람길에서 가볍게 뛰어 보세요'
             : r.x < 2100
@@ -672,6 +773,59 @@ export class World extends Phaser.Scene {
     this.label.setPosition((this.view.width * captionX) / 960, captionY);
     caption = translate(caption);
     if (this.label.text !== caption) this.label.setText(caption);
+  }
+  // The comparison voyage runs along the ground beside the hero; only its distance is recorded.
+  private drawGhost(r: Runner, cam: number) {
+    const g = this.host.ghost(),
+      x = g ? g.x - cam : -999,
+      show = !!g && x > -60 && x < this.view.width + 60 && Math.abs(g.x - r.x) > 12;
+    this.ghost.setVisible(show);
+    this.ghostTag.setVisible(show);
+    if (!show) return;
+    const i = Math.floor(r.time * RUN_ART.fps) % RUN_ART.frames.length,
+      f = RUN_ART.frames[i];
+    this.ghost
+      .setTexture('odysseus-run', `run-${i}`)
+      .setOrigin(f.originX, f.originY)
+      .setScale(RUN_ART.scale)
+      .setPosition(x, C.ground)
+      .setTint(g!.friend ? 0xffd9a8 : 0xbfe3ff);
+    const label = translate(g!.friend ? '친구' : '나의 최고');
+    if (this.ghostTag.text !== label) this.ghostTag.setText(label);
+    this.ghostTag.setPosition(x, C.ground - 100);
+  }
+  private drawWeather(r: Runner, reduced: boolean) {
+    const w = this.weatherFx,
+      top = -this.view.extraHeight,
+      height = this.view.height,
+      width = this.view.width;
+    w.clear();
+    if (r.weather === 'clear') return;
+    if (r.weather === 'fog') {
+      // Thin near the hero, thick toward the right edge; warnings are drawn above it.
+      const from = this.view.heroX + FOG.clear,
+        to = this.view.heroX + FOG.hidden;
+      // Thin slices with a smooth ramp, so the haze has no visible bands.
+      for (let x = from; x < width; x += 4) {
+        const t = Math.min(1, (x - from) / (to - from));
+        w.fillStyle(0xe8ecef, 0.88 * t * t * (3 - 2 * t)).fillRect(x, top, 4, height);
+      }
+      w.fillStyle(0xdfe5e8, 0.12).fillRect(0, top, width, height);
+      return;
+    }
+    const storm = r.weather === 'storm';
+    w.fillStyle(0x24364a, storm ? 0.22 : 0.12).fillRect(0, top, width, height);
+    w.lineStyle(storm ? 2 : 1.5, 0xd8e6f2, storm ? 0.55 : 0.45);
+    const drops = reduced ? 30 : storm ? 90 : 60,
+      slant = storm ? 18 : 6,
+      fall = reduced ? 0 : r.time * (storm ? 900 : 650);
+    for (let i = 0; i < drops; i++) {
+      const x = (i * 97 + (reduced ? 0 : r.time * 60)) % (width + 40),
+        y = top + ((i * 61 + fall) % (height + 40)) - 20;
+      w.lineBetween(x, y, x - slant, y + (storm ? 26 : 18));
+    }
+    // A short lightning flash every few seconds; never with reduced motion.
+    if (storm && !reduced && r.time % 7 < 0.1) w.fillStyle(0xffffff, 0.22).fillRect(0, top, width, height);
   }
   private drawAdventure(r: Runner, cam: number, reduced: boolean) {
     const fx = this.fx,
@@ -764,6 +918,34 @@ export class World extends Phaser.Scene {
       );
       g.lineStyle(2, 0xe4c373, 0.9).lineBetween(x - 24 * scale, cy + 26 * scale, x - 11 * scale, cy + 30 * scale);
     }
+    // Each playable hero wears one small sign: a traveller's hat, a veil or a crested helmet.
+    const head = cy - (crouch && !home ? 9 : 27) * scale;
+    if (c.hero === 'telemachus') {
+      g.fillStyle(0x8a6a3c, 1).fillEllipse(x + 2 * scale, head + 2 * scale, 30 * scale, 7 * scale);
+      g.fillStyle(0xa9844c, 1).fillEllipse(x + 2 * scale, head - 3 * scale, 15 * scale, 10 * scale);
+    } else if (c.hero === 'penelope') {
+      g.fillStyle(0xf3ecf6, 0.9).fillPoints(
+        [
+          {x: x - 6 * scale, y: head - 6 * scale},
+          {x: x + 8 * scale, y: head - 8 * scale},
+          {x: x - 4 * scale, y: head + 10 * scale},
+          {x: x - 18 * scale, y: head + 26 * scale},
+          {x: x - 14 * scale, y: head + 4 * scale},
+        ],
+        true,
+      );
+    } else if (c.hero === 'athena') {
+      g.fillStyle(0xb8bccb, 1).fillEllipse(x + 2 * scale, head, 20 * scale, 12 * scale);
+      g.fillStyle(0xc0503e, 1).fillPoints(
+        [
+          {x: x - 9 * scale, y: head - 4 * scale},
+          {x: x + 2 * scale, y: head - 16 * scale},
+          {x: x + 13 * scale, y: head - 4 * scale},
+          {x: x + 2 * scale, y: head - 8 * scale},
+        ],
+        true,
+      );
+    }
     if (c.emblem !== 'plain') {
       const fx = this.fx,
         bx = x + 9 * scale,
@@ -806,7 +988,8 @@ export class World extends Phaser.Scene {
       .setOrigin(p.originX, p.originY)
       .setPosition(this.view.heroX, p.anchorY)
       .setRotation(0)
-      .setAlpha(r.invincible > 0 ? 0.72 : 1);
+      .setAlpha(r.invincible > 0 ? 0.72 : 1)
+      .setTint(r.charmed ? 0xf3c6e4 : heroInfo(this.host.cosmetics().hero).tint);
     if (p.scale !== undefined) this.hero.setScale(p.scale);
     else this.hero.setDisplaySize(p.w, p.h);
   }

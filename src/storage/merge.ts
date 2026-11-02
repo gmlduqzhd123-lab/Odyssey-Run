@@ -2,6 +2,7 @@ import {STAGES} from '../levels/courses';
 import {validateSave, type CourseRecord, type RecordData, type Save} from './save';
 import type {Ghost} from './journal';
 import type {TrialRecord} from './expeditions';
+import {mergeFeats} from './feats';
 // Two tabs (or two copies of one sailor) can both play. Progress only ever grows, so merging
 // keeps the best of both: completion OR, best values max, discovered ids union. Settings and
 // cosmetics come from whichever copy was saved last.
@@ -68,6 +69,7 @@ export function mergeSaves(a: Save, b: Save): Save {
     .sort((x, y) => y.date.localeCompare(x.date))
     .slice(0, 14);
   out.quiz = union(a.quiz, b.quiz);
+  mergeFeats(a, b, out);
   out.endless = {};
   for (const id of STAGES) {
     const x = a.endless[id],

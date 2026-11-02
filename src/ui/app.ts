@@ -1,6 +1,6 @@
 import {Offline} from '../systems/offline';
 import {getLang, initialLang, LANGS, observe, setLang, translate, translateTree, type Lang} from '../i18n';
-import {dailySpec, dailyPassed, type DailySpec} from '../levels/daily';
+import {dailySpec, dailyPassed, koreanDay, type DailySpec} from '../levels/daily';
 import {COSMETICS, cosmeticUnlocked} from '../systems/cosmetics';
 import {BOSSES, BOSS_COURSES} from '../levels/bosses';
 import {mergeTrial} from '../storage/expeditions';
@@ -18,6 +18,7 @@ import {
   type ContestResult,
   type Link,
   type RivalLink,
+  type CourseLink,
 } from '../systems/share';
 import {Contests, newContestId, type Entry} from '../storage/contests';
 import {
@@ -33,7 +34,8 @@ import {dropSpareCopies, spareCopies, storageUse, STORAGE_LIMIT} from '../storag
 import {classBackup, readClassBackup, restoreClass, CLASS_BACKUP_LIMIT, type ClassBackup} from '../storage/backup';
 import {buildEndless, sectionsPassed, ENDLESS_SECTIONS} from '../levels/endless';
 import type {Course} from '../levels/courses';
-import {button, downloadFile, esc, icon} from './html';
+import {button, downloadFile, esc, icon, readButton} from './html';
+import {Narrator} from '../systems/narrator';
 import {
   bookNav,
   codexPage,
@@ -83,8 +85,19 @@ import {assetUrl, STAGE_RELIC} from '../assets/catalog';
 import {STAGE_VIEW, regionArt} from '../assets/terrain';
 import {displayDensity, displayViewport} from '../rendering/display';
 import {FrameWatch} from '../rendering/frame-watch';
+import {WEATHERS, STORM_SPEED, isWeather, type WeatherId} from '../levels/weather';
+import {HEROES, heroInfo, heroUnlocked} from '../systems/heroes';
+import {recordQuiz, recordRun} from '../storage/feats';
+import {featsMarkup} from './feats-view';
+import {defaultFleetGoal, fleetMarkup, quizReportCsv, quizReportMarkup} from './class-view';
+import {makerMarkup, makerReceivedMarkup, makerShareMarkup, type MakerDraft} from './maker-view';
+import {MAKER_SLOTS, buildCustom, checkCustom, isBlocks, randomBlocks, BLOCKS, type BlockId} from '../levels/maker';
 const asset = assetUrl;
 const SLOW_KEY = SAVE_KEY + ':slow-device';
+// The class fleet's goal belongs to the device (the teacher sets it), not to one sailor.
+const FLEET_KEY = SAVE_KEY + ':fleet-goal';
+// The course being built stays on this device between visits.
+const MAKER_KEY = SAVE_KEY + ':maker';
 // Logical width of the portrait game strip (4:3): closer than the landscape 960 so the hero and
 // hazards are drawn larger on a phone held upright.
 const PORTRAIT_VIEW = 720;
@@ -122,7 +135,9 @@ export class App {
   );
   private displayObserver: ResizeObserver;
   private daily: DailySpec | null = null;
-  private special: 'boss' | 'daily' | 'contest' | 'endless' | null = null;
+  private special: 'boss' | 'daily' | 'contest' | 'endless' | 'custom' | null = null;
+  private draft: MakerDraft | null = null;
+  private custom: Course | null = null;
   private endless: {course: Course; date: string} | null = null;
   private contests: Contests;
   private contest: ContestLink | null = null;
@@ -131,6 +146,7 @@ export class App {
   private importRequest = 0;
   private selectedGoal: GoalId = 'maps';
   private selectedVariant: VariantId = 'classic';
+  private selectedWeather: WeatherId = 'clear';
   private question: QuizQuestion | null = null;
   private quizReturn = 'islands';
   private rival: RivalLink | null = null;
@@ -139,6 +155,12 @@ export class App {
   private protectionAsked = false;
   private reminded = false;
   private frameWatch = new FrameWatch();
+  private narrator = new Narrator(reading => {
+    const b = this.ui.querySelector('[data-action="read-aloud"]');
+    if (!b) return;
+    b.setAttribute('aria-pressed', String(reading));
+    b.textContent = translate(reading ? '⏹ 그만 읽기' : '🔊 읽어 주기');
+  });
   constructor() {
     let storage: Storage | null = null;
     try {
@@ -206,6 +228,7 @@ export class App {
       density: () => this.renderDensity,
       view: () => this.view,
       cosmetics: () => this.store.data.preferences,
+      ghost: () => this.ghostNow(),
     });
     this.game = new Phaser.Game({
       type: Phaser.CANVAS,
@@ -316,6 +339,7 @@ export class App {
     n.hidden = !message;
   }
   private set(html: string, screen: string) {
+    this.narrator.stop();
     this.importRequest++;
     this.stopScanner();
     this.screen = screen;
@@ -373,7 +397,7 @@ export class App {
   }
   // Shared records arrive in the URL fragment; read once and drop it so a reload does not repeat it.
   private takeLink() {
-    if (!/^#[gcr]=/.test(location.hash)) return '';
+    if (!/^#[gcrm]=/.test(location.hash)) return '';
     const code = location.hash.slice(3);
     try {
       history.replaceState(null, '', location.pathname + location.search);
@@ -400,6 +424,7 @@ export class App {
   private openLink(link: Link) {
     if (link.kind === 'ghost') this.rivalPage(link);
     else if (link.kind === 'contest') this.contestJoin(link);
+    else if (link.kind === 'course') this.makerReceived(link);
     else this.contestCollect(link);
   }
   private contestRules(c: {stage: StageId | null; variant: VariantId | null; assist: boolean}) {
@@ -424,6 +449,100 @@ export class App {
     this.set(
       `<div class="veil"><section class="panel"><span class="eyebrow">CLASS CONTEST</span><h1 tabindex="-1">${esc(link.title)}</h1><p>${this.contestRules(link)}</p><p>항해사 <b>${esc(this.profiles.active.name)}</b> · 몇 번이든 다시 달릴 수 있고, 가장 좋은 기록을 보여 줄 수 있어요.</p>${button('start', '출발 →', 'primary large')}${button('home', '그만두기', 'secondary')}</section></div>`,
       'prepare',
+    );
+  }
+  // Student-built courses: drafts stay on this device; a passing course can be run and shared.
+  private loadDraft(): MakerDraft {
+    if (this.draft) return this.draft;
+    try {
+      const d = JSON.parse(this.storage?.getItem(MAKER_KEY) ?? 'null');
+      if (d && STAGES.includes(d.stage) && typeof d.blocks === 'string' && isBlocks(d.blocks))
+        return (this.draft = {stage: d.stage, blocks: d.blocks, title: String(d.title ?? '').slice(0, 12)});
+    } catch {}
+    return (this.draft = {stage: 'beach', blocks: 'f'.repeat(MAKER_SLOTS), title: ''});
+  }
+  // Reads the form back into the draft (the selects are the source while the page is open).
+  private readDraft() {
+    const d = this.loadDraft();
+    if (this.screen !== 'maker') return d;
+    const stage = this.ui.querySelector<HTMLSelectElement>('#maker-stage')?.value as StageId,
+      blocks = [...this.ui.querySelectorAll<HTMLSelectElement>('[data-slot]')].map(s => s.value).join('');
+    if (STAGES.includes(stage) && unlocked(this.store.data, stage)) d.stage = stage;
+    if (isBlocks(blocks)) d.blocks = blocks;
+    d.title = (this.ui.querySelector<HTMLInputElement>('#maker-title')?.value ?? '').trim().slice(0, 12);
+    try {
+      this.storage?.setItem(MAKER_KEY, JSON.stringify(d));
+    } catch {}
+    return d;
+  }
+  private maker(message = '') {
+    this.abandon();
+    this.world.showHome();
+    const d = this.loadDraft();
+    if (!unlocked(this.store.data, d.stage)) d.stage = 'beach';
+    this.set(
+      makerMarkup(this.header('코스 만들기', 'challenges'), d, id => unlocked(this.store.data, id), message),
+      'maker',
+    );
+  }
+  private makerCheck() {
+    const d = this.readDraft(),
+      r = checkCustom(buildCustom(d.stage, d.blocks, d.title || '나만의 코스'));
+    return {
+      ok: r.ok,
+      text: r.ok
+        ? `✓ 끝까지 갈 수 있는 코스예요! 별빛 ${r.stars}개를 모았어요.`
+        : `${r.slot + 1}번 칸(${BLOCKS[d.blocks[r.slot] as BlockId].name})에서 막혀요. 블록을 바꿔 보세요.`,
+    };
+  }
+  private makerAction(kind: string) {
+    const say = (text: string) => this.setText('#maker-message', text);
+    if (kind === 'random' || kind === 'clear') {
+      const d = this.readDraft();
+      d.blocks = kind === 'random' ? randomBlocks(Math.random, d.stage) : 'f'.repeat(MAKER_SLOTS);
+      this.maker(
+        kind === 'random' ? '무작위 코스를 만들었어요. 마음에 드는 칸만 바꿔도 돼요.' : '모든 칸을 평지로 바꿨어요.',
+      );
+      this.readDraft();
+    } else if (kind === 'check') say(this.makerCheck().text);
+    else if (kind === 'share') {
+      const c = this.makerCheck();
+      if (!c.ok) return say(c.text);
+      const d = this.readDraft(),
+        link: CourseLink = {kind: 'course', stage: d.stage, blocks: d.blocks, title: d.title || '나만의 코스'};
+      this.set(makerShareMarkup(d, linkUrl(link, location.href)), 'maker-share');
+    } else if (kind === 'run') void this.makerRun();
+  }
+  private async makerRun() {
+    const fromMaker = this.screen === 'maker';
+    if (fromMaker) {
+      const c = this.makerCheck();
+      if (!c.ok) return this.setText('#maker-message', c.text);
+    }
+    const d = this.readDraft();
+    if (!unlocked(this.store.data, d.stage)) return;
+    await this.prepare(d.stage);
+    if (this.screen !== 'prepare' || this.selected !== d.stage) return;
+    this.special = 'custom';
+    this.custom = buildCustom(d.stage, d.blocks, d.title || '나만의 코스');
+    this.set(
+      `<div class="veil"><section class="panel"><span class="eyebrow">BUILD YOUR OWN VOYAGE</span><h1 tabindex="-1">${esc(this.custom.name)}</h1><p>${COURSES[d.stage].name} · ${MAKER_SLOTS}칸 · 약 40초</p><p class="muted">나만의 코스는 기록·지도·해금에 반영하지 않아요.</p>${button('start', '출발 →', 'primary large')}${button('maker', '코스 만들기로', 'secondary')}</section></div>`,
+      'prepare',
+    );
+  }
+  private makerReceived(link: CourseLink) {
+    this.abandon();
+    this.world.showHome();
+    this.draft = {stage: link.stage, blocks: link.blocks, title: link.title};
+    this.set(makerReceivedMarkup(this.draft, unlocked(this.store.data, link.stage)), 'maker-received');
+  }
+  private finishCustom() {
+    const r = this.result!;
+    this.sound.setPlaying(false);
+    this.controls.clear();
+    this.set(
+      `<div class="veil"><section class="panel result special-result"><span class="eyebrow">BUILD YOUR OWN VOYAGE</span><h1 tabindex="-1">${r.complete ? '나만의 코스 완주!' : '다시, 한 번 더!'}</h1><p>${esc(this.custom?.name ?? '')}</p><div class="result-score"><span>이번 항해</span><strong>${r.score.toLocaleString()}</strong><small>별빛 ${r.stars} · HP 손실 ${r.hpLoss}회</small></div>${this.damageSummary()}<p class="muted">나만의 코스는 기록·지도·해금에 반영하지 않아요.</p><div class="button-row">${button('restart', '다시 달리기', 'primary')}${button('maker', '코스 고치기', 'secondary')}${button('maker-share', 'QR로 보내기', 'secondary')}</div></section></div>`,
+      'result',
     );
   }
   private endlessCards() {
@@ -461,6 +580,7 @@ export class App {
       bestScore: Math.max(old?.bestScore ?? 0, r.score),
       bestDistance: Math.max(old?.bestDistance ?? 0, Math.floor(r.distance)),
     };
+    this.store.data = recordRun(this.store.data, r, koreanDay(), {special: true, weather: false});
     this.store.data.endless[id] = record;
     this.store.persist();
     const meters = Math.floor(r.distance / 10),
@@ -600,6 +720,14 @@ export class App {
       'prepare',
     );
   }
+  // Where the comparison voyage is now: a friend's link first, else this sailor's best on the course.
+  private ghostNow(): {x: number; friend: boolean} | null {
+    const r = this.run;
+    if (!r || this.special || !this.store.data.preferences.ghostRunner) return null;
+    const rival = this.rivalFor(this.selected, r.variant),
+      x = ghostDistance(rival?.ghost ?? courseGhost(this.store.data, this.selected, r.variant), r.time);
+    return x === null ? null : {x, friend: !!rival};
+  }
   private rivalFor(stage: StageId, variant: VariantId) {
     const r = this.rival;
     return !this.special && r && r.stage === stage && r.variant === variant ? r : null;
@@ -644,7 +772,7 @@ export class App {
     this.world.showHome();
     const done = STAGES.every(id => this.store.data.stages[id].complete);
     this.set(
-      `<div class="home">${this.header('ODYSSEY RUN', 'home')}<div class="home-copy"><span class="eyebrow"><i></i> 작은 영웅의 긴 귀환</span><h1 tabindex="-1">오디세이 런<span>이타카로!</span></h1><p>별자리를 잇고, 숨은 이야기를 찾고,<br>우리만의 항구를 완성하러 떠나요.</p><div class="home-actions">${button('islands', '항해 시작 <span>↗</span>', 'primary large')}${button('codex', icon('map') + ' 지도 도감', 'secondary')}</div><div class="home-status">${done ? '⚑ 귀환 완료 · ' : ''}도장 ${this.store.data.journal.stamps.length}/${stampIds.length} · 별자리 ${this.store.data.journal.constellations.length}/${constellationIds.length} · 이야기 ${this.store.data.journal.stories.length}/${storyIds.length}</div>${this.offline?.waiting ? `<div class="update-bar" role="status"><span>새 버전이 준비됐어요.</span>${button('update', '지금 업데이트', 'secondary')}</div>` : ''}</div><div class="hero-caption"><span>ODYSSEUS</span><b>지혜로운 작은 영웅</b><i>“이번에는 꼭, 이타카로!”</i></div><div class="home-bottom">${button('challenges', '⚔ 특별 항해', 'text-button')}${button('wardrobe', '♧ 영웅의 옷장', 'text-button')}${button('harbor', '⚓ 나의 항구', 'text-button')}${button('journal', '✧ 모험 수첩', 'text-button')}${button('settings', '⚙ 설정', 'text-button')}${button('quit', '게임 종료', 'text-button')}</div></div>`,
+      `<div class="home">${this.header('ODYSSEY RUN', 'home')}<div class="home-copy"><span class="eyebrow"><i></i> 작은 영웅의 긴 귀환</span><h1 tabindex="-1">오디세이 런<span>이타카로!</span></h1><p>별자리를 잇고, 숨은 이야기를 찾고,<br>우리만의 항구를 완성하러 떠나요.</p><div class="home-actions">${button('islands', '항해 시작 <span>↗</span>', 'primary large')}${button('codex', icon('map') + ' 지도 도감', 'secondary')}</div><div class="home-status">${done ? '⚑ 귀환 완료 · ' : ''}도장 ${this.store.data.journal.stamps.length}/${stampIds.length} · 별자리 ${this.store.data.journal.constellations.length}/${constellationIds.length} · 이야기 ${this.store.data.journal.stories.length}/${storyIds.length}</div>${this.offline?.waiting ? `<div class="update-bar" role="status"><span>새 버전이 준비됐어요.</span>${button('update', '지금 업데이트', 'secondary')}</div>` : ''}</div><div class="hero-caption"><span>${this.hero().eyebrow}</span><b>${this.hero().title}</b><i>${this.hero().line}</i></div><div class="home-bottom">${button('challenges', '⚔ 특별 항해', 'text-button')}${button('wardrobe', '♧ 영웅의 옷장', 'text-button')}${button('harbor', '⚓ 나의 항구', 'text-button')}${button('journal', '✧ 모험 수첩', 'text-button')}${button('feats', '🏅 업적', 'text-button')}${button('settings', '⚙ 설정', 'text-button')}${button('quit', '게임 종료', 'text-button')}</div></div>`,
       'home',
     );
     if (!this.reminded) {
@@ -727,9 +855,25 @@ export class App {
         )
         .join(
           '',
-        )}</fieldset><p class="route-hint">↑ 높은 유적길: 별자리·이야기 / 아래: 익숙한 항로</p>${button('start', '이 섬 달리기 <span>→</span>', 'primary large')}<small>약 75초 · 몬스터 ${c.enemies.length}마리 · 아이템 8종 · 아이템 없이도 완주 가능</small></section></div>`,
+        )}</fieldset>${this.weatherPicker(id)}<p class="route-hint">↑ 높은 유적길: 별자리·이야기 / 아래: 익숙한 항로</p>${button('start', '이 섬 달리기 <span>→</span>', 'primary large')}<small>약 75초 · 몬스터 ${c.enemies.length}마리 · 아이템 8종 · 아이템 없이도 완주 가능</small></section></div>`,
       'prepare',
     );
+  }
+  // Weather opens once the island is complete; it changes the look (and the storm's pace) only.
+  private weatherPicker(id: StageId) {
+    const open = this.store.data.stages[id].complete;
+    if (!open) this.selectedWeather = 'clear';
+    return `<fieldset class="course-picker weather-picker" ${open ? '' : 'disabled'}><legend>날씨 · ${open ? '골라서 달려요' : '이 섬을 완주하면 열려요'}</legend>${(
+      Object.entries(WEATHERS) as [WeatherId, (typeof WEATHERS)[WeatherId]][]
+    )
+      .map(
+        ([w, meta]) =>
+          `<label><input type="radio" name="weather" value="${w}" ${w === this.selectedWeather ? 'checked' : ''}><span><b>${meta.icon} ${meta.name}</b><small>${meta.description}</small></span></label>`,
+      )
+      .join('')}</fieldset>`;
+  }
+  private weatherOn() {
+    return !this.special && this.store.data.stages[this.selected].complete ? this.selectedWeather : 'clear';
   }
   private coursePicker(id: StageId) {
     return `<fieldset class="course-picker"><legend>이번에 달릴 코스 · 섬마다 3개</legend>${VARIANTS.map(variant => {
@@ -756,10 +900,14 @@ export class App {
         ? BOSS_COURSES[this.selected]
         : this.special === 'endless' && this.endless
           ? this.endless.course
-          : undefined,
+          : this.special === 'custom' && this.custom
+            ? this.custom
+            : undefined,
       this.special === 'daily' && this.daily?.rule === 'no-shield' ? 'no-shield' : 'none',
     );
     this.run.autoSlide = this.assist().autoSlide;
+    this.run.weather = this.weatherOn();
+    if (this.run.weather === 'storm') this.run.speed = C.speed * STORM_SPEED;
     // Each day's voyage is painted with one of the five landscapes no island owns.
     if (this.special === 'daily' && this.daily)
       this.run.scenery = sceneryView(
@@ -785,7 +933,7 @@ export class App {
     ].filter(Boolean);
   }
   private hud() {
-    return `<div class="play-ui" tabindex="-1" role="group" aria-label="게임 조작" data-one-button="${this.assist().autoSlide}"><div class="hud"><div class="hp-block"><span class="hud-caption">오디세우스</span><strong id="hp" role="img" aria-label="체력 3"></strong></div><div class="route-progress"><span>${this.special === 'boss' ? BOSSES[this.selected].name : this.special === 'daily' ? '오늘의 항해 · ' + this.daily!.name : this.special === 'contest' ? '대회 · ' + esc(this.contest!.title) : this.special === 'endless' ? '끝없는 항해 · ' + COURSES[this.selected].name : COURSES[this.selected].name + ' · ' + VARIANT_LABELS[this.selected][this.selectedVariant].name}</span><progress id="progress" data-course="${this.selected}/${this.selectedVariant}" max="24000" value="0" aria-label="섬 진행률"></progress><i id="ghost-marker" hidden aria-label="비교 항해 위치"></i><small id="progress-label">0%</small></div><div class="score-block"><span class="hud-caption">SCORE</span><strong id="score">0</strong></div><div class="hud-actions">${button('fullscreen', '⛶', 'fullscreen-button', 'aria-label="전체 화면 전환"')}${button('pause', 'Ⅱ', 'pause-button', 'aria-label="일시정지"')}</div></div><div class="run-chips"><div class="run-details"><span id="stars">✦ 0 / 100</span><span id="maps">지도 0 / 3</span><span id="effects"></span>${this.assistLabel().length ? `<span class="assist-chip">쉬운 항해 · ${this.assistLabel().join(' · ')}</span>` : ''}</div><div class="adventure-hud"><span id="goal-progress"></span><span id="ghost-delta"></span><span id="discovery-progress"></span></div></div><div class="touch-controls"><button data-control="slide" class="control slide" aria-label="슬라이드, 누르고 유지"><span>⇣</span><b>슬라이드</b><small>↓ 누르기</small></button><button data-control="jump" class="control jump" aria-label="점프, 공중에서 다시 누르면 2단 점프"><span>↟</span><b>점프</b><small>Space / ↑</small></button></div></div>`;
+    return `<div class="play-ui" tabindex="-1" role="group" aria-label="게임 조작" data-one-button="${this.assist().autoSlide}"><div class="hud"><div class="hp-block"><span class="hud-caption">${this.hero().name}</span><strong id="hp" role="img" aria-label="체력 3"></strong></div><div class="route-progress"><span>${this.special === 'boss' ? BOSSES[this.selected].name : this.special === 'daily' ? '오늘의 항해 · ' + this.daily!.name : this.special === 'contest' ? '대회 · ' + esc(this.contest!.title) : this.special === 'endless' ? '끝없는 항해 · ' + COURSES[this.selected].name : this.special === 'custom' ? (this.custom?.name === '나만의 코스' ? '나만의 코스' : '나만의 코스 · ' + esc(this.custom?.name ?? '')) : COURSES[this.selected].name + ' · ' + VARIANT_LABELS[this.selected][this.selectedVariant].name}${this.weatherOn() === 'clear' ? '' : ` · ${WEATHERS[this.weatherOn()].icon} ${WEATHERS[this.weatherOn()].name}`}</span><progress id="progress" data-course="${this.selected}/${this.selectedVariant}" max="24000" value="0" aria-label="섬 진행률"></progress><i id="ghost-marker" hidden aria-label="비교 항해 위치"></i><small id="progress-label">0%</small></div><div class="score-block"><span class="hud-caption">SCORE</span><strong id="score">0</strong></div><div class="hud-actions">${button('fullscreen', '⛶', 'fullscreen-button', 'aria-label="전체 화면 전환"')}${button('pause', 'Ⅱ', 'pause-button', 'aria-label="일시정지"')}</div></div><div class="run-chips"><div class="run-details"><span id="stars">✦ 0 / 100</span><span id="maps">지도 0 / 3</span><span id="effects"></span>${this.assistLabel().length ? `<span class="assist-chip">쉬운 항해 · ${this.assistLabel().join(' · ')}</span>` : ''}</div><div class="adventure-hud"><span id="goal-progress"></span><span id="ghost-delta"></span><span id="discovery-progress"></span></div></div><div class="touch-controls"><button data-control="slide" class="control slide" aria-label="슬라이드, 누르고 유지"><span>⇣</span><b>슬라이드</b><small>↓ 누르기</small></button><button data-control="jump" class="control jump" aria-label="점프, 공중에서 다시 누르면 2단 점프"><span>↟</span><b>점프</b><small>Space / ↑</small></button></div></div>`;
   }
   private beginCountdown() {
     this.countdown = 3;
@@ -823,6 +971,7 @@ export class App {
     this.updateHud();
   }
   private suspend() {
+    this.narrator.stop();
     if (['play', 'countdown'].includes(this.screen)) this.pause();
     this.controls.clear();
     this.sound.setPlaying(false);
@@ -845,7 +994,10 @@ export class App {
       this.finishSpecial();
       return;
     }
-    this.store.data = mergeResult(this.store.data, this.result);
+    this.store.data = recordRun(mergeResult(this.store.data, this.result), this.result, koreanDay(), {
+      special: false,
+      weather: this.run.weather !== 'clear',
+    });
     this.store.persist();
     this.protect();
     this.sound.setPlaying(false);
@@ -856,7 +1008,7 @@ export class App {
       last = r.stage === STAGES.at(-1),
       next = STAGES[STAGES.indexOf(r.stage) + 1];
     this.set(
-      `<div class="veil result-veil"><section class="panel result"><span class="eyebrow">${r.complete ? icon('laurel') : ''} ${r.complete ? 'ISLAND COMPLETE' : 'THE JOURNEY CONTINUES'}</span><h1 tabindex="-1">${r.complete ? (last ? '마침내, 이타카!' : '멋진 항해였어요!') : r.stage === 'cave' ? '거인에게 잡혔어요!' : '다시, 한 걸음 더!'}</h1><p>${r.complete ? (last ? '오디세우스가 고향 항구에 도착했어요. 긴 모험을 함께해 줘서 고마워요.' : COURSES[r.stage].name + ' 완주! 다음 섬의 항로가 열렸어요.') : '괜찮아요. 익숙해질수록 더 멀리 갈 수 있어요.'}</p>${last && r.complete ? regionArt('view-ithaca', 'ending-art', '이타카 도착 항구') : ''}<p class="course-result-label">${VARIANT_LABELS[r.stage][r.variant ?? 'classic'].name}</p><div class="mission-badge">${r.adventure?.stamps.length ? '✓ 도전 도장 · ' + GOALS[this.selectedGoal].name : '◇ 다음 항해에서 도전에 다시 도전해요'}</div><div class="result-stars" aria-label="이번 평점 ${r.rating}점">${'★'.repeat(r.rating)}<em>${'☆'.repeat(3 - r.rating)}</em></div><div class="result-score"><span>이번 항해 점수</span><strong>${r.score.toLocaleString()}</strong><small>코스 최고 ${routeRecord.bestScore.toLocaleString()} ${r.score === routeRecord.bestScore ? '· NEW BEST' : ''}<br>섬 전체 최고 ${record.bestScore.toLocaleString()}</small></div>${this.rivalLine(r)}<div class="score-breakdown"><div><span>최고 전진거리</span><b>${Math.floor(r.distance / 10)}</b></div><div><span>별빛 ${r.stars} × 10</span><b>${r.stars * 10}</b></div><div><span>지도 ${r.maps.length} × 100</span><b>${r.maps.length * 100}</b></div><div><span>완주 보너스</span><b>${r.complete ? 500 : 0}</b></div></div><div class="result-summary"><span>♡ HP 손실 ${r.hpLoss}회</span><span>${icon('map')} 영구 지도 ${record.maps.length}/3</span></div>${this.damageSummary()}<small class="rating-help">완주 ★ · 별빛 70개 이상 ★ · HP 손실 0회 ★</small><div class="result-actions">${button('restart', '재도전', 'secondary')}${button('stage:' + r.stage, '다른 코스 고르기', 'secondary')}${r.complete && next ? button('stage:' + next, '다음 섬으로 →', 'primary') : button('islands', '섬 선택 →', 'primary')}</div>${r.complete && next ? button('islands', '섬 선택', 'text-button') : ''}${last && r.complete ? button('codex', '귀환의 지도 보기', 'text-button') : ''}<div class="adventure-result"><b>${r.adventure?.stamps.length ? '✓ 도전 성공! ' + GOALS[this.selectedGoal].name : '이번 도전: ' + GOALS[this.selectedGoal].name}</b><p>아슬아슬 회피 ${r.adventure?.nearMisses || 0} · 몬스터 회피 ${r.adventure?.evaded || 0} · 유도 격파 ${r.adventure?.tricked || 0}<br>별자리 ${r.adventure?.constellations.length || 0} · 이야기 ${r.adventure?.stories.length || 0} · 조합 ${r.adventure?.combos.length || 0}</p>${r.adventure ? button('share', '기록 공유 · QR', 'text-button') : ''}${button('quiz', '신화 퀴즈 한 문제', 'text-button')}${button('journal', '모험 수첩', 'text-button')}${button('harbor', '달라진 항구 보기', 'text-button')}${button('quit', '게임 종료', 'text-button')}</div></section></div>`,
+      `<div class="veil result-veil"><section class="panel result"><span class="eyebrow">${r.complete ? icon('laurel') : ''} ${r.complete ? 'ISLAND COMPLETE' : 'THE JOURNEY CONTINUES'}</span><h1 tabindex="-1">${r.complete ? (last ? '마침내, 이타카!' : '멋진 항해였어요!') : r.stage === 'cave' ? '거인에게 잡혔어요!' : '다시, 한 걸음 더!'}</h1><p>${r.complete ? (last ? '오디세우스가 고향 항구에 도착했어요. 긴 모험을 함께해 줘서 고마워요.' : COURSES[r.stage].name + ' 완주! 다음 섬의 항로가 열렸어요.') : '괜찮아요. 익숙해질수록 더 멀리 갈 수 있어요.'}</p>${last && r.complete ? regionArt('view-ithaca', 'ending-art', '이타카 도착 항구') : ''}<p class="course-result-label">${VARIANT_LABELS[r.stage][r.variant ?? 'classic'].name}${this.run?.weather && this.run.weather !== 'clear' ? ` · ${WEATHERS[this.run.weather].icon} ${WEATHERS[this.run.weather].name}` : ''}</p><div class="mission-badge">${r.adventure?.stamps.length ? '✓ 도전 도장 · ' + GOALS[this.selectedGoal].name : '◇ 다음 항해에서 도전에 다시 도전해요'}</div><div class="result-stars" aria-label="이번 평점 ${r.rating}점">${'★'.repeat(r.rating)}<em>${'☆'.repeat(3 - r.rating)}</em></div><div class="result-score"><span>이번 항해 점수</span><strong>${r.score.toLocaleString()}</strong><small>코스 최고 ${routeRecord.bestScore.toLocaleString()} ${r.score === routeRecord.bestScore ? '· NEW BEST' : ''}<br>섬 전체 최고 ${record.bestScore.toLocaleString()}</small></div>${this.rivalLine(r)}<div class="score-breakdown"><div><span>최고 전진거리</span><b>${Math.floor(r.distance / 10)}</b></div><div><span>별빛 ${r.stars} × 10</span><b>${r.stars * 10}</b></div><div><span>지도 ${r.maps.length} × 100</span><b>${r.maps.length * 100}</b></div><div><span>완주 보너스</span><b>${r.complete ? 500 : 0}</b></div></div><div class="result-summary"><span>♡ HP 손실 ${r.hpLoss}회</span><span>${icon('map')} 영구 지도 ${record.maps.length}/3</span></div>${this.damageSummary()}<small class="rating-help">완주 ★ · 별빛 70개 이상 ★ · HP 손실 0회 ★</small><div class="result-actions">${button('restart', '재도전', 'secondary')}${button('stage:' + r.stage, '다른 코스 고르기', 'secondary')}${r.complete && next ? button('stage:' + next, '다음 섬으로 →', 'primary') : button('islands', '섬 선택 →', 'primary')}</div>${r.complete && next ? button('islands', '섬 선택', 'text-button') : ''}${last && r.complete ? button('codex', '귀환의 지도 보기', 'text-button') : ''}<div class="adventure-result"><b>${r.adventure?.stamps.length ? '✓ 도전 성공! ' + GOALS[this.selectedGoal].name : '이번 도전: ' + GOALS[this.selectedGoal].name}</b><p>아슬아슬 회피 ${r.adventure?.nearMisses || 0} · 몬스터 회피 ${r.adventure?.evaded || 0} · 유도 격파 ${r.adventure?.tricked || 0}<br>별자리 ${r.adventure?.constellations.length || 0} · 이야기 ${r.adventure?.stories.length || 0} · 조합 ${r.adventure?.combos.length || 0}</p>${r.adventure ? button('share', '기록 공유 · QR', 'text-button') : ''}${button('quiz', '신화 퀴즈 한 문제', 'text-button')}${button('journal', '모험 수첩', 'text-button')}${button('feats', '업적·주간 도전', 'text-button')}${button('harbor', '달라진 항구 보기', 'text-button')}${button('quit', '게임 종료', 'text-button')}</div></section></div>`,
       'result',
     );
   }
@@ -866,11 +1018,24 @@ export class App {
     const diff = r.score - rival.score;
     return `<p class="rival-result"><b>친구 ‘${esc(rival.name)}’ ${rival.score.toLocaleString()}점</b> · ${diff > 0 ? `${diff.toLocaleString()}점 앞섰어요!` : diff === 0 ? '똑같은 점수예요!' : `${(-diff).toLocaleString()}점 차이, 다시 도전해 봐요`}</p>`;
   }
+  private hero() {
+    return heroInfo(this.store.data.preferences.hero);
+  }
+  private heroChoices() {
+    const p = this.store.data.preferences;
+    return `<section class="trial-card hero-choices"><h2>달리는 영웅</h2><p class="muted">누가 달려도 점프·속도·점수는 똑같아요. 모습과 대사만 바뀌어요.</p><div class="hero-grid">${HEROES.map(
+      h => {
+        const open = heroUnlocked(this.store.data, h.id),
+          selected = p.hero === h.id;
+        return `<button data-action="hero:${h.id}" class="cosmetic-choice hero-choice ${selected ? 'equipped' : ''}" aria-pressed="${selected}" ${open ? '' : 'disabled'}><img src="${asset(h.id)}" alt="" loading="lazy" decoding="async"><span>${h.name}<small>${selected ? '✓ 달리는 중' : open ? h.line : '🔒 ' + h.requirement}</small></span></button>`;
+      },
+    ).join('')}</div></section>`;
+  }
   private wardrobe() {
     this.abandon();
     this.world.showHome();
     this.set(
-      `<div class="page wardrobe">${this.header('영웅의 옷장')}<div class="page-heading"><span class="eyebrow">EARNED ON YOUR JOURNEY</span><h1 tabindex="-1">모험의 색을 입어요</h1><p>성과를 달성하면 자동으로 열려요. 점수는 소비하지 않고 능력치도 바뀌지 않아요.</p></div><div class="trial-grid">${(
+      `<div class="page wardrobe">${this.header('영웅의 옷장')}<div class="page-heading"><span class="eyebrow">EARNED ON YOUR JOURNEY</span><h1 tabindex="-1">모험의 색을 입어요</h1><p>성과를 달성하면 자동으로 열려요. 점수는 소비하지 않고 능력치도 바뀌지 않아요.</p></div>${this.heroChoices()}<div class="trial-grid">${(
         ['cape', 'emblem', 'sail'] as const
       )
         .map(
@@ -901,7 +1066,7 @@ export class App {
         },
       ).join(
         '',
-      )}</div>${this.endlessCards()}${this.dailyCard()}<section class="daily-card"><span class="eyebrow">FOR TEACHERS</span><h2>교사용 대회</h2><p>코스를 정해 QR로 학생을 초대하고, 결과 QR을 찍어 순위를 모아요.</p>${button('contests', '대회 열기·순위 보기', 'secondary')}</section></div>`,
+      )}</div>${this.endlessCards()}${this.dailyCard()}<section class="daily-card"><span class="eyebrow">BUILD YOUR OWN VOYAGE</span><h2>⚒ 나만의 코스 만들기</h2><p>열 칸에 블록을 골라 코스를 만들고 QR로 친구에게 보내요.</p>${button('maker', '코스 만들기', 'primary')}</section><section class="daily-card"><span class="eyebrow">FOR TEACHERS</span><h2>교사용 대회</h2><p>코스를 정해 QR로 학생을 초대하고, 결과 QR을 찍어 순위를 모아요.</p>${button('contests', '대회 열기·순위 보기', 'secondary')}</section></div>`,
       'challenges',
     );
   }
@@ -944,6 +1109,10 @@ export class App {
       this.finishEndless();
       return;
     }
+    if (this.special === 'custom') {
+      this.finishCustom();
+      return;
+    }
     const r = this.result!,
       e = this.store.data.expeditions,
       boss = this.special === 'boss',
@@ -969,6 +1138,8 @@ export class App {
         .slice(0, 14);
       best = record.bestScore;
     }
+    // After the trial is merged: recordRun returns a copy, and e points into the current one.
+    this.store.data = recordRun(this.store.data, r, koreanDay(), {special: true, weather: false});
     this.store.persist();
     this.set(
       `<div class="veil"><section class="panel result special-result"><span class="eyebrow">${boss ? 'BOSS ENCOUNTER' : 'TODAY’S VOYAGE · ' + this.daily!.date}</span><h1 tabindex="-1">${passed ? (boss ? '보스의 패턴을 돌파했어요!' : '오늘의 항해 성공!') : r.complete ? '완주했어요! 다음엔 조건도 달성해 봐요' : '다시, 패턴을 읽어 봐요'}</h1><p>${boss ? BOSSES[r.stage].name : this.daily!.name}</p><div class="result-score"><strong>${r.score}</strong><small>이 도전의 최고 ${best}점</small></div><p>HP 손실 ${r.hpLoss}회 · 별빛 ${r.stars}개 · ${Math.floor(r.distance / 10)}m / ${this.run!.length / 10}m</p>${!boss && !passed ? `<p>${this.daily!.description}</p>` : ''}${this.damageSummary()}<p>일반 최고 기록·지도·섬 해금에는 반영하지 않아요.</p><div class="button-row">${button('restart', '재도전', 'primary')}${button('challenges', '특별 항해', 'secondary')}${button('home', '시작 화면', 'secondary')}</div>${button('quiz', '신화 퀴즈 한 문제', 'text-button')}</section></div>`,
@@ -1010,7 +1181,7 @@ export class App {
     this.world.showHome();
     const j = this.store.data.journal;
     this.set(
-      `<div class="page journal">${this.header('모험 수첩')}<div class="page-heading"><span class="eyebrow">YOUR OWN ODYSSEY</span><h1 tabindex="-1">나만의 모험을 채워요</h1><p>도전 도장과 발견은 결과 화면에서 기록돼요. 점수와 별빛을 소비하지 않아요.</p></div>${bookNav('journal')}${journalCards(j)}<section class="journal-section"><h2>다시 달릴 항로</h2><p>${STAGES.map(id => `${COURSES[id].name}: ${j.routes.includes(id + '-upper') ? '✓ 높은 길' : '○ 높은 길'} · ${j.routes.includes(id + '-lower') ? '✓ 아래 길' : '○ 아래 길'}`).join('<br>')}</p></section><section class="journal-section"><h2>신화 퀴즈</h2><p>맞힌 문제 ${this.store.data.quiz.length} / ${QUIZ.length}</p>${button('quiz', '한 문제 풀기', 'secondary')}</section><div class="page-foot">${button('islands', '다음 모험으로 →', 'primary')}</div></div>`,
+      `<div class="page journal">${this.header('모험 수첩')}<div class="page-heading"><span class="eyebrow">YOUR OWN ODYSSEY</span><h1 tabindex="-1">나만의 모험을 채워요</h1><p>도전 도장과 발견은 결과 화면에서 기록돼요. 점수와 별빛을 소비하지 않아요.</p></div>${bookNav('journal')}${journalCards(j)}<section class="journal-section"><h2>다시 달릴 항로</h2><p>${STAGES.map(id => `${COURSES[id].name}: ${j.routes.includes(id + '-upper') ? '✓ 높은 길' : '○ 높은 길'} · ${j.routes.includes(id + '-lower') ? '✓ 아래 길' : '○ 아래 길'}`).join('<br>')}</p></section><section class="journal-section"><h2>신화 퀴즈</h2><p>맞힌 문제 ${this.store.data.quiz.length} / ${QUIZ.length}</p>${button('quiz', '한 문제 풀기', 'secondary')}</section><section class="journal-section"><h2>업적과 주간 도전</h2><p>배지·이번 주 도전·항해 달력을 한눈에 봐요.</p>${button('feats', '업적 보기', 'secondary')}</section><div class="page-foot">${button('islands', '다음 모험으로 →', 'primary')}</div></div>`,
       'journal',
     );
   }
@@ -1032,7 +1203,7 @@ export class App {
       .find(s => s.id === id);
     if (!story || !this.store.data.journal.stories.includes(id)) return;
     this.set(
-      `<div class="veil"><section class="panel story"><span class="eyebrow">HIDDEN WORDS</span><h1 tabindex="-1">${story.title}</h1><p>${story.story}</p>${button('journal', '모험 수첩으로', 'primary')}</section></div>`,
+      `<div class="veil"><section class="panel story"><span class="eyebrow">HIDDEN WORDS</span><h1 tabindex="-1">${story.title}</h1><p class="read-text">${story.story}</p>${readButton()}${button('journal', '모험 수첩으로', 'primary')}</section></div>`,
       'discovery',
     );
   }
@@ -1041,7 +1212,42 @@ export class App {
     this.world.showHome();
     const board = this.profiles.board(),
       active = this.profiles.active.id;
-    this.set(profilesMarkup(this.header('항해사'), board, active, this.profiles.book.list.length, message), 'profiles');
+    this.set(
+      profilesMarkup(
+        this.header('항해사'),
+        board,
+        active,
+        this.profiles.book.list.length,
+        message,
+        this.fleet(
+          board.reduce((n, p) => n + p.stars, 0),
+          board.length,
+        ),
+      ),
+      'profiles',
+    );
+  }
+  private fleetGoal(sailors: number) {
+    try {
+      const n = Number(this.storage?.getItem(FLEET_KEY));
+      if (Number.isSafeInteger(n) && n >= 50 && n <= 100_000) return n;
+    } catch {}
+    return defaultFleetGoal(sailors);
+  }
+  private fleet(stars: number, sailors: number) {
+    return fleetMarkup(stars, this.fleetGoal(sailors), sailors);
+  }
+  private setFleetGoal() {
+    const n = Math.round(Number(this.ui.querySelector<HTMLInputElement>('#fleet-goal')?.value) / 50) * 50;
+    if (!Number.isFinite(n) || n < 50 || n > 100_000) {
+      this.notice('함대 목표는 별빛 50에서 100,000 사이로 정해 주세요.');
+      return;
+    }
+    try {
+      this.storage?.setItem(FLEET_KEY, String(n));
+    } catch {}
+    if (this.screen === 'progress') this.routes.progress();
+    else this.profilesPage('함대 목표를 바꿨어요.');
   }
   private switchProfile(id: string, message: string) {
     if (!this.profiles.use(id)) {
@@ -1104,7 +1310,7 @@ export class App {
     this.question = pool[Math.floor(Math.random() * pool.length)];
     const q = this.question;
     this.set(
-      `<div class="veil"><section class="panel quiz-panel"><span class="eyebrow">MYTH QUIZ · 맞힌 문제 ${done.length}/${QUIZ.length}</span><h1 tabindex="-1">${q.question}</h1><div class="quiz-options">${q.options.map((o, i) => button('quiz-answer:' + i, `<b>${'ABC'[i]}</b> ${o}`, 'secondary')).join('')}</div>${button(this.quizReturn, '그만 풀기', 'text-button')}<small>점수·해금과 상관없이 언제든 풀 수 있어요.</small></section></div>`,
+      `<div class="veil"><section class="panel quiz-panel"><span class="eyebrow">MYTH QUIZ · 맞힌 문제 ${done.length}/${QUIZ.length}</span><h1 tabindex="-1">${q.question}</h1><div class="quiz-options">${q.options.map((o, i) => button('quiz-answer:' + i, `<b>${'ABC'[i]}</b> ${o}`, 'secondary')).join('')}</div>${readButton()}${button(this.quizReturn, '그만 풀기', 'text-button')}<small>점수·해금과 상관없이 언제든 풀 수 있어요.</small></section></div>`,
       'quiz',
     );
   }
@@ -1112,12 +1318,11 @@ export class App {
     const q = this.question;
     if (!q || this.screen !== 'quiz') return;
     const right = choice === q.answer;
-    if (right && !this.store.data.quiz.includes(q.id)) {
-      this.store.data.quiz.push(q.id);
-      this.store.persist();
-    }
+    this.store.data = recordQuiz(this.store.data, q.id, choice, koreanDay());
+    if (right && !this.store.data.quiz.includes(q.id)) this.store.data.quiz.push(q.id);
+    this.store.persist();
     this.set(
-      `<div class="veil"><section class="panel quiz-panel" data-correct="${right}"><span class="eyebrow">MYTH QUIZ · 맞힌 문제 ${this.store.data.quiz.length}/${QUIZ.length}</span><h1 tabindex="-1">${right ? '정답이에요!' : '아쉬워요, 다음엔 맞힐 수 있어요'}</h1><p><b>정답: ${q.options[q.answer]}</b></p><p>${q.explain}</p><div class="button-row">${button('quiz', '한 문제 더', 'primary')}${button(this.quizReturn, '돌아가기', 'secondary')}</div></section></div>`,
+      `<div class="veil"><section class="panel quiz-panel" data-correct="${right}"><span class="eyebrow">MYTH QUIZ · 맞힌 문제 ${this.store.data.quiz.length}/${QUIZ.length}</span><h1 tabindex="-1">${right ? '정답이에요!' : '아쉬워요, 다음엔 맞힐 수 있어요'}</h1><p><b>정답: ${q.options[q.answer]}</b></p><p class="read-text">${q.explain}</p>${readButton()}<div class="button-row">${button('quiz', '한 문제 더', 'primary')}${button(this.quizReturn, '돌아가기', 'secondary')}</div></section></div>`,
       'quiz-answer',
     );
   }
@@ -1135,7 +1340,7 @@ export class App {
     if (!STAGES.some(s => this.store.data.stages[s].maps.includes(id))) return;
     const [title, text] = MAP_STORIES[index];
     this.set(
-      `<div class="veil"><section class="panel story">${icon('map')}<span class="eyebrow">FRAGMENT 0${index + 1}</span><h1 tabindex="-1">${title}</h1><p>${text}</p>${button('codex', '도감으로 돌아가기', 'primary')}</section></div>`,
+      `<div class="veil"><section class="panel story">${icon('map')}<span class="eyebrow">FRAGMENT ${String(index + 1).padStart(2, '0')}</span><h1 tabindex="-1">${title}</h1><p class="read-text">${text}</p>${readButton()}${button('codex', '도감으로 돌아가기', 'primary')}</section></div>`,
       'story',
     );
   }
@@ -1300,12 +1505,21 @@ export class App {
       this.selectedVariant = input.value;
       return;
     }
+    if (input.name === 'weather' && isWeather(input.value) && this.screen === 'prepare') {
+      this.selectedWeather = input.value;
+      return;
+    }
     if (input.name === 'goal' && Object.hasOwn(GOALS, input.value)) {
       this.selectedGoal = input.value as GoalId;
       return;
     }
     if (input.hasAttribute('data-autofs')) {
       this.store.data.preferences.autoFullscreen = input.checked;
+      this.store.persist();
+      return;
+    }
+    if (input.hasAttribute('data-ghost')) {
+      this.store.data.preferences.ghostRunner = input.checked;
       this.store.persist();
       return;
     }
@@ -1353,7 +1567,7 @@ export class App {
     const active = () =>
       !this.destroyed && request === this.importRequest && this.screen === 'settings' && input.isConnected;
     try {
-      const raw = await readJsonFile(file, 65536, '기록 파일은 64KiB 이하여야 해요.');
+      const raw = await readJsonFile(file, 131072, '기록 파일은 128KiB 이하여야 해요.');
       if (!active()) return;
       this.imported = validateSave(raw);
       this.importPreview();
@@ -1397,6 +1611,7 @@ export class App {
   private readonly argRoutes: [string, (arg: string) => void][] = [
     ['download-stage:', id => STAGES.includes(id as StageId) && void this.offline.download(id as StageId)],
     ['equip:', arg => this.equip(arg)],
+    ['hero:', id => this.chooseHero(id)],
     ['endless:', id => STAGES.includes(id as StageId) && void this.prepareEndless(id as StageId)],
     ['boss:', id => STAGES.includes(id as StageId) && void this.prepareBoss(id as StageId)],
     ['discovery:', id => this.discovery(id)],
@@ -1404,6 +1619,7 @@ export class App {
     ['sheet:', id => this.sheet(id)],
     ['person:', id => this.person(id)],
     ['contest-', arg => this.contestAction(...(arg.split(':') as [string, string]))],
+    ['maker-', kind => this.makerAction(kind)],
     ['profile-', arg => this.profileAction(...(arg.split(':') as [string, string]))],
     ['quiz-answer:', n => this.quizAnswer(Number(n))],
     ['story:', n => this.story(Number(n))],
@@ -1426,11 +1642,27 @@ export class App {
     progress: () => {
       this.abandon();
       this.world.showHome();
+      const rows = this.profiles.progress();
       this.set(
-        progressMarkup(this.header('학생별 진행 현황', 'profiles'), this.profiles.progress(), this.offline.version),
+        progressMarkup(
+          this.header('학생별 진행 현황', 'profiles'),
+          rows,
+          this.offline.version,
+          this.fleet(
+            rows.reduce((n, r) => n + r.stars, 0),
+            rows.length,
+          ) + quizReportMarkup(rows),
+        ),
         'progress',
       );
     },
+    'fleet-goal': () => this.setFleetGoal(),
+    'quiz-csv': () =>
+      this.download(
+        quizReportCsv(this.profiles.progress()),
+        `odyssey-run-quiz-${new Date().toISOString().slice(0, 10).replaceAll('-', '')}.csv`,
+        'text/csv;charset=utf-8',
+      ),
     'progress-csv': () =>
       this.download(
         progressCsv(this.profiles.progress()),
@@ -1438,11 +1670,24 @@ export class App {
         'text/csv;charset=utf-8',
       ),
     contests: () => this.contestsPage(),
+    maker: () => this.maker(),
     daily: () => void this.prepareDaily(),
     challenges: () => this.challenges(),
     journal: () => this.journal(),
+    feats: () => {
+      this.abandon();
+      this.world.showHome();
+      this.set(featsMarkup(this.header('업적'), this.store.data, koreanDay()), 'feats');
+    },
     harbor: () => this.harbor(),
     quit: () => this.quit(),
+    'read-aloud': () => {
+      if (this.narrator.reading) this.narrator.stop();
+      else
+        this.narrator.read(
+          [...this.ui.querySelectorAll<HTMLElement>('.panel h1, .panel .read-text')].filter(e => e.textContent?.trim()),
+        );
+    },
     'close-tab': () => {
       try {
         window.close();
@@ -1526,6 +1771,13 @@ export class App {
       entry = COSMETICS.find(c => c.slot === slot && c.id === id);
     if (!entry || !cosmeticUnlocked(this.store.data, id)) return;
     this.store.data.preferences[entry.slot] = entry.id as never;
+    this.store.persist();
+    this.wardrobe();
+  }
+  private chooseHero(id: string) {
+    const h = HEROES.find(h => h.id === id);
+    if (!h || !heroUnlocked(this.store.data, h.id) || this.screen !== 'wardrobe') return;
+    this.store.data.preferences.hero = h.id;
     this.store.persist();
     this.wardrobe();
   }
@@ -1673,9 +1925,11 @@ export class App {
       '#maps',
       this.special === 'boss'
         ? '⚔ 3단계 돌파'
-        : this.special === 'endless'
-          ? `∞ ${sectionsPassed(r.maxDistance)}구간`
-          : `지도 ${r.maps.size} / 3`,
+        : this.special === 'custom'
+          ? '⚒ 나만의 코스'
+          : this.special === 'endless'
+            ? `∞ ${sectionsPassed(r.maxDistance)}구간`
+            : `지도 ${r.maps.size} / 3`,
     );
     const g = GOALS[r.goal];
     this.setText(
@@ -1685,9 +1939,11 @@ export class App {
           ? '⚔ 보스 도전 · 예고를 읽어요'
           : this.special === 'contest'
             ? `⚑ 대회 · ${this.contest!.title}`
-            : this.special === 'endless'
-              ? `∞ 끝없는 항해 · ${this.endless!.date} 순서`
-              : `◇ 오늘의 항해 · ${this.daily!.name}`
+            : this.special === 'custom'
+              ? `⚒ ${this.custom?.name ?? ''}`
+              : this.special === 'endless'
+                ? `∞ 끝없는 항해 · ${this.endless!.date} 순서`
+                : `◇ 오늘의 항해 · ${this.daily!.name}`
         : `${r.goalComplete ? '✓' : '◇'} ${g.name} ${Math.min(g.target, r.goalProgress)}/${g.target}`,
     );
     this.setText('#discovery-progress', `✧ 별자리 ${r.constellations.size}/3 · 회피 ${r.nearMisses.size}`);

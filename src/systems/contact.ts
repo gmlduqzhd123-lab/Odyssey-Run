@@ -6,8 +6,11 @@ import type {EnemyState} from '../levels/enemies';
 
 export const overlaps = (a: Rect, b: Rect) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
 type Shape = Rect & {mask: string; flipX?: boolean; reveal?: number};
+// Shapes drawn in code are solid all the way across.
+const SOLID = {w: 1, h: 1, rows: [[0, 1]]};
+const DRAWN: Readonly<Record<string, typeof SOLID>> = {'obstacle-pounder': SOLID};
 export function containsInk(s: Shape, x: number, y: number) {
-  const mask = CONTACT_MASKS[s.mask] ?? SCENERY_MASKS[s.mask];
+  const mask = CONTACT_MASKS[s.mask] ?? SCENERY_MASKS[s.mask] ?? DRAWN[s.mask];
   if (x < s.x || x >= s.x + s.w || y < s.y || y >= s.y + s.h * (s.reveal ?? 1)) return false;
   let u = Math.floor(((x - s.x) / s.w) * mask.w);
   if (s.flipX) u = mask.w - 1 - u;
@@ -28,7 +31,12 @@ export function inkOverlap(a: Shape, b: Shape, clipA: Rect = a, clipB: Rect = b)
   return false;
 }
 export function collectibleContact(hero: SpritePose, body: Rect, item: Collectible) {
-  return inkOverlap(hero, {...itemPose(item.kind, item.x, item.y), mask: item.kind}, body);
+  // Moly has no traced outline of its own; the round apple outline is about the same size.
+  return inkOverlap(
+    hero,
+    {...itemPose(item.kind, item.x, item.y), mask: item.kind === 'moly' ? 'apple' : item.kind},
+    body,
+  );
 }
 export function obstacleContact(hero: SpritePose, body: Rect, obstacle: Obstacle, playerX: number) {
   if (obstacle.role !== 'hazard') return false;

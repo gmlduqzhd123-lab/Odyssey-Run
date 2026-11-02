@@ -13,7 +13,7 @@ export const HOME_FILES = [
   {key: 'odysseus', url: assetUrl('odysseus'), svg: false},
 ];
 export const GAME_FILES = [
-  ...['star', 'crate', 'pillar', 'gate', 'rock', 'giant', 'hand'].map(key => ({key, url: svg(key), svg: true})),
+  ...['star', 'crate', 'pillar', 'gate', 'rock', 'giant', 'hand', 'moly'].map(key => ({key, url: svg(key), svg: true})),
   ...['map', 'shield', 'wings', 'magnet', 'apple', 'trident', 'lantern', 'compass'].map(key => ({
     key,
     url: assetUrl(key),

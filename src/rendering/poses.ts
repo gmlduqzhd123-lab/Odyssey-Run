@@ -91,9 +91,11 @@ export function obstaclePose(o: Obstacle, playerX: number) {
   const lift =
     o.kind === 'hand'
       ? Math.max(0, Math.min(260, (distance - 150) * 0.8))
-      : o.kind === 'falling'
-        ? Math.max(0, Math.min(290, (distance - 100) * 1.5))
-        : 0;
+      : o.kind === 'pounder'
+        ? Math.max(0, Math.min(300, (distance - 170) * 1.4))
+        : o.kind === 'falling'
+          ? Math.max(0, Math.min(290, (distance - 100) * 1.5))
+          : 0;
   return {x: o.x, y: o.y - lift, w: o.w, h: o.h, texture, mask: 'obstacle-' + texture};
 }
 export function enemyPose(e: EnemyState): SpritePose {

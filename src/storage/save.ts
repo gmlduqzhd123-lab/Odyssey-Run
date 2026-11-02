@@ -1,4 +1,6 @@
 import {cosmeticUnlocked} from '../systems/cosmetics';
+import {heroUnlocked} from '../systems/heroes';
+import {emptyWeekly, readDays, readQuizPicks, readWeekly, type Weekly} from './feats';
 import {emptyExpeditions, readExpeditions, type Expeditions} from './expeditions';
 import {defaultPreferences, readPreferences, type Preferences} from './preferences';
 import {emptyJournal, validateJournal, validateGhost, type Ghost, type Journal, type AdventureResult} from './journal';
@@ -39,6 +41,11 @@ export interface Save {
   quiz: string[];
   // Endless voyage bests, kept apart from course records and unlocks.
   endless: Partial<Record<StageId, EndlessRecord>>;
+  // Korean dates with a finished voyage or quiz answer (the voyage calendar), oldest first.
+  days: string[];
+  weekly: Weekly;
+  // How often each quiz option was chosen, for the teacher's question report.
+  quizPicks: Partial<Record<string, [number, number, number]>>;
 }
 export interface EndlessRecord {
   bestScore: number;
@@ -46,7 +53,7 @@ export interface EndlessRecord {
 }
 export const SAVE_KEY = `odyssey-run:${new URL(import.meta.env?.BASE_URL || './', typeof location === 'undefined' ? 'http://local/' : location.href).pathname}:save`;
 export const BACKUP_KEY = SAVE_KEY + ':backup';
-const LATER_STAGES: readonly StageId[] = ['sea'];
+const LATER_STAGES: readonly StageId[] = ['sea', 'circe'];
 const emptyRecord = (): RecordData => ({complete: false, bestScore: 0, bestRating: 0, bestStars: 0, maps: []});
 export const emptySave = (): Save => ({
   schemaVersion: 1,
@@ -56,12 +63,15 @@ export const emptySave = (): Save => ({
   expeditions: emptyExpeditions(),
   tutorialSeen: false,
   lastStage: 'beach',
-  stages: {beach: emptyRecord(), cave: emptyRecord(), wind: emptyRecord(), sea: emptyRecord()},
+  stages: {beach: emptyRecord(), cave: emptyRecord(), wind: emptyRecord(), circe: emptyRecord(), sea: emptyRecord()},
   savedAt: new Date().toISOString(),
   journal: emptyJournal(),
   courses: {},
   quiz: [],
   endless: {},
+  days: [],
+  weekly: emptyWeekly(),
+  quizPicks: {},
 });
 const obj = (v: unknown): Record<string, unknown> => {
   if (!v || typeof v !== 'object' || Array.isArray(v)) throw Error('기록 형식을 확인해 주세요.');
@@ -123,19 +133,15 @@ export function validateSave(raw: unknown): Save {
   STAGES.forEach((id, i) => {
     // Islands added after a save was written start empty instead of rejecting the save.
     const record = stages[id] === undefined && LATER_STAGES.includes(id) ? emptyRecord() : readRecord(stages[id], id);
-    if (
-      i > 0 &&
-      (record.complete || record.bestScore > 0 || record.bestStars > 0 || record.maps.length > 0) &&
-      !out.stages[STAGES[i - 1]].complete
-    )
-      throw Error('앞선 섬을 먼저 완주한 기록이 필요해요.');
     out.stages[id] = record;
+  });
+  STAGES.forEach(id => {
+    if (sailed(out.stages[id]) && !unlocked(out, id)) throw Error('앞선 섬을 먼저 완주한 기록이 필요해요.');
   });
   for (const id of STAGES)
     if (out.expeditions.bosses[id] && !out.stages[id].complete)
       throw Error('보스 도전은 해당 섬 완주 후 기록할 수 있어요.');
-  const index = STAGES.indexOf(out.lastStage);
-  if (index > 0 && !out.stages[STAGES[index - 1]].complete) throw Error('최근 섬이 아직 잠겨 있어요.');
+  if (!unlocked(out, out.lastStage)) throw Error('최근 섬이 아직 잠겨 있어요.');
   out.journal = validateJournal(v.journal, Object.fromEntries(STAGES.map(id => [id, out.stages[id].bestScore])));
   for (const id of [
     ...out.journal.stamps,
@@ -195,6 +201,10 @@ export function validateSave(raw: unknown): Save {
       throw Error('신화 퀴즈 기록을 확인해 주세요.');
     out.quiz = [...v.quiz];
   }
+  if (!heroUnlocked(out, out.preferences.hero)) throw Error('아직 열리지 않은 영웅이 선택돼 있어요.');
+  out.days = readDays(v.days);
+  out.weekly = readWeekly(v.weekly);
+  out.quizPicks = readQuizPicks(v.quizPicks);
   if (v.endless !== undefined) {
     const e = obj(v.endless);
     for (const [id, raw] of Object.entries(e)) {
@@ -261,8 +271,14 @@ export function mergeResult(save: Save, r: RunResult): Save {
   }
   return out;
 }
-export const unlocked = (save: Save, id: StageId) =>
-  STAGES.indexOf(id) === 0 || save.stages[STAGES[STAGES.indexOf(id) - 1]].complete;
+const sailed = (r: RecordData) => r.complete || r.bestScore > 0 || r.bestStars > 0 || r.maps.length > 0;
+// Each island opens when the one before it is complete. Circe's island was added before the
+// Sirens' sea later on, so a sea already sailed stays open for those who reached it earlier.
+export const unlocked = (save: Save, id: StageId) => {
+  const i = STAGES.indexOf(id);
+  if (i === 0 || save.stages[STAGES[i - 1]].complete) return true;
+  return id === 'sea' && save.stages.wind.complete && sailed(save.stages.sea);
+};
 export class SaveStore {
   data = emptySave();
   blocked = false;

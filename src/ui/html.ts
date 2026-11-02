@@ -1,4 +1,5 @@
 import {assetUrl} from '../assets/catalog';
+import {canNarrate} from '../systems/narrator';
 // Small markup helpers shared by every screen.
 // Decorative art as a background, so a picture that cannot load (a flaky classroom connection)
 // leaves an empty space instead of the browser's broken-image mark.
@@ -8,6 +9,9 @@ export const esc = (text: string) =>
   text.replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'})[c]!);
 export const button = (action: string, text: string, cls = '', extra = '') =>
   `<button class="${cls}" data-action="${action}" ${extra}>${text}</button>`;
+// "Read aloud" for story panels; left out where the browser has no speech voices.
+export const readButton = () =>
+  canNarrate() ? button('read-aloud', '🔊 읽어 주기', 'text-button read-aloud', 'aria-pressed="false"') : '';
 export function downloadFile(data: string | Blob, filename: string, type = 'application/json;charset=utf-8') {
   const url = URL.createObjectURL(new Blob([data], {type}));
   const a = document.createElement('a');

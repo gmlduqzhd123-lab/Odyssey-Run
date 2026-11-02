@@ -1,3 +1,4 @@
+import {HERO_IDS, type HeroId} from '../systems/heroes';
 export type Quality = 'auto' | 'high' | 'low';
 export interface TouchLayout {
   size: number;
@@ -24,6 +25,10 @@ export interface Preferences {
   cape: 'classic' | 'sea' | 'royal';
   emblem: 'plain' | 'owl' | 'star';
   sail: 'plain' | 'sun' | 'festival';
+  // The hero who runs; saves from before playable heroes run as Odysseus.
+  hero: HeroId;
+  // Show the comparison voyage as a see-through runner on the course (default on).
+  ghostRunner: boolean;
 }
 export const defaultPreferences = (): Preferences => ({
   quality: 'auto',
@@ -34,6 +39,8 @@ export const defaultPreferences = (): Preferences => ({
   cape: 'classic',
   emblem: 'plain',
   sail: 'plain',
+  hero: 'odysseus',
+  ghostRunner: true,
 });
 export function readPreferences(raw: unknown): Preferences {
   const out = defaultPreferences();
@@ -49,6 +56,7 @@ export function readPreferences(raw: unknown): Preferences {
   out.cape = choice(v.cape, ['classic', 'sea', 'royal']) as Preferences['cape'];
   out.emblem = choice(v.emblem, ['plain', 'owl', 'star']) as Preferences['emblem'];
   out.sail = choice(v.sail, ['plain', 'sun', 'festival']) as Preferences['sail'];
+  if (v.hero !== undefined) out.hero = choice(v.hero, HERO_IDS) as HeroId;
   if (!t || typeof t !== 'object' || Array.isArray(t)) throw Error('터치 버튼 설정을 확인해 주세요.');
   for (const [key, min, max] of [
     ['size', 64, 112],
@@ -63,6 +71,10 @@ export function readPreferences(raw: unknown): Preferences {
   }
   if (typeof t.swapped !== 'boolean') throw Error('버튼 좌우 설정을 확인해 주세요.');
   out.touch.swapped = t.swapped;
+  if (v.ghostRunner !== undefined) {
+    if (typeof v.ghostRunner !== 'boolean') throw Error('고스트 표시 설정을 확인해 주세요.');
+    out.ghostRunner = v.ghostRunner;
+  }
   if (v.haptics !== undefined) {
     if (typeof v.haptics !== 'boolean') throw Error('진동 설정을 확인해 주세요.');
     out.haptics = v.haptics;

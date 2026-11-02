@@ -126,8 +126,52 @@ export const QUIZ: readonly QuizQuestion[] = [
     answer: 1,
     explain: '자신을 돛대에 묶게 하고, 풀어 달라고 해도 더 단단히 묶으라고 부탁했어요.',
   },
+  {
+    id: 'pigs',
+    question: '마녀 키르케는 오디세우스의 선원들을 무엇으로 바꾸었을까요?',
+    options: ['돼지', '물고기', '새'],
+    answer: 0,
+    explain: '키르케의 마법 약을 마신 선원들은 돼지로 변했어요. 오디세우스가 동료들을 구하러 갔지요.',
+  },
+  {
+    id: 'moly',
+    question: '키르케의 마법을 막아 준 약초 ‘몰리’는 누가 주었을까요?',
+    options: ['포세이돈', '헤르메스', '아이올로스'],
+    answer: 1,
+    explain: '신들의 전령 헤르메스가 뿌리는 검고 꽃은 하얀 약초 몰리를 오디세우스에게 건넸어요.',
+  },
+  {
+    id: 'friends',
+    question: '마법이 통하지 않자 키르케는 어떻게 했을까요?',
+    options: ['섬에서 도망쳤어요', '선원들을 다시 사람으로 돌려놓았어요', '배를 가라앉혔어요'],
+    answer: 1,
+    explain: '키르케는 선원들을 사람으로 돌려놓고, 오디세우스에게 다음 항해에서 조심할 것들을 알려 주었어요.',
+  },
 ];
 export const quizIds = QUIZ.map(q => q.id);
+// What to read again when a class keeps missing a question: a map fragment's story or a person.
+export const QUIZ_READ: Record<string, {story: number} | {person: string}> = {
+  home: {story: 14},
+  horse: {story: 2},
+  nobody: {story: 4},
+  polyphemus: {story: 3},
+  sheep: {story: 5},
+  bag: {story: 6},
+  opened: {story: 8},
+  weaving: {person: 'penelope'},
+  owl: {person: 'athena'},
+  hermes: {story: 10},
+  nausicaa: {person: 'nausicaa'},
+  son: {person: 'telemachus'},
+  book: {story: 14},
+  homer: {story: 14},
+  years: {story: 0},
+  wax: {story: 12},
+  mast: {story: 13},
+  pigs: {story: 9},
+  moly: {story: 10},
+  friends: {story: 11},
+};
 // Real figures get one line from the Odyssey; the game's own guides have none.
 export const PERSON_MYTHS: Partial<Record<string, string>> = {
   odysseus: '『오디세이아』의 주인공이에요. 트로이 전쟁에서 나무 목마 꾀를 냈고, 약 10년을 항해해 고향으로 돌아왔어요.',

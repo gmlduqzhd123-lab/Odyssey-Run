@@ -78,7 +78,7 @@ try {
   await go('reset-confirm');
   await go('settings');
   await toHome();
-  for (const screen of ['islands', 'codex', 'journal', 'harbor', 'wardrobe', 'challenges', 'profiles']) {
+  for (const screen of ['islands', 'codex', 'journal', 'harbor', 'wardrobe', 'challenges', 'profiles', 'feats']) {
     await toHome();
     await go(screen);
   }
@@ -117,7 +117,8 @@ try {
   await p.waitForSelector('[data-action="start"]');
   await scan(p, 'endless-prepare');
   await toHome();
-  for (const stage of ['beach', 'cave', 'wind', 'sea']) {
+  // The sea opens after Circe's island, which this older save has not sailed yet.
+  for (const stage of ['beach', 'cave', 'wind', 'circe']) {
     await go('islands');
     await p.locator(`[data-action="stage:${stage}"]`).click();
     await p.waitForSelector('[data-action="start"]');
@@ -165,6 +166,21 @@ try {
   await p.locator('[data-action^="profile-delete:"]').first().click();
   await scan(p, 'profile-delete');
   await go('profiles');
+  await go('progress');
+  await toHome();
+  // The course maker, a check, the share page and a friend's course link.
+  await go('challenges');
+  await go('maker');
+  await go('maker-random', 'maker-random');
+  await go('maker-check', 'maker-check');
+  await go('maker-share', 'maker-share');
+  const course = await p.locator('#share-url').inputValue();
+  await p.goto(course);
+  await p.waitForSelector('[data-action="maker-run"]');
+  await scan(p, 'maker-received');
+  await go('maker-run', 'maker-prepare');
+  await p.waitForSelector('[data-action="start"]');
+  await scan(p, 'maker-prepare');
   await toHome();
   await go('quit');
   // Canvas captions never reach the DOM; the translator records what it could not translate.

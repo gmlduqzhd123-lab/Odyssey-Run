@@ -146,6 +146,7 @@ test('old v1 imports keep exact core records and attribute previous ghosts only 
   // Islands added later start empty; the original records stay exact.
   assert.deepEqual(s.stages, {
     ...legacy.stages,
+    circe: {complete: false, bestScore: 0, bestRating: 0, bestStars: 0, maps: []},
     sea: {complete: false, bestScore: 0, bestRating: 0, bestStars: 0, maps: []},
   });
   assert.deepEqual(s.settings, legacy.settings);
@@ -212,7 +213,7 @@ test('import refuses invalid variant IDs, cross-stage maps, inflated scores and 
     assert.throws(() => validateSave(v));
   }
 });
-test('largest supported nine-course traces still fit the 64KiB import limit', () => {
+test('largest supported fifteen-course traces still fit the 128KiB import limit', () => {
   let s = emptySave();
   for (const stage of STAGES)
     for (const v of VARIANTS) {
@@ -249,7 +250,7 @@ test('largest supported nine-course traces still fit the 64KiB import limit', ()
     bestStars: 100,
   }));
   assert.deepEqual(validateSave(s), s);
-  assert.ok(Buffer.byteLength(JSON.stringify(s), 'utf8') < 65536);
+  assert.ok(Buffer.byteLength(JSON.stringify(s), 'utf8') < 131072);
 });
 test('every gap on every course has clear respawn ground 600-2400px before it', () => {
   for (const stage of STAGES)
