@@ -729,6 +729,31 @@ export class World extends Phaser.Scene {
         fx.lineStyle(2, 0x624c32, 1).lineBetween(x, 305, x, 312);
         fx.fillStyle(0x624c32).fillCircle(x, 317, 1.5);
       });
+    // Hazard marks: black-and-yellow striped frames around every hazard and active monster.
+    if (this.host.cosmetics().hazardMarks) {
+      const frame = (x: number, y: number, w: number, h: number) => {
+        fx.lineStyle(5, 0x111111, 0.95).strokeRect(x - 4, y - 4, w + 8, h + 8);
+        fx.lineStyle(3, 0xffd500, 1);
+        for (let k = 0; k < w + h; k += 18) {
+          const a = Math.min(k, w),
+            b = Math.max(0, k - w);
+          fx.lineBetween(x + a, y - 4, x + a - 8, y - 4);
+          fx.lineBetween(x + w + 4, y + b, x + w + 4, y + b + 8);
+        }
+        fx.strokeRect(x - 1, y - 1, w + 2, h + 2);
+      };
+      r.course.obstacles.forEach(o => {
+        if (o.role !== 'hazard') return;
+        const p = obstaclePose(o, r.x);
+        if (p.x - cam > -200 && p.x - cam < this.view.width + 60) frame(p.x - cam, p.y, p.w, p.h);
+      });
+      r.enemyStates.forEach(e => {
+        if (e.active && !e.defeated && e.x - cam > -150 && e.x - cam < this.view.width + 90)
+          frame(e.x - cam, e.y, e.w, e.h);
+      });
+    }
+    const bigWarning = this.host.cosmetics().hazardMarks ? '24px' : '17px';
+    if (this.warning.style.fontSize !== bigWarning) this.warning.setFontSize(bigWarning);
     r.enemyStates.forEach(e => {
       if (!e.warning || e.defeated || e.repelled) return;
       const x = e.x - cam + e.w / 2;

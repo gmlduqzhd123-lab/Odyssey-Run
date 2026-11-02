@@ -104,6 +104,8 @@ const SLOW_KEY = SAVE_KEY + ':slow-device';
 const FLEET_KEY = SAVE_KEY + ':fleet-goal';
 // The course being built stays on this device between visits.
 const MAKER_KEY = SAVE_KEY + ':maker';
+// How long each menu button stays highlighted while switch scanning (ms).
+const SCAN_STEP = 1600;
 // Logical width of the portrait game strip (4:3): closer than the landscape 960 so the hero and
 // hazards are drawn larger on a phone held upright.
 const PORTRAIT_VIEW = 720;
@@ -348,6 +350,25 @@ export class App {
     n.textContent = message;
     n.hidden = !message;
   }
+  // Switch scanning: on menus, one button at a time is highlighted and focused, so a single switch
+  // mapped to Space or Enter can pick it (the browser presses a focused button on those keys).
+  private scanTimer = 0;
+  private scan() {
+    clearInterval(this.scanTimer);
+    this.ui.querySelectorAll('.scan-focus').forEach(e => e.classList.remove('scan-focus'));
+    if (!this.store.data.preferences.switchScan || ['play', 'countdown'].includes(this.screen)) return;
+    let i = -1;
+    this.scanTimer = window.setInterval(() => {
+      const items = [
+        ...this.ui.querySelectorAll<HTMLElement>('button:not([disabled]), [data-action]:not([disabled])'),
+      ].filter(e => e.offsetParent !== null);
+      if (!items.length) return;
+      this.ui.querySelectorAll('.scan-focus').forEach(e => e.classList.remove('scan-focus'));
+      i = (i + 1) % items.length;
+      items[i].classList.add('scan-focus');
+      items[i].focus({preventScroll: false});
+    }, SCAN_STEP);
+  }
   private set(html: string, screen: string) {
     this.narrator.stop();
     this.importRequest++;
@@ -363,6 +384,7 @@ export class App {
     this.applyLayout();
     this.orientation();
     this.notice();
+    this.scan();
     queueMicrotask(() =>
       this.ui.querySelector<HTMLElement>('[autofocus], h1[tabindex], h2[tabindex]')?.focus({preventScroll: true}),
     );
@@ -1678,6 +1700,12 @@ export class App {
       this.store.persist();
       return;
     }
+    if (input.dataset.pref === 'hazardMarks' || input.dataset.pref === 'switchScan') {
+      this.store.data.preferences[input.dataset.pref] = input.checked;
+      this.store.persist();
+      this.scan();
+      return;
+    }
     if (input.hasAttribute('data-ghost')) {
       this.store.data.preferences.ghostRunner = input.checked;
       this.store.persist();
@@ -2191,6 +2219,7 @@ export class App {
   }
   destroy() {
     this.destroyed = true;
+    clearInterval(this.scanTimer);
     this.displayObserver.disconnect();
     this.abort.abort();
     this.controls.destroy();

@@ -3815,3 +3815,9 @@ body {
 .student-report > .no-print {
   margin: 0 5.2%;
 }
+/* Switch scanning: the highlighted button is unmistakable. */
+.scan-focus {
+  outline: 5px solid #c9714c !important;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 9px rgba(201, 113, 76, 0.25) !important;
+}
