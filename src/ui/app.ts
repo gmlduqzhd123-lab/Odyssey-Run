@@ -20,7 +20,10 @@ import {
   type RivalLink,
   type CourseLink,
 } from '../systems/share';
-import {Contests, newContestId, type Entry} from '../storage/contests';
+import {Contests, contestLength, newContestId, type Entry} from '../storage/contests';
+import {Gallery} from '../storage/gallery';
+import {galleryMarkup} from './gallery-view';
+import {worksheetMarkup} from './worksheet-view';
 import {
   backupAge,
   backupReminder,
@@ -91,7 +94,7 @@ import {recordQuiz, recordRun} from '../storage/feats';
 import {featsMarkup} from './feats-view';
 import {chronicleMarkup, posterBlob, sceneMarkup} from './chronicle-view';
 import {CHAPTERS, chapter, chapterOpen} from '../levels/chronicle';
-import {defaultFleetGoal, fleetMarkup, quizReportCsv, quizReportMarkup} from './class-view';
+import {defaultFleetGoal, fleetMarkup, quizReport, quizReportCsv, quizReportMarkup} from './class-view';
 import {makerMarkup, makerReceivedMarkup, makerShareMarkup, type MakerDraft} from './maker-view';
 import {MAKER_SLOTS, buildCustom, checkCustom, isBlocks, randomBlocks, BLOCKS, type BlockId} from '../levels/maker';
 const asset = assetUrl;
@@ -144,6 +147,7 @@ export class App {
   private custom: Course | null = null;
   private endless: {course: Course; date: string} | null = null;
   private contests: Contests;
+  private gallery: Gallery;
   private contest: ContestLink | null = null;
   private loadRequest = 0;
   private controlsReturn = false;
@@ -204,6 +208,7 @@ export class App {
     );
     this.profiles = new Profiles(storage);
     this.contests = new Contests(storage);
+    this.gallery = new Gallery(storage);
     this.store = new SaveStore(storage, profileKey(this.profiles.active.id));
     this.renderDensity = displayDensity(
       document.querySelector('#shell')!.clientWidth,
@@ -431,8 +436,8 @@ export class App {
     else if (link.kind === 'course') this.makerReceived(link);
     else this.contestCollect(link);
   }
-  private contestRules(c: {stage: StageId | null; variant: VariantId | null; assist: boolean}) {
-    return `${c.stage && c.variant ? this.courseName(c.stage, c.variant) : '코스 정보 없음'} · 쉬운 항해 ${c.assist ? '허용' : '끔'}`;
+  private contestRules(c: {stage: StageId | null; variant: VariantId | null; assist: boolean; blocks?: string}) {
+    return `${c.blocks && c.stage ? `${COURSES[c.stage].name} · 학생이 만든 코스` : c.stage && c.variant ? this.courseName(c.stage, c.variant) : '코스 정보 없음'} · 쉬운 항해 ${c.assist ? '허용' : '끔'}`;
   }
   private contestJoin(link: ContestLink) {
     this.abandon();
@@ -592,6 +597,57 @@ export class App {
       'result',
     );
   }
+  private galleryPage(message = '') {
+    this.abandon();
+    this.world.showHome();
+    this.set(galleryMarkup(this.header('반 코스 갤러리', 'contests'), this.gallery.ranked(), message), 'gallery');
+  }
+  private galleryAction(kind: string, arg = '') {
+    const i = Number(arg);
+    if (kind === 'add') {
+      // A course received by link, or the course on this device's maker.
+      const d = this.screen === 'maker-received' || this.screen === 'maker' ? this.readDraft() : null;
+      if (!d) return;
+      const ok = this.gallery.add({stage: d.stage, blocks: d.blocks, title: d.title || '나만의 코스'});
+      this.galleryPage(
+        ok
+          ? `‘${d.title || '나만의 코스'}’ 코스를 갤러리에 담았어요.`
+          : '갤러리가 가득 찼어요. 코스를 몇 개 지워 주세요.',
+      );
+    } else if (kind === 'paste') {
+      try {
+        const link = parseLinkText(this.ui.querySelector<HTMLInputElement>('#gallery-code')?.value ?? '');
+        if (link?.kind !== 'course') throw Error('학생 코스 화면의 링크를 붙여 넣어 주세요.');
+        const ok = this.gallery.add(link);
+        this.galleryPage(ok ? `‘${link.title}’ 코스를 담았어요.` : '갤러리가 가득 찼어요. 코스를 몇 개 지워 주세요.');
+      } catch (error) {
+        this.setText('#gallery-message', (error as Error).message);
+      }
+    } else if (kind === 'up' || kind === 'down') {
+      this.gallery.vote(i, kind === 'up' ? 1 : -1);
+      this.galleryPage();
+    } else if (kind === 'remove') {
+      this.gallery.remove(i);
+      this.galleryPage('코스를 지웠어요.');
+    } else if (kind === 'run') {
+      const c = this.gallery.list[i];
+      if (!c) return;
+      this.draft = {stage: c.stage, blocks: c.blocks, title: c.title};
+      this.set(makerReceivedMarkup(this.draft, unlocked(this.store.data, c.stage)), 'maker-received');
+    } else if (kind === 'contest') {
+      const c = this.gallery.list[i];
+      if (!c) return;
+      const hosted = this.contests.host({
+        id: newContestId(),
+        title: c.title.slice(0, 12),
+        stage: c.stage,
+        variant: 'classic',
+        assist: false,
+        blocks: c.blocks,
+      });
+      this.contestBoard(hosted.id, '학생 코스로 대회를 만들었어요. 참가 QR을 띄워 주세요.');
+    }
+  }
   private finishCustom() {
     const r = this.result!;
     this.sound.setPlaying(false);
@@ -693,7 +749,15 @@ export class App {
     const join =
       c.stage && c.variant
         ? linkUrl(
-            {kind: 'contest', id: c.id, title: c.title, stage: c.stage, variant: c.variant, assist: c.assist},
+            {
+              kind: 'contest',
+              id: c.id,
+              title: c.title,
+              stage: c.stage,
+              variant: c.variant,
+              assist: c.assist,
+              ...(c.blocks ? {blocks: c.blocks} : {}),
+            },
             location.href,
           )
         : '';
@@ -709,7 +773,12 @@ export class App {
   }
   private contestCsv(id: string) {
     const c = this.contests.find(id);
-    if (c) this.download(contestCsv(c.entries), `odyssey-run-contest-${c.id}.csv`, 'text/csv;charset=utf-8');
+    if (c)
+      this.download(
+        contestCsv(c.entries, contestLength(c)),
+        `odyssey-run-contest-${c.id}.csv`,
+        'text/csv;charset=utf-8',
+      );
   }
   private contestAction(kind: string, id = '') {
     const say = (text: string) => {
@@ -958,7 +1027,9 @@ export class App {
           ? this.endless.course
           : this.special === 'custom' && this.custom
             ? this.custom
-            : undefined,
+            : this.special === 'contest' && this.contest?.blocks
+              ? buildCustom(this.contest.stage, this.contest.blocks, this.contest.title)
+              : undefined,
       this.special === 'daily' && this.daily?.rule === 'no-shield' ? 'no-shield' : 'none',
     );
     this.run.autoSlide = this.assist().autoSlide;
@@ -1708,6 +1779,7 @@ export class App {
     ['person:', id => this.person(id)],
     ['contest-', arg => this.contestAction(...(arg.split(':') as [string, string]))],
     ['maker-', kind => this.makerAction(kind)],
+    ['gallery-', arg => this.galleryAction(...(arg.split(':') as [string, string]))],
     ['profile-', arg => this.profileAction(...(arg.split(':') as [string, string]))],
     ['quiz-answer:', n => this.quizAnswer(Number(n))],
     ['story:', n => this.story(Number(n))],
@@ -1759,6 +1831,16 @@ export class App {
         'text/csv;charset=utf-8',
       ),
     contests: () => this.contestsPage(),
+    gallery: () => this.galleryPage(),
+    worksheet: () => {
+      this.abandon();
+      this.world.showHome();
+      this.set(
+        worksheetMarkup(this.header('활동지', 'progress'), quizReport(this.profiles.progress()), koreanDay()),
+        'worksheet',
+      );
+    },
+    'worksheet-print': () => window.print(),
     duo: () => {
       this.duo = null;
       this.duoPage();

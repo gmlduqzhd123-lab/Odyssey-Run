@@ -73,8 +73,10 @@ export function quizReportMarkup(rows: SailorProgress[]) {
             r =>
               `<tr class="${r.answered && rate(r) < 0.6 ? 'weak' : ''}"><th scope="row">${r.question}</th><td>${r.answered}</td><td>${r.answered ? Math.round(rate(r) * 100) + '%' : '—'}</td><td>${r.wrong ?? '—'}</td><td>${r.read}</td></tr>`,
           )
-          .join('')}</tbody></table></div>${button('quiz-csv', '문항별 분석 CSV 내보내기', 'secondary')}`
-      : '<p class="muted">아직 퀴즈에 답한 항해사가 없어요. 결과 화면이나 모험 수첩에서 퀴즈를 풀 수 있어요.</p>'
+          .join(
+            '',
+          )}</tbody></table></div><div class="button-row">${button('quiz-csv', '문항별 분석 CSV 내보내기', 'secondary')}${button('worksheet', '🖨 복습 활동지 만들기', 'secondary')}</div>`
+      : `<p class="muted">아직 퀴즈에 답한 항해사가 없어요. 결과 화면이나 모험 수첩에서 퀴즈를 풀 수 있어요.</p>${button('worksheet', '🖨 활동지 만들기', 'secondary')}`
   }<small>정답률 60% 미만 문항은 강조해요. 처음 고른 답뿐 아니라 다시 푼 답도 모두 세요.</small></section>`;
 }
 export function quizReportCsv(rows: SailorProgress[]) {
