@@ -52,7 +52,7 @@ import Phaser from 'phaser';
 import {C} from '../config';
 import {COURSES, STAGES, MAP_STORIES, type StageId} from '../levels/courses';
 import {Runner} from '../player/runner';
-import {Profiles, profileKey, readBook, PROFILES_KEY, MAX_PROFILES, MAIN_PROFILE} from '../storage/profiles';
+import {Profiles, profileKey, readBook, cleanName, PROFILES_KEY, MAX_PROFILES, MAIN_PROFILE} from '../storage/profiles';
 import {
   SaveStore,
   mergeResult,
@@ -137,7 +137,9 @@ export class App {
   );
   private displayObserver: ResizeObserver;
   private daily: DailySpec | null = null;
-  private special: 'boss' | 'daily' | 'contest' | 'endless' | 'custom' | null = null;
+  private special: 'boss' | 'daily' | 'contest' | 'endless' | 'custom' | 'duo' | null = null;
+  // Two sailors taking turns on one course (classroom board): names, island and finished scores.
+  private duo: {names: [string, string]; stage: StageId; scores: RunResult[]} | null = null;
   private draft: MakerDraft | null = null;
   private custom: Course | null = null;
   private endless: {course: Course; date: string} | null = null;
@@ -538,6 +540,58 @@ export class App {
     this.draft = {stage: link.stage, blocks: link.blocks, title: link.title};
     this.set(makerReceivedMarkup(this.draft, unlocked(this.store.data, link.stage)), 'maker-received');
   }
+  private duoPage(message = '') {
+    this.abandon();
+    this.world.showHome();
+    const open = STAGES.filter(id => unlocked(this.store.data, id));
+    this.set(
+      `<div class="page duo">${this.header('둘이서 번갈아', 'challenges')}<div class="page-heading"><span class="eyebrow">TWO SAILORS, ONE SCREEN</span><h1 tabindex="-1">둘이서 번갈아 달리기</h1><p>한 화면에서 두 명이 같은 코스를 차례로 달리고, 두 점수를 합쳐 팀 점수를 만들어요. 기록·해금에는 반영하지 않아요.</p></div><section class="maker-form"><div class="maker-meta"><label>첫 번째 항해사 <input id="duo-a" maxlength="12" autocomplete="off" placeholder="예: 지우"></label><label>두 번째 항해사 <input id="duo-b" maxlength="12" autocomplete="off" placeholder="예: 민준"></label><label>섬 <select id="duo-stage">${open.map(id => `<option value="${id}">${COURSES[id].name}</option>`).join('')}</select></label></div>${button('duo-start', '첫 번째 항해사 출발 →', 'primary')}<p role="status" id="duo-message">${esc(message)}</p><small>전자칠판이나 한 대의 태블릿에서 차례로 달리기 좋아요.</small></section></div>`,
+      'duo',
+    );
+  }
+  private async duoRun() {
+    if (this.screen === 'duo') {
+      const a = cleanName(this.ui.querySelector<HTMLInputElement>('#duo-a')?.value ?? ''),
+        b = cleanName(this.ui.querySelector<HTMLInputElement>('#duo-b')?.value ?? ''),
+        stage = this.ui.querySelector<HTMLSelectElement>('#duo-stage')?.value as StageId;
+      if (!a || !b) return this.setText('#duo-message', '두 항해사의 이름을 적어 주세요.');
+      if (!STAGES.includes(stage) || !unlocked(this.store.data, stage)) return;
+      this.duo = {names: [a, b], stage, scores: []};
+    }
+    const d = this.duo;
+    if (!d) return;
+    await this.prepare(d.stage);
+    if (this.screen !== 'prepare' || this.selected !== d.stage || this.duo !== d) return;
+    this.special = 'duo';
+    const who = d.names[d.scores.length];
+    this.set(
+      `<div class="veil"><section class="panel"><span class="eyebrow">TWO SAILORS · ${d.scores.length + 1} / 2</span><h1 tabindex="-1">‘${esc(who)}’ 차례예요</h1><p>${COURSES[d.stage].name} · 기본 항로 · 약 75초</p>${d.scores.length ? `<p class="muted">‘${esc(d.names[0])}’ ${d.scores[0].score.toLocaleString()}점</p>` : ''}${button('start', '출발 →', 'primary large')}${button('duo', '그만두기', 'secondary')}</section></div>`,
+      'prepare',
+    );
+  }
+  private finishDuo() {
+    const d = this.duo!,
+      r = this.result!;
+    this.sound.setPlaying(false);
+    this.controls.clear();
+    d.scores.push(r);
+    if (d.scores.length < 2) {
+      this.set(
+        `<div class="veil"><section class="panel result special-result"><span class="eyebrow">TWO SAILORS · 1 / 2</span><h1 tabindex="-1">‘${esc(d.names[0])}’ ${r.score.toLocaleString()}점</h1><p>별빛 ${r.stars} · 지도 ${r.maps.length} · HP 손실 ${r.hpLoss}회</p>${button('duo-next', `‘${esc(d.names[1])}’ 차례로 →`, 'primary large')}${button('duo', '그만두기', 'secondary')}</section></div>`,
+        'result',
+      );
+      return;
+    }
+    const [x, y] = d.scores,
+      lead =
+        x.score === y.score
+          ? '똑같은 점수예요!'
+          : `‘${esc(d.names[x.score > y.score ? 0 : 1])}’ ${Math.abs(x.score - y.score).toLocaleString()}점 앞섰어요`;
+    this.set(
+      `<div class="veil"><section class="panel result special-result"><span class="eyebrow">TWO SAILORS · ${COURSES[d.stage].name}</span><h1 tabindex="-1">팀 점수 ${(x.score + y.score).toLocaleString()}</h1><div class="duo-scores">${d.names.map((n, i) => `<p><b translate="no">${esc(n)}</b> ${d.scores[i].score.toLocaleString()}점 · 별빛 ${d.scores[i].stars} · HP 손실 ${d.scores[i].hpLoss}회</p>`).join('')}</div><p>${lead}</p><p class="muted">둘이서 번갈아 달린 기록은 기록·해금에 반영하지 않아요.</p><div class="button-row">${button('duo-again', '같은 둘이 다시', 'primary')}${button('duo', '새로 정하기', 'secondary')}${button('challenges', '특별 항해', 'secondary')}</div></section></div>`,
+      'result',
+    );
+  }
   private finishCustom() {
     const r = this.result!;
     this.sound.setPlaying(false);
@@ -935,7 +989,7 @@ export class App {
     ].filter(Boolean);
   }
   private hud() {
-    return `<div class="play-ui" tabindex="-1" role="group" aria-label="게임 조작" data-one-button="${this.assist().autoSlide}"><div class="hud"><div class="hp-block"><span class="hud-caption">${this.hero().name}</span><strong id="hp" role="img" aria-label="체력 3"></strong></div><div class="route-progress"><span>${this.special === 'boss' ? BOSSES[this.selected].name : this.special === 'daily' ? '오늘의 항해 · ' + this.daily!.name : this.special === 'contest' ? '대회 · ' + esc(this.contest!.title) : this.special === 'endless' ? '끝없는 항해 · ' + COURSES[this.selected].name : this.special === 'custom' ? (this.custom?.name === '나만의 코스' ? '나만의 코스' : '나만의 코스 · ' + esc(this.custom?.name ?? '')) : COURSES[this.selected].name + ' · ' + VARIANT_LABELS[this.selected][this.selectedVariant].name}${this.weatherOn() === 'clear' ? '' : ` · ${WEATHERS[this.weatherOn()].icon} ${WEATHERS[this.weatherOn()].name}`}</span><progress id="progress" data-course="${this.selected}/${this.selectedVariant}" max="24000" value="0" aria-label="섬 진행률"></progress><i id="ghost-marker" hidden aria-label="비교 항해 위치"></i><small id="progress-label">0%</small></div><div class="score-block"><span class="hud-caption">SCORE</span><strong id="score">0</strong></div><div class="hud-actions">${button('fullscreen', '⛶', 'fullscreen-button', 'aria-label="전체 화면 전환"')}${button('pause', 'Ⅱ', 'pause-button', 'aria-label="일시정지"')}</div></div><div class="run-chips"><div class="run-details"><span id="stars">✦ 0 / 100</span><span id="maps">지도 0 / 3</span><span id="effects"></span>${this.assistLabel().length ? `<span class="assist-chip">쉬운 항해 · ${this.assistLabel().join(' · ')}</span>` : ''}</div><div class="adventure-hud"><span id="goal-progress"></span><span id="ghost-delta"></span><span id="discovery-progress"></span></div></div><div class="touch-controls"><button data-control="slide" class="control slide" aria-label="슬라이드, 누르고 유지"><span>⇣</span><b>슬라이드</b><small>↓ 누르기</small></button><button data-control="jump" class="control jump" aria-label="점프, 공중에서 다시 누르면 2단 점프"><span>↟</span><b>점프</b><small>Space / ↑</small></button></div></div>`;
+    return `<div class="play-ui" tabindex="-1" role="group" aria-label="게임 조작" data-one-button="${this.assist().autoSlide}"><div class="hud"><div class="hp-block"><span class="hud-caption">${this.hero().name}</span><strong id="hp" role="img" aria-label="체력 3"></strong></div><div class="route-progress"><span>${this.special === 'boss' ? BOSSES[this.selected].name : this.special === 'daily' ? '오늘의 항해 · ' + this.daily!.name : this.special === 'contest' ? '대회 · ' + esc(this.contest!.title) : this.special === 'endless' ? '끝없는 항해 · ' + COURSES[this.selected].name : this.special === 'duo' ? '둘이서 번갈아 · ' + COURSES[this.selected].name : this.special === 'custom' ? (this.custom?.name === '나만의 코스' ? '나만의 코스' : '나만의 코스 · ' + esc(this.custom?.name ?? '')) : COURSES[this.selected].name + ' · ' + VARIANT_LABELS[this.selected][this.selectedVariant].name}${this.weatherOn() === 'clear' ? '' : ` · ${WEATHERS[this.weatherOn()].icon} ${WEATHERS[this.weatherOn()].name}`}</span><progress id="progress" data-course="${this.selected}/${this.selectedVariant}" max="24000" value="0" aria-label="섬 진행률"></progress><i id="ghost-marker" hidden aria-label="비교 항해 위치"></i><small id="progress-label">0%</small></div><div class="score-block"><span class="hud-caption">SCORE</span><strong id="score">0</strong></div><div class="hud-actions">${button('fullscreen', '⛶', 'fullscreen-button', 'aria-label="전체 화면 전환"')}${button('pause', 'Ⅱ', 'pause-button', 'aria-label="일시정지"')}</div></div><div class="run-chips"><div class="run-details"><span id="stars">✦ 0 / 100</span><span id="maps">지도 0 / 3</span><span id="effects"></span>${this.assistLabel().length ? `<span class="assist-chip">쉬운 항해 · ${this.assistLabel().join(' · ')}</span>` : ''}</div><div class="adventure-hud"><span id="goal-progress"></span><span id="ghost-delta"></span><span id="discovery-progress"></span></div></div><div class="touch-controls"><button data-control="slide" class="control slide" aria-label="슬라이드, 누르고 유지"><span>⇣</span><b>슬라이드</b><small>↓ 누르기</small></button><button data-control="jump" class="control jump" aria-label="점프, 공중에서 다시 누르면 2단 점프"><span>↟</span><b>점프</b><small>Space / ↑</small></button></div></div>`;
   }
   private beginCountdown() {
     this.countdown = 3;
@@ -1068,7 +1122,7 @@ export class App {
         },
       ).join(
         '',
-      )}</div>${this.endlessCards()}${this.dailyCard()}<section class="daily-card"><span class="eyebrow">BUILD YOUR OWN VOYAGE</span><h2>⚒ 나만의 코스 만들기</h2><p>열 칸에 블록을 골라 코스를 만들고 QR로 친구에게 보내요.</p>${button('maker', '코스 만들기', 'primary')}</section><section class="daily-card"><span class="eyebrow">FOR TEACHERS</span><h2>교사용 대회</h2><p>코스를 정해 QR로 학생을 초대하고, 결과 QR을 찍어 순위를 모아요.</p>${button('contests', '대회 열기·순위 보기', 'secondary')}</section></div>`,
+      )}</div>${this.endlessCards()}${this.dailyCard()}<section class="daily-card"><span class="eyebrow">TWO SAILORS, ONE SCREEN</span><h2>👥 둘이서 번갈아 달리기</h2><p>한 화면에서 두 명이 같은 코스를 차례로 달리고 팀 점수를 만들어요.</p>${button('duo', '둘이서 달리기', 'primary')}</section><section class="daily-card"><span class="eyebrow">BUILD YOUR OWN VOYAGE</span><h2>⚒ 나만의 코스 만들기</h2><p>열 칸에 블록을 골라 코스를 만들고 QR로 친구에게 보내요.</p>${button('maker', '코스 만들기', 'primary')}</section><section class="daily-card"><span class="eyebrow">FOR TEACHERS</span><h2>교사용 대회</h2><p>코스를 정해 QR로 학생을 초대하고, 결과 QR을 찍어 순위를 모아요.</p>${button('contests', '대회 열기·순위 보기', 'secondary')}</section></div>`,
       'challenges',
     );
   }
@@ -1113,6 +1167,10 @@ export class App {
     }
     if (this.special === 'custom') {
       this.finishCustom();
+      return;
+    }
+    if (this.special === 'duo') {
+      this.finishDuo();
       return;
     }
     const r = this.result!,
@@ -1701,6 +1759,17 @@ export class App {
         'text/csv;charset=utf-8',
       ),
     contests: () => this.contestsPage(),
+    duo: () => {
+      this.duo = null;
+      this.duoPage();
+    },
+    'duo-start': () => this.screen === 'duo' && void this.duoRun(),
+    'duo-next': () => this.duo?.scores.length === 1 && void this.duoRun(),
+    'duo-again': () => {
+      if (!this.duo) return;
+      this.duo.scores = [];
+      void this.duoRun();
+    },
     maker: () => this.maker(),
     daily: () => void this.prepareDaily(),
     challenges: () => this.challenges(),
@@ -1974,9 +2043,11 @@ export class App {
             ? `⚑ 대회 · ${this.contest!.title}`
             : this.special === 'custom'
               ? `⚒ ${this.custom?.name ?? ''}`
-              : this.special === 'endless'
-                ? `∞ 끝없는 항해 · ${this.endless!.date} 순서`
-                : `◇ 오늘의 항해 · ${this.daily!.name}`
+              : this.special === 'duo'
+                ? `👥 ${this.duo?.names[this.duo.scores.length] ?? ''} 차례`
+                : this.special === 'endless'
+                  ? `∞ 끝없는 항해 · ${this.endless!.date} 순서`
+                  : `◇ 오늘의 항해 · ${this.daily!.name}`
         : `${r.goalComplete ? '✓' : '◇'} ${g.name} ${Math.min(g.target, r.goalProgress)}/${g.target}`,
     );
     this.setText('#discovery-progress', `✧ 별자리 ${r.constellations.size}/3 · 회피 ${r.nearMisses.size}`);
