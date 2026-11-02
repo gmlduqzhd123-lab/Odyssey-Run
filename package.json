@@ -26,6 +26,7 @@
     "test:classroom": "tsx scripts/classroom-qa.ts",
     "test:layout": "tsx scripts/layout-qa.ts",
     "test:access": "tsx scripts/access-qa.ts",
+    "test:budget": "tsx scripts/budget-qa.ts",
     "translations:export": "tsx scripts/translations.ts export",
     "translations:import": "tsx scripts/translations.ts import"
   },
