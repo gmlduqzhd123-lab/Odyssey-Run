@@ -537,7 +537,15 @@ export class World extends Phaser.Scene {
     const groundSpan = (a: number, b: number) => {
       if (b <= a) return;
       g.fillStyle(
-        dark ? 0x505b68 : this.stage === 'wind' ? 0x9aaca5 : this.stage === 'circe' ? 0x8f9a7e : 0xcab28c,
+        dark
+          ? 0x505b68
+          : this.stage === 'wind'
+            ? 0x9aaca5
+            : this.stage === 'circe'
+              ? 0x8f9a7e
+              : this.stage === 'strait'
+                ? 0xb9a98a
+                : 0xcab28c,
       ).fillRect(a - cam, 440, b - a, 100);
       g.fillStyle(dark ? 0x465360 : 0x81988e, 0.12).fillRect(a - cam, 516, b - a, 24);
       const band = this.groundArt[spanIndex++];
@@ -646,13 +654,15 @@ export class World extends Phaser.Scene {
                 : `! ${ENEMY_TYPES[incoming.kind].name} · ${ENEMY_TYPES[incoming.kind].hint}`
               : r.course.platforms.some(p => p.crumble && p.x - r.x <= 600 && p.x + p.w > r.x)
                 ? '! 무너지는 다리 · 점프로 건너기'
-                : r.course.platforms.some(p => p.lift && p.x - r.x <= 600 && p.x + p.w > r.x)
-                  ? '! 오르내리는 발판 · 낮을 때 올라타거나 점프'
-                  : r.course.spells?.some(z => z.x - r.x <= 600 && z.x + z.w > r.x)
-                    ? r.moly > 0
-                      ? `몰리 약초가 지켜 주고 있어요 · ${Math.ceil(r.moly)}초`
-                      : '! 키르케의 마법 · 2단 점프 봉인'
-                    : '',
+                : r.course.currents?.some(z => z.x - r.x <= 600 && z.x + z.w > r.x)
+                  ? '! 카리브디스의 소용돌이 · 점프로 건너기'
+                  : r.course.platforms.some(p => p.lift && p.x - r.x <= 600 && p.x + p.w > r.x)
+                    ? '! 오르내리는 발판 · 낮을 때 올라타거나 점프'
+                    : r.course.spells?.some(z => z.x - r.x <= 600 && z.x + z.w > r.x)
+                      ? r.moly > 0
+                        ? `몰리 약초가 지켜 주고 있어요 · ${Math.ceil(r.moly)}초`
+                        : '! 키르케의 마법 · 2단 점프 봉인'
+                      : '',
         ),
       );
     const fx = this.fx;
@@ -684,6 +694,19 @@ export class World extends Phaser.Scene {
         fx.fillStyle(0x7a5a3a, 1).fillTriangle(mid, top, mid - 14, C.ground + 30, mid + 14, C.ground + 30);
       }
     });
+    // Charybdis's whirlpools: turning rings on the ground; reduced motion keeps them still.
+    r.course.currents?.forEach(z => {
+      const x = z.x - cam;
+      if (x + z.w < 0 || x > this.view.width) return;
+      const cx = x + z.w / 2,
+        turn = reduced ? 0 : r.time * 2.4;
+      fx.fillStyle(0x2f6f8a, 0.35).fillEllipse(cx, C.ground + 14, z.w, 46);
+      for (let k = 1; k <= 4; k++) {
+        const rx = (z.w / 2) * (k / 4),
+          a = turn + k;
+        fx.lineStyle(3, 0xcfe8f2, 0.6).strokeEllipse(cx + Math.cos(a) * 6, C.ground + 14, rx * 2, rx * 0.36);
+      }
+    });
     r.course.winds.forEach(w => {
       const x = w.x - cam;
       if (x + w.w < 0 || x > this.view.width) return;
@@ -706,6 +729,31 @@ export class World extends Phaser.Scene {
         fx.lineStyle(2, 0x624c32, 1).lineBetween(x, 305, x, 312);
         fx.fillStyle(0x624c32).fillCircle(x, 317, 1.5);
       });
+    // Hazard marks: black-and-yellow striped frames around every hazard and active monster.
+    if (this.host.cosmetics().hazardMarks) {
+      const frame = (x: number, y: number, w: number, h: number) => {
+        fx.lineStyle(5, 0x111111, 0.95).strokeRect(x - 4, y - 4, w + 8, h + 8);
+        fx.lineStyle(3, 0xffd500, 1);
+        for (let k = 0; k < w + h; k += 18) {
+          const a = Math.min(k, w),
+            b = Math.max(0, k - w);
+          fx.lineBetween(x + a, y - 4, x + a - 8, y - 4);
+          fx.lineBetween(x + w + 4, y + b, x + w + 4, y + b + 8);
+        }
+        fx.strokeRect(x - 1, y - 1, w + 2, h + 2);
+      };
+      r.course.obstacles.forEach(o => {
+        if (o.role !== 'hazard') return;
+        const p = obstaclePose(o, r.x);
+        if (p.x - cam > -200 && p.x - cam < this.view.width + 60) frame(p.x - cam, p.y, p.w, p.h);
+      });
+      r.enemyStates.forEach(e => {
+        if (e.active && !e.defeated && e.x - cam > -150 && e.x - cam < this.view.width + 90)
+          frame(e.x - cam, e.y, e.w, e.h);
+      });
+    }
+    const bigWarning = this.host.cosmetics().hazardMarks ? '24px' : '17px';
+    if (this.warning.style.fontSize !== bigWarning) this.warning.setFontSize(bigWarning);
     r.enemyStates.forEach(e => {
       if (!e.warning || e.defeated || e.repelled) return;
       const x = e.x - cam + e.w / 2;

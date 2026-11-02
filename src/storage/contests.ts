@@ -4,6 +4,7 @@ import {isVariant, type VariantId} from '../levels/course-ids';
 import {cleanName} from './profiles';
 import type {ContestResult} from '../systems/share';
 import {C} from '../config';
+import {isBlocks, makerLength} from '../levels/maker';
 // Class contests live outside the player save: they never touch normal records or unlocks.
 export const CONTESTS_KEY = SAVE_KEY + ':contests';
 export const MAX_CONTESTS = 20;
@@ -24,8 +25,12 @@ export interface HostedContest {
   stage: StageId | null;
   variant: VariantId | null;
   assist: boolean;
+  // A course a student built (ten block letters) instead of an island course.
+  blocks?: string;
   entries: Entry[];
 }
+// How long the contest's course is: an island course or a student's ten-block course.
+export const contestLength = (c: Pick<HostedContest, 'blocks'>) => (c.blocks ? makerLength() : C.length);
 export interface ContestBook {
   hosted: HostedContest[];
   // Each sailor's best run per contest on this device, keyed "contest:profile".
@@ -35,9 +40,9 @@ type Store = Pick<Storage, 'getItem' | 'setItem'>;
 // Result codes carry no signature (there is no server to sign them), so a student who learns the
 // format could type in any score. Contest courses are fixed-length normal courses run at a constant
 // speed, so a real result's parts must add up: this flags codes that could not come from a run.
-export function suspicion(e: Entry): string | null {
+export function suspicion(e: Entry, length: number = C.length): string | null {
   const distance = e.score - e.stars * 10 - e.maps * 100 - (e.complete ? 500 : 0),
-    full = Math.floor(C.length / 10);
+    full = Math.floor(length / 10);
   if (distance < 0 || distance > full) return '점수가 별빛·지도·완주 보너스와 맞지 않아요';
   if (e.complete && distance < full) return '완주 기록인데 거리 점수가 모자라요';
   // The runner covers C.speed px per second of game time; half a second allows for rounding.
@@ -76,6 +81,7 @@ export function readContests(raw: string | null): ContestBook {
         stage: STAGES.includes(c.stage as StageId) ? c.stage : null,
         variant: isVariant(String(c.variant)) ? c.variant : null,
         assist: c.assist === true,
+        ...(typeof c.blocks === 'string' && isBlocks(c.blocks) ? {blocks: c.blocks} : {}),
         entries: (Array.isArray(c.entries) ? c.entries : [])
           .map(entry)
           .filter((e): e is Entry => !!e)
@@ -113,6 +119,7 @@ export class Contests {
     const known = this.find(link.id);
     if (known) {
       Object.assign(known, {title: link.title, stage: link.stage, variant: link.variant, assist: link.assist});
+      if (link.blocks) known.blocks = link.blocks;
     } else {
       if (this.book.hosted.length >= MAX_CONTESTS) this.book.hosted.pop();
       this.book.hosted.unshift({...link, entries: []});

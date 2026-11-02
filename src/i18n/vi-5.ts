@@ -273,4 +273,210 @@ export const VI_5: Record<string, string> = {
   '· 인원 초과로 건너뜀 {n}명': '· bỏ qua vì quá số người: {n}',
   '코스 링크 QR 코드': 'Mã QR liên kết đường chạy',
   별점: 'Xếp hạng sao',
+  '이 모험의 주인공이에요. 용기와 지혜로 여섯 곳의 바다와 섬을 지나 고향 이타카로 돌아가요.':
+    'Nhân vật chính của cuộc phiêu lưu. Bằng lòng dũng cảm và trí khôn, chàng vượt sáu vùng biển và đảo để về quê nhà Ithaca.',
+  '이 게임의 안내 인물이에요. 열여덟 조각의 지도를 모으며 이타카로 가는 길을 찾아요.':
+    'Người dẫn đường của trò chơi này. Cô gom mười tám mảnh bản đồ để tìm đường về Ithaca.',
+  '출항의 해변, 키클롭스의 동굴, 바람 섬, 마법의 숲, 세이렌의 절벽, 폭풍의 해협과 도착 항구의 풍경이에요. 이번 항로는 여섯 곳을 지나 이타카로 이어져요.':
+    'Phong cảnh Bãi biển Khởi hành, Hang Cyclops, Đảo Gió, rừng phép thuật, vách đá Siren, eo biển bão tố và bến cảng nơi đến. Chuyến đi này qua sáu nơi để tới Ithaca.',
+  '절벽 쪽으로': 'Về phía vách đá',
+  '키르케의 조언': 'Lời khuyên của Circe',
+  '두려움보다 지혜로운 선택을 해요.': 'Hãy chọn khôn ngoan thay vì sợ hãi.',
+  '소용돌이에 배가 통째로 삼켜지는 것보다, 절벽 쪽으로 붙어 빨리 지나가는 편이 낫다고 오디세우스는 생각했어요. 선원들은 힘을 다해 노를 저었지요.':
+    'Odysseus nghĩ rằng áp sát vách đá và đi thật nhanh còn hơn để xoáy nước nuốt trọn con tàu. Các thủy thủ dốc sức chèo.',
+  '미리 들은 조언이 배를 지켜요.': 'Lời khuyên nghe trước giữ an toàn cho con tàu.',
+  '키르케는 해협을 건널 때 멈추지 말고 서둘러 지나가라고 일러 주었어요. 오디세우스는 그 말을 기억하고 한순간도 노를 멈추지 않게 했어요.':
+    'Circe dặn chàng đừng dừng lại mà hãy vượt eo biển thật nhanh. Odysseus nhớ lời và không cho mái chèo nghỉ dù một khắc.',
+  '카리브디스의 소용돌이': 'Xoáy nước Charybdis',
+  '소용돌이 위에서는 느려져요 · 점프로 건너요': 'Trên xoáy nước bạn chậm lại · nhảy qua',
+  '스킬라의 머리를 넘고, 하르피아 아래로 숙이고, 소용돌이 위를 점프로 건너요.':
+    'Nhảy qua đầu Scylla, cúi dưới harpy và nhảy qua xoáy nước.',
+  '바다 바람의 하르피아 · 숙이기': 'Harpy gió biển · cúi',
+  '소용돌이 · 점프로 건너기': 'Xoáy nước · nhảy qua',
+  '트로이를 떠나며': 'Rời thành Troy',
+  '십 년의 전쟁이 끝났어요. 나무 목마의 꾀로 트로이는 무너졌지요.':
+    'Mười năm chiến tranh đã kết thúc. Mưu con ngựa gỗ khiến thành Troy sụp đổ.',
+  '오디세우스와 선원들은 배에 올라 고향 이타카를 향해 돛을 올렸어요.':
+    'Odysseus và các thủy thủ lên tàu, giương buồm hướng về quê nhà Ithaca.',
+  '하지만 신들은 이 귀환이 아주 긴 여정이 될 줄 알고 있었어요.': 'Nhưng các vị thần biết chuyến trở về này sẽ rất dài.',
+  '낯선 해변에서': 'Trên bãi biển xa lạ',
+  '거센 파도에 밀려 배는 낯선 해변에 닿았어요.': 'Sóng dữ đẩy con tàu dạt vào một bãi biển xa lạ.',
+  '친절한 사람들은 지친 선원들에게 물과 빵을 나누어 주었어요.':
+    'Những người tốt bụng chia nước và bánh mì cho các thủy thủ mệt mỏi.',
+  '오디세우스는 고마움을 마음에 새기고 다시 노를 저었어요.': 'Odysseus khắc ghi lòng biết ơn rồi lại chèo tiếp.',
+  '외눈박이 거인의 동굴': 'Hang của gã khổng lồ một mắt',
+  '어느 섬의 동굴에서 일행은 외눈박이 거인 폴리페모스에게 갇혔어요.':
+    'Trong hang trên một hòn đảo, cả nhóm bị gã khổng lồ một mắt Polyphemus nhốt lại.',
+  '오디세우스는 자신을 ‘아무도 아닌 사람’이라 부르며 꾀를 냈어요.':
+    'Odysseus tự gọi mình là ‘Không Ai Cả’ và nghĩ ra một mưu.',
+  '양의 배에 매달린 선원들은 마침내 동굴을 빠져나왔지요.':
+    'Bám dưới bụng cừu, các thủy thủ cuối cùng đã thoát khỏi hang.',
+  '바람의 자루': 'Túi gió',
+  '바람의 주인 아이올로스는 거센 바람을 자루에 담아 선물했어요.':
+    'Aeolus, chủ nhân của gió, tặng họ những cơn gió dữ buộc trong một chiếc túi.',
+  '순풍을 타고 고향이 보일 즈음, 선원들이 자루를 열고 말았어요.':
+    'Theo làn gió thuận, khi quê nhà vừa hiện ra, các thủy thủ đã mở túi.',
+  '쏟아진 바람은 배를 다시 먼 바다로 밀어냈어요.': 'Gió ào ra đẩy con tàu trở lại biển xa.',
+  '마녀 키르케의 섬': 'Đảo của phù thủy Circe',
+  '숲속 궁전의 마녀 키르케는 선원들을 돼지로 바꾸어 버렸어요.':
+    'Trong cung điện giữa rừng, phù thủy Circe biến các thủy thủ thành lợn.',
+  '헤르메스가 준 하얀 꽃 몰리 덕분에 오디세우스는 마법에 걸리지 않았어요.':
+    'Nhờ moly, bông hoa trắng của Hermes, Odysseus không bị trúng phép.',
+  '키르케는 선원들을 사람으로 돌려놓고 앞으로의 길을 알려 주었어요.':
+    'Circe biến các thủy thủ trở lại thành người và chỉ cho họ con đường phía trước.',
+  '바위섬의 세이렌은 아름다운 노래로 뱃사람을 불렀어요.':
+    'Trên đảo đá, các Siren cất giọng hát tuyệt đẹp gọi người đi biển.',
+  '선원들은 밀랍으로 귀를 막고, 오디세우스는 자신을 돛대에 묶었어요.':
+    'Các thủy thủ bịt tai bằng sáp, còn Odysseus tự buộc mình vào cột buồm.',
+  '약속을 지킨 덕분에 배는 노래를 무사히 지나갔어요.': 'Nhờ giữ lời hứa, con tàu đã vượt qua tiếng hát an toàn.',
+  '두 괴물 사이의 해협': 'Eo biển giữa hai quái vật',
+  '한쪽 절벽에는 머리 여섯의 스킬라, 다른 쪽에는 소용돌이 카리브디스가 있었어요.':
+    'Một bên vách đá là Scylla sáu đầu, bên kia là xoáy nước Charybdis.',
+  '오디세우스는 키르케의 조언대로 소용돌이를 피해 절벽 쪽으로 배를 몰았어요.':
+    'Theo lời Circe, Odysseus lái tàu tránh xoáy nước, về phía vách đá.',
+  '모두가 힘을 다해 노를 저어 마침내 해협을 빠져나왔지요.': 'Mọi người dốc sức chèo, cuối cùng đã vượt qua eo biển.',
+  '긴 세월이 흐른 뒤, 오디세우스는 마침내 이타카의 해변에 닿았어요.':
+    'Sau bao năm tháng, cuối cùng Odysseus cũng đặt chân lên bờ biển Ithaca.',
+  '페넬로페와 텔레마코스는 지혜와 용기로 그를 기다려 왔어요.':
+    'Penelope và Telemachus đã chờ đợi chàng bằng trí tuệ và lòng dũng cảm.',
+  '모험은 끝났지만, 귀환의 이야기는 지금까지 전해지고 있어요.':
+    'Cuộc phiêu lưu đã kết thúc, nhưng câu chuyện trở về vẫn được kể đến ngày nay.',
+  '스킬라와 카리브디스의 해협': 'Eo biển Scylla và Charybdis',
+  '소용돌이를 뛰어넘고 절벽의 스킬라를 피해, 마지막 해협을 지나 이타카로!':
+    'Nhảy qua xoáy nước, né Scylla trên vách đá, vượt eo biển cuối cùng về Ithaca!',
+  '노를 젓는 동료들': 'Những người bạn chèo thuyền',
+  '노래를 지나온 선원들은 다시 힘을 모아 노를 저었어요. 하지만 앞에는 더 좁은 해협이 기다리고 있었지요.':
+    'Vượt qua tiếng hát, các thủy thủ lại gom sức chèo tiếp. Nhưng phía trước là một eo biển còn hẹp hơn.',
+  '스킬라와 카리브디스': 'Scylla và Charybdis',
+  '해협 한쪽 절벽에는 머리 여섯 개의 스킬라가, 다른 쪽에는 바닷물을 삼키는 소용돌이 카리브디스가 있었어요.':
+    'Một bên vách eo biển là Scylla sáu đầu, bên kia là Charybdis, xoáy nước nuốt chửng nước biển.',
+  '소용돌이를 피해': 'Tránh xoáy nước',
+  '오디세우스는 키르케의 조언대로 소용돌이에서 멀리, 절벽 쪽으로 배를 몰아 해협을 빠져나왔어요.':
+    'Theo lời Circe, Odysseus tránh xa xoáy nước và lái tàu men vách đá ra khỏi eo biển.',
+  '바닷물을 삼켰다 뱉으며 큰 소용돌이를 만드는 괴물은?':
+    'Quái vật nào nuốt rồi phun nước biển, tạo ra xoáy nước khổng lồ?',
+  카리브디스: 'Charybdis',
+  세이렌: 'Siren',
+  '카리브디스는 하루에 세 번 바닷물을 삼켰다 뱉으며 무서운 소용돌이를 만들었어요.':
+    'Mỗi ngày ba lần, Charybdis nuốt rồi phun nước biển, tạo nên xoáy nước đáng sợ.',
+  '해협 절벽에 살던 스킬라의 머리는 몇 개였을까요?': 'Scylla sống trên vách eo biển có bao nhiêu cái đầu?',
+  '한 개': 'Một',
+  '세 개': 'Ba',
+  '여섯 개': 'Sáu',
+  '스킬라는 머리가 여섯 개인 괴물로, 지나가는 배의 선원을 낚아챘다고 전해져요.':
+    'Scylla là quái vật sáu đầu, tương truyền chuyên chộp thủy thủ trên những con tàu đi qua.',
+  '소용돌이와 절벽 사이를 익숙한 길로 지나요.': 'Đi qua giữa xoáy nước và vách đá theo lối quen thuộc.',
+  '절벽 바짝 항로': 'Lối sát vách đá',
+  '스킬라의 절벽을 따라 새로운 순서로 달려요.': 'Chạy dọc vách đá của Scylla theo thứ tự mới.',
+  '소용돌이 우회길': 'Lối vòng tránh xoáy nước',
+  '달라진 물살과 소용돌이를 살펴봐요.': 'Quan sát dòng nước và xoáy nước đã đổi khác.',
+  '! 카리브디스의 소용돌이 · 점프로 건너기': '! Xoáy nước Charybdis · nhảy qua',
+  '모든 항로의 영웅': 'Anh hùng mọi hải trình',
+  '모든 섬과 해협을 완주해요': 'Hoàn thành mọi đảo và eo biển',
+  '모든 보스를 돌파해요': 'Vượt qua mọi boss',
+  '소리 크기 설정을 확인해 주세요.': 'Hãy kiểm tra cài đặt âm lượng.',
+  '보기·조작 도움 설정을 확인해 주세요.': 'Hãy kiểm tra cài đặt hỗ trợ hiển thị và điều khiển.',
+  '학생이 만든 코스': 'đường chạy học sinh tạo',
+  '둘이서 번갈아 달리기': 'Hai người chạy luân phiên',
+  '한 화면에서 두 명이 같은 코스를 차례로 달리고, 두 점수를 합쳐 팀 점수를 만들어요. 기록·해금에는 반영하지 않아요.':
+    'Hai người lần lượt chạy cùng một đường trên một màn hình và cộng hai điểm thành điểm đội. Không ảnh hưởng kỷ lục hay mở khóa.',
+  '첫 번째 항해사': 'Thủy thủ thứ nhất',
+  '두 번째 항해사': 'Thủy thủ thứ hai',
+  '전자칠판이나 한 대의 태블릿에서 차례로 달리기 좋아요.':
+    'Phù hợp để chạy luân phiên trên bảng điện tử hoặc một máy tính bảng.',
+  '둘이서 번갈아': 'Hai người luân phiên',
+  '첫 번째 항해사 출발 →': 'Thủy thủ thứ nhất xuất phát →',
+  '두 항해사의 이름을 적어 주세요.': 'Hãy viết tên của cả hai thủy thủ.',
+  '‘{x}’ 차례예요': 'Đến lượt ‘{x}’',
+  '{x} · 기본 항로 · 약 75초': '{x} · Hải trình cơ bản · khoảng 75 giây',
+  '‘{x}’ 차례로 →': 'Đến lượt ‘{x}’ →',
+  '‘{x}’ {n}점 앞섰어요': '‘{x}’ dẫn trước {n} điểm',
+  '팀 점수 {n}': 'Điểm đội {n}',
+  '둘이서 번갈아 달린 기록은 기록·해금에 반영하지 않아요.': 'Lượt chạy luân phiên không ảnh hưởng kỷ lục hay mở khóa.',
+  '{n}점 · 별빛 {n} · HP 손실 {n}회': '{n} điểm · ánh sao {n} · mất máu {n} lần',
+  '같은 둘이 다시': 'Hai người đó chạy lại',
+  '새로 정하기': 'Chọn lại',
+  '반 코스 갤러리': 'Bộ sưu tập đường chạy của lớp',
+  '‘{x}’ 코스를 갤러리에 담았어요.': 'Đã thêm đường chạy ‘{x}’ vào bộ sưu tập.',
+  '갤러리가 가득 찼어요. 코스를 몇 개 지워 주세요.': 'Bộ sưu tập đã đầy. Hãy xóa bớt vài đường chạy.',
+  '학생 코스 화면의 링크를 붙여 넣어 주세요.': 'Hãy dán liên kết từ màn hình đường chạy của học sinh.',
+  '‘{x}’ 코스를 담았어요.': 'Đã thêm đường chạy ‘{x}’.',
+  '코스를 지웠어요.': 'Đã xóa đường chạy.',
+  '학생 코스로 대회를 만들었어요. 참가 QR을 띄워 주세요.':
+    'Đã tạo cuộc thi trên đường chạy của học sinh. Hãy hiển thị mã QR tham gia.',
+  '📜 연대기': '📜 Biên niên sử',
+  '둘이서 번갈아 · {x}': 'Hai người luân phiên · {x}',
+  '📜 그림 이야기 보기': '📜 Xem truyện tranh',
+  '👥 둘이서 번갈아 달리기': '👥 Hai người chạy luân phiên',
+  '한 화면에서 두 명이 같은 코스를 차례로 달리고 팀 점수를 만들어요.':
+    'Hai người lần lượt chạy cùng một đường trên một màn hình để lấy điểm đội.',
+  '둘이서 달리기': 'Chạy hai người',
+  '오디세이아 연대기': 'Biên niên sử Odyssey',
+  '트로이에서 이타카까지, 완주한 섬의 그림 이야기를 다시 봐요.':
+    'Từ Troy đến Ithaca: xem lại truyện tranh về các đảo bạn đã hoàn thành.',
+  '연대기 보기': 'Xem biên niên sử',
+  '연표 포스터를 저장했어요.': 'Đã lưu áp phích dòng thời gian.',
+  '포스터를 만들지 못했어요.': 'Không tạo được áp phích.',
+  '학생 요약': 'Tóm tắt học sinh',
+  활동지: 'Phiếu bài tập',
+  '👥 {x} 차례': '👥 Lượt của {x}',
+  '섬을 완주할 때마다 이야기 카드가 한 장씩 열려요. {n} / {n}장':
+    'Mỗi đảo hoàn thành sẽ mở một thẻ truyện. {n} / {n} thẻ',
+  '이야기 보기': 'Xem truyện',
+  '섬을 완주하면 열려요': 'Mở khi bạn hoàn thành đảo',
+  '처음부터 이야기만 보기': 'Xem cả câu chuyện từ đầu',
+  '🖼 연표 포스터 저장': '🖼 Lưu áp phích dòng thời gian',
+  '← 이전': '← Trước',
+  '다음 이야기 →': 'Truyện tiếp theo →',
+  '이야기 닫기': 'Đóng truyện',
+  '다음 →': 'Tiếp →',
+  '그만 보기': 'Dừng xem',
+  '트로이에서 이타카까지': 'Từ Troy đến Ithaca',
+  '🖨 복습 활동지 만들기': '🖨 Tạo phiếu ôn tập',
+  '🖨 활동지 만들기': '🖨 Tạo phiếu bài tập',
+  '🗂 반 코스 갤러리': '🗂 Bộ sưu tập đường chạy của lớp',
+  '학생들이 보낸 코스를 모아 손을 들어 투표하고, 뽑힌 코스로 대회를 열어요. 이 기기에만 저장해요.':
+    'Gom các đường chạy học sinh gửi, giơ tay bình chọn và tổ chức cuộc thi trên đường được chọn. Chỉ lưu trên máy này.',
+  '코스 링크 붙여넣기': 'Dán liên kết đường chạy',
+  '학생의 코스 링크': 'Liên kết đường chạy của học sinh',
+  '갤러리에 담기': 'Thêm vào bộ sưu tập',
+  '한 표 더하기': 'Thêm một phiếu',
+  '한 표 빼기': 'Bớt một phiếu',
+  '투표 {n}표': '{n} phiếu',
+  '달려 보기': 'Chạy thử',
+  '이 코스로 대회 열기': 'Tổ chức cuộc thi trên đường này',
+  '아직 담긴 코스가 없어요. 학생이 「QR로 보내기」한 링크를 붙여 넣거나, 받은 코스 화면에서 「반 갤러리에 담기」를 눌러 주세요.':
+    'Chưa có đường chạy nào. Hãy dán liên kết học sinh gửi bằng “Gửi bằng QR”, hoặc nhấn “Thêm vào bộ sưu tập lớp” ở màn hình đường chạy nhận được.',
+  '반 갤러리에 담기': 'Thêm vào bộ sưu tập lớp',
+  '최근 {n}주 항해': 'Ra khơi trong {n} tuần gần đây',
+  '주마다 항해한 항해사 수': 'số thủy thủ ra khơi mỗi tuần',
+  '주별 항해한 항해사 수': 'Số thủy thủ ra khơi theo tuần',
+  '이번 주 {n}명 · 항해한 날 모두 {n}일. 학생 이름을 누르면 한 장 요약을 볼 수 있어요.':
+    'Tuần này {n} thủy thủ · tổng cộng {n} ngày ra khơi. Nhấn vào tên để xem tóm tắt một trang.',
+  '오디세이 런 기록': 'Kỷ lục Odyssey Run',
+  '{x} 기준 · 이 기기에 저장된 기록': 'Tính đến {x} · dữ liệu lưu trên máy này',
+  '섬 완주': 'Đảo đã hoàn thành',
+  '모험의 발자취': 'Dấu chân phiêu lưu',
+  '최근 4주 동안 {n}일 항해 · 연속 {n}일 · 최고 연속 {n}일':
+    '{n} ngày ra khơi trong 4 tuần qua · chuỗi {n} ngày · dài nhất {n} ngày',
+  '선생님 한마디': 'Lời nhắn của giáo viên',
+  '🖨 인쇄하기': '🖨 In',
+  '진행 현황으로': 'Về tiến độ',
+  '위험물 무늬와 큰 경고': 'Sọc nguy hiểm và cảnh báo lớn',
+  '위험한 장애물과 몬스터에 줄무늬 테두리를 두르고 경고를 크게 보여 줘요. 색을 구별하기 어렵거나 화면이 잘 안 보일 때 도움이 돼요.':
+    'Chướng ngại vật nguy hiểm và quái vật có viền sọc, cảnh báo hiện to hơn. Hữu ích khi khó phân biệt màu hoặc khó nhìn màn hình.',
+  '스위치로 메뉴 고르기': 'Chọn menu bằng công tắc',
+  '메뉴의 버튼이 차례로 하나씩 강조되고, Space나 Enter(보조 스위치)를 누르면 강조된 버튼을 골라요.':
+    'Các nút trong menu lần lượt được tô sáng; nhấn Space hoặc Enter (công tắc hỗ trợ) để chọn nút đang sáng.',
+  '예: 민준': 'VD: Minjun',
+  '배경음 크기': 'Âm lượng nhạc nền',
+  '효과음·날씨 소리 크기': 'Âm lượng hiệu ứng và thời tiết',
+  '읽어 주기 크기': 'Âm lượng đọc to',
+  '오디세이 런 활동지': 'Phiếu bài tập Odyssey Run',
+  '이름 ____________ · 날짜 {x}': 'Tên ____________ · Ngày {x}',
+  '1. 빈칸에 알맞은 말을 써 보세요': '1. Điền vào chỗ trống',
+  '이야기 빈칸 문제는 한국어 원문으로 만들어요.': 'Phần điền chỗ trống dùng nguyên văn tiếng Hàn.',
+  '2. 인물과 알맞은 설명을 선으로 이어 보세요': '2. Nối mỗi nhân vật với mô tả phù hợp',
+  '3. 다시 풀어 보는 신화 퀴즈': '3. Ôn lại câu đố thần thoại',
+  '정답 (선생님용)': 'Đáp án (dành cho giáo viên)',
 };

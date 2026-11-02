@@ -53,7 +53,7 @@ export interface EndlessRecord {
 }
 export const SAVE_KEY = `odyssey-run:${new URL(import.meta.env?.BASE_URL || './', typeof location === 'undefined' ? 'http://local/' : location.href).pathname}:save`;
 export const BACKUP_KEY = SAVE_KEY + ':backup';
-const LATER_STAGES: readonly StageId[] = ['sea', 'circe'];
+const LATER_STAGES: readonly StageId[] = ['sea', 'circe', 'strait'];
 const emptyRecord = (): RecordData => ({complete: false, bestScore: 0, bestRating: 0, bestStars: 0, maps: []});
 export const emptySave = (): Save => ({
   schemaVersion: 1,
@@ -63,7 +63,14 @@ export const emptySave = (): Save => ({
   expeditions: emptyExpeditions(),
   tutorialSeen: false,
   lastStage: 'beach',
-  stages: {beach: emptyRecord(), cave: emptyRecord(), wind: emptyRecord(), circe: emptyRecord(), sea: emptyRecord()},
+  stages: {
+    beach: emptyRecord(),
+    cave: emptyRecord(),
+    wind: emptyRecord(),
+    circe: emptyRecord(),
+    sea: emptyRecord(),
+    strait: emptyRecord(),
+  },
   savedAt: new Date().toISOString(),
   journal: emptyJournal(),
   courses: {},

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {C} from '../src/config';
 import {Runner} from '../src/player/runner';
-import {COURSES, LIFT, MOLY_TIME, SEESAW, STAGES, isCeiling} from '../src/levels/courses';
+import {COURSES, CURRENT_PULL, LIFT, MOLY_TIME, SEESAW, STAGES, isCeiling} from '../src/levels/courses';
 import {BOSS_COURSES} from '../src/levels/bosses';
 import {buildEndless} from '../src/levels/endless';
 import {getCourse} from '../src/levels/variants';
@@ -103,4 +103,23 @@ test("Circe's spell seals the air jump until moly is eaten, on every course and 
     assert.ok(moly, String(z.x));
     assert.ok(MOLY_TIME * C.speed > z.w + (z.x - moly.x));
   }
+});
+
+test("Charybdis's whirlpools slow the hero on the ground but not in the air, on every strait course", () => {
+  for (const c of [COURSES.strait, getCourse('strait', 'remix-a'), getCourse('strait', 'remix-b'), BOSS_COURSES.strait])
+    assert.ok(c.currents?.length, c.routeName ?? c.name);
+  assert.ok(buildEndless('strait', 'seed').currents!.length > 4);
+  for (const id of STAGES.filter(id => id !== 'strait')) assert.ok(!COURSES[id].currents?.length, id);
+  const z = COURSES.strait.currents![0];
+  const walk = new Runner('strait');
+  runFrom(walk, z.x + 20);
+  walk.tick();
+  assert.ok(Math.abs(walk.x - (z.x + 20) - C.speed * CURRENT_PULL * C.step) < 1e-6);
+  const leap = new Runner('strait');
+  runFrom(leap, z.x - 80);
+  leap.jump();
+  while (leap.x < z.x + 20) leap.tick();
+  const before = leap.x;
+  leap.tick();
+  assert.ok(Math.abs(leap.x - before - C.speed * C.step) < 1e-6);
 });

@@ -81,6 +81,9 @@ jobs:
             run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=en QA_SAVES=played npm run test:layout
           - suite: access
             run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:access
+          # Bundle and offline-core size, and a 4× slower CPU opening the game and running.
+          - suite: budget
+            run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:budget
           # The same screens with the device's "more contrast" setting and a 20px browser font.
           - suite: layout-contrast
             run: QA_URL="http://localhost:4176$PAGES_BASE" QA_CONTRAST=more QA_LANGS=ko QA_SAVES=played npm run test:layout

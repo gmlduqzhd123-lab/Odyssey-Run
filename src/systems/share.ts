@@ -91,6 +91,8 @@ export interface ContestLink {
   stage: StageId;
   variant: VariantId;
   assist: boolean;
+  // A student-built course run instead of the island course.
+  blocks?: string;
 }
 export interface ContestResult {
   kind: 'result';
@@ -125,6 +127,10 @@ export function encodeLink(link: Link): string {
       ['g1', link.stage, link.variant, link.score, d, packSteps(link.ghost.samples), textOut(link.name)].join('.'),
     );
   }
+  if (link.kind === 'contest' && link.blocks)
+    return seal(
+      ['c2', link.id, link.stage, link.variant, link.assist ? 1 : 0, link.blocks, textOut(link.title)].join('.'),
+    );
   if (link.kind === 'contest')
     return seal(['c1', link.id, link.stage, link.variant, link.assist ? 1 : 0, textOut(link.title)].join('.'));
   if (link.kind === 'course') return seal(['m1', link.stage, link.blocks, textOut(link.title)].join('.'));
@@ -169,6 +175,16 @@ export function decodeLink(code: string): Link {
         variant: variant(f[2]),
         assist: f[3] === '1',
         title: (cleanName(textIn(f[4])) || '우리 반 대회').slice(0, 12),
+      };
+    if (kind === 'c2' && f.length === 6 && /^[a-z0-9]{6}$/.test(f[0]) && /^[01]$/.test(f[3]) && isBlocks(f[4]))
+      return {
+        kind: 'contest',
+        id: f[0],
+        stage: stage(f[1]),
+        variant: variant(f[2]),
+        assist: f[3] === '1',
+        blocks: f[4],
+        title: (cleanName(textIn(f[5])) || '우리 반 대회').slice(0, 12),
       };
     if (kind === 'm1' && f.length === 3 && isBlocks(f[1]))
       return {

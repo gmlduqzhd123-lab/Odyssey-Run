@@ -275,4 +275,213 @@ export const EN_5: Record<string, string> = {
   '· 인원 초과로 건너뜀 {n}명': '· skipped (full): {n}',
   '코스 링크 QR 코드': 'Course link QR code',
   별점: 'Rating',
+  '이 모험의 주인공이에요. 용기와 지혜로 여섯 곳의 바다와 섬을 지나 고향 이타카로 돌아가요.':
+    'The hero of this adventure. With courage and wits he crosses six seas and islands to reach his home, Ithaca.',
+  '이 게임의 안내 인물이에요. 열여덟 조각의 지도를 모으며 이타카로 가는 길을 찾아요.':
+    'A guide made for this game. She gathers eighteen map fragments to find the way to Ithaca.',
+  '출항의 해변, 키클롭스의 동굴, 바람 섬, 마법의 숲, 세이렌의 절벽, 폭풍의 해협과 도착 항구의 풍경이에요. 이번 항로는 여섯 곳을 지나 이타카로 이어져요.':
+    "Landscapes of the Beach of Departure, the Cyclops' Cave, the Island of the Winds, the magic forest, the Sirens' cliffs, the stormy strait and the harbour of arrival. This voyage passes six places on the way to Ithaca.",
+  '절벽 쪽으로': 'Toward the cliff',
+  '키르케의 조언': "Circe's advice",
+  '두려움보다 지혜로운 선택을 해요.': 'Choose wisely, not fearfully.',
+  '소용돌이에 배가 통째로 삼켜지는 것보다, 절벽 쪽으로 붙어 빨리 지나가는 편이 낫다고 오디세우스는 생각했어요. 선원들은 힘을 다해 노를 저었지요.':
+    'Odysseus judged it better to hug the cliff and pass quickly than to let the whirlpool swallow the whole ship. The sailors rowed with all their might.',
+  '미리 들은 조언이 배를 지켜요.': 'Advice heard in time keeps the ship safe.',
+  '키르케는 해협을 건널 때 멈추지 말고 서둘러 지나가라고 일러 주었어요. 오디세우스는 그 말을 기억하고 한순간도 노를 멈추지 않게 했어요.':
+    'Circe had told him not to stop but to hurry through the strait. Odysseus remembered and did not let the oars rest for a moment.',
+  '카리브디스의 소용돌이': "Charybdis's Whirlpool",
+  '소용돌이 위에서는 느려져요 · 점프로 건너요': 'You slow down on the whirlpool · jump across',
+  '스킬라의 머리를 넘고, 하르피아 아래로 숙이고, 소용돌이 위를 점프로 건너요.':
+    "Leap Scylla's heads, duck under the harpies and jump over the whirlpool.",
+  '바다 바람의 하르피아 · 숙이기': 'Sea-wind harpies · duck',
+  '소용돌이 · 점프로 건너기': 'Whirlpool · jump across',
+  '트로이를 떠나며': 'Leaving Troy',
+  '십 년의 전쟁이 끝났어요. 나무 목마의 꾀로 트로이는 무너졌지요.':
+    'Ten years of war were over. The trick of the wooden horse had brought Troy down.',
+  '오디세우스와 선원들은 배에 올라 고향 이타카를 향해 돛을 올렸어요.':
+    'Odysseus and his sailors boarded their ship and raised the sail for home, Ithaca.',
+  '하지만 신들은 이 귀환이 아주 긴 여정이 될 줄 알고 있었어요.':
+    'But the gods knew this homecoming would be a very long journey.',
+  '낯선 해변에서': 'On a strange beach',
+  '거센 파도에 밀려 배는 낯선 해변에 닿았어요.': 'Rough waves drove the ship onto a strange beach.',
+  '친절한 사람들은 지친 선원들에게 물과 빵을 나누어 주었어요.':
+    'Kind people shared water and bread with the tired sailors.',
+  '오디세우스는 고마움을 마음에 새기고 다시 노를 저었어요.': 'Odysseus kept their kindness in his heart and rowed on.',
+  '외눈박이 거인의 동굴': "The one-eyed giant's cave",
+  '어느 섬의 동굴에서 일행은 외눈박이 거인 폴리페모스에게 갇혔어요.':
+    'In a cave on an island, the crew was trapped by the one-eyed giant Polyphemus.',
+  '오디세우스는 자신을 ‘아무도 아닌 사람’이라 부르며 꾀를 냈어요.':
+    'Odysseus called himself ‘Nobody’ and thought up a trick.',
+  '양의 배에 매달린 선원들은 마침내 동굴을 빠져나왔지요.':
+    "Clinging under the sheep's bellies, the sailors finally escaped the cave.",
+  '바람의 자루': 'The bag of winds',
+  '바람의 주인 아이올로스는 거센 바람을 자루에 담아 선물했어요.':
+    'Aeolus, master of the winds, gave them the storm winds tied up in a bag.',
+  '순풍을 타고 고향이 보일 즈음, 선원들이 자루를 열고 말았어요.':
+    'With a fair wind, just as home came into sight, the sailors opened the bag.',
+  '쏟아진 바람은 배를 다시 먼 바다로 밀어냈어요.': 'The rushing winds drove the ship far out to sea again.',
+  '마녀 키르케의 섬': 'The island of Circe the sorceress',
+  '숲속 궁전의 마녀 키르케는 선원들을 돼지로 바꾸어 버렸어요.':
+    'In her forest palace, Circe the sorceress turned the sailors into pigs.',
+  '헤르메스가 준 하얀 꽃 몰리 덕분에 오디세우스는 마법에 걸리지 않았어요.':
+    'Thanks to moly, the white flower from Hermes, Odysseus was not enchanted.',
+  '키르케는 선원들을 사람으로 돌려놓고 앞으로의 길을 알려 주었어요.':
+    'Circe turned the sailors back into men and told them of the way ahead.',
+  '바위섬의 세이렌은 아름다운 노래로 뱃사람을 불렀어요.':
+    'On their rocky island, the Sirens called sailors with beautiful songs.',
+  '선원들은 밀랍으로 귀를 막고, 오디세우스는 자신을 돛대에 묶었어요.':
+    'The sailors stopped their ears with wax, and Odysseus had himself tied to the mast.',
+  '약속을 지킨 덕분에 배는 노래를 무사히 지나갔어요.':
+    'Because they kept their promise, the ship passed the song safely.',
+  '두 괴물 사이의 해협': 'The strait between two monsters',
+  '한쪽 절벽에는 머리 여섯의 스킬라, 다른 쪽에는 소용돌이 카리브디스가 있었어요.':
+    'On one cliff lived six-headed Scylla, on the other side the whirlpool Charybdis.',
+  '오디세우스는 키르케의 조언대로 소용돌이를 피해 절벽 쪽으로 배를 몰았어요.':
+    "Following Circe's advice, Odysseus steered away from the whirlpool, toward the cliff.",
+  '모두가 힘을 다해 노를 저어 마침내 해협을 빠져나왔지요.':
+    'Everyone rowed with all their strength, and at last they were through the strait.',
+  '긴 세월이 흐른 뒤, 오디세우스는 마침내 이타카의 해변에 닿았어요.':
+    'After long years, Odysseus at last reached the shore of Ithaca.',
+  '페넬로페와 텔레마코스는 지혜와 용기로 그를 기다려 왔어요.':
+    'Penelope and Telemachus had waited for him with wisdom and courage.',
+  '모험은 끝났지만, 귀환의 이야기는 지금까지 전해지고 있어요.':
+    'The adventure ended, but the story of the homecoming is still told today.',
+  '스킬라와 카리브디스의 해협': 'The Strait of Scylla and Charybdis',
+  '소용돌이를 뛰어넘고 절벽의 스킬라를 피해, 마지막 해협을 지나 이타카로!':
+    'Leap the whirlpools, dodge Scylla on the cliff and cross the last strait to Ithaca!',
+  '노를 젓는 동료들': 'Shipmates at the oars',
+  '노래를 지나온 선원들은 다시 힘을 모아 노를 저었어요. 하지만 앞에는 더 좁은 해협이 기다리고 있었지요.':
+    'Past the song, the sailors gathered their strength and rowed on. But an even narrower strait lay ahead.',
+  '스킬라와 카리브디스': 'Scylla and Charybdis',
+  '해협 한쪽 절벽에는 머리 여섯 개의 스킬라가, 다른 쪽에는 바닷물을 삼키는 소용돌이 카리브디스가 있었어요.':
+    'On one cliff of the strait lived Scylla with six heads; on the other side, Charybdis, the whirlpool that swallowed the sea.',
+  '소용돌이를 피해': 'Away from the whirlpool',
+  '오디세우스는 키르케의 조언대로 소용돌이에서 멀리, 절벽 쪽으로 배를 몰아 해협을 빠져나왔어요.':
+    'As Circe advised, Odysseus kept far from the whirlpool and steered along the cliff out of the strait.',
+  '바닷물을 삼켰다 뱉으며 큰 소용돌이를 만드는 괴물은?':
+    'Which monster swallows and spits out the sea, making a huge whirlpool?',
+  카리브디스: 'Charybdis',
+  세이렌: 'Sirens',
+  '카리브디스는 하루에 세 번 바닷물을 삼켰다 뱉으며 무서운 소용돌이를 만들었어요.':
+    'Three times a day Charybdis swallowed the sea and spat it out, making a terrible whirlpool.',
+  '해협 절벽에 살던 스킬라의 머리는 몇 개였을까요?':
+    'How many heads did Scylla, who lived on the cliff of the strait, have?',
+  '한 개': 'One',
+  '세 개': 'Three',
+  '여섯 개': 'Six',
+  '스킬라는 머리가 여섯 개인 괴물로, 지나가는 배의 선원을 낚아챘다고 전해져요.':
+    'Scylla was a six-headed monster said to snatch sailors from passing ships.',
+  '소용돌이와 절벽 사이를 익숙한 길로 지나요.': 'Pass between the whirlpool and the cliff on the familiar route.',
+  '절벽 바짝 항로': 'The Cliff-Hugging Route',
+  '스킬라의 절벽을 따라 새로운 순서로 달려요.': "Run along Scylla's cliff in a new order.",
+  '소용돌이 우회길': 'The Whirlpool Detour',
+  '달라진 물살과 소용돌이를 살펴봐요.': 'Watch the changed currents and whirlpools.',
+  '! 카리브디스의 소용돌이 · 점프로 건너기': "! Charybdis's whirlpool · jump across",
+  '모든 항로의 영웅': 'Hero of every route',
+  '모든 섬과 해협을 완주해요': 'Finish every island and the strait',
+  '모든 보스를 돌파해요': 'Clear every boss',
+  '소리 크기 설정을 확인해 주세요.': 'Please check the volume settings.',
+  '보기·조작 도움 설정을 확인해 주세요.': 'Please check the viewing and control help settings.',
+  '학생이 만든 코스': "a student's course",
+  '둘이서 번갈아 달리기': 'Two sailors, taking turns',
+  '한 화면에서 두 명이 같은 코스를 차례로 달리고, 두 점수를 합쳐 팀 점수를 만들어요. 기록·해금에는 반영하지 않아요.':
+    "Two sailors run the same course in turn on one screen, and the two scores add up to a team score. Records and unlocks don't change.",
+  '첫 번째 항해사': 'First sailor',
+  '두 번째 항해사': 'Second sailor',
+  '전자칠판이나 한 대의 태블릿에서 차례로 달리기 좋아요.': 'Good for taking turns on a classroom board or one tablet.',
+  '둘이서 번갈아': 'Two sailors',
+  '첫 번째 항해사 출발 →': 'First sailor, go →',
+  '두 항해사의 이름을 적어 주세요.': "Please write both sailors' names.",
+  '‘{x}’ 차례예요': '‘{x}’’s turn',
+  '{x} · 기본 항로 · 약 75초': '{x} · Classic route · about 75 s',
+  '‘{x}’ 차례로 →': '‘{x}’’s turn →',
+  '‘{x}’ {n}점 앞섰어요': '‘{x}’ is ahead by {n} points',
+  '팀 점수 {n}': 'Team score {n}',
+  '둘이서 번갈아 달린 기록은 기록·해금에 반영하지 않아요.': "Taking-turns runs don't change records or unlocks.",
+  '{n}점 · 별빛 {n} · HP 손실 {n}회': '{n} points · starlight {n} · HP lost {n}×',
+  '같은 둘이 다시': 'Same two again',
+  '새로 정하기': 'Choose again',
+  '반 코스 갤러리': 'Class course gallery',
+  '‘{x}’ 코스를 갤러리에 담았어요.': 'The course ‘{x}’ is in the gallery.',
+  '갤러리가 가득 찼어요. 코스를 몇 개 지워 주세요.': 'The gallery is full. Please remove a few courses.',
+  '학생 코스 화면의 링크를 붙여 넣어 주세요.': "Please paste the link from a student's course screen.",
+  '‘{x}’ 코스를 담았어요.': 'Added the course ‘{x}’.',
+  '코스를 지웠어요.': 'Course removed.',
+  '학생 코스로 대회를 만들었어요. 참가 QR을 띄워 주세요.':
+    "A contest on the student's course is ready. Show the join QR.",
+  '📜 연대기': '📜 Chronicle',
+  '둘이서 번갈아 · {x}': 'Two sailors · {x}',
+  '📜 그림 이야기 보기': '📜 Watch the picture story',
+  '👥 둘이서 번갈아 달리기': '👥 Two sailors, taking turns',
+  '한 화면에서 두 명이 같은 코스를 차례로 달리고 팀 점수를 만들어요.':
+    'Two sailors run the same course in turn on one screen for a team score.',
+  '둘이서 달리기': 'Run as two',
+  '오디세이아 연대기': 'The Odyssey chronicle',
+  '트로이에서 이타카까지, 완주한 섬의 그림 이야기를 다시 봐요.':
+    'From Troy to Ithaca: watch the picture stories of the islands you finished.',
+  '연대기 보기': 'Open the chronicle',
+  '연표 포스터를 저장했어요.': 'The timeline poster is saved.',
+  '포스터를 만들지 못했어요.': "Couldn't make the poster.",
+  '학생 요약': 'Student summary',
+  활동지: 'Worksheet',
+  '👥 {x} 차례': "👥 {x}'s turn",
+  '섬을 완주할 때마다 이야기 카드가 한 장씩 열려요. {n} / {n}장':
+    'Each island you finish opens one story card. {n} / {n} cards',
+  '이야기 보기': 'Watch the story',
+  '섬을 완주하면 열려요': 'Opens when you finish the island',
+  '처음부터 이야기만 보기': 'Watch the whole story from the start',
+  '🖼 연표 포스터 저장': '🖼 Save timeline poster',
+  '← 이전': '← Back',
+  '다음 이야기 →': 'Next story →',
+  '이야기 닫기': 'Close the story',
+  '다음 →': 'Next →',
+  '그만 보기': 'Stop watching',
+  '트로이에서 이타카까지': 'From Troy to Ithaca',
+  '🖨 복습 활동지 만들기': '🖨 Make a review worksheet',
+  '🖨 활동지 만들기': '🖨 Make a worksheet',
+  '🗂 반 코스 갤러리': '🗂 Class course gallery',
+  '학생들이 보낸 코스를 모아 손을 들어 투표하고, 뽑힌 코스로 대회를 열어요. 이 기기에만 저장해요.':
+    'Collect the courses students send, vote by show of hands, and hold a contest on the winner. Stored on this device only.',
+  '코스 링크 붙여넣기': 'Paste a course link',
+  '학생의 코스 링크': "The student's course link",
+  '갤러리에 담기': 'Add to gallery',
+  '한 표 더하기': 'Add a vote',
+  '한 표 빼기': 'Remove a vote',
+  '투표 {n}표': '{n} votes',
+  '달려 보기': 'Try it',
+  '이 코스로 대회 열기': 'Hold a contest on this course',
+  '아직 담긴 코스가 없어요. 학생이 「QR로 보내기」한 링크를 붙여 넣거나, 받은 코스 화면에서 「반 갤러리에 담기」를 눌러 주세요.':
+    'No courses yet. Paste a link a student sent with “Send by QR”, or press “Add to class gallery” on a received course.',
+  '반 갤러리에 담기': 'Add to class gallery',
+  '최근 {n}주 항해': 'Sailing over the last {n} weeks',
+  '주마다 항해한 항해사 수': 'sailors who sailed each week',
+  '주별 항해한 항해사 수': 'Sailors who sailed, by week',
+  '이번 주 {n}명 · 항해한 날 모두 {n}일. 학생 이름을 누르면 한 장 요약을 볼 수 있어요.':
+    'This week {n} sailors · {n} sailing days in all. Press a name for a one-page summary.',
+  '오디세이 런 기록': 'Odyssey Run record',
+  '{x} 기준 · 이 기기에 저장된 기록': 'As of {x} · records stored on this device',
+  '섬 완주': 'Islands finished',
+  '모험의 발자취': 'Adventure footprints',
+  '최근 4주 동안 {n}일 항해 · 연속 {n}일 · 최고 연속 {n}일':
+    '{n} sailing days in the last 4 weeks · streak {n} · best streak {n}',
+  '선생님 한마디': 'A note from the teacher',
+  '🖨 인쇄하기': '🖨 Print',
+  '진행 현황으로': 'Back to progress',
+  '위험물 무늬와 큰 경고': 'Hazard stripes and big warnings',
+  '위험한 장애물과 몬스터에 줄무늬 테두리를 두르고 경고를 크게 보여 줘요. 색을 구별하기 어렵거나 화면이 잘 안 보일 때 도움이 돼요.':
+    'Dangerous obstacles and monsters get a striped frame, and warnings are shown larger. Helps when colours are hard to tell apart or the screen is hard to see.',
+  '스위치로 메뉴 고르기': 'Choose menus with a switch',
+  '메뉴의 버튼이 차례로 하나씩 강조되고, Space나 Enter(보조 스위치)를 누르면 강조된 버튼을 골라요.':
+    'Menu buttons are highlighted one at a time; press Space or Enter (an access switch) to choose the highlighted one.',
+  '예: 민준': 'e.g. Minjun',
+  '배경음 크기': 'Music volume',
+  '효과음·날씨 소리 크기': 'Effects & weather volume',
+  '읽어 주기 크기': 'Read-aloud volume',
+  '오디세이 런 활동지': 'Odyssey Run worksheet',
+  '이름 ____________ · 날짜 {x}': 'Name ____________ · Date {x}',
+  '1. 빈칸에 알맞은 말을 써 보세요': '1. Fill in the blanks',
+  '이야기 빈칸 문제는 한국어 원문으로 만들어요.': 'The fill-in-the-blank lines use the original Korean stories.',
+  '2. 인물과 알맞은 설명을 선으로 이어 보세요': '2. Draw lines to match each person with their description',
+  '3. 다시 풀어 보는 신화 퀴즈': '3. Myth quiz review',
+  '정답 (선생님용)': 'Answers (for the teacher)',
 };

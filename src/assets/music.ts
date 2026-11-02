@@ -22,4 +22,9 @@ export const MUSIC = {
     file: 'assets/audio/beach-78e90c47be32.mp3',
     gain: 0.22,
   },
+  // No separate strait track yet: the strait plays the cave's tense theme.
+  strait: {
+    file: 'assets/audio/cave-3b7dca88f289.mp3',
+    gain: 0.22,
+  },
 } as const;

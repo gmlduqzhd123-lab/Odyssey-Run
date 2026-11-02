@@ -17721,6 +17721,3418 @@
           }
         }
       ]
+    },
+    {
+      "stage": "strait",
+      "variant": "classic",
+      "name": "기본 항로",
+      "description": "소용돌이와 절벽 사이를 익숙한 길로 지나요.",
+      "sectionOrder": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "counts": {
+        "stars": 100,
+        "maps": 3,
+        "monsters": 5,
+        "obstacles": 11
+      },
+      "gaps": [
+        {
+          "x": 8500,
+          "w": 180
+        },
+        {
+          "x": 13200,
+          "w": 180
+        },
+        {
+          "x": 19700,
+          "w": 180
+        }
+      ],
+      "obstacles": [
+        {
+          "id": "strait-crate-3600",
+          "x": 3600,
+          "y": 392,
+          "w": 70,
+          "h": 48,
+          "kind": "crate",
+          "role": "structure"
+        },
+        {
+          "id": "strait-pillar-5200",
+          "x": 5200,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "strait-pillar-9700",
+          "x": 9700,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "strait-pillar-14600",
+          "x": 14600,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "strait-pillar-18700",
+          "x": 18700,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "strait-gate-6400",
+          "x": 6400,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "strait-gate-10800",
+          "x": 10800,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "strait-gate-17400",
+          "x": 17400,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "strait-gate-21600",
+          "x": 21600,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "strait-spikes-20925",
+          "x": 20925,
+          "y": 394,
+          "w": 96,
+          "h": 46,
+          "kind": "spikes",
+          "role": "hazard"
+        },
+        {
+          "id": "strait-pounder-10325",
+          "x": 10325,
+          "y": 214,
+          "w": 74,
+          "h": 190,
+          "kind": "pounder",
+          "role": "hazard"
+        }
+      ],
+      "enemies": [
+        {
+          "id": "strait-enemy-ground-1",
+          "kind": "scylla",
+          "x": 7400
+        },
+        {
+          "id": "strait-enemy-ground-3",
+          "kind": "crab",
+          "x": 16200
+        },
+        {
+          "id": "strait-enemy-air-1",
+          "kind": "harpy",
+          "x": 5700
+        },
+        {
+          "id": "strait-enemy-air-2",
+          "kind": "harpy",
+          "x": 14000
+        },
+        {
+          "id": "strait-enemy-air-3",
+          "kind": "harpy",
+          "x": 18200
+        }
+      ],
+      "platforms": [
+        {
+          "id": "strait-branch",
+          "x": 4140,
+          "y": 330,
+          "w": 600
+        },
+        {
+          "id": "strait-crumble-1",
+          "x": 13200,
+          "y": 440,
+          "w": 180,
+          "crumble": true
+        },
+        {
+          "id": "strait-seesaw-1",
+          "x": 19680,
+          "y": 440,
+          "w": 220,
+          "seesaw": true
+        },
+        {
+          "id": "strait-lift-1",
+          "x": 8508,
+          "y": 440,
+          "w": 164,
+          "lift": true
+        }
+      ],
+      "winds": [],
+      "safe": [
+        0,
+        3000,
+        6900,
+        7900,
+        12000,
+        12600,
+        19100,
+        23000
+      ],
+      "items": [
+        {
+          "id": "strait-star-1",
+          "kind": "star",
+          "x": 850,
+          "y": 405
+        },
+        {
+          "id": "strait-star-2",
+          "kind": "star",
+          "x": 915,
+          "y": 405
+        },
+        {
+          "id": "strait-star-3",
+          "kind": "star",
+          "x": 980,
+          "y": 405
+        },
+        {
+          "id": "strait-star-4",
+          "kind": "star",
+          "x": 1045,
+          "y": 405
+        },
+        {
+          "id": "strait-star-5",
+          "kind": "star",
+          "x": 1110,
+          "y": 405
+        },
+        {
+          "id": "strait-star-6",
+          "kind": "star",
+          "x": 2000,
+          "y": 405
+        },
+        {
+          "id": "strait-star-7",
+          "kind": "star",
+          "x": 2065,
+          "y": 405
+        },
+        {
+          "id": "strait-star-8",
+          "kind": "star",
+          "x": 2130,
+          "y": 405
+        },
+        {
+          "id": "strait-star-9",
+          "kind": "star",
+          "x": 2195,
+          "y": 405
+        },
+        {
+          "id": "strait-star-10",
+          "kind": "star",
+          "x": 2260,
+          "y": 405
+        },
+        {
+          "id": "strait-star-11",
+          "kind": "star",
+          "x": 3150,
+          "y": 405
+        },
+        {
+          "id": "strait-star-12",
+          "kind": "star",
+          "x": 3215,
+          "y": 405
+        },
+        {
+          "id": "strait-star-13",
+          "kind": "star",
+          "x": 3280,
+          "y": 405
+        },
+        {
+          "id": "strait-star-14",
+          "kind": "star",
+          "x": 3345,
+          "y": 405
+        },
+        {
+          "id": "strait-star-15",
+          "kind": "star",
+          "x": 3410,
+          "y": 405
+        },
+        {
+          "id": "strait-star-16",
+          "kind": "star",
+          "x": 4310,
+          "y": 285
+        },
+        {
+          "id": "strait-star-17",
+          "kind": "star",
+          "x": 4370,
+          "y": 305
+        },
+        {
+          "id": "strait-star-18",
+          "kind": "star",
+          "x": 4430,
+          "y": 265
+        },
+        {
+          "id": "strait-star-19",
+          "kind": "star",
+          "x": 4490,
+          "y": 305
+        },
+        {
+          "id": "strait-star-20",
+          "kind": "star",
+          "x": 4550,
+          "y": 285
+        },
+        {
+          "id": "strait-star-21",
+          "kind": "star",
+          "x": 5450,
+          "y": 405
+        },
+        {
+          "id": "strait-star-22",
+          "kind": "star",
+          "x": 5515,
+          "y": 405
+        },
+        {
+          "id": "strait-star-23",
+          "kind": "star",
+          "x": 5580,
+          "y": 405
+        },
+        {
+          "id": "strait-star-24",
+          "kind": "star",
+          "x": 5645,
+          "y": 405
+        },
+        {
+          "id": "strait-star-25",
+          "kind": "star",
+          "x": 5710,
+          "y": 405
+        },
+        {
+          "id": "strait-star-26",
+          "kind": "star",
+          "x": 6600,
+          "y": 421
+        },
+        {
+          "id": "strait-star-27",
+          "kind": "star",
+          "x": 6665,
+          "y": 405
+        },
+        {
+          "id": "strait-star-28",
+          "kind": "star",
+          "x": 6730,
+          "y": 405
+        },
+        {
+          "id": "strait-star-29",
+          "kind": "star",
+          "x": 6795,
+          "y": 405
+        },
+        {
+          "id": "strait-star-30",
+          "kind": "star",
+          "x": 6860,
+          "y": 405
+        },
+        {
+          "id": "strait-star-31",
+          "kind": "star",
+          "x": 7680,
+          "y": 405
+        },
+        {
+          "id": "strait-star-32",
+          "kind": "star",
+          "x": 7740,
+          "y": 370
+        },
+        {
+          "id": "strait-star-33",
+          "kind": "star",
+          "x": 7800,
+          "y": 395
+        },
+        {
+          "id": "strait-star-34",
+          "kind": "star",
+          "x": 7860,
+          "y": 370
+        },
+        {
+          "id": "strait-star-35",
+          "kind": "star",
+          "x": 7920,
+          "y": 405
+        },
+        {
+          "id": "strait-star-36",
+          "kind": "star",
+          "x": 8900,
+          "y": 405
+        },
+        {
+          "id": "strait-star-37",
+          "kind": "star",
+          "x": 8965,
+          "y": 405
+        },
+        {
+          "id": "strait-star-38",
+          "kind": "star",
+          "x": 9030,
+          "y": 405
+        },
+        {
+          "id": "strait-star-39",
+          "kind": "star",
+          "x": 9095,
+          "y": 405
+        },
+        {
+          "id": "strait-star-40",
+          "kind": "star",
+          "x": 9160,
+          "y": 405
+        },
+        {
+          "id": "strait-star-41",
+          "kind": "star",
+          "x": 10050,
+          "y": 405
+        },
+        {
+          "id": "strait-star-42",
+          "kind": "star",
+          "x": 10115,
+          "y": 405
+        },
+        {
+          "id": "strait-star-43",
+          "kind": "star",
+          "x": 10180,
+          "y": 405
+        },
+        {
+          "id": "strait-star-44",
+          "kind": "star",
+          "x": 10245,
+          "y": 405
+        },
+        {
+          "id": "strait-star-45",
+          "kind": "star",
+          "x": 10310,
+          "y": 405
+        },
+        {
+          "id": "strait-star-46",
+          "kind": "star",
+          "x": 11200,
+          "y": 405
+        },
+        {
+          "id": "strait-star-47",
+          "kind": "star",
+          "x": 11265,
+          "y": 405
+        },
+        {
+          "id": "strait-star-48",
+          "kind": "star",
+          "x": 11330,
+          "y": 405
+        },
+        {
+          "id": "strait-star-49",
+          "kind": "star",
+          "x": 11395,
+          "y": 405
+        },
+        {
+          "id": "strait-star-50",
+          "kind": "star",
+          "x": 11460,
+          "y": 405
+        },
+        {
+          "id": "strait-star-51",
+          "kind": "star",
+          "x": 12350,
+          "y": 405
+        },
+        {
+          "id": "strait-star-52",
+          "kind": "star",
+          "x": 12415,
+          "y": 405
+        },
+        {
+          "id": "strait-star-53",
+          "kind": "star",
+          "x": 12480,
+          "y": 405
+        },
+        {
+          "id": "strait-star-54",
+          "kind": "star",
+          "x": 12545,
+          "y": 405
+        },
+        {
+          "id": "strait-star-55",
+          "kind": "star",
+          "x": 12610,
+          "y": 405
+        },
+        {
+          "id": "strait-star-56",
+          "kind": "star",
+          "x": 13500,
+          "y": 405
+        },
+        {
+          "id": "strait-star-57",
+          "kind": "star",
+          "x": 13565,
+          "y": 405
+        },
+        {
+          "id": "strait-star-58",
+          "kind": "star",
+          "x": 13630,
+          "y": 405
+        },
+        {
+          "id": "strait-star-59",
+          "kind": "star",
+          "x": 13695,
+          "y": 405
+        },
+        {
+          "id": "strait-star-60",
+          "kind": "star",
+          "x": 13760,
+          "y": 405
+        },
+        {
+          "id": "strait-star-61",
+          "kind": "star",
+          "x": 14650,
+          "y": 225
+        },
+        {
+          "id": "strait-star-62",
+          "kind": "star",
+          "x": 14715,
+          "y": 225
+        },
+        {
+          "id": "strait-star-63",
+          "kind": "star",
+          "x": 14780,
+          "y": 405
+        },
+        {
+          "id": "strait-star-64",
+          "kind": "star",
+          "x": 15460,
+          "y": 260
+        },
+        {
+          "id": "strait-star-65",
+          "kind": "star",
+          "x": 15340,
+          "y": 225
+        },
+        {
+          "id": "strait-star-66",
+          "kind": "star",
+          "x": 15220,
+          "y": 355
+        },
+        {
+          "id": "strait-star-67",
+          "kind": "star",
+          "x": 15280,
+          "y": 290
+        },
+        {
+          "id": "strait-star-68",
+          "kind": "star",
+          "x": 15400,
+          "y": 205
+        },
+        {
+          "id": "strait-star-69",
+          "kind": "star",
+          "x": 15995,
+          "y": 405
+        },
+        {
+          "id": "strait-star-70",
+          "kind": "star",
+          "x": 16060,
+          "y": 320
+        },
+        {
+          "id": "strait-star-71",
+          "kind": "star",
+          "x": 16950,
+          "y": 405
+        },
+        {
+          "id": "strait-star-72",
+          "kind": "star",
+          "x": 17015,
+          "y": 405
+        },
+        {
+          "id": "strait-star-73",
+          "kind": "star",
+          "x": 17080,
+          "y": 405
+        },
+        {
+          "id": "strait-star-74",
+          "kind": "star",
+          "x": 17145,
+          "y": 405
+        },
+        {
+          "id": "strait-star-75",
+          "kind": "star",
+          "x": 17210,
+          "y": 405
+        },
+        {
+          "id": "strait-star-76",
+          "kind": "star",
+          "x": 18100,
+          "y": 405
+        },
+        {
+          "id": "strait-star-77",
+          "kind": "star",
+          "x": 18165,
+          "y": 405
+        },
+        {
+          "id": "strait-star-78",
+          "kind": "star",
+          "x": 18230,
+          "y": 405
+        },
+        {
+          "id": "strait-star-79",
+          "kind": "star",
+          "x": 18295,
+          "y": 405
+        },
+        {
+          "id": "strait-star-80",
+          "kind": "star",
+          "x": 18360,
+          "y": 405
+        },
+        {
+          "id": "strait-star-81",
+          "kind": "star",
+          "x": 19250,
+          "y": 405
+        },
+        {
+          "id": "strait-star-82",
+          "kind": "star",
+          "x": 19315,
+          "y": 405
+        },
+        {
+          "id": "strait-star-83",
+          "kind": "star",
+          "x": 19380,
+          "y": 405
+        },
+        {
+          "id": "strait-star-84",
+          "kind": "star",
+          "x": 19445,
+          "y": 405
+        },
+        {
+          "id": "strait-star-85",
+          "kind": "star",
+          "x": 19510,
+          "y": 405
+        },
+        {
+          "id": "strait-star-86",
+          "kind": "star",
+          "x": 22080,
+          "y": 405
+        },
+        {
+          "id": "strait-star-87",
+          "kind": "star",
+          "x": 22140,
+          "y": 370
+        },
+        {
+          "id": "strait-star-88",
+          "kind": "star",
+          "x": 22200,
+          "y": 405
+        },
+        {
+          "id": "strait-star-89",
+          "kind": "star",
+          "x": 22260,
+          "y": 370
+        },
+        {
+          "id": "strait-star-90",
+          "kind": "star",
+          "x": 22320,
+          "y": 405
+        },
+        {
+          "id": "strait-star-91",
+          "kind": "star",
+          "x": 21550,
+          "y": 421
+        },
+        {
+          "id": "strait-star-92",
+          "kind": "star",
+          "x": 21615,
+          "y": 421
+        },
+        {
+          "id": "strait-star-93",
+          "kind": "star",
+          "x": 21680,
+          "y": 421
+        },
+        {
+          "id": "strait-star-94",
+          "kind": "star",
+          "x": 21745,
+          "y": 421
+        },
+        {
+          "id": "strait-star-95",
+          "kind": "star",
+          "x": 21810,
+          "y": 421
+        },
+        {
+          "id": "strait-star-96",
+          "kind": "star",
+          "x": 22700,
+          "y": 405
+        },
+        {
+          "id": "strait-star-97",
+          "kind": "star",
+          "x": 22765,
+          "y": 405
+        },
+        {
+          "id": "strait-star-98",
+          "kind": "star",
+          "x": 22830,
+          "y": 405
+        },
+        {
+          "id": "strait-star-99",
+          "kind": "star",
+          "x": 22895,
+          "y": 405
+        },
+        {
+          "id": "strait-star-100",
+          "kind": "star",
+          "x": 22960,
+          "y": 405
+        },
+        {
+          "id": "strait-map-1",
+          "kind": "map",
+          "x": 2700,
+          "y": 395
+        },
+        {
+          "id": "strait-map-2",
+          "kind": "map",
+          "x": 15400,
+          "y": 205
+        },
+        {
+          "id": "strait-map-3",
+          "kind": "map",
+          "x": 10880,
+          "y": 421
+        },
+        {
+          "id": "strait-shield-0",
+          "kind": "shield",
+          "x": 1900,
+          "y": 395
+        },
+        {
+          "id": "strait-wings-1",
+          "kind": "wings",
+          "x": 4600,
+          "y": 395
+        },
+        {
+          "id": "strait-magnet-2",
+          "kind": "magnet",
+          "x": 4800,
+          "y": 395
+        },
+        {
+          "id": "strait-apple-3",
+          "kind": "apple",
+          "x": 10000,
+          "y": 395
+        },
+        {
+          "id": "strait-shield-4",
+          "kind": "shield",
+          "x": 12700,
+          "y": 395
+        },
+        {
+          "id": "strait-wings-5",
+          "kind": "wings",
+          "x": 15400,
+          "y": 395
+        },
+        {
+          "id": "strait-magnet-6",
+          "kind": "magnet",
+          "x": 18100,
+          "y": 395
+        },
+        {
+          "id": "strait-apple-7",
+          "kind": "apple",
+          "x": 20800,
+          "y": 395
+        },
+        {
+          "id": "strait-trident-extra-1",
+          "kind": "trident",
+          "x": 4200,
+          "y": 395
+        },
+        {
+          "id": "strait-trident-extra-2",
+          "kind": "trident",
+          "x": 15100,
+          "y": 395
+        },
+        {
+          "id": "strait-lantern-extra-1",
+          "kind": "lantern",
+          "x": 4300,
+          "y": 395
+        },
+        {
+          "id": "strait-lantern-extra-2",
+          "kind": "lantern",
+          "x": 17800,
+          "y": 395
+        },
+        {
+          "id": "strait-compass-extra-1",
+          "kind": "compass",
+          "x": 7800,
+          "y": 395,
+          "checkpoint": 7720
+        },
+        {
+          "id": "strait-compass-extra-2",
+          "kind": "compass",
+          "x": 16800,
+          "y": 395,
+          "checkpoint": 16720
+        }
+      ],
+      "adventure": {
+        "branch": {
+          "id": "strait-branch",
+          "start": 4140,
+          "end": 4740,
+          "y": 330
+        },
+        "stories": [
+          {
+            "id": "strait-story-1",
+            "x": 4440,
+            "y": 330,
+            "pose": "upper",
+            "title": "절벽 쪽으로",
+            "quote": "발견 · 두려움보다 지혜로운 선택을 해요.",
+            "story": "소용돌이에 배가 통째로 삼켜지는 것보다, 절벽 쪽으로 붙어 빨리 지나가는 편이 낫다고 오디세우스는 생각했어요. 선원들은 힘을 다해 노를 저었지요."
+          },
+          {
+            "id": "strait-story-2",
+            "x": 16850,
+            "y": 440,
+            "pose": "duck",
+            "title": "키르케의 조언",
+            "quote": "발견 · 미리 들은 조언이 배를 지켜요.",
+            "story": "키르케는 해협을 건널 때 멈추지 말고 서둘러 지나가라고 일러 주었어요. 오디세우스는 그 말을 기억하고 한순간도 노를 멈추지 않게 했어요."
+          }
+        ],
+        "constellations": [
+          {
+            "id": "strait-constellation-1",
+            "name": "귀환의 배",
+            "shape": "ship",
+            "stars": [
+              "strait-star-16",
+              "strait-star-17",
+              "strait-star-18",
+              "strait-star-19",
+              "strait-star-20"
+            ]
+          },
+          {
+            "id": "strait-constellation-2",
+            "name": "아테나의 부엉이",
+            "shape": "owl",
+            "stars": [
+              "strait-star-31",
+              "strait-star-32",
+              "strait-star-33",
+              "strait-star-34",
+              "strait-star-35"
+            ]
+          },
+          {
+            "id": "strait-constellation-3",
+            "name": "이타카의 왕관",
+            "shape": "crown",
+            "stars": [
+              "strait-star-86",
+              "strait-star-87",
+              "strait-star-88",
+              "strait-star-89",
+              "strait-star-90"
+            ]
+          }
+        ],
+        "highlight": {
+          "id": "strait-whirl",
+          "start": 12700,
+          "end": 14200,
+          "name": "카리브디스의 소용돌이",
+          "hint": "소용돌이 위에서는 느려져요 · 점프로 건너요"
+        }
+      },
+      "paths": [
+        {
+          "path": "lower",
+          "seconds": 76.59999999999694,
+          "hpLoss": 0,
+          "maps": [
+            "strait-map-1",
+            "strait-map-3",
+            "strait-map-2"
+          ],
+          "stars": 90,
+          "stories": [
+            "strait-story-2"
+          ],
+          "input": {
+            "jumps": [
+              3490,
+              5060,
+              5155,
+              7280,
+              8405,
+              8510,
+              9560,
+              9655,
+              13105,
+              13210,
+              14460,
+              14555,
+              15220,
+              15310,
+              16090,
+              18560,
+              18655,
+              19605,
+              19710,
+              20815
+            ],
+            "slides": [
+              {
+                "start": 5560,
+                "end": 5860
+              },
+              {
+                "start": 6330,
+                "end": 6630
+              },
+              {
+                "start": 10255,
+                "end": 10469
+              },
+              {
+                "start": 10730,
+                "end": 11030
+              },
+              {
+                "start": 13860,
+                "end": 14160
+              },
+              {
+                "start": 16770,
+                "end": 16930
+              },
+              {
+                "start": 17330,
+                "end": 17630
+              },
+              {
+                "start": 18060,
+                "end": 18360
+              },
+              {
+                "start": 21530,
+                "end": 21830
+              }
+            ]
+          }
+        },
+        {
+          "path": "upper",
+          "seconds": 76.59999999999694,
+          "hpLoss": 0,
+          "maps": [
+            "strait-map-1",
+            "strait-map-3",
+            "strait-map-2"
+          ],
+          "stars": 95,
+          "stories": [
+            "strait-story-1",
+            "strait-story-2"
+          ],
+          "input": {
+            "jumps": [
+              3490,
+              4040,
+              5060,
+              5155,
+              7280,
+              8405,
+              8510,
+              9560,
+              9655,
+              13105,
+              13210,
+              14460,
+              14555,
+              15220,
+              15310,
+              16090,
+              18560,
+              18655,
+              19605,
+              19710,
+              20815
+            ],
+            "slides": [
+              {
+                "start": 5560,
+                "end": 5860
+              },
+              {
+                "start": 6330,
+                "end": 6630
+              },
+              {
+                "start": 10255,
+                "end": 10469
+              },
+              {
+                "start": 10730,
+                "end": 11030
+              },
+              {
+                "start": 13860,
+                "end": 14160
+              },
+              {
+                "start": 16770,
+                "end": 16930
+              },
+              {
+                "start": 17330,
+                "end": 17630
+              },
+              {
+                "start": 18060,
+                "end": 18360
+              },
+              {
+                "start": 21530,
+                "end": 21830
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "stage": "strait",
+      "variant": "remix-a",
+      "name": "절벽 바짝 항로",
+      "description": "스킬라의 절벽을 따라 새로운 순서로 달려요.",
+      "sectionOrder": [
+        2,
+        0,
+        1,
+        4,
+        3,
+        5
+      ],
+      "counts": {
+        "stars": 100,
+        "maps": 3,
+        "monsters": 5,
+        "obstacles": 11
+      },
+      "gaps": [
+        {
+          "x": 11700,
+          "w": 180
+        },
+        {
+          "x": 16400,
+          "w": 180
+        },
+        {
+          "x": 19700,
+          "w": 180
+        }
+      ],
+      "obstacles": [
+        {
+          "id": "strait-crate-3600",
+          "x": 6800,
+          "y": 392,
+          "w": 70,
+          "h": 48,
+          "kind": "crate",
+          "role": "structure"
+        },
+        {
+          "id": "strait-pillar-5200",
+          "x": 8400,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "strait-pillar-9700",
+          "x": 3300,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "strait-pillar-14600",
+          "x": 17800,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "strait-pillar-18700",
+          "x": 15500,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "strait-gate-6400",
+          "x": 9600,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "strait-gate-10800",
+          "x": 4400,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "strait-gate-17400",
+          "x": 14200,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "strait-gate-21600",
+          "x": 21600,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "strait-spikes-20925",
+          "x": 20925,
+          "y": 394,
+          "w": 96,
+          "h": 46,
+          "kind": "spikes",
+          "role": "hazard"
+        },
+        {
+          "id": "strait-pounder-10325",
+          "x": 3925,
+          "y": 214,
+          "w": 74,
+          "h": 190,
+          "kind": "pounder",
+          "role": "hazard"
+        }
+      ],
+      "enemies": [
+        {
+          "id": "strait-enemy-ground-1",
+          "kind": "scylla",
+          "x": 10600
+        },
+        {
+          "id": "strait-enemy-ground-3",
+          "kind": "crab",
+          "x": 13000
+        },
+        {
+          "id": "strait-enemy-air-1",
+          "kind": "harpy",
+          "x": 8900
+        },
+        {
+          "id": "strait-enemy-air-2",
+          "kind": "harpy",
+          "x": 17200
+        },
+        {
+          "id": "strait-enemy-air-3",
+          "kind": "harpy",
+          "x": 15000
+        }
+      ],
+      "platforms": [
+        {
+          "id": "strait-branch",
+          "x": 7340,
+          "y": 330,
+          "w": 600
+        },
+        {
+          "id": "strait-crumble-1",
+          "x": 16400,
+          "y": 440,
+          "w": 180,
+          "crumble": true
+        },
+        {
+          "id": "strait-seesaw-1",
+          "x": 19680,
+          "y": 440,
+          "w": 220,
+          "seesaw": true
+        },
+        {
+          "id": "strait-lift-1",
+          "x": 11708,
+          "y": 440,
+          "w": 164,
+          "lift": true
+        }
+      ],
+      "winds": [],
+      "safe": [
+        0,
+        5600,
+        6200,
+        10100,
+        11100,
+        15800,
+        15900,
+        19100,
+        23000
+      ],
+      "items": [
+        {
+          "id": "strait-star-1",
+          "kind": "star",
+          "x": 850,
+          "y": 405
+        },
+        {
+          "id": "strait-star-2",
+          "kind": "star",
+          "x": 915,
+          "y": 405
+        },
+        {
+          "id": "strait-star-3",
+          "kind": "star",
+          "x": 980,
+          "y": 405
+        },
+        {
+          "id": "strait-star-4",
+          "kind": "star",
+          "x": 1045,
+          "y": 405
+        },
+        {
+          "id": "strait-star-5",
+          "kind": "star",
+          "x": 1110,
+          "y": 405
+        },
+        {
+          "id": "strait-star-6",
+          "kind": "star",
+          "x": 2000,
+          "y": 405
+        },
+        {
+          "id": "strait-star-7",
+          "kind": "star",
+          "x": 2065,
+          "y": 405
+        },
+        {
+          "id": "strait-star-8",
+          "kind": "star",
+          "x": 2130,
+          "y": 405
+        },
+        {
+          "id": "strait-star-9",
+          "kind": "star",
+          "x": 2195,
+          "y": 405
+        },
+        {
+          "id": "strait-star-10",
+          "kind": "star",
+          "x": 2260,
+          "y": 405
+        },
+        {
+          "id": "strait-star-11",
+          "kind": "star",
+          "x": 3150,
+          "y": 405
+        },
+        {
+          "id": "strait-star-12",
+          "kind": "star",
+          "x": 6415,
+          "y": 405
+        },
+        {
+          "id": "strait-star-13",
+          "kind": "star",
+          "x": 6480,
+          "y": 405
+        },
+        {
+          "id": "strait-star-14",
+          "kind": "star",
+          "x": 6545,
+          "y": 405
+        },
+        {
+          "id": "strait-star-15",
+          "kind": "star",
+          "x": 6610,
+          "y": 405
+        },
+        {
+          "id": "strait-star-16",
+          "kind": "star",
+          "x": 7510,
+          "y": 285
+        },
+        {
+          "id": "strait-star-17",
+          "kind": "star",
+          "x": 7570,
+          "y": 305
+        },
+        {
+          "id": "strait-star-18",
+          "kind": "star",
+          "x": 7630,
+          "y": 265
+        },
+        {
+          "id": "strait-star-19",
+          "kind": "star",
+          "x": 7690,
+          "y": 305
+        },
+        {
+          "id": "strait-star-20",
+          "kind": "star",
+          "x": 7750,
+          "y": 285
+        },
+        {
+          "id": "strait-star-21",
+          "kind": "star",
+          "x": 8650,
+          "y": 405
+        },
+        {
+          "id": "strait-star-22",
+          "kind": "star",
+          "x": 8715,
+          "y": 405
+        },
+        {
+          "id": "strait-star-23",
+          "kind": "star",
+          "x": 8780,
+          "y": 405
+        },
+        {
+          "id": "strait-star-24",
+          "kind": "star",
+          "x": 8845,
+          "y": 405
+        },
+        {
+          "id": "strait-star-25",
+          "kind": "star",
+          "x": 8910,
+          "y": 405
+        },
+        {
+          "id": "strait-star-26",
+          "kind": "star",
+          "x": 9800,
+          "y": 421
+        },
+        {
+          "id": "strait-star-27",
+          "kind": "star",
+          "x": 9865,
+          "y": 405
+        },
+        {
+          "id": "strait-star-28",
+          "kind": "star",
+          "x": 9930,
+          "y": 405
+        },
+        {
+          "id": "strait-star-29",
+          "kind": "star",
+          "x": 9995,
+          "y": 405
+        },
+        {
+          "id": "strait-star-30",
+          "kind": "star",
+          "x": 10060,
+          "y": 405
+        },
+        {
+          "id": "strait-star-31",
+          "kind": "star",
+          "x": 10880,
+          "y": 405
+        },
+        {
+          "id": "strait-star-32",
+          "kind": "star",
+          "x": 10940,
+          "y": 370
+        },
+        {
+          "id": "strait-star-33",
+          "kind": "star",
+          "x": 11000,
+          "y": 395
+        },
+        {
+          "id": "strait-star-34",
+          "kind": "star",
+          "x": 11060,
+          "y": 370
+        },
+        {
+          "id": "strait-star-35",
+          "kind": "star",
+          "x": 11120,
+          "y": 405
+        },
+        {
+          "id": "strait-star-36",
+          "kind": "star",
+          "x": 12100,
+          "y": 405
+        },
+        {
+          "id": "strait-star-37",
+          "kind": "star",
+          "x": 12165,
+          "y": 405
+        },
+        {
+          "id": "strait-star-38",
+          "kind": "star",
+          "x": 12230,
+          "y": 405
+        },
+        {
+          "id": "strait-star-39",
+          "kind": "star",
+          "x": 12295,
+          "y": 405
+        },
+        {
+          "id": "strait-star-40",
+          "kind": "star",
+          "x": 12360,
+          "y": 405
+        },
+        {
+          "id": "strait-star-41",
+          "kind": "star",
+          "x": 3650,
+          "y": 405
+        },
+        {
+          "id": "strait-star-42",
+          "kind": "star",
+          "x": 3715,
+          "y": 405
+        },
+        {
+          "id": "strait-star-43",
+          "kind": "star",
+          "x": 3780,
+          "y": 405
+        },
+        {
+          "id": "strait-star-44",
+          "kind": "star",
+          "x": 3845,
+          "y": 405
+        },
+        {
+          "id": "strait-star-45",
+          "kind": "star",
+          "x": 3910,
+          "y": 405
+        },
+        {
+          "id": "strait-star-46",
+          "kind": "star",
+          "x": 4800,
+          "y": 405
+        },
+        {
+          "id": "strait-star-47",
+          "kind": "star",
+          "x": 4865,
+          "y": 405
+        },
+        {
+          "id": "strait-star-48",
+          "kind": "star",
+          "x": 4930,
+          "y": 405
+        },
+        {
+          "id": "strait-star-49",
+          "kind": "star",
+          "x": 4995,
+          "y": 405
+        },
+        {
+          "id": "strait-star-50",
+          "kind": "star",
+          "x": 5060,
+          "y": 405
+        },
+        {
+          "id": "strait-star-51",
+          "kind": "star",
+          "x": 5950,
+          "y": 405
+        },
+        {
+          "id": "strait-star-52",
+          "kind": "star",
+          "x": 6015,
+          "y": 405
+        },
+        {
+          "id": "strait-star-53",
+          "kind": "star",
+          "x": 6080,
+          "y": 405
+        },
+        {
+          "id": "strait-star-54",
+          "kind": "star",
+          "x": 6145,
+          "y": 405
+        },
+        {
+          "id": "strait-star-55",
+          "kind": "star",
+          "x": 6210,
+          "y": 405
+        },
+        {
+          "id": "strait-star-56",
+          "kind": "star",
+          "x": 16700,
+          "y": 405
+        },
+        {
+          "id": "strait-star-57",
+          "kind": "star",
+          "x": 16765,
+          "y": 405
+        },
+        {
+          "id": "strait-star-58",
+          "kind": "star",
+          "x": 16830,
+          "y": 405
+        },
+        {
+          "id": "strait-star-59",
+          "kind": "star",
+          "x": 16895,
+          "y": 405
+        },
+        {
+          "id": "strait-star-60",
+          "kind": "star",
+          "x": 16960,
+          "y": 405
+        },
+        {
+          "id": "strait-star-61",
+          "kind": "star",
+          "x": 17850,
+          "y": 225
+        },
+        {
+          "id": "strait-star-62",
+          "kind": "star",
+          "x": 17915,
+          "y": 225
+        },
+        {
+          "id": "strait-star-63",
+          "kind": "star",
+          "x": 17980,
+          "y": 405
+        },
+        {
+          "id": "strait-star-64",
+          "kind": "star",
+          "x": 18660,
+          "y": 260
+        },
+        {
+          "id": "strait-star-65",
+          "kind": "star",
+          "x": 18540,
+          "y": 225
+        },
+        {
+          "id": "strait-star-66",
+          "kind": "star",
+          "x": 18420,
+          "y": 355
+        },
+        {
+          "id": "strait-star-67",
+          "kind": "star",
+          "x": 18480,
+          "y": 290
+        },
+        {
+          "id": "strait-star-68",
+          "kind": "star",
+          "x": 18600,
+          "y": 205
+        },
+        {
+          "id": "strait-star-69",
+          "kind": "star",
+          "x": 19195,
+          "y": 405
+        },
+        {
+          "id": "strait-star-70",
+          "kind": "star",
+          "x": 12860,
+          "y": 320
+        },
+        {
+          "id": "strait-star-71",
+          "kind": "star",
+          "x": 13750,
+          "y": 405
+        },
+        {
+          "id": "strait-star-72",
+          "kind": "star",
+          "x": 13815,
+          "y": 405
+        },
+        {
+          "id": "strait-star-73",
+          "kind": "star",
+          "x": 13880,
+          "y": 405
+        },
+        {
+          "id": "strait-star-74",
+          "kind": "star",
+          "x": 13945,
+          "y": 405
+        },
+        {
+          "id": "strait-star-75",
+          "kind": "star",
+          "x": 14010,
+          "y": 405
+        },
+        {
+          "id": "strait-star-76",
+          "kind": "star",
+          "x": 14900,
+          "y": 405
+        },
+        {
+          "id": "strait-star-77",
+          "kind": "star",
+          "x": 14965,
+          "y": 405
+        },
+        {
+          "id": "strait-star-78",
+          "kind": "star",
+          "x": 15030,
+          "y": 405
+        },
+        {
+          "id": "strait-star-79",
+          "kind": "star",
+          "x": 15095,
+          "y": 405
+        },
+        {
+          "id": "strait-star-80",
+          "kind": "star",
+          "x": 15160,
+          "y": 405
+        },
+        {
+          "id": "strait-star-81",
+          "kind": "star",
+          "x": 19250,
+          "y": 405
+        },
+        {
+          "id": "strait-star-82",
+          "kind": "star",
+          "x": 19315,
+          "y": 405
+        },
+        {
+          "id": "strait-star-83",
+          "kind": "star",
+          "x": 19380,
+          "y": 405
+        },
+        {
+          "id": "strait-star-84",
+          "kind": "star",
+          "x": 19445,
+          "y": 405
+        },
+        {
+          "id": "strait-star-85",
+          "kind": "star",
+          "x": 19510,
+          "y": 405
+        },
+        {
+          "id": "strait-star-86",
+          "kind": "star",
+          "x": 22080,
+          "y": 405
+        },
+        {
+          "id": "strait-star-87",
+          "kind": "star",
+          "x": 22140,
+          "y": 370
+        },
+        {
+          "id": "strait-star-88",
+          "kind": "star",
+          "x": 22200,
+          "y": 405
+        },
+        {
+          "id": "strait-star-89",
+          "kind": "star",
+          "x": 22260,
+          "y": 370
+        },
+        {
+          "id": "strait-star-90",
+          "kind": "star",
+          "x": 22320,
+          "y": 405
+        },
+        {
+          "id": "strait-star-91",
+          "kind": "star",
+          "x": 21550,
+          "y": 421
+        },
+        {
+          "id": "strait-star-92",
+          "kind": "star",
+          "x": 21615,
+          "y": 421
+        },
+        {
+          "id": "strait-star-93",
+          "kind": "star",
+          "x": 21680,
+          "y": 421
+        },
+        {
+          "id": "strait-star-94",
+          "kind": "star",
+          "x": 21745,
+          "y": 421
+        },
+        {
+          "id": "strait-star-95",
+          "kind": "star",
+          "x": 21810,
+          "y": 421
+        },
+        {
+          "id": "strait-star-96",
+          "kind": "star",
+          "x": 22700,
+          "y": 405
+        },
+        {
+          "id": "strait-star-97",
+          "kind": "star",
+          "x": 22765,
+          "y": 405
+        },
+        {
+          "id": "strait-star-98",
+          "kind": "star",
+          "x": 22830,
+          "y": 405
+        },
+        {
+          "id": "strait-star-99",
+          "kind": "star",
+          "x": 22895,
+          "y": 405
+        },
+        {
+          "id": "strait-star-100",
+          "kind": "star",
+          "x": 22960,
+          "y": 405
+        },
+        {
+          "id": "strait-map-1",
+          "kind": "map",
+          "x": 2700,
+          "y": 395
+        },
+        {
+          "id": "strait-map-2",
+          "kind": "map",
+          "x": 18600,
+          "y": 205
+        },
+        {
+          "id": "strait-map-3",
+          "kind": "map",
+          "x": 4480,
+          "y": 421
+        },
+        {
+          "id": "strait-shield-0",
+          "kind": "shield",
+          "x": 1900,
+          "y": 395
+        },
+        {
+          "id": "strait-wings-1",
+          "kind": "wings",
+          "x": 7800,
+          "y": 395
+        },
+        {
+          "id": "strait-magnet-2",
+          "kind": "magnet",
+          "x": 8000,
+          "y": 395
+        },
+        {
+          "id": "strait-apple-3",
+          "kind": "apple",
+          "x": 3600,
+          "y": 395
+        },
+        {
+          "id": "strait-shield-4",
+          "kind": "shield",
+          "x": 6300,
+          "y": 395
+        },
+        {
+          "id": "strait-wings-5",
+          "kind": "wings",
+          "x": 18600,
+          "y": 395
+        },
+        {
+          "id": "strait-magnet-6",
+          "kind": "magnet",
+          "x": 14900,
+          "y": 395
+        },
+        {
+          "id": "strait-apple-7",
+          "kind": "apple",
+          "x": 20800,
+          "y": 395
+        },
+        {
+          "id": "strait-trident-extra-1",
+          "kind": "trident",
+          "x": 7400,
+          "y": 395
+        },
+        {
+          "id": "strait-trident-extra-2",
+          "kind": "trident",
+          "x": 18300,
+          "y": 395
+        },
+        {
+          "id": "strait-lantern-extra-1",
+          "kind": "lantern",
+          "x": 7500,
+          "y": 395
+        },
+        {
+          "id": "strait-lantern-extra-2",
+          "kind": "lantern",
+          "x": 14600,
+          "y": 395
+        },
+        {
+          "id": "strait-compass-extra-1",
+          "kind": "compass",
+          "x": 11000,
+          "y": 395,
+          "checkpoint": 10920
+        },
+        {
+          "id": "strait-compass-extra-2",
+          "kind": "compass",
+          "x": 13600,
+          "y": 395,
+          "checkpoint": 13520
+        }
+      ],
+      "adventure": {
+        "branch": {
+          "id": "strait-branch",
+          "start": 7340,
+          "end": 7940,
+          "y": 330
+        },
+        "stories": [
+          {
+            "id": "strait-story-1",
+            "x": 7640,
+            "y": 330,
+            "pose": "upper",
+            "title": "절벽 쪽으로",
+            "quote": "발견 · 두려움보다 지혜로운 선택을 해요.",
+            "story": "소용돌이에 배가 통째로 삼켜지는 것보다, 절벽 쪽으로 붙어 빨리 지나가는 편이 낫다고 오디세우스는 생각했어요. 선원들은 힘을 다해 노를 저었지요."
+          },
+          {
+            "id": "strait-story-2",
+            "x": 13650,
+            "y": 440,
+            "pose": "duck",
+            "title": "키르케의 조언",
+            "quote": "발견 · 미리 들은 조언이 배를 지켜요.",
+            "story": "키르케는 해협을 건널 때 멈추지 말고 서둘러 지나가라고 일러 주었어요. 오디세우스는 그 말을 기억하고 한순간도 노를 멈추지 않게 했어요."
+          }
+        ],
+        "constellations": [
+          {
+            "id": "strait-constellation-1",
+            "name": "귀환의 배",
+            "shape": "ship",
+            "stars": [
+              "strait-star-16",
+              "strait-star-17",
+              "strait-star-18",
+              "strait-star-19",
+              "strait-star-20"
+            ]
+          },
+          {
+            "id": "strait-constellation-2",
+            "name": "아테나의 부엉이",
+            "shape": "owl",
+            "stars": [
+              "strait-star-31",
+              "strait-star-32",
+              "strait-star-33",
+              "strait-star-34",
+              "strait-star-35"
+            ]
+          },
+          {
+            "id": "strait-constellation-3",
+            "name": "이타카의 왕관",
+            "shape": "crown",
+            "stars": [
+              "strait-star-86",
+              "strait-star-87",
+              "strait-star-88",
+              "strait-star-89",
+              "strait-star-90"
+            ]
+          }
+        ],
+        "highlight": {
+          "id": "strait-whirl",
+          "start": 15900,
+          "end": 17400,
+          "name": "카리브디스의 소용돌이",
+          "hint": "소용돌이 위에서는 느려져요 · 점프로 건너요"
+        }
+      },
+      "paths": [
+        {
+          "path": "lower",
+          "seconds": 76.59999999999694,
+          "hpLoss": 0,
+          "maps": [
+            "strait-map-1",
+            "strait-map-3",
+            "strait-map-2"
+          ],
+          "stars": 90,
+          "stories": [
+            "strait-story-2"
+          ],
+          "input": {
+            "jumps": [
+              3160,
+              3255,
+              6690,
+              8260,
+              8355,
+              10480,
+              11605,
+              11710,
+              12890,
+              15360,
+              15455,
+              16305,
+              16410,
+              17660,
+              17755,
+              18420,
+              18510,
+              19605,
+              19710,
+              20815
+            ],
+            "slides": [
+              {
+                "start": 3855,
+                "end": 4069
+              },
+              {
+                "start": 4330,
+                "end": 4630
+              },
+              {
+                "start": 8760,
+                "end": 9060
+              },
+              {
+                "start": 9530,
+                "end": 9830
+              },
+              {
+                "start": 13570,
+                "end": 13730
+              },
+              {
+                "start": 14130,
+                "end": 14430
+              },
+              {
+                "start": 14860,
+                "end": 15160
+              },
+              {
+                "start": 17060,
+                "end": 17360
+              },
+              {
+                "start": 21530,
+                "end": 21830
+              }
+            ]
+          }
+        },
+        {
+          "path": "upper",
+          "seconds": 76.59999999999694,
+          "hpLoss": 0,
+          "maps": [
+            "strait-map-1",
+            "strait-map-3",
+            "strait-map-2"
+          ],
+          "stars": 95,
+          "stories": [
+            "strait-story-1",
+            "strait-story-2"
+          ],
+          "input": {
+            "jumps": [
+              3160,
+              3255,
+              6690,
+              7240,
+              8260,
+              8355,
+              10480,
+              11605,
+              11710,
+              12890,
+              15360,
+              15455,
+              16305,
+              16410,
+              17660,
+              17755,
+              18420,
+              18510,
+              19605,
+              19710,
+              20815
+            ],
+            "slides": [
+              {
+                "start": 3855,
+                "end": 4069
+              },
+              {
+                "start": 4330,
+                "end": 4630
+              },
+              {
+                "start": 8760,
+                "end": 9060
+              },
+              {
+                "start": 9530,
+                "end": 9830
+              },
+              {
+                "start": 13570,
+                "end": 13730
+              },
+              {
+                "start": 14130,
+                "end": 14430
+              },
+              {
+                "start": 14860,
+                "end": 15160
+              },
+              {
+                "start": 17060,
+                "end": 17360
+              },
+              {
+                "start": 21530,
+                "end": 21830
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "stage": "strait",
+      "variant": "remix-b",
+      "name": "소용돌이 우회길",
+      "description": "달라진 물살과 소용돌이를 살펴봐요.",
+      "sectionOrder": [
+        1,
+        0,
+        2,
+        3,
+        5,
+        4
+      ],
+      "counts": {
+        "stars": 100,
+        "maps": 3,
+        "monsters": 5,
+        "obstacles": 11
+      },
+      "gaps": [
+        {
+          "x": 5300,
+          "w": 180
+        },
+        {
+          "x": 13200,
+          "w": 180
+        },
+        {
+          "x": 16500,
+          "w": 180
+        }
+      ],
+      "obstacles": [
+        {
+          "id": "strait-crate-3600",
+          "x": 6800,
+          "y": 392,
+          "w": 70,
+          "h": 48,
+          "kind": "crate",
+          "role": "structure"
+        },
+        {
+          "id": "strait-pillar-5200",
+          "x": 8400,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "strait-pillar-9700",
+          "x": 9700,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "strait-pillar-14600",
+          "x": 14600,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "strait-pillar-18700",
+          "x": 21900,
+          "y": 320,
+          "w": 65,
+          "h": 120,
+          "kind": "pillar",
+          "role": "structure"
+        },
+        {
+          "id": "strait-gate-6400",
+          "x": 3200,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "strait-gate-10800",
+          "x": 10800,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "strait-gate-17400",
+          "x": 20600,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "strait-gate-21600",
+          "x": 18400,
+          "y": 279,
+          "w": 160,
+          "h": 125,
+          "kind": "gate",
+          "role": "structure"
+        },
+        {
+          "id": "strait-spikes-20925",
+          "x": 17725,
+          "y": 394,
+          "w": 96,
+          "h": 46,
+          "kind": "spikes",
+          "role": "hazard"
+        },
+        {
+          "id": "strait-pounder-10325",
+          "x": 10325,
+          "y": 214,
+          "w": 74,
+          "h": 190,
+          "kind": "pounder",
+          "role": "hazard"
+        }
+      ],
+      "enemies": [
+        {
+          "id": "strait-enemy-ground-1",
+          "kind": "scylla",
+          "x": 4200
+        },
+        {
+          "id": "strait-enemy-ground-3",
+          "kind": "crab",
+          "x": 19400
+        },
+        {
+          "id": "strait-enemy-air-1",
+          "kind": "harpy",
+          "x": 8900
+        },
+        {
+          "id": "strait-enemy-air-2",
+          "kind": "harpy",
+          "x": 14000
+        },
+        {
+          "id": "strait-enemy-air-3",
+          "kind": "harpy",
+          "x": 21400
+        }
+      ],
+      "platforms": [
+        {
+          "id": "strait-branch",
+          "x": 7340,
+          "y": 330,
+          "w": 600
+        },
+        {
+          "id": "strait-crumble-1",
+          "x": 13200,
+          "y": 440,
+          "w": 180,
+          "crumble": true
+        },
+        {
+          "id": "strait-seesaw-1",
+          "x": 16480,
+          "y": 440,
+          "w": 220,
+          "seesaw": true
+        },
+        {
+          "id": "strait-lift-1",
+          "x": 5308,
+          "y": 440,
+          "w": 164,
+          "lift": true
+        }
+      ],
+      "winds": [],
+      "safe": [
+        0,
+        3700,
+        4700,
+        12000,
+        12600,
+        15900,
+        22300,
+        23000
+      ],
+      "items": [
+        {
+          "id": "strait-star-1",
+          "kind": "star",
+          "x": 850,
+          "y": 405
+        },
+        {
+          "id": "strait-star-2",
+          "kind": "star",
+          "x": 915,
+          "y": 405
+        },
+        {
+          "id": "strait-star-3",
+          "kind": "star",
+          "x": 980,
+          "y": 405
+        },
+        {
+          "id": "strait-star-4",
+          "kind": "star",
+          "x": 1045,
+          "y": 405
+        },
+        {
+          "id": "strait-star-5",
+          "kind": "star",
+          "x": 1110,
+          "y": 405
+        },
+        {
+          "id": "strait-star-6",
+          "kind": "star",
+          "x": 2000,
+          "y": 405
+        },
+        {
+          "id": "strait-star-7",
+          "kind": "star",
+          "x": 2065,
+          "y": 405
+        },
+        {
+          "id": "strait-star-8",
+          "kind": "star",
+          "x": 2130,
+          "y": 405
+        },
+        {
+          "id": "strait-star-9",
+          "kind": "star",
+          "x": 2195,
+          "y": 405
+        },
+        {
+          "id": "strait-star-10",
+          "kind": "star",
+          "x": 2260,
+          "y": 405
+        },
+        {
+          "id": "strait-star-11",
+          "kind": "star",
+          "x": 3150,
+          "y": 405
+        },
+        {
+          "id": "strait-star-12",
+          "kind": "star",
+          "x": 6415,
+          "y": 405
+        },
+        {
+          "id": "strait-star-13",
+          "kind": "star",
+          "x": 6480,
+          "y": 405
+        },
+        {
+          "id": "strait-star-14",
+          "kind": "star",
+          "x": 6545,
+          "y": 405
+        },
+        {
+          "id": "strait-star-15",
+          "kind": "star",
+          "x": 6610,
+          "y": 405
+        },
+        {
+          "id": "strait-star-16",
+          "kind": "star",
+          "x": 7510,
+          "y": 285
+        },
+        {
+          "id": "strait-star-17",
+          "kind": "star",
+          "x": 7570,
+          "y": 305
+        },
+        {
+          "id": "strait-star-18",
+          "kind": "star",
+          "x": 7630,
+          "y": 265
+        },
+        {
+          "id": "strait-star-19",
+          "kind": "star",
+          "x": 7690,
+          "y": 305
+        },
+        {
+          "id": "strait-star-20",
+          "kind": "star",
+          "x": 7750,
+          "y": 285
+        },
+        {
+          "id": "strait-star-21",
+          "kind": "star",
+          "x": 8650,
+          "y": 405
+        },
+        {
+          "id": "strait-star-22",
+          "kind": "star",
+          "x": 8715,
+          "y": 405
+        },
+        {
+          "id": "strait-star-23",
+          "kind": "star",
+          "x": 8780,
+          "y": 405
+        },
+        {
+          "id": "strait-star-24",
+          "kind": "star",
+          "x": 8845,
+          "y": 405
+        },
+        {
+          "id": "strait-star-25",
+          "kind": "star",
+          "x": 8910,
+          "y": 405
+        },
+        {
+          "id": "strait-star-26",
+          "kind": "star",
+          "x": 3400,
+          "y": 421
+        },
+        {
+          "id": "strait-star-27",
+          "kind": "star",
+          "x": 3465,
+          "y": 405
+        },
+        {
+          "id": "strait-star-28",
+          "kind": "star",
+          "x": 3530,
+          "y": 405
+        },
+        {
+          "id": "strait-star-29",
+          "kind": "star",
+          "x": 3595,
+          "y": 405
+        },
+        {
+          "id": "strait-star-30",
+          "kind": "star",
+          "x": 3660,
+          "y": 405
+        },
+        {
+          "id": "strait-star-31",
+          "kind": "star",
+          "x": 4480,
+          "y": 405
+        },
+        {
+          "id": "strait-star-32",
+          "kind": "star",
+          "x": 4540,
+          "y": 370
+        },
+        {
+          "id": "strait-star-33",
+          "kind": "star",
+          "x": 4600,
+          "y": 395
+        },
+        {
+          "id": "strait-star-34",
+          "kind": "star",
+          "x": 4660,
+          "y": 370
+        },
+        {
+          "id": "strait-star-35",
+          "kind": "star",
+          "x": 4720,
+          "y": 405
+        },
+        {
+          "id": "strait-star-36",
+          "kind": "star",
+          "x": 5700,
+          "y": 405
+        },
+        {
+          "id": "strait-star-37",
+          "kind": "star",
+          "x": 5765,
+          "y": 405
+        },
+        {
+          "id": "strait-star-38",
+          "kind": "star",
+          "x": 5830,
+          "y": 405
+        },
+        {
+          "id": "strait-star-39",
+          "kind": "star",
+          "x": 5895,
+          "y": 405
+        },
+        {
+          "id": "strait-star-40",
+          "kind": "star",
+          "x": 5960,
+          "y": 405
+        },
+        {
+          "id": "strait-star-41",
+          "kind": "star",
+          "x": 10050,
+          "y": 405
+        },
+        {
+          "id": "strait-star-42",
+          "kind": "star",
+          "x": 10115,
+          "y": 405
+        },
+        {
+          "id": "strait-star-43",
+          "kind": "star",
+          "x": 10180,
+          "y": 405
+        },
+        {
+          "id": "strait-star-44",
+          "kind": "star",
+          "x": 10245,
+          "y": 405
+        },
+        {
+          "id": "strait-star-45",
+          "kind": "star",
+          "x": 10310,
+          "y": 405
+        },
+        {
+          "id": "strait-star-46",
+          "kind": "star",
+          "x": 11200,
+          "y": 405
+        },
+        {
+          "id": "strait-star-47",
+          "kind": "star",
+          "x": 11265,
+          "y": 405
+        },
+        {
+          "id": "strait-star-48",
+          "kind": "star",
+          "x": 11330,
+          "y": 405
+        },
+        {
+          "id": "strait-star-49",
+          "kind": "star",
+          "x": 11395,
+          "y": 405
+        },
+        {
+          "id": "strait-star-50",
+          "kind": "star",
+          "x": 11460,
+          "y": 405
+        },
+        {
+          "id": "strait-star-51",
+          "kind": "star",
+          "x": 12350,
+          "y": 405
+        },
+        {
+          "id": "strait-star-52",
+          "kind": "star",
+          "x": 12415,
+          "y": 405
+        },
+        {
+          "id": "strait-star-53",
+          "kind": "star",
+          "x": 12480,
+          "y": 405
+        },
+        {
+          "id": "strait-star-54",
+          "kind": "star",
+          "x": 12545,
+          "y": 405
+        },
+        {
+          "id": "strait-star-55",
+          "kind": "star",
+          "x": 12610,
+          "y": 405
+        },
+        {
+          "id": "strait-star-56",
+          "kind": "star",
+          "x": 13500,
+          "y": 405
+        },
+        {
+          "id": "strait-star-57",
+          "kind": "star",
+          "x": 13565,
+          "y": 405
+        },
+        {
+          "id": "strait-star-58",
+          "kind": "star",
+          "x": 13630,
+          "y": 405
+        },
+        {
+          "id": "strait-star-59",
+          "kind": "star",
+          "x": 13695,
+          "y": 405
+        },
+        {
+          "id": "strait-star-60",
+          "kind": "star",
+          "x": 13760,
+          "y": 405
+        },
+        {
+          "id": "strait-star-61",
+          "kind": "star",
+          "x": 14650,
+          "y": 225
+        },
+        {
+          "id": "strait-star-62",
+          "kind": "star",
+          "x": 14715,
+          "y": 225
+        },
+        {
+          "id": "strait-star-63",
+          "kind": "star",
+          "x": 14780,
+          "y": 405
+        },
+        {
+          "id": "strait-star-64",
+          "kind": "star",
+          "x": 15460,
+          "y": 260
+        },
+        {
+          "id": "strait-star-65",
+          "kind": "star",
+          "x": 15340,
+          "y": 225
+        },
+        {
+          "id": "strait-star-66",
+          "kind": "star",
+          "x": 15220,
+          "y": 355
+        },
+        {
+          "id": "strait-star-67",
+          "kind": "star",
+          "x": 15280,
+          "y": 290
+        },
+        {
+          "id": "strait-star-68",
+          "kind": "star",
+          "x": 15400,
+          "y": 205
+        },
+        {
+          "id": "strait-star-69",
+          "kind": "star",
+          "x": 15995,
+          "y": 405
+        },
+        {
+          "id": "strait-star-70",
+          "kind": "star",
+          "x": 19260,
+          "y": 320
+        },
+        {
+          "id": "strait-star-71",
+          "kind": "star",
+          "x": 20150,
+          "y": 405
+        },
+        {
+          "id": "strait-star-72",
+          "kind": "star",
+          "x": 20215,
+          "y": 405
+        },
+        {
+          "id": "strait-star-73",
+          "kind": "star",
+          "x": 20280,
+          "y": 405
+        },
+        {
+          "id": "strait-star-74",
+          "kind": "star",
+          "x": 20345,
+          "y": 405
+        },
+        {
+          "id": "strait-star-75",
+          "kind": "star",
+          "x": 20410,
+          "y": 405
+        },
+        {
+          "id": "strait-star-76",
+          "kind": "star",
+          "x": 21300,
+          "y": 405
+        },
+        {
+          "id": "strait-star-77",
+          "kind": "star",
+          "x": 21365,
+          "y": 405
+        },
+        {
+          "id": "strait-star-78",
+          "kind": "star",
+          "x": 21430,
+          "y": 405
+        },
+        {
+          "id": "strait-star-79",
+          "kind": "star",
+          "x": 21495,
+          "y": 405
+        },
+        {
+          "id": "strait-star-80",
+          "kind": "star",
+          "x": 21560,
+          "y": 405
+        },
+        {
+          "id": "strait-star-81",
+          "kind": "star",
+          "x": 16050,
+          "y": 405
+        },
+        {
+          "id": "strait-star-82",
+          "kind": "star",
+          "x": 16115,
+          "y": 405
+        },
+        {
+          "id": "strait-star-83",
+          "kind": "star",
+          "x": 16180,
+          "y": 405
+        },
+        {
+          "id": "strait-star-84",
+          "kind": "star",
+          "x": 16245,
+          "y": 405
+        },
+        {
+          "id": "strait-star-85",
+          "kind": "star",
+          "x": 16310,
+          "y": 405
+        },
+        {
+          "id": "strait-star-86",
+          "kind": "star",
+          "x": 18880,
+          "y": 405
+        },
+        {
+          "id": "strait-star-87",
+          "kind": "star",
+          "x": 18940,
+          "y": 370
+        },
+        {
+          "id": "strait-star-88",
+          "kind": "star",
+          "x": 19000,
+          "y": 405
+        },
+        {
+          "id": "strait-star-89",
+          "kind": "star",
+          "x": 19060,
+          "y": 370
+        },
+        {
+          "id": "strait-star-90",
+          "kind": "star",
+          "x": 19120,
+          "y": 405
+        },
+        {
+          "id": "strait-star-91",
+          "kind": "star",
+          "x": 18350,
+          "y": 421
+        },
+        {
+          "id": "strait-star-92",
+          "kind": "star",
+          "x": 18415,
+          "y": 421
+        },
+        {
+          "id": "strait-star-93",
+          "kind": "star",
+          "x": 18480,
+          "y": 421
+        },
+        {
+          "id": "strait-star-94",
+          "kind": "star",
+          "x": 18545,
+          "y": 421
+        },
+        {
+          "id": "strait-star-95",
+          "kind": "star",
+          "x": 18610,
+          "y": 421
+        },
+        {
+          "id": "strait-star-96",
+          "kind": "star",
+          "x": 22700,
+          "y": 405
+        },
+        {
+          "id": "strait-star-97",
+          "kind": "star",
+          "x": 22765,
+          "y": 405
+        },
+        {
+          "id": "strait-star-98",
+          "kind": "star",
+          "x": 22830,
+          "y": 405
+        },
+        {
+          "id": "strait-star-99",
+          "kind": "star",
+          "x": 22895,
+          "y": 405
+        },
+        {
+          "id": "strait-star-100",
+          "kind": "star",
+          "x": 22960,
+          "y": 405
+        },
+        {
+          "id": "strait-map-1",
+          "kind": "map",
+          "x": 2700,
+          "y": 395
+        },
+        {
+          "id": "strait-map-2",
+          "kind": "map",
+          "x": 15400,
+          "y": 205
+        },
+        {
+          "id": "strait-map-3",
+          "kind": "map",
+          "x": 10880,
+          "y": 421
+        },
+        {
+          "id": "strait-shield-0",
+          "kind": "shield",
+          "x": 1900,
+          "y": 395
+        },
+        {
+          "id": "strait-wings-1",
+          "kind": "wings",
+          "x": 7800,
+          "y": 395
+        },
+        {
+          "id": "strait-magnet-2",
+          "kind": "magnet",
+          "x": 8000,
+          "y": 395
+        },
+        {
+          "id": "strait-apple-3",
+          "kind": "apple",
+          "x": 10000,
+          "y": 395
+        },
+        {
+          "id": "strait-shield-4",
+          "kind": "shield",
+          "x": 12700,
+          "y": 395
+        },
+        {
+          "id": "strait-wings-5",
+          "kind": "wings",
+          "x": 15400,
+          "y": 395
+        },
+        {
+          "id": "strait-magnet-6",
+          "kind": "magnet",
+          "x": 21300,
+          "y": 395
+        },
+        {
+          "id": "strait-apple-7",
+          "kind": "apple",
+          "x": 17600,
+          "y": 395
+        },
+        {
+          "id": "strait-trident-extra-1",
+          "kind": "trident",
+          "x": 7400,
+          "y": 395
+        },
+        {
+          "id": "strait-trident-extra-2",
+          "kind": "trident",
+          "x": 15100,
+          "y": 395
+        },
+        {
+          "id": "strait-lantern-extra-1",
+          "kind": "lantern",
+          "x": 7500,
+          "y": 395
+        },
+        {
+          "id": "strait-lantern-extra-2",
+          "kind": "lantern",
+          "x": 21000,
+          "y": 395
+        },
+        {
+          "id": "strait-compass-extra-1",
+          "kind": "compass",
+          "x": 4600,
+          "y": 395,
+          "checkpoint": 4520
+        },
+        {
+          "id": "strait-compass-extra-2",
+          "kind": "compass",
+          "x": 20000,
+          "y": 395,
+          "checkpoint": 19920
+        }
+      ],
+      "adventure": {
+        "branch": {
+          "id": "strait-branch",
+          "start": 7340,
+          "end": 7940,
+          "y": 330
+        },
+        "stories": [
+          {
+            "id": "strait-story-1",
+            "x": 7640,
+            "y": 330,
+            "pose": "upper",
+            "title": "절벽 쪽으로",
+            "quote": "발견 · 두려움보다 지혜로운 선택을 해요.",
+            "story": "소용돌이에 배가 통째로 삼켜지는 것보다, 절벽 쪽으로 붙어 빨리 지나가는 편이 낫다고 오디세우스는 생각했어요. 선원들은 힘을 다해 노를 저었지요."
+          },
+          {
+            "id": "strait-story-2",
+            "x": 20050,
+            "y": 440,
+            "pose": "duck",
+            "title": "키르케의 조언",
+            "quote": "발견 · 미리 들은 조언이 배를 지켜요.",
+            "story": "키르케는 해협을 건널 때 멈추지 말고 서둘러 지나가라고 일러 주었어요. 오디세우스는 그 말을 기억하고 한순간도 노를 멈추지 않게 했어요."
+          }
+        ],
+        "constellations": [
+          {
+            "id": "strait-constellation-1",
+            "name": "귀환의 배",
+            "shape": "ship",
+            "stars": [
+              "strait-star-16",
+              "strait-star-17",
+              "strait-star-18",
+              "strait-star-19",
+              "strait-star-20"
+            ]
+          },
+          {
+            "id": "strait-constellation-2",
+            "name": "아테나의 부엉이",
+            "shape": "owl",
+            "stars": [
+              "strait-star-31",
+              "strait-star-32",
+              "strait-star-33",
+              "strait-star-34",
+              "strait-star-35"
+            ]
+          },
+          {
+            "id": "strait-constellation-3",
+            "name": "이타카의 왕관",
+            "shape": "crown",
+            "stars": [
+              "strait-star-86",
+              "strait-star-87",
+              "strait-star-88",
+              "strait-star-89",
+              "strait-star-90"
+            ]
+          }
+        ],
+        "highlight": {
+          "id": "strait-whirl",
+          "start": 12700,
+          "end": 14200,
+          "name": "카리브디스의 소용돌이",
+          "hint": "소용돌이 위에서는 느려져요 · 점프로 건너요"
+        }
+      },
+      "paths": [
+        {
+          "path": "lower",
+          "seconds": 76.59999999999694,
+          "hpLoss": 0,
+          "maps": [
+            "strait-map-1",
+            "strait-map-3",
+            "strait-map-2"
+          ],
+          "stars": 90,
+          "stories": [
+            "strait-story-2"
+          ],
+          "input": {
+            "jumps": [
+              4080,
+              5205,
+              5310,
+              6690,
+              8260,
+              8355,
+              9560,
+              9655,
+              13105,
+              13210,
+              14460,
+              14555,
+              15220,
+              15310,
+              16405,
+              16510,
+              17615,
+              19290,
+              21760,
+              21855
+            ],
+            "slides": [
+              {
+                "start": 3130,
+                "end": 3430
+              },
+              {
+                "start": 8760,
+                "end": 9060
+              },
+              {
+                "start": 10255,
+                "end": 10469
+              },
+              {
+                "start": 10730,
+                "end": 11030
+              },
+              {
+                "start": 13860,
+                "end": 14160
+              },
+              {
+                "start": 18330,
+                "end": 18630
+              },
+              {
+                "start": 19970,
+                "end": 20130
+              },
+              {
+                "start": 20530,
+                "end": 20830
+              },
+              {
+                "start": 21260,
+                "end": 21560
+              }
+            ]
+          }
+        },
+        {
+          "path": "upper",
+          "seconds": 76.59999999999694,
+          "hpLoss": 0,
+          "maps": [
+            "strait-map-1",
+            "strait-map-3",
+            "strait-map-2"
+          ],
+          "stars": 95,
+          "stories": [
+            "strait-story-1",
+            "strait-story-2"
+          ],
+          "input": {
+            "jumps": [
+              4080,
+              5205,
+              5310,
+              6690,
+              7240,
+              8260,
+              8355,
+              9560,
+              9655,
+              13105,
+              13210,
+              14460,
+              14555,
+              15220,
+              15310,
+              16405,
+              16510,
+              17615,
+              19290,
+              21760,
+              21855
+            ],
+            "slides": [
+              {
+                "start": 3130,
+                "end": 3430
+              },
+              {
+                "start": 8760,
+                "end": 9060
+              },
+              {
+                "start": 10255,
+                "end": 10469
+              },
+              {
+                "start": 10730,
+                "end": 11030
+              },
+              {
+                "start": 13860,
+                "end": 14160
+              },
+              {
+                "start": 18330,
+                "end": 18630
+              },
+              {
+                "start": 19970,
+                "end": 20130
+              },
+              {
+                "start": 20530,
+                "end": 20830
+              },
+              {
+                "start": 21260,
+                "end": 21560
+              }
+            ]
+          }
+        }
+      ]
     }
   ]
 }
