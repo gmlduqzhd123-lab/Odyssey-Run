@@ -78,3 +78,13 @@ test('hazard marks and switch scanning are off by default, saved, and checked on
   bad.preferences.switchScan = 1;
   assert.throws(() => validateSave(bad), /도움/);
 });
+
+test('music, effects and voice volumes default to full and stay between 0 and 1', () => {
+  const s = emptySave();
+  assert.deepEqual(s.preferences.volume, {music: 1, sfx: 1, voice: 1});
+  s.preferences.volume = {music: 0.3, sfx: 0, voice: 0.7};
+  assert.deepEqual(validateSave(s).preferences.volume, {music: 0.3, sfx: 0, voice: 0.7});
+  const bad = structuredClone(s) as unknown as {preferences: {volume: Record<string, unknown>}};
+  bad.preferences.volume.music = 2;
+  assert.throws(() => validateSave(bad), /소리/);
+});

@@ -3821,3 +3821,19 @@ body {
   outline-offset: 3px;
   box-shadow: 0 0 0 9px rgba(201, 113, 76, 0.25) !important;
 }
+.volumes {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0;
+}
+.volumes label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+.volumes input {
+  width: 50%;
+  accent-color: #3f7f7a;
+}

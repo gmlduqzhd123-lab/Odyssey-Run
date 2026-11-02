@@ -33,6 +33,13 @@ export interface Preferences {
   hazardMarks: boolean;
   // Menus step through their buttons on a timer; Space or Enter (an access switch) picks one.
   switchScan: boolean;
+  // Loudness of the music, effects (with weather sounds) and read-aloud voice, 0 to 1.
+  volume: Volume;
+}
+export interface Volume {
+  music: number;
+  sfx: number;
+  voice: number;
 }
 export const defaultPreferences = (): Preferences => ({
   quality: 'auto',
@@ -47,6 +54,7 @@ export const defaultPreferences = (): Preferences => ({
   ghostRunner: true,
   hazardMarks: false,
   switchScan: false,
+  volume: {music: 1, sfx: 1, voice: 1},
 });
 export function readPreferences(raw: unknown): Preferences {
   const out = defaultPreferences();
@@ -77,6 +85,16 @@ export function readPreferences(raw: unknown): Preferences {
   }
   if (typeof t.swapped !== 'boolean') throw Error('버튼 좌우 설정을 확인해 주세요.');
   out.touch.swapped = t.swapped;
+  if (v.volume !== undefined) {
+    const vol = v.volume as Record<string, unknown>;
+    if (!vol || typeof vol !== 'object' || Array.isArray(vol)) throw Error('소리 크기 설정을 확인해 주세요.');
+    for (const key of ['music', 'sfx', 'voice'] as const) {
+      const n = vol[key];
+      if (typeof n !== 'number' || !Number.isFinite(n) || n < 0 || n > 1)
+        throw Error('소리 크기 설정을 확인해 주세요.');
+      out.volume[key] = n;
+    }
+  }
   for (const key of ['hazardMarks', 'switchScan'] as const)
     if (v[key] !== undefined) {
       if (typeof v[key] !== 'boolean') throw Error('보기·조작 도움 설정을 확인해 주세요.');

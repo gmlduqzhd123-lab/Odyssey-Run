@@ -12,7 +12,10 @@ export class Narrator {
   private queue: HTMLElement[] = [];
   private originals = new Map<HTMLElement, string>();
   private run = 0;
-  constructor(private onChange: (reading: boolean) => void = () => {}) {}
+  constructor(
+    private onChange: (reading: boolean) => void = () => {},
+    private volume: () => number = () => 1,
+  ) {}
   get reading() {
     return this.queue.length > 0;
   }
@@ -47,6 +50,7 @@ export class Narrator {
       const u = new SpeechSynthesisUtterance(span.textContent ?? '');
       u.lang = lang;
       u.rate = 0.95;
+      u.volume = this.volume();
       if (voice) u.voice = voice;
       u.onend = next;
       u.onerror = next;

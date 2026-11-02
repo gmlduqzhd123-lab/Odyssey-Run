@@ -1,6 +1,8 @@
 import type {Settings} from '../storage/save';
 import type {StageId} from '../levels/courses';
 import {MUSIC} from '../assets/music';
+import type {Volume} from '../storage/preferences';
+import type {WeatherId} from '../levels/weather';
 // Only the selected island's decoded buffer is retained; effects stay synthesized.
 export class Sound {
   private ctx: AudioContext | null = null;
@@ -18,7 +20,76 @@ export class Sound {
   private gain: GainNode | null = null;
   private offset = 0;
   private startedAt = 0;
-  constructor(private settings: () => Settings) {}
+  private weather: WeatherId = 'clear';
+  private rain: {source: AudioBufferSourceNode; gain: GainNode} | null = null;
+  constructor(
+    private settings: () => Settings,
+    private volume: () => Volume = () => ({music: 1, sfx: 1, voice: 1}),
+  ) {}
+  // Rain and storm hiss under the music while a run plays; it follows the effects switch and volume.
+  setWeather(weather: WeatherId) {
+    this.weather = weather;
+    this.stopRain();
+    this.startRain();
+  }
+  private noise(seconds: number) {
+    const c = this.ctx!,
+      buffer = c.createBuffer(1, Math.floor(c.sampleRate * seconds), c.sampleRate),
+      data = buffer.getChannelData(0);
+    let last = 0;
+    // Brown noise: soft and low like rain on a deck, not a harsh hiss.
+    for (let i = 0; i < data.length; i++) {
+      last = (last + 0.02 * (Math.random() * 2 - 1)) / 1.02;
+      data[i] = last * 3.5;
+    }
+    return buffer;
+  }
+  private startRain() {
+    const c = this.ctx;
+    if (this.dead || !this.playing || this.rain || !c || c.state !== 'running' || !this.settings().sfx) return;
+    if (this.weather !== 'rain' && this.weather !== 'storm') return;
+    try {
+      const source = c.createBufferSource(),
+        gain = c.createGain();
+      source.buffer = this.noise(2);
+      source.loop = true;
+      gain.gain.value = (this.weather === 'storm' ? 0.12 : 0.07) * this.volume().sfx;
+      source.connect(gain);
+      gain.connect(c.destination);
+      source.start();
+      this.rain = {source, gain};
+    } catch {}
+  }
+  private stopRain() {
+    if (!this.rain) return;
+    try {
+      this.rain.source.stop();
+      this.rain.source.disconnect();
+      this.rain.gain.disconnect();
+    } catch {}
+    this.rain = null;
+  }
+  // A low rumble with the storm's lightning flash.
+  thunder() {
+    const c = this.ctx;
+    if (this.dead || !c || c.state !== 'running' || !this.settings().sfx) return;
+    try {
+      const source = c.createBufferSource(),
+        gain = c.createGain(),
+        t = c.currentTime;
+      source.buffer = this.noise(1.6);
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(0.35 * this.volume().sfx + 0.0001, t + 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 1.5);
+      source.connect(gain);
+      gain.connect(c.destination);
+      source.onended = () => {
+        source.disconnect();
+        gain.disconnect();
+      };
+      source.start();
+    } catch {}
+  }
   unlock() {
     if (this.dead) return;
     try {
@@ -59,6 +130,7 @@ export class Sound {
     this.playing = value;
     if (!value) {
       this.stopMusic();
+      this.stopRain();
       for (const v of this.voices) {
         try {
           v.stop();
@@ -68,6 +140,7 @@ export class Sound {
     } else {
       this.loadMusic();
       this.startMusic();
+      this.startRain();
     }
   }
   // An island's track (2-4 MB) is fetched only once its run is actually playing, so choosing an
@@ -140,7 +213,7 @@ export class Sound {
         this.gain = c.createGain();
         this.gain.connect(c.destination);
       }
-      this.gain.gain.value = MUSIC[stage].gain;
+      this.gain.gain.value = MUSIC[stage].gain * this.volume().music;
       source = c.createBufferSource();
       source.buffer = buffer;
       source.loop = true;
@@ -173,6 +246,7 @@ export class Sound {
     } catch {}
   }
   update() {
+    if (this.playing && !this.rain) this.startRain();
     if (!this.playing || !this.settings().music || !this.ctx || this.ctx.state !== 'running') return;
     this.loadMusic();
     this.startMusic();
@@ -189,7 +263,7 @@ export class Sound {
             : kind === 'map'
               ? 1200
               : 640;
-    this.tone(hz, 0.14, 0.045, kind === 'hurt' ? 'sawtooth' : 'sine');
+    this.tone(hz, 0.14, 0.045 * this.volume().sfx + 0.0001, kind === 'hurt' ? 'sawtooth' : 'sine');
   }
   destroy() {
     this.setPlaying(false);
@@ -201,6 +275,11 @@ export class Sound {
     if (this.ctx) void this.ctx.close().catch(() => {});
   }
   changed() {
+    const stage = this.stage;
+    if (this.gain && stage) this.gain.gain.value = MUSIC[stage].gain * this.volume().music;
+    if (this.rain) this.rain.gain.gain.value = (this.weather === 'storm' ? 0.12 : 0.07) * this.volume().sfx;
+    if (!this.settings().sfx) this.stopRain();
+    else this.startRain();
     if (!this.settings().music) this.stopMusic();
     else {
       this.failed = false;

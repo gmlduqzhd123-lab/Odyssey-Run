@@ -166,12 +166,16 @@ export class App {
   private protectionAsked = false;
   private reminded = false;
   private frameWatch = new FrameWatch();
-  private narrator = new Narrator(reading => {
-    const b = this.ui.querySelector('[data-action="read-aloud"]');
-    if (!b) return;
-    b.setAttribute('aria-pressed', String(reading));
-    b.textContent = translate(reading ? '⏹ 그만 읽기' : '🔊 읽어 주기');
-  });
+  private thunderAt = 0;
+  private narrator = new Narrator(
+    reading => {
+      const b = this.ui.querySelector('[data-action="read-aloud"]');
+      if (!b) return;
+      b.setAttribute('aria-pressed', String(reading));
+      b.textContent = translate(reading ? '⏹ 그만 읽기' : '🔊 읽어 주기');
+    },
+    () => this.store.data.preferences.volume.voice,
+  );
   constructor() {
     let storage: Storage | null = null;
     try {
@@ -220,7 +224,10 @@ export class App {
       this.quality(),
     );
     this.selected = this.store.data.lastStage;
-    this.sound = new Sound(() => this.store.data.settings);
+    this.sound = new Sound(
+      () => this.store.data.settings,
+      () => this.store.data.preferences.volume,
+    );
     this.controls = new Controls({
       jump: () => {
         this.sound.unlock();
@@ -1057,6 +1064,8 @@ export class App {
     );
     this.run.autoSlide = this.assist().autoSlide;
     this.run.weather = this.weatherOn();
+    this.sound.setWeather(this.run.weather);
+    this.thunderAt = 0;
     if (this.run.weather === 'storm') this.run.speed = C.speed * STORM_SPEED;
     // Each day's voyage is painted with one of the five landscapes no island owns.
     if (this.special === 'daily' && this.daily)
@@ -1700,6 +1709,15 @@ export class App {
       this.store.persist();
       return;
     }
+    if (input.dataset.volume && ['music', 'sfx', 'voice'].includes(input.dataset.volume)) {
+      this.store.data.preferences.volume[input.dataset.volume as 'music' | 'sfx' | 'voice'] = Math.max(
+        0,
+        Math.min(1, Number(input.value) / 100),
+      );
+      this.store.persist();
+      this.sound.changed();
+      return;
+    }
     if (input.dataset.pref === 'hazardMarks' || input.dataset.pref === 'switchScan') {
       this.store.data.preferences[input.dataset.pref] = input.checked;
       this.store.persist();
@@ -2061,6 +2079,11 @@ export class App {
       while (this.accumulator >= C.step) {
         this.run.tick();
         this.accumulator -= C.step;
+        // Thunder with each storm flash (World draws the flash every 7 seconds of run time).
+        if (this.run.weather === 'storm' && this.run.time >= this.thunderAt + 7) {
+          this.thunderAt = Math.floor(this.run.time / 7) * 7;
+          if (!this.store.data.settings.reducedMotion) this.sound.thunder();
+        }
         for (const e of this.run.events) {
           this.sound.effect(e.kind);
           vibrate(e.kind, this.store.data.preferences.haptics);
