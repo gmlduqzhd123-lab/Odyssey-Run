@@ -4,7 +4,7 @@ import {emptySave} from '../src/storage/save';
 import {progress} from '../src/storage/profiles';
 import {recordQuiz} from '../src/storage/feats';
 import {QUIZ, QUIZ_READ, quizIds} from '../src/levels/quiz';
-import {MAP_STORIES} from '../src/levels/courses';
+import {MAP_STORIES, STAGES} from '../src/levels/courses';
 import {FLEET_STEPS, defaultFleetGoal, fleetMarkup, quizReport, quizReportCsv} from '../src/ui/class-view';
 
 const sailor = (name: string, answers: [string, number][]) => {
@@ -48,7 +48,7 @@ test('the quiz report adds up every sailor, finds the favourite wrong answer and
 
 test('the class fleet moves with everyone’s starlight toward Ithaca', () => {
   assert.equal(FLEET_STEPS.at(-1), '이타카');
-  assert.equal(FLEET_STEPS.length, 6);
+  assert.equal(FLEET_STEPS.length, STAGES.length + 1);
   assert.equal(defaultFleetGoal(20), 3000);
   assert.match(fleetMarkup(0, 3000, 20), /이타카까지 100%/);
   assert.match(fleetMarkup(1500, 3000, 20), /이타카까지 50%/);

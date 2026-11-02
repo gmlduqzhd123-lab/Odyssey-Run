@@ -4,7 +4,7 @@ import type {Course, StageId} from './courses';
 // What the painted sheets put into a voyage: the landscape behind it, and decorations from the
 // terrain sheet along the way. Decorations sit behind the course and are never touched.
 export type ViewId = keyof typeof REGIONS & `view-${string}`;
-export const ISLAND_VIEWS = ['view-beach', 'view-cave', 'view-wind', 'view-circe', 'view-sea'] as const;
+export const ISLAND_VIEWS = ['view-beach', 'view-cave', 'view-wind', 'view-circe', 'view-sea', 'view-strait'] as const;
 // The five panels no island owns: each special voyage gets one.
 export const SPARE_VIEWS = ['view-ruins', 'view-storm', 'view-forest', 'view-palace', 'view-night'] as const;
 const BOSS_VIEWS: Record<StageId, ViewId> = {
@@ -13,6 +13,7 @@ const BOSS_VIEWS: Record<StageId, ViewId> = {
   wind: 'view-storm',
   circe: 'view-night',
   sea: 'view-palace',
+  strait: 'view-storm',
 };
 export function sceneryView(course: Pick<Course, 'id' | 'mode'>, special: 'daily' | null = null, day = 0): ViewId {
   if (course.mode === 'endless') return 'view-night';
@@ -41,6 +42,7 @@ const SETS: Record<StageId, DecorFrame[]> = {
   wind: ['ruins', 'banner', 'ruins', 'sign'],
   circe: ['torch', 'vase', 'ruins', 'banner'],
   sea: ['ruins', 'vase', 'banner', 'sign'],
+  strait: ['sign', 'ruins', 'vase', 'banner'],
 };
 const HEIGHT: Record<DecorFrame, number> = {banner: 118, torch: 96, ruins: 84, vase: 54, sign: 52};
 export function decorFor(course: Pick<Course, 'id' | 'gaps' | 'obstacles' | 'platforms' | 'length'>): Decor[] {

@@ -466,7 +466,7 @@ test('expansion leaves score/save v1 compatible; six monsters and all eight item
   const kinds = new Set<string>();
   for (const id of STAGES) {
     const c = COURSES[id];
-    assert.equal(c.enemies.length, id === 'cave' ? 9 : 7);
+    assert.equal(c.enemies.length, id === 'cave' ? 9 : id === 'strait' ? 5 : 7);
     assert.equal(c.items.length, id === 'circe' ? 119 : 117);
     for (const e of c.enemies) {
       kinds.add(e.kind);

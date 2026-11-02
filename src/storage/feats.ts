@@ -127,8 +127,8 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   },
   {
     id: 'islands',
-    name: '다섯 섬의 영웅',
-    description: '다섯 섬을 모두 완주해요',
+    name: '모든 항로의 영웅',
+    description: '모든 섬과 해협을 완주해요',
     icon: '⚓',
     done: s => STAGES.every(id => s.stages[id].complete),
   },
@@ -191,7 +191,7 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   {
     id: 'bosses',
     name: '모든 보스 돌파',
-    description: '다섯 보스를 모두 돌파해요',
+    description: '모든 보스를 돌파해요',
     icon: '🛡',
     done: s => STAGES.every(id => s.expeditions.bosses[id]?.complete),
   },

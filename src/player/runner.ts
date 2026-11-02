@@ -4,6 +4,7 @@ import {GHOST_SECONDS} from '../storage/journal';
 import {C} from '../config';
 import {
   CRUMBLE_DELAY,
+  CURRENT_PULL,
   MOLY_TIME,
   LIFT,
   SEESAW,
@@ -265,7 +266,9 @@ export class Runner {
     this.buffer = Math.max(0, this.buffer - dt);
     const oldY = this.y,
       oldTop = this.body.y;
-    this.x += this.speed * dt;
+    // Charybdis's current holds the feet back; a jump carries the hero over it at full speed.
+    const held = this.grounded && !!this.course.currents?.some(z => this.x >= z.x && this.x < z.x + z.w);
+    this.x += this.speed * (held ? CURRENT_PULL : 1) * dt;
     this.sliding = this.grounded && (this.wantsSlide() || (this.sliding && !this.canStand()));
     this.vy += C.gravity * dt;
     const inWind = this.course.winds.some(w => overlap(this.body, w));

@@ -63,6 +63,7 @@ export function buildEndless(stage: StageId, seed: string, sections = ENDLESS_SE
     platforms: place(source.platforms),
     winds: place(source.winds),
     ...(source.spells ? {spells: place(source.spells)} : {}),
+    ...(source.currents ? {currents: place(source.currents)} : {}),
     enemies: place(source.enemies),
     items,
     safe: [],

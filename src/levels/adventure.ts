@@ -55,6 +55,7 @@ export function adventurePlan(stage: StageId): AdventurePlan {
     wind: ['바람의 편지', '길잡이의 별'],
     circe: ['하얀 꽃 몰리', '돌아온 동료들'],
     sea: ['밀랍 귀마개', '돛대의 약속'],
+    strait: ['절벽 쪽으로', '키르케의 조언'],
   }[stage];
   const words = {
     beach: [
@@ -97,6 +98,16 @@ export function adventurePlan(stage: StageId): AdventurePlan {
         '오디세우스는 혼자 도망치지 않고 동료들을 구하러 궁전으로 갔어요. 마법에서 풀려난 선원들은 눈물을 흘리며 그를 끌어안았지요.',
       ],
     ],
+    strait: [
+      [
+        '두려움보다 지혜로운 선택을 해요.',
+        '소용돌이에 배가 통째로 삼켜지는 것보다, 절벽 쪽으로 붙어 빨리 지나가는 편이 낫다고 오디세우스는 생각했어요. 선원들은 힘을 다해 노를 저었지요.',
+      ],
+      [
+        '미리 들은 조언이 배를 지켜요.',
+        '키르케는 해협을 건널 때 멈추지 말고 서둘러 지나가라고 일러 주었어요. 오디세우스는 그 말을 기억하고 한순간도 노를 멈추지 않게 했어요.',
+      ],
+    ],
     sea: [
       [
         '귀를 막으면 마음의 방향을 지킬 수 있어요.',
@@ -120,7 +131,14 @@ export function adventurePlan(stage: StageId): AdventurePlan {
     },
     {
       id: `${stage}-story-2`,
-      x: stage === 'beach' ? 16750 : stage === 'cave' ? 17300 : stage === 'sea' || stage === 'circe' ? 16850 : 18800,
+      x:
+        stage === 'beach'
+          ? 16750
+          : stage === 'cave'
+            ? 17300
+            : stage === 'sea' || stage === 'circe' || stage === 'strait'
+              ? 16850
+              : 18800,
       y: 440,
       pose: 'duck' as const,
       title: titles[1],
@@ -150,29 +168,37 @@ export function adventurePlan(stage: StageId): AdventurePlan {
               name: '거인의 손을 피해!',
               hint: '손 아래로 숙인 뒤 끊어진 길에서 점프!',
             }
-          : stage === 'circe'
+          : stage === 'strait'
             ? {
-                id: 'circe-spell',
-                start: 9900,
-                end: 12300,
-                name: '키르케의 마법',
-                hint: '몰리 약초를 먹으면 마법이 풀려요 · 2단 점프 봉인',
+                id: 'strait-whirl',
+                start: 12700,
+                end: 14200,
+                name: '카리브디스의 소용돌이',
+                hint: '소용돌이 위에서는 느려져요 · 점프로 건너요',
               }
-            : stage === 'sea'
+            : stage === 'circe'
               ? {
-                  id: 'sea-sirens',
-                  start: 12700,
-                  end: 14200,
-                  name: '세이렌의 노래',
-                  hint: '노래에 끌리지 말고 2단 점프로 바다를 건너요!',
+                  id: 'circe-spell',
+                  start: 9900,
+                  end: 12300,
+                  name: '키르케의 마법',
+                  hint: '몰리 약초를 먹으면 마법이 풀려요 · 2단 점프 봉인',
                 }
-              : {
-                  id: 'wind-clouds',
-                  start: 19200,
-                  end: 20750,
-                  name: '구름 징검다리',
-                  hint: '바람과 2단 점프로 높은 구름길에 도전!',
-                },
+              : stage === 'sea'
+                ? {
+                    id: 'sea-sirens',
+                    start: 12700,
+                    end: 14200,
+                    name: '세이렌의 노래',
+                    hint: '노래에 끌리지 말고 2단 점프로 바다를 건너요!',
+                  }
+                : {
+                    id: 'wind-clouds',
+                    start: 19200,
+                    end: 20750,
+                    name: '구름 징검다리',
+                    hint: '바람과 2단 점프로 높은 구름길에 도전!',
+                  },
   };
 }
 export const ADVENTURE_PLANS = {
@@ -181,6 +207,7 @@ export const ADVENTURE_PLANS = {
   wind: adventurePlan('wind'),
   circe: adventurePlan('circe'),
   sea: adventurePlan('sea'),
+  strait: adventurePlan('strait'),
 };
 export const storyIds = Object.values(ADVENTURE_PLANS).flatMap(p => p.stories.map(s => s.id));
 export const constellationIds = Object.values(ADVENTURE_PLANS).flatMap(p => p.constellations.map(s => s.id));

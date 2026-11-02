@@ -8,7 +8,7 @@ export const PEOPLE = [
     id: 'odysseus',
     name: '오디세우스',
     role: '이타카로 돌아가는 영웅',
-    story: '이 모험의 주인공이에요. 용기와 지혜로 다섯 섬을 지나 고향 이타카로 돌아가요.',
+    story: '이 모험의 주인공이에요. 용기와 지혜로 여섯 곳의 바다와 섬을 지나 고향 이타카로 돌아가요.',
   },
   {
     id: 'penelope',
@@ -62,7 +62,7 @@ export const PEOPLE = [
     id: 'navigator',
     name: '별빛 길잡이',
     role: '지도를 읽는 탐험가',
-    story: '이 게임의 안내 인물이에요. 열다섯 조각의 지도를 모으며 이타카로 가는 길을 찾아요.',
+    story: '이 게임의 안내 인물이에요. 열여덟 조각의 지도를 모으며 이타카로 가는 길을 찾아요.',
   },
 ] as const;
 export const RELICS = [
@@ -140,4 +140,5 @@ export const STAGE_RELIC = {
   wind: 'wind-bag',
   circe: 'moly',
   sea: 'compass',
+  strait: 'shield',
 } as const;

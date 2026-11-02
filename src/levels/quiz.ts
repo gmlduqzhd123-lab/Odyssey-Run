@@ -147,11 +147,25 @@ export const QUIZ: readonly QuizQuestion[] = [
     answer: 1,
     explain: '키르케는 선원들을 사람으로 돌려놓고, 오디세우스에게 다음 항해에서 조심할 것들을 알려 주었어요.',
   },
+  {
+    id: 'charybdis',
+    question: '바닷물을 삼켰다 뱉으며 큰 소용돌이를 만드는 괴물은?',
+    options: ['카리브디스', '키클롭스', '세이렌'],
+    answer: 0,
+    explain: '카리브디스는 하루에 세 번 바닷물을 삼켰다 뱉으며 무서운 소용돌이를 만들었어요.',
+  },
+  {
+    id: 'six-heads',
+    question: '해협 절벽에 살던 스킬라의 머리는 몇 개였을까요?',
+    options: ['한 개', '세 개', '여섯 개'],
+    answer: 2,
+    explain: '스킬라는 머리가 여섯 개인 괴물로, 지나가는 배의 선원을 낚아챘다고 전해져요.',
+  },
 ];
 export const quizIds = QUIZ.map(q => q.id);
 // What to read again when a class keeps missing a question: a map fragment's story or a person.
 export const QUIZ_READ: Record<string, {story: number} | {person: string}> = {
-  home: {story: 14},
+  home: {story: 17},
   horse: {story: 2},
   nobody: {story: 4},
   polyphemus: {story: 3},
@@ -163,14 +177,16 @@ export const QUIZ_READ: Record<string, {story: number} | {person: string}> = {
   hermes: {story: 10},
   nausicaa: {person: 'nausicaa'},
   son: {person: 'telemachus'},
-  book: {story: 14},
-  homer: {story: 14},
+  book: {story: 17},
+  homer: {story: 17},
   years: {story: 0},
   wax: {story: 12},
   mast: {story: 13},
   pigs: {story: 9},
   moly: {story: 10},
   friends: {story: 11},
+  charybdis: {story: 15},
+  'six-heads': {story: 15},
 };
 // Real figures get one line from the Odyssey; the game's own guides have none.
 export const PERSON_MYTHS: Partial<Record<string, string>> = {

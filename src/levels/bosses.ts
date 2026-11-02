@@ -24,6 +24,11 @@ export const BOSSES = {
     description: '그림자를 숙여 피하고, 석상병을 넘고, 마법 속에서 한 번의 점프로 버텨요.',
     phases: ['마법의 그림자 · 숙이기', '궁전의 석상병 · 점프', '키르케의 마법 · 한 번 점프'],
   },
+  strait: {
+    name: '카리브디스의 소용돌이',
+    description: '스킬라의 머리를 넘고, 하르피아 아래로 숙이고, 소용돌이 위를 점프로 건너요.',
+    phases: ['스킬라의 머리 · 점프', '바다 바람의 하르피아 · 숙이기', '소용돌이 · 점프로 건너기'],
+  },
   sea: {
     name: '세이렌의 노래',
     description: '세이렌의 날갯짓 → 스킬라의 머리 → 바위섬 집게를 읽어요.',
@@ -49,6 +54,7 @@ function build(stage: StageId): Course {
     wind: ['harpy', 'harpy', 'shade', 'shade', 'scylla', 'scylla'],
     circe: ['shade', 'shade', 'stone', 'stone', 'crab', 'crab'],
     sea: ['harpy', 'harpy', 'scylla', 'scylla', 'crab', 'crab'],
+    strait: ['scylla', 'scylla', 'harpy', 'harpy', 'crab', 'crab'],
   };
   const obstacles: Obstacle[] =
     stage === 'cave' ? [{id: 'cave-boss-hand', kind: 'hand', role: 'hazard', x: 8400, y: 365, w: 180, h: 39}] : [];
@@ -66,6 +72,8 @@ function build(stage: StageId): Course {
     winds: stage === 'wind' ? [{x: 8200, y: 70, w: 650, h: 370}] : [],
     // The last phase runs inside Circe's spell: one jump only.
     spells: stage === 'circe' ? [{x: 5800, w: 2600}] : [],
+    // The last phase crosses Charybdis's pull between the crabs.
+    currents: stage === 'strait' ? [{x: 6700, w: 340}] : [],
     safe: [0, 2800, 6000, 9000],
     enemies: kinds[stage].map((kind, i) => ({id: `${stage}-boss-${i + 1}`, kind, x: 1500 + i * 1200})),
   };
@@ -87,5 +95,6 @@ export function bossInputs(stage: StageId) {
   });
   if (stage === 'cave') slides.push({start: 8120, end: 8650});
   if (stage === 'wind') jumps.push(8310, 8440);
+  for (const z of BOSS_COURSES[stage].currents ?? []) jumps.push(z.x - 60, z.x + 140);
   return {jumps: jumps.sort((a, b) => a - b), slides};
 }

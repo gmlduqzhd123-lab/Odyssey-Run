@@ -24,6 +24,8 @@ export function routeInputs(
     } else jumps.push(at(o.x, -110));
   });
   c.gaps.forEach(g => jumps.push(at(g.x, -95), at(g.x, 10)));
+  // A whirlpool is cleared like a wide gap: jump just before it and again over it.
+  c.currents?.forEach(z => jumps.push(at(z.x, -60), at(z.x, 140)));
   const map = c.items.find(i => i.id === `${id}-map-2`);
   if (map) jumps.push(at(map.x, -180), at(map.x, -90));
   const slides = c.obstacles.filter(o => isCeiling(o.kind)).map(o => ({start: at(o.x, -70), end: o.x + o.w + 70}));
