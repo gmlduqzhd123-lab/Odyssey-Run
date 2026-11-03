@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {emptySave, validateSave} from '../src/storage/save';
+import {emptySave, validateSave, unlocked} from '../src/storage/save';
 import {HEROES, heroUnlocked} from '../src/systems/heroes';
 import {quizIds} from '../src/levels/quiz';
 import {storyIds} from '../src/levels/adventure';
@@ -87,4 +87,18 @@ test('music, effects and voice volumes default to full and stay between 0 and 1'
   const bad = structuredClone(s) as unknown as {preferences: {volume: Record<string, unknown>}};
   bad.preferences.volume.music = 2;
   assert.throws(() => validateSave(bad), /소리/);
+});
+
+test('the strait waits for both the sea and Circe, while an older sailed sea stays open', () => {
+  const s = emptySave();
+  for (const id of ['beach', 'cave', 'wind'] as const)
+    s.stages[id] = {complete: true, bestScore: 3600, bestRating: 1, bestStars: 40, maps: []};
+  // Sailed the sea before Circe's island existed.
+  s.stages.sea = {complete: true, bestScore: 3600, bestRating: 1, bestStars: 40, maps: []};
+  assert.ok(unlocked(s, 'sea'));
+  assert.ok(unlocked(s, 'circe'));
+  assert.ok(!unlocked(s, 'strait'));
+  s.stages.circe = {complete: true, bestScore: 3600, bestRating: 1, bestStars: 40, maps: []};
+  assert.ok(unlocked(s, 'strait'));
+  assert.deepEqual(validateSave(s), s);
 });

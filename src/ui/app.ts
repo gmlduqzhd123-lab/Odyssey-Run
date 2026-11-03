@@ -1795,12 +1795,13 @@ export class App {
     this.classImport = null;
     this.profiles = new Profiles(this.storage);
     this.contests = new Contests(this.storage);
+    this.gallery = new Gallery(this.storage);
     this.store = new SaveStore(this.storage, profileKey(this.profiles.active.id));
     this.selected = this.store.data.lastStage;
     this.resizeDisplay();
     this.settings();
     this.notice(
-      `반 전체 기록을 가져왔어요. 합친 항해사 ${r.merged}명 · 새 항해사 ${r.added}명 · 대회 ${r.contests}개${r.skipped ? ` · 인원 초과로 건너뜀 ${r.skipped}명` : ''}`,
+      `반 전체 기록을 가져왔어요. 합친 항해사 ${r.merged}명 · 새 항해사 ${r.added}명 · 대회 ${r.contests}개${r.gallery ? ` · 갤러리 코스 ${r.gallery}개` : ''}${r.skipped ? ` · 인원 초과로 건너뜀 ${r.skipped}명` : ''}`,
     );
   }
   private importPreview() {

@@ -280,11 +280,14 @@ export function mergeResult(save: Save, r: RunResult): Save {
 }
 const sailed = (r: RecordData) => r.complete || r.bestScore > 0 || r.bestStars > 0 || r.maps.length > 0;
 // Each island opens when the one before it is complete. Circe's island was added before the
-// Sirens' sea later on, so a sea already sailed stays open for those who reached it earlier.
+// Sirens' sea later on, so a sea already sailed stays open for those who reached it earlier; the
+// strait after it still waits for Circe's island, so every new course is earned in order.
 export const unlocked = (save: Save, id: StageId) => {
   const i = STAGES.indexOf(id);
-  if (i === 0 || save.stages[STAGES[i - 1]].complete) return true;
-  return id === 'sea' && save.stages.wind.complete && sailed(save.stages.sea);
+  if (i === 0) return true;
+  if (id === 'sea') return save.stages.circe.complete || (save.stages.wind.complete && sailed(save.stages.sea));
+  if (id === 'strait') return save.stages.sea.complete && save.stages.circe.complete;
+  return save.stages[STAGES[i - 1]].complete;
 };
 export class SaveStore {
   data = emptySave();
