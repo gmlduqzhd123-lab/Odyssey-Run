@@ -1,5 +1,5 @@
 import {COURSES, MAP_STORIES, STAGES} from '../levels/courses';
-import {ART_SHEETS, REGIONS, STAGE_VIEW, sheetUrl} from '../assets/terrain';
+import {ART_SHEETS, REGIONS, STAGE_VIEW, sheetSize, sheetUrl} from '../assets/terrain';
 import {assetUrl as asset, PEOPLE, RELICS} from '../assets/catalog';
 import {PERSON_MYTHS} from '../levels/quiz';
 import {ENEMY_TYPES, type EnemyKind} from '../levels/enemies';
@@ -26,7 +26,7 @@ export function bookNav(active: string) {
 function fragmentArt(stage: (typeof STAGES)[number], piece: number) {
   const r = REGIONS[STAGE_VIEW[stage]],
     w = r.w / 3;
-  return `<svg class="fragment-art" viewBox="${r.x + piece * w} ${r.y} ${w} ${r.h}" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><image href="${sheetUrl(r.sheet)}" width="1536" height="1024"/></svg>`;
+  return `<svg class="fragment-art" viewBox="${r.x + piece * w} ${r.y} ${w} ${r.h}" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><image href="${sheetUrl(r.sheet)}" width="${sheetSize(r.sheet).w}" height="${sheetSize(r.sheet).h}"/></svg>`;
 }
 export function codexPage(header: string, found: Set<string>) {
   return `<div class="page codex">${header}<div class="page-heading"><span class="eyebrow">FRAGMENTS OF THE ODYSSEY</span><h1 tabindex="-1">이야기를 모아, 이타카로</h1><p>${found.size ? `${TOTAL_MAPS}조각 중 ${found.size}개를 찾았어요. 조각을 눌러 이야기를 읽어 보세요.` : '아직 지도가 비어 있어요. 첫 섬으로 탐험을 떠나 보세요!'}</p></div>${bookNav('codex')}<div class="fragment-grid">${STAGES.flatMap(
@@ -42,7 +42,7 @@ export function codexPage(header: string, found: Set<string>) {
 }
 
 export function landscapesPage(header: string) {
-  return `<div class="page landscapes">${header}<div class="page-heading"><span class="eyebrow">ISLANDS & LEGENDS</span><h1 tabindex="-1">바다 너머의 풍경과 전설</h1><p>원화를 누르면 크게 볼 수 있어요. 그림 속 다른 섬과 몬스터는 이야기로 만나요.</p></div>${bookNav('landscapes')}<div class="sheet-grid">${ART_SHEETS.map(s => `<button class="sheet-card" data-action="sheet:${s.id}"><img src="${sheetUrl(s.id)}" alt="${s.name} 원화 미리보기" loading="lazy" decoding="async"><span><strong>${s.name}</strong><small>${s.description}</small><b>원화 펼치기 ↗</b></span></button>`).join('')}</div><p class="gallery-note">달리는 항로는 해변·동굴·바람 섬·세이렌의 바다예요. 원화에 적힌 추가 공격과 효과는 이번 항해에 등장하지 않아요.</p></div>`;
+  return `<div class="page landscapes">${header}<div class="page-heading"><span class="eyebrow">ISLANDS & LEGENDS</span><h1 tabindex="-1">바다 너머의 풍경과 전설</h1><p>원화를 누르면 크게 볼 수 있어요. 그림 속 다른 섬과 몬스터는 이야기로 만나요.</p></div>${bookNav('landscapes')}<div class="sheet-grid">${ART_SHEETS.map(s => `<button class="sheet-card" data-action="sheet:${s.id}"><img src="${sheetUrl(s.id)}" alt="${s.name} 원화 미리보기" loading="lazy" decoding="async"><span><strong>${s.name}</strong><small>${s.description}</small><b>원화 펼치기 ↗</b></span></button>`).join('')}</div><p class="gallery-note">달리는 항로는 해변·동굴·바람 섬·키르케의 섬·세이렌의 바다·해협이에요. 원화에 적힌 추가 공격과 효과는 이번 항해에 등장하지 않아요.</p></div>`;
 }
 
 export function sheetPage(header: string, id: string) {

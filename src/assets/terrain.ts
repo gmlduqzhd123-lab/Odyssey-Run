@@ -3,6 +3,9 @@ import type {StageId} from '../levels/courses';
 export type SheetId = keyof typeof TERRAIN_FILES;
 export const sheetUrl = (id: SheetId) => `${import.meta.env.BASE_URL}${TERRAIN_FILES[id]}`;
 export type Region = {sheet: SheetId; x: number; y: number; w: number; h: number};
+// Pixel size of each sheet, for SVG crops; the painted sheets are 1536×1024 pages.
+export const SHEET_SIZE: Partial<Record<SheetId, {w: number; h: number}>> = {'strait-view': {w: 750, h: 143}};
+export const sheetSize = (id: SheetId) => SHEET_SIZE[id] ?? {w: 1536, h: 1024};
 // The source sheets are opaque illustrated pages, not transparent sprite atlases.
 // Select solid interior textures and scenery; never include captions in gameplay.
 export const REGIONS = {
@@ -21,7 +24,8 @@ export const REGIONS = {
   'view-wind': {sheet: 'landscape-sheet', x: 779, y: 245, w: 749, h: 147},
   'view-sea': {sheet: 'landscape-sheet', x: 8, y: 648, w: 750, h: 158},
   'view-circe': {sheet: 'landscape-sheet', x: 779, y: 452, w: 749, h: 143},
-  'view-strait': {sheet: 'landscape-sheet', x: 8, y: 452, w: 750, h: 143},
+  // The strait's own panel, composed from the stormy sea painting (scripts/compose-strait-view.py).
+  'view-strait': {sheet: 'strait-view', x: 0, y: 0, w: 750, h: 143},
   'view-ithaca': {sheet: 'landscape-sheet', x: 8, y: 869, w: 750, h: 145},
   // Panels no island uses as its own view: they paint the daily, boss and endless voyages.
   'view-ruins': {sheet: 'landscape-sheet', x: 779, y: 49, w: 749, h: 140},
@@ -40,7 +44,7 @@ export const STAGE_VIEW: Record<StageId, keyof typeof REGIONS> = {
 };
 export function regionArt(name: keyof typeof REGIONS, className: string, label = '') {
   const r = REGIONS[name];
-  return `<svg class="${className}" viewBox="${r.x} ${r.y} ${r.w} ${r.h}" preserveAspectRatio="xMidYMid slice" ${label ? `role="img" aria-label="${label}"` : 'aria-hidden="true"'}><image href="${sheetUrl(r.sheet)}" width="1536" height="1024"/></svg>`;
+  return `<svg class="${className}" viewBox="${r.x} ${r.y} ${r.w} ${r.h}" preserveAspectRatio="xMidYMid slice" ${label ? `role="img" aria-label="${label}"` : 'aria-hidden="true"'}><image href="${sheetUrl(r.sheet)}" width="${sheetSize(r.sheet).w}" height="${sheetSize(r.sheet).h}"/></svg>`;
 }
 export const ART_SHEETS = [
   {

@@ -120,3 +120,13 @@
 
 `public/assets/art/`의 WebP 25개는 전달용으로 다시 압축했습니다(`scripts/compress-art.py`: 같은 픽셀 크기, 투명 채널 무손실·바이트 단위 동일, 색은 WebP 품질 85). 보이는 부분의 평균 색 차이는 255단계 중 약 3~5입니다. 파일 이름의 해시와 `docs/*-manifest.json`의 SHA-256은 새 파일 기준으로 갱신했습니다. 충돌 윤곽(`docs/contact-mask-manifest.json`)은 투명 채널에서 만들므로 바뀌지 않습니다.
 
+
+## 코드로 작곡한 배경음악과 해협 풍경 — 2026-11-03
+
+| 자산 | 파일 | 출처 |
+|---|---|---|
+| 키르케의 섬 배경음악 | `assets/audio/circe-4d3516102789.mp3` | `scripts/compose-music.py`가 numpy로 합성(가단조 느린 왈츠: 하프 아르페지오·플루트 선율·드론). 샘플 없음, 자체 제작 |
+| 해협 배경음악 | `assets/audio/strait-84049ccca260.mp3` | 같은 스크립트(라단조 132bpm: 베이스 오스티나토·화음 스탭·파도 스웰). 샘플 없음, 자체 제작 |
+| 해협 풍경 패널 | `assets/art/strait-view-*.webp` | `scripts/compose-strait-view.py`가 「신화의 섬과 항구」 원화의 폭풍 바다 칸을 좌우 반전·청회색 조정하고 절벽과 소용돌이를 그려 만든 파생 이미지 |
+
+두 곡은 96초, 모노 44.1kHz, 96kbps MP3(각 약 1.1MB)이며 SHA-256과 길이는 `docs/music-manifest.json`에 있습니다. 재생 gain은 키르케 0.26, 해협 0.24입니다.
