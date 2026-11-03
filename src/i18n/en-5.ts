@@ -484,4 +484,42 @@ export const EN_5: Record<string, string> = {
   '2. 인물과 알맞은 설명을 선으로 이어 보세요': '2. Draw lines to match each person with their description',
   '3. 다시 풀어 보는 신화 퀴즈': '3. Myth quiz review',
   '정답 (선생님용)': 'Answers (for the teacher)',
+  '1등': 'Leader',
+  '1등 ‘{x}’': 'Leader ‘{x}’',
+  '1등 ‘{x}’ {x}점': 'Leader ‘{x}’ {x} pts',
+  '· 달리는 동안 1등의 배가 진행 막대에 함께 보여요.': "· The leader's ship shows on the progress bar while you run.",
+  '지금 1등': 'Current leader',
+  '{x}점의 배가 참가자의 진행 막대에 함께 보여요. 순위표를 다시 열면 새 1등으로 바뀌어요.':
+    "({x} pts): their ship shows on each entrant's progress bar. Reopen the board to switch to a new leader.",
+  '🏁 1등 기록과 겨루기 QR': "🏁 QR to race the leader's record",
+  '1등 기록과 겨루는 참가 QR 코드': "Join QR code that races the leader's record",
+  '겨루기 링크': 'Race link',
+  '동시에 달리기 (화면을 위아래로 나눠요)': 'Run at the same time (the screen splits top and bottom)',
+  '동시에 달리면 키보드 한 대로 함께 달려요: 첫 번째 항해사는 Space·↑·↓(또는 화면 버튼), 두 번째 항해사는 W·S. 번갈아 달리면 차례로 같은 조작을 써요.':
+    'Running at the same time shares one keyboard: the first sailor uses Space·↑·↓ (or the on-screen buttons), the second uses W·S. Taking turns, both use the same controls one after the other.',
+  '전자칠판이나 한 대의 태블릿에서 함께 달리기 좋아요.': 'Great on an interactive whiteboard or one shared tablet.',
+  '출발 준비 →': 'Get ready →',
+  '두 번째 화면 준비 중': 'Preparing the second screen',
+  '두 번째 항해사의 화면을 준비하고 있어요…': "Preparing the second sailor's screen…",
+  '두 번째 화면을 준비하지 못했어요. 연결을 확인하고 다시 시도해 주세요.':
+    'The second screen could not be prepared. Check the connection and try again.',
+  '두 번째 화면을 준비하지 못했어요.': 'The second screen could not be prepared.',
+  '‘{x}’와 ‘{x}’ 함께 출발': '‘{x}’ and ‘{x}’ set off together',
+  '위 화면 · 화면 버튼도 돼요': 'Top screen · on-screen buttons work too',
+  '아래 화면': 'Bottom screen',
+  '둘이서 달린 기록은 기록·해금에 반영하지 않아요.': "Two-sailor runs don't count toward records or unlocks.",
+  '둘이서 동시에': 'Two sailors at once',
+  '둘이서 동시에 · {x}': 'Two sailors at once · {x}',
+  '👥 {x} · {x} 함께': '👥 {x} · {x} together',
+  'W 점프 · S 슬라이드': 'W jump · S slide',
+  '두 번째 항해사 진행률': "Second sailor's progress",
+  '두 번째 항해사의 게임 화면': "The second sailor's game screen",
+  '· 갤러리 코스 {x}개': '· {x} gallery courses',
+  '달리는 항로는 해변·동굴·바람 섬·키르케의 섬·세이렌의 바다·해협이에요. 원화에 적힌 추가 공격과 효과는 이번 항해에 등장하지 않아요.':
+    "The routes you run are the beach, the cave, the island of winds, Circe's island, the sea of Sirens and the strait. The extra attacks and effects written on the artwork do not appear in this voyage.",
+  '메뉴의 버튼이 차례로 하나씩 강조되고, Space나 Enter(보조 스위치)를 누르면 강조된 버튼을 골라요. 달리는 동안에는 같은 스위치가 점프예요. 「버튼 하나로 항해」를 함께 켜면 숙이기도 저절로 되어 스위치 하나로 끝까지 달릴 수 있어요.':
+    'Menu buttons are highlighted one at a time; press Space or Enter (an assistive switch) to choose the highlighted one. While running, the same switch jumps. Turn on “One-button sailing” too and ducking happens by itself, so one switch takes you to the end.',
+  '스위치로 메뉴를 고르고 있어요. 달리기도 스위치 하나로 하려면 아래 쉬운 항해에서 「버튼 하나로 항해」를 켜 주세요.':
+    'Menus are chosen with a switch. To run with one switch too, turn on “One-button sailing” under Easy sailing below.',
+  '보기:': 'Word bank:',
 };

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Contests, CONTESTS_KEY, readContests, rank, newContestId, MAX_ENTRIES} from '../src/storage/contests';
+import {Contests, CONTESTS_KEY, readContests, rank, newContestId, leaderOf, MAX_ENTRIES} from '../src/storage/contests';
 import type {ContestResult} from '../src/systems/share';
 
 class Memory {
@@ -128,4 +128,36 @@ test('a teacher can drop one sailor from a board', async () => {
     c.find('drop01')!.entries.map(e => e.name),
     ['나'],
   );
+});
+
+test('the board keeps ghosts only for the top three and names the best one with a ghost as the leader', () => {
+  const m = new Memory(),
+    c = new Contests(m),
+    ghost = (score: number) => ({
+      score,
+      duration: 80,
+      samples: Array.from({length: 81}, (_, i) => Math.min(24000, i * 300)),
+    });
+  c.host({id: 'abc234', title: '대회', stage: 'beach', variant: 'classic', assist: false});
+  assert.equal(leaderOf(c.find('abc234')!), null);
+  for (let i = 0; i < 6; i++) c.add(result(`항해사${i}`, 1000 + i * 100, {ghost: ghost(1000 + i * 100)}));
+  const board = c.find('abc234')!;
+  assert.deepEqual(
+    board.entries
+      .filter(e => e.ghost)
+      .map(e => e.name)
+      .sort(),
+    ['항해사3', '항해사4', '항해사5'],
+  );
+  assert.equal(leaderOf(board)!.name, '항해사5');
+  // A new best without a ghost (an older client) still ranks first; the leader is the best run with a ghost.
+  c.add(result('무영', 2000));
+  assert.equal(rank(c.find('abc234')!.entries)[0].name, '무영');
+  assert.equal(leaderOf(c.find('abc234')!)!.name, '항해사5');
+  // Stored ghosts are validated on reload.
+  const stored = JSON.parse(m.getItem(CONTESTS_KEY)!);
+  stored.hosted[0].entries[0].ghost = {score: 1, duration: 'x', samples: 'nope'};
+  m.setItem(CONTESTS_KEY, JSON.stringify(stored));
+  const again = new Contests(m).find('abc234')!;
+  assert.ok(again.entries.every(e => !e.ghost || Array.isArray(e.ghost.samples)));
 });

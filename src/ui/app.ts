@@ -20,7 +20,7 @@ import {
   type RivalLink,
   type CourseLink,
 } from '../systems/share';
-import {Contests, contestLength, newContestId, type Entry} from '../storage/contests';
+import {Contests, contestLength, leaderOf, newContestId, type Entry} from '../storage/contests';
 import {Gallery} from '../storage/gallery';
 import {galleryMarkup} from './gallery-view';
 import {worksheetMarkup} from './worksheet-view';
@@ -117,6 +117,10 @@ export class App {
   private pendingDelete = '';
   private world: World;
   private game: Phaser.Game;
+  // The second sailor's own scene and canvas, made the first time two sailors run at once.
+  private world2: World | null = null;
+  private game2: Phaser.Game | null = null;
+  private run2: Runner | null = null;
   private offline: Offline;
   private controls: Controls;
   private sound: Sound;
@@ -145,7 +149,7 @@ export class App {
   private daily: DailySpec | null = null;
   private special: 'boss' | 'daily' | 'contest' | 'endless' | 'custom' | 'duo' | null = null;
   // Two sailors taking turns on one course (classroom board): names, island and finished scores.
-  private duo: {names: [string, string]; stage: StageId; scores: RunResult[]} | null = null;
+  private duo: {names: [string, string]; stage: StageId; scores: RunResult[]; together: boolean} | null = null;
   private draft: MakerDraft | null = null;
   private custom: Course | null = null;
   private endless: {course: Course; date: string} | null = null;
@@ -183,7 +187,7 @@ export class App {
     } catch {}
     this.storage = storage;
     setLang(initialLang(storage));
-    const roots = ['#ui', '#notice', '#game', 'footer'].map(s => document.querySelector(s)).filter(e => !!e);
+    const roots = ['#ui', '#notice', '#game', '#game2', 'footer'].map(s => document.querySelector(s)).filter(e => !!e);
     roots.forEach(translateTree);
     observe(...roots);
     document.title = translate(document.title);
@@ -234,8 +238,10 @@ export class App {
         this.run?.jump();
       },
       slide: held => this.run?.slide(held),
+      jump2: () => this.run2?.jump(),
+      slide2: held => this.run2?.slide(held),
       pause: () => this.pause(),
-      active: () => this.screen === 'play' && this.run?.state === 'playing',
+      active: () => this.screen === 'play' && (this.run?.state === 'playing' || this.run2?.state === 'playing'),
       pauseActive: () => ['play', 'countdown'].includes(this.screen),
       slideToggle: () => this.assist().slideToggle,
     });
@@ -473,8 +479,18 @@ export class App {
     this.abandon();
     this.world.showHome();
     this.contest = link;
+    this.rival = link.leader
+      ? {
+          kind: 'ghost',
+          name: link.leader.name,
+          stage: link.stage,
+          variant: link.variant,
+          score: link.leader.score,
+          ghost: link.leader.ghost,
+        }
+      : null;
     this.set(
-      `<div class="veil"><section class="panel contest-panel"><span class="eyebrow">CLASS CONTEST</span><h1 tabindex="-1">${esc(link.title)}</h1><p>${this.contestRules(link)}</p><p>항해사: <b>${esc(this.profiles.active.name)}</b> ${button('profiles', '바꾸기', 'text-button')}</p><p class="muted">대회 기록은 일반 기록·지도·해금에 반영하지 않아요. 잠긴 섬도 대회에서는 달릴 수 있어요. 끝나면 결과 QR을 선생님께 보여 주세요.</p>${button('contest-run', '대회 달리기 →', 'primary large')}<div class="button-row">${button('contest-host-here', '선생님: 이 기기에서 결과 모으기', 'secondary')}${button('home', '시작 화면으로', 'secondary')}</div></section></div>`,
+      `<div class="veil"><section class="panel contest-panel"><span class="eyebrow">CLASS CONTEST</span><h1 tabindex="-1">${esc(link.title)}</h1><p>${this.contestRules(link)}</p>${link.leader ? `<p class="rival-result"><b>1등 ‘${esc(link.leader.name)}’ ${link.leader.score.toLocaleString()}점</b> · 달리는 동안 1등의 배가 진행 막대에 함께 보여요.</p>` : ''}<p>항해사: <b>${esc(this.profiles.active.name)}</b> ${button('profiles', '바꾸기', 'text-button')}</p><p class="muted">대회 기록은 일반 기록·지도·해금에 반영하지 않아요. 잠긴 섬도 대회에서는 달릴 수 있어요. 끝나면 결과 QR을 선생님께 보여 주세요.</p>${button('contest-run', '대회 달리기 →', 'primary large')}<div class="button-row">${button('contest-host-here', '선생님: 이 기기에서 결과 모으기', 'secondary')}${button('home', '시작 화면으로', 'secondary')}</div></section></div>`,
       'contest-join',
     );
   }
@@ -580,7 +596,7 @@ export class App {
     this.world.showHome();
     const open = STAGES.filter(id => unlocked(this.store.data, id));
     this.set(
-      `<div class="page duo">${this.header('둘이서 번갈아', 'challenges')}<div class="page-heading"><span class="eyebrow">TWO SAILORS, ONE SCREEN</span><h1 tabindex="-1">둘이서 번갈아 달리기</h1><p>한 화면에서 두 명이 같은 코스를 차례로 달리고, 두 점수를 합쳐 팀 점수를 만들어요. 기록·해금에는 반영하지 않아요.</p></div><section class="maker-form"><div class="maker-meta"><label>첫 번째 항해사 <input id="duo-a" maxlength="12" autocomplete="off" placeholder="예: 지우"></label><label>두 번째 항해사 <input id="duo-b" maxlength="12" autocomplete="off" placeholder="예: 민준"></label><label>섬 <select id="duo-stage">${open.map(id => `<option value="${id}">${COURSES[id].name}</option>`).join('')}</select></label></div>${button('duo-start', '첫 번째 항해사 출발 →', 'primary')}<p role="status" id="duo-message">${esc(message)}</p><small>전자칠판이나 한 대의 태블릿에서 차례로 달리기 좋아요.</small></section></div>`,
+      `<div class="page duo">${this.header('둘이서 번갈아', 'challenges')}<div class="page-heading"><span class="eyebrow">TWO SAILORS, ONE SCREEN</span><h1 tabindex="-1">둘이서 번갈아 달리기</h1><p>한 화면에서 두 명이 같은 코스를 차례로 달리고, 두 점수를 합쳐 팀 점수를 만들어요. 기록·해금에는 반영하지 않아요.</p></div><section class="maker-form"><div class="maker-meta"><label>첫 번째 항해사 <input id="duo-a" maxlength="12" autocomplete="off" placeholder="예: 지우"></label><label>두 번째 항해사 <input id="duo-b" maxlength="12" autocomplete="off" placeholder="예: 민준"></label><label>섬 <select id="duo-stage">${open.map(id => `<option value="${id}">${COURSES[id].name}</option>`).join('')}</select></label></div><label class="toggle"><span>동시에 달리기 (화면을 위아래로 나눠요)</span><input type="checkbox" id="duo-together"><i aria-hidden="true"></i></label><small>동시에 달리면 키보드 한 대로 함께 달려요: 첫 번째 항해사는 Space·↑·↓(또는 화면 버튼), 두 번째 항해사는 W·S. 번갈아 달리면 차례로 같은 조작을 써요.</small>${button('duo-start', '출발 준비 →', 'primary')}<p role="status" id="duo-message">${esc(message)}</p><small>전자칠판이나 한 대의 태블릿에서 함께 달리기 좋아요.</small></section></div>`,
       'duo',
     );
   }
@@ -591,25 +607,108 @@ export class App {
         stage = this.ui.querySelector<HTMLSelectElement>('#duo-stage')?.value as StageId;
       if (!a || !b) return this.setText('#duo-message', '두 항해사의 이름을 적어 주세요.');
       if (!STAGES.includes(stage) || !unlocked(this.store.data, stage)) return;
-      this.duo = {names: [a, b], stage, scores: []};
+      this.duo = {
+        names: [a, b],
+        stage,
+        scores: [],
+        together: !!this.ui.querySelector<HTMLInputElement>('#duo-together')?.checked,
+      };
     }
     const d = this.duo;
     if (!d) return;
     await this.prepare(d.stage);
     if (this.screen !== 'prepare' || this.selected !== d.stage || this.duo !== d) return;
+    if (d.together) {
+      // The second scene loads the same island into its own canvas before the countdown.
+      this.set(
+        `<div class="veil"><section class="panel"><h1 tabindex="-1">두 번째 화면 준비 중</h1><p>두 번째 항해사의 화면을 준비하고 있어요…</p>${button('duo', '그만두기', 'secondary')}</section></div>`,
+        'stage-loading',
+      );
+      const request = ++this.loadRequest;
+      try {
+        await (await this.secondWorld()).prepare(d.stage);
+      } catch {
+        if (request === this.loadRequest)
+          this.duoPage('두 번째 화면을 준비하지 못했어요. 연결을 확인하고 다시 시도해 주세요.');
+        return;
+      }
+      if (
+        request !== this.loadRequest ||
+        (this.screen as string) !== 'stage-loading' ||
+        this.duo !== d ||
+        this.destroyed
+      )
+        return;
+    }
     this.special = 'duo';
     const who = d.names[d.scores.length];
     this.set(
-      `<div class="veil"><section class="panel"><span class="eyebrow">TWO SAILORS · ${d.scores.length + 1} / 2</span><h1 tabindex="-1">‘${esc(who)}’ 차례예요</h1><p>${COURSES[d.stage].name} · 기본 항로 · 약 75초</p>${d.scores.length ? `<p class="muted">‘${esc(d.names[0])}’ ${d.scores[0].score.toLocaleString()}점</p>` : ''}${button('start', '출발 →', 'primary large')}${button('duo', '그만두기', 'secondary')}</section></div>`,
+      d.together
+        ? `<div class="veil"><section class="panel"><span class="eyebrow">TWO SAILORS · TOGETHER</span><h1 tabindex="-1">‘${esc(d.names[0])}’와 ‘${esc(d.names[1])}’ 함께 출발</h1><p>${COURSES[d.stage].name} · 기본 항로 · 약 75초</p><div class="control-guide"><div><kbd>Space / ↑ · ↓</kbd><b translate="no">${esc(d.names[0])}</b><span>위 화면 · 화면 버튼도 돼요</span></div><div><kbd>W · S</kbd><b translate="no">${esc(d.names[1])}</b><span>아래 화면</span></div></div>${button('start', '출발 →', 'primary large')}${button('duo', '그만두기', 'secondary')}</section></div>`
+        : `<div class="veil"><section class="panel"><span class="eyebrow">TWO SAILORS · ${d.scores.length + 1} / 2</span><h1 tabindex="-1">‘${esc(who)}’ 차례예요</h1><p>${COURSES[d.stage].name} · 기본 항로 · 약 75초</p>${d.scores.length ? `<p class="muted">‘${esc(d.names[0])}’ ${d.scores[0].score.toLocaleString()}점</p>` : ''}${button('start', '출발 →', 'primary large')}${button('duo', '그만두기', 'secondary')}</section></div>`,
       'prepare',
     );
+  }
+  // The second sailor runs as a different hero so the two halves read apart at a glance.
+  private secondHero() {
+    const first = this.store.data.preferences.hero;
+    return HEROES.find(h => h.id !== first)!.id;
+  }
+  private secondWorld(): Promise<World> {
+    if (this.world2) return Promise.resolve(this.world2);
+    document.querySelector<HTMLElement>('#app')!.dataset.duo = 'true';
+    return new Promise((resolve, reject) => {
+      const world = new World({
+        frame: () => {},
+        loaded: () => resolve(world),
+        loadError: () => reject(Error('두 번째 화면을 준비하지 못했어요.')),
+        reduced: () => this.store.data.settings.reducedMotion || deviceReducedMotion(),
+        density: () => this.renderDensity,
+        view: () => this.view,
+        cosmetics: () => ({...this.store.data.preferences, hero: this.secondHero()}),
+        ghost: () => null,
+      });
+      this.world2 = world;
+      this.game2 = new Phaser.Game({
+        type: Phaser.CANVAS,
+        parent: 'game2',
+        width: Math.round(this.view.width * this.renderDensity),
+        height: Math.round(this.view.height * this.renderDensity),
+        backgroundColor: '#102f46',
+        scene: world,
+        scale: {mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH},
+        render: {antialias: true, roundPixels: false, clearBeforeRender: false},
+        audio: {noAudio: true},
+        fps: {smoothStep: false, target: 60},
+        banner: false,
+      });
+    });
+  }
+  private get together() {
+    return this.special === 'duo' && !!this.duo?.together;
+  }
+  // Shows or hides the split screen; the idle second canvas stops drawing.
+  private splitScreen(on: boolean) {
+    const app = document.querySelector<HTMLElement>('#app')!;
+    if (on) app.dataset.duo = 'true';
+    else delete app.dataset.duo;
+    if (!this.game2?.isBooted) return;
+    if (on) this.game2.loop.wake();
+    else {
+      this.world2?.showHome();
+      this.game2.loop.sleep();
+    }
   }
   private finishDuo() {
     const d = this.duo!,
       r = this.result!;
     this.sound.setPlaying(false);
     this.controls.clear();
-    d.scores.push(r);
+    if (d.together && this.run2) {
+      d.scores = [r, this.run2.result()];
+      this.run2 = null;
+      this.splitScreen(false);
+    } else d.scores.push(r);
     if (d.scores.length < 2) {
       this.set(
         `<div class="veil"><section class="panel result special-result"><span class="eyebrow">TWO SAILORS · 1 / 2</span><h1 tabindex="-1">‘${esc(d.names[0])}’ ${r.score.toLocaleString()}점</h1><p>별빛 ${r.stars} · 지도 ${r.maps.length} · HP 손실 ${r.hpLoss}회</p>${button('duo-next', `‘${esc(d.names[1])}’ 차례로 →`, 'primary large')}${button('duo', '그만두기', 'secondary')}</section></div>`,
@@ -623,7 +722,7 @@ export class App {
           ? '똑같은 점수예요!'
           : `‘${esc(d.names[x.score > y.score ? 0 : 1])}’ ${Math.abs(x.score - y.score).toLocaleString()}점 앞섰어요`;
     this.set(
-      `<div class="veil"><section class="panel result special-result"><span class="eyebrow">TWO SAILORS · ${COURSES[d.stage].name}</span><h1 tabindex="-1">팀 점수 ${(x.score + y.score).toLocaleString()}</h1><div class="duo-scores">${d.names.map((n, i) => `<p><b translate="no">${esc(n)}</b> ${d.scores[i].score.toLocaleString()}점 · 별빛 ${d.scores[i].stars} · HP 손실 ${d.scores[i].hpLoss}회</p>`).join('')}</div><p>${lead}</p><p class="muted">둘이서 번갈아 달린 기록은 기록·해금에 반영하지 않아요.</p><div class="button-row">${button('duo-again', '같은 둘이 다시', 'primary')}${button('duo', '새로 정하기', 'secondary')}${button('challenges', '특별 항해', 'secondary')}</div></section></div>`,
+      `<div class="veil"><section class="panel result special-result"><span class="eyebrow">TWO SAILORS · ${COURSES[d.stage].name}</span><h1 tabindex="-1">팀 점수 ${(x.score + y.score).toLocaleString()}</h1><div class="duo-scores">${d.names.map((n, i) => `<p><b translate="no">${esc(n)}</b> ${d.scores[i].score.toLocaleString()}점 · 별빛 ${d.scores[i].stars} · HP 손실 ${d.scores[i].hpLoss}회</p>`).join('')}</div><p>${lead}</p><p class="muted">둘이서 달린 기록은 기록·해금에 반영하지 않아요.</p><div class="button-row">${button('duo-again', '같은 둘이 다시', 'primary')}${button('duo', '새로 정하기', 'secondary')}${button('challenges', '특별 항해', 'secondary')}</div></section></div>`,
       'result',
     );
   }
@@ -745,12 +844,13 @@ export class App {
         maps: r.maps.length,
         hpLoss: r.hpLoss,
         time: Math.round(this.run!.time * 10) / 10,
+        ...(r.adventure?.ghost ? {ghost: r.adventure.ghost} : {}),
       },
       best = this.contests.record(c.id, this.profiles.active.id, now),
       result: ContestResult = {kind: 'result', contest: c.id, ...best},
       url = linkUrl(result, location.href);
     this.set(
-      `<div class="veil"><section class="panel result contest-result"><span class="eyebrow">CLASS CONTEST · ${esc(c.title)}</span><h1 tabindex="-1">${r.complete ? '대회 코스 완주!' : '대회 기록을 남겼어요'}</h1><div class="result-score"><span>이번 점수</span><strong>${r.score.toLocaleString()}</strong><small>나의 대회 최고 ${best.score.toLocaleString()} · ${esc(best.name)}</small></div><p>별빛 ${r.stars} · 지도 ${r.maps.length} · HP 손실 ${r.hpLoss}회</p><div class="qr-box" role="img" aria-label="대회 결과 QR 코드">${qrSvg(url)}</div><p class="muted">선생님이 휴대폰 카메라로 찍으면 순위표에 들어가요. 가장 좋은 기록이 담겨 있어요.</p><label class="share-url">결과 코드 <input id="share-url" readonly value="${esc(url)}"></label><p role="status" id="share-status"></p><div class="button-row">${button('restart', '다시 달리기', 'primary')}${button('share-copy', '코드 복사', 'secondary')}${button('home', '시작 화면', 'secondary')}</div></section></div>`,
+      `<div class="veil"><section class="panel result contest-result"><span class="eyebrow">CLASS CONTEST · ${esc(c.title)}</span><h1 tabindex="-1">${r.complete ? '대회 코스 완주!' : '대회 기록을 남겼어요'}</h1><div class="result-score"><span>이번 점수</span><strong>${r.score.toLocaleString()}</strong><small>나의 대회 최고 ${best.score.toLocaleString()} · ${esc(best.name)}</small></div><p>별빛 ${r.stars} · 지도 ${r.maps.length} · HP 손실 ${r.hpLoss}회</p>${this.rivalLine(r, '1등')}<div class="qr-box" role="img" aria-label="대회 결과 QR 코드">${qrSvg(url)}</div><p class="muted">선생님이 휴대폰 카메라로 찍으면 순위표에 들어가요. 가장 좋은 기록이 담겨 있어요.</p><label class="share-url">결과 코드 <input id="share-url" readonly value="${esc(url)}"></label><p role="status" id="share-status"></p><div class="button-row">${button('restart', '다시 달리기', 'primary')}${button('share-copy', '코드 복사', 'secondary')}${button('home', '시작 화면', 'secondary')}</div></section></div>`,
       'result',
     );
   }
@@ -777,22 +877,46 @@ export class App {
     this.abandon();
     this.world.showHome();
     const join =
-      c.stage && c.variant
-        ? linkUrl(
-            {
-              kind: 'contest',
-              id: c.id,
-              title: c.title,
-              stage: c.stage,
-              variant: c.variant,
-              assist: c.assist,
-              ...(c.blocks ? {blocks: c.blocks} : {}),
-            },
-            location.href,
-          )
-        : '';
+        c.stage && c.variant
+          ? linkUrl(
+              {
+                kind: 'contest',
+                id: c.id,
+                title: c.title,
+                stage: c.stage,
+                variant: c.variant,
+                assist: c.assist,
+                ...(c.blocks ? {blocks: c.blocks} : {}),
+              },
+              location.href,
+            )
+          : '',
+      leader = c.stage && c.variant ? leaderOf(c) : null,
+      race =
+        join && leader
+          ? linkUrl(
+              {
+                kind: 'contest',
+                id: c.id,
+                title: c.title,
+                stage: c.stage!,
+                variant: c.variant!,
+                assist: c.assist,
+                ...(c.blocks ? {blocks: c.blocks} : {}),
+                leader: {name: leader.name, score: leader.score, ghost: leader.ghost!},
+              },
+              location.href,
+            )
+          : '';
     this.set(
-      boardMarkup(this.header(esc(c.title), 'contests'), c, this.contestRules(c), join, message),
+      boardMarkup(
+        this.header(esc(c.title), 'contests'),
+        c,
+        this.contestRules(c),
+        join,
+        message,
+        race ? {name: leader!.name, score: leader!.score, url: race} : null,
+      ),
       'contest-board',
     );
   }
@@ -878,14 +1002,15 @@ export class App {
   // Where the comparison voyage is now: a friend's link first, else this sailor's best on the course.
   private ghostNow(): {x: number; friend: boolean} | null {
     const r = this.run;
-    if (!r || this.special || !this.store.data.preferences.ghostRunner) return null;
-    const rival = this.rivalFor(this.selected, r.variant),
-      x = ghostDistance(rival?.ghost ?? courseGhost(this.store.data, this.selected, r.variant), r.time);
+    if (!r || (this.special && this.special !== 'contest') || !this.store.data.preferences.ghostRunner) return null;
+    const rival = this.rivalFor(this.selected, r.variant);
+    if (this.special && !rival) return null;
+    const x = ghostDistance(rival?.ghost ?? courseGhost(this.store.data, this.selected, r.variant), r.time);
     return x === null ? null : {x, friend: !!rival};
   }
   private rivalFor(stage: StageId, variant: VariantId) {
     const r = this.rival;
-    return !this.special && r && r.stage === stage && r.variant === variant ? r : null;
+    return (!this.special || this.special === 'contest') && r && r.stage === stage && r.variant === variant ? r : null;
   }
   private sharePage() {
     const r = this.result,
@@ -1075,6 +1200,15 @@ export class App {
         Math.floor(Date.parse(this.daily.date + 'T00:00:00Z') / 86_400_000),
       );
     this.world.showRun(this.run);
+    this.run2 = null;
+    if (this.together && this.world2) {
+      this.run2 = new Runner(this.selected, this.selectedGoal, this.selectedVariant);
+      this.run2.autoSlide = this.run.autoSlide;
+      this.run2.weather = this.run.weather;
+      this.run2.speed = this.run.speed;
+      this.world2.showRun(this.run2);
+      this.splitScreen(true);
+    }
     this.store.data.tutorialSeen = true;
     this.store.persist();
     this.beginCountdown();
@@ -1092,13 +1226,14 @@ export class App {
     ].filter(Boolean);
   }
   private hud() {
-    return `<div class="play-ui" tabindex="-1" role="group" aria-label="게임 조작" data-one-button="${this.assist().autoSlide}"><div class="hud"><div class="hp-block"><span class="hud-caption">${this.hero().name}</span><strong id="hp" role="img" aria-label="체력 3"></strong></div><div class="route-progress"><span>${this.special === 'boss' ? BOSSES[this.selected].name : this.special === 'daily' ? '오늘의 항해 · ' + this.daily!.name : this.special === 'contest' ? '대회 · ' + esc(this.contest!.title) : this.special === 'endless' ? '끝없는 항해 · ' + COURSES[this.selected].name : this.special === 'duo' ? '둘이서 번갈아 · ' + COURSES[this.selected].name : this.special === 'custom' ? (this.custom?.name === '나만의 코스' ? '나만의 코스' : '나만의 코스 · ' + esc(this.custom?.name ?? '')) : COURSES[this.selected].name + ' · ' + VARIANT_LABELS[this.selected][this.selectedVariant].name}${this.weatherOn() === 'clear' ? '' : ` · ${WEATHERS[this.weatherOn()].icon} ${WEATHERS[this.weatherOn()].name}`}</span><progress id="progress" data-course="${this.selected}/${this.selectedVariant}" max="24000" value="0" aria-label="섬 진행률"></progress><i id="ghost-marker" hidden aria-label="비교 항해 위치"></i><small id="progress-label">0%</small></div><div class="score-block"><span class="hud-caption">SCORE</span><strong id="score">0</strong></div><div class="hud-actions">${button('fullscreen', '⛶', 'fullscreen-button', 'aria-label="전체 화면 전환"')}${button('pause', 'Ⅱ', 'pause-button', 'aria-label="일시정지"')}</div></div><div class="run-chips"><div class="run-details"><span id="stars">✦ 0 / 100</span><span id="maps">지도 0 / 3</span><span id="effects"></span>${this.assistLabel().length ? `<span class="assist-chip">쉬운 항해 · ${this.assistLabel().join(' · ')}</span>` : ''}</div><div class="adventure-hud"><span id="goal-progress"></span><span id="ghost-delta"></span><span id="discovery-progress"></span></div></div><div class="touch-controls"><button data-control="slide" class="control slide" aria-label="슬라이드, 누르고 유지"><span>⇣</span><b>슬라이드</b><small>↓ 누르기</small></button><button data-control="jump" class="control jump" aria-label="점프, 공중에서 다시 누르면 2단 점프"><span>↟</span><b>점프</b><small>Space / ↑</small></button></div></div>`;
+    return `<div class="play-ui" tabindex="-1" role="group" aria-label="게임 조작" data-one-button="${this.assist().autoSlide}"><div class="hud"><div class="hp-block"><span class="hud-caption"${this.together ? ' translate="no"' : ''}>${this.together ? esc(this.duo!.names[0]) : this.hero().name}</span><strong id="hp" role="img" aria-label="체력 3"></strong></div><div class="route-progress"><span>${this.special === 'boss' ? BOSSES[this.selected].name : this.special === 'daily' ? '오늘의 항해 · ' + this.daily!.name : this.special === 'contest' ? '대회 · ' + esc(this.contest!.title) : this.special === 'endless' ? '끝없는 항해 · ' + COURSES[this.selected].name : this.special === 'duo' ? (this.together ? '둘이서 동시에 · ' : '둘이서 번갈아 · ') + COURSES[this.selected].name : this.special === 'custom' ? (this.custom?.name === '나만의 코스' ? '나만의 코스' : '나만의 코스 · ' + esc(this.custom?.name ?? '')) : COURSES[this.selected].name + ' · ' + VARIANT_LABELS[this.selected][this.selectedVariant].name}${this.weatherOn() === 'clear' ? '' : ` · ${WEATHERS[this.weatherOn()].icon} ${WEATHERS[this.weatherOn()].name}`}</span><progress id="progress" data-course="${this.selected}/${this.selectedVariant}" max="24000" value="0" aria-label="섬 진행률"></progress><i id="ghost-marker" hidden aria-label="비교 항해 위치"></i><small id="progress-label">0%</small></div><div class="score-block"><span class="hud-caption">SCORE</span><strong id="score">0</strong></div><div class="hud-actions">${button('fullscreen', '⛶', 'fullscreen-button', 'aria-label="전체 화면 전환"')}${button('pause', 'Ⅱ', 'pause-button', 'aria-label="일시정지"')}</div></div><div class="run-chips"><div class="run-details"><span id="stars">✦ 0 / 100</span><span id="maps">지도 0 / 3</span><span id="effects"></span>${this.assistLabel().length ? `<span class="assist-chip">쉬운 항해 · ${this.assistLabel().join(' · ')}</span>` : ''}</div><div class="adventure-hud"><span id="goal-progress"></span><span id="ghost-delta"></span><span id="discovery-progress"></span></div></div><div class="touch-controls"><button data-control="slide" class="control slide" aria-label="슬라이드, 누르고 유지"><span>⇣</span><b>슬라이드</b><small>↓ 누르기</small></button><button data-control="jump" class="control jump" aria-label="점프, 공중에서 다시 누르면 2단 점프"><span>↟</span><b>점프</b><small>Space / ↑</small></button></div>${this.together ? `<div class="hud hud-two"><div class="hp-block"><span class="hud-caption" translate="no">${esc(this.duo!.names[1])}</span><strong id="hp2" role="img" aria-label="체력 3"></strong></div><div class="route-progress"><span>W 점프 · S 슬라이드</span><progress id="progress2" max="24000" value="0" aria-label="두 번째 항해사 진행률"></progress><small id="progress-label2">0%</small></div><div class="score-block"><span class="hud-caption">SCORE</span><strong id="score2">0</strong></div></div>` : ''}</div>`;
   }
   private beginCountdown() {
     this.countdown = 3;
     this.accumulator = 0;
     this.sound.setPlaying(false);
     this.run!.state = 'ready';
+    if (this.run2) this.run2.state = 'ready';
     this.set(
       this.hud() +
         `<div class="countdown" role="status" aria-live="polite"><span>준비됐나요?</span><strong id="count">3</strong><small>점프 · 2단 점프 · 슬라이드</small>${button('pause', '잠시 멈추기', 'secondary')}</div>`,
@@ -1110,6 +1245,7 @@ export class App {
   private play() {
     this.countdown = 0;
     this.run!.state = 'playing';
+    if (this.run2) this.run2.state = 'playing';
     this.set(this.hud(), 'play');
     this.controls.bind(this.ui);
     this.sound.setPlaying(true);
@@ -1118,6 +1254,10 @@ export class App {
   private pause() {
     if (!this.run || !['play', 'countdown'].includes(this.screen)) return;
     this.run.state = 'paused';
+    if (this.run2) {
+      this.run2.state = 'paused';
+      this.run2.clearInput();
+    }
     this.accumulator = 0;
     this.sound.setPlaying(false);
     this.controls.clear();
@@ -1142,6 +1282,12 @@ export class App {
       this.run.state = 'paused';
     }
     this.run = null;
+    if (this.run2) {
+      this.run2.clearInput();
+      this.run2.state = 'paused';
+      this.run2 = null;
+      this.splitScreen(false);
+    }
     this.accumulator = 0;
     this.controls.clear();
     this.sound.setPlaying(false);
@@ -1171,11 +1317,11 @@ export class App {
       'result',
     );
   }
-  private rivalLine(r: RunResult) {
+  private rivalLine(r: RunResult, who = '친구') {
     const rival = this.rivalFor(r.stage, r.variant ?? 'classic');
     if (!rival) return '';
     const diff = r.score - rival.score;
-    return `<p class="rival-result"><b>친구 ‘${esc(rival.name)}’ ${rival.score.toLocaleString()}점</b> · ${diff > 0 ? `${diff.toLocaleString()}점 앞섰어요!` : diff === 0 ? '똑같은 점수예요!' : `${(-diff).toLocaleString()}점 차이, 다시 도전해 봐요`}</p>`;
+    return `<p class="rival-result"><b>${who} ‘${esc(rival.name)}’ ${rival.score.toLocaleString()}점</b> · ${diff > 0 ? `${diff.toLocaleString()}점 앞섰어요!` : diff === 0 ? '똑같은 점수예요!' : `${(-diff).toLocaleString()}점 차이, 다시 도전해 봐요`}</p>`;
   }
   private hero() {
     return heroInfo(this.store.data.preferences.hero);
@@ -2075,11 +2221,27 @@ export class App {
       const n = document.querySelector('#count');
       if (n) n.textContent = String(Math.max(1, Math.ceil(this.countdown)));
       if (this.countdown <= 0) this.play();
-    } else if (this.screen === 'play' && this.run?.state === 'playing') {
+    } else if (this.screen === 'play' && this.run && (this.run.state === 'playing' || this.run2?.state === 'playing')) {
       this.accumulator += Math.min(delta, 0.1) * this.assist().pace;
       while (this.accumulator >= C.step) {
-        this.run.tick();
         this.accumulator -= C.step;
+        // The second sailor runs the same course in the lower half; the voyage ends when both are done.
+        if (this.run2?.state === 'playing') {
+          this.run2.tick();
+          for (const e of this.run2.events) {
+            this.sound.effect(e.kind);
+            this.world2?.feedback(e.kind, e.x, e.y, e.text);
+          }
+        }
+        if (this.run.state !== 'playing') {
+          if (this.run2?.state !== 'playing') {
+            this.accumulator = 0;
+            this.finish();
+            break;
+          }
+          continue;
+        }
+        this.run.tick();
         // Thunder with each storm flash (World draws the flash every 7 seconds of run time).
         if (this.run.weather === 'storm' && this.run.time >= this.thunderAt + 7) {
           this.thunderAt = Math.floor(this.run.time / 7) * 7;
@@ -2090,7 +2252,7 @@ export class App {
           vibrate(e.kind, this.store.data.preferences.haptics);
           this.world.feedback(e.kind, e.x, e.y, e.text);
         }
-        if (this.run.state !== 'playing') {
+        if (this.run.state !== 'playing' && this.run2?.state !== 'playing') {
           this.accumulator = 0;
           this.finish();
           break;
@@ -2126,6 +2288,20 @@ export class App {
   private updateHud() {
     const r = this.run;
     if (!r || !this.ui.querySelector('#hp')) return;
+    const r2 = this.run2;
+    if (r2 && this.ui.querySelector('#hp2')) {
+      const progress = this.ui.querySelector<HTMLProgressElement>('#progress2')!;
+      progress.max = r2.length;
+      progress.value = Math.min(r2.length, r2.x);
+      this.setText('#progress-label2', Math.min(100, Math.floor((r2.x / r2.length) * 100)).toString() + '%');
+      const hp2 = this.ui.querySelector('#hp2')!,
+        hearts = `<span>${'♥'.repeat(Math.max(0, r2.hp))}</span><em>${'♡'.repeat(3 - Math.max(0, r2.hp))}</em>`;
+      if (hp2.innerHTML !== hearts) {
+        hp2.innerHTML = hearts;
+        hp2.setAttribute('aria-label', `체력 ${Math.max(0, r2.hp)}`);
+      }
+      this.setText('#score2', r2.points.toLocaleString());
+    }
     // Progress and the ghost move every frame; everything else is rewritten only when its value changes.
     const progress = this.ui.querySelector<HTMLProgressElement>('#progress')!;
     progress.max = r.length;
@@ -2134,9 +2310,11 @@ export class App {
     this.setText('#progress-label', Math.min(100, Math.floor((r.x / r.length) * 100)).toString() + '%');
     const rival = this.rivalFor(this.selected, r.variant),
       ghost = this.special
-        ? null
+        ? rival
+          ? ghostDistance(rival.ghost, r.time)
+          : null
         : ghostDistance(rival?.ghost ?? courseGhost(this.store.data, this.selected, r.variant), r.time),
-      who = rival ? `친구 ‘${rival.name}’` : '나의 비교 항해',
+      who = rival ? (this.special === 'contest' ? `1등 ‘${rival.name}’` : `친구 ‘${rival.name}’`) : '나의 비교 항해',
       marker = this.ui.querySelector<HTMLElement>('#ghost-marker')!;
     marker.hidden = ghost === null;
     if (ghost !== null) marker.style.left = `${ghost / 240}%`;
@@ -2191,7 +2369,9 @@ export class App {
             : this.special === 'custom'
               ? `⚒ ${this.custom?.name ?? ''}`
               : this.special === 'duo'
-                ? `👥 ${this.duo?.names[this.duo.scores.length] ?? ''} 차례`
+                ? this.together
+                  ? `👥 ${this.duo!.names[0]} · ${this.duo!.names[1]} 함께`
+                  : `👥 ${this.duo?.names[this.duo.scores.length] ?? ''} 차례`
                 : this.special === 'endless'
                   ? `∞ 끝없는 항해 · ${this.endless!.date} 순서`
                   : `◇ 오늘의 항해 · ${this.daily!.name}`
@@ -2238,6 +2418,11 @@ export class App {
     this.game.scale.setGameSize(Math.round(view.width * density), Math.round(view.height * density));
     this.game.scale.refresh();
     this.world.syncDisplay();
+    if (this.game2?.isBooted) {
+      this.game2.scale.setGameSize(Math.round(view.width * density), Math.round(view.height * density));
+      this.game2.scale.refresh();
+      this.world2?.syncDisplay();
+    }
     // The quit screen sleeps the loop; draw one frame so the resized canvas is not left blank.
     if (this.screen === 'quit') this.game.loop.wake();
   }
@@ -2250,5 +2435,6 @@ export class App {
     this.sound.destroy();
     this.offline.destroy();
     this.game.destroy(true);
+    this.game2?.destroy(true);
   }
 }

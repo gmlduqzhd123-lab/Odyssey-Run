@@ -1,7 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {blanks} from '../src/ui/worksheet-view';
+import {blanks, blankFrom} from '../src/ui/worksheet-view';
 import {MAP_STORIES} from '../src/levels/courses';
+import {EN} from '../src/i18n/en';
+import VI from '../src/i18n/vi';
+import ZH from '../src/i18n/zh';
+import RU from '../src/i18n/ru';
+import {loadDictionary} from '../src/i18n';
 
 test('worksheet blanks come from the map stories and each hides one word from its sentence', () => {
   const b = blanks();
@@ -14,4 +19,23 @@ test('worksheet blanks come from the map stories and each hides one word from it
       x.text,
     );
   }
+});
+test('the worksheet blanks a keyword in at least eight stories in every language', async () => {
+  for (const [lang, dict] of [
+    ['en', EN],
+    ['vi', VI],
+    ['zh', ZH],
+    ['ru', RU],
+  ] as const) {
+    const found = MAP_STORIES.map(([, story]) => blankFrom(dict[story] ?? EN[story], lang)).filter(b => b !== null);
+    assert.ok(found.length >= 8, `${lang}: ${found.length}`);
+    for (const b of found) {
+      assert.ok(b.text.includes('(            )'));
+      // The blank covers a whole word, not a piece of one (Chinese has no spaces; its keywords are whole words).
+      if (lang !== 'zh') assert.doesNotMatch(b.text, /\p{L}\(            \)|\(            \)\p{L}/u, b.text);
+    }
+  }
+  // The live path translates the story first.
+  await loadDictionary('en');
+  assert.ok(blanks('en').length >= 8);
 });

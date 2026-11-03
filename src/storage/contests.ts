@@ -3,6 +3,7 @@ import {STAGES, type StageId} from '../levels/courses';
 import {isVariant, type VariantId} from '../levels/course-ids';
 import {cleanName} from './profiles';
 import type {ContestResult} from '../systems/share';
+import {validateGhost, type Ghost} from './journal';
 import {C} from '../config';
 import {isBlocks, makerLength} from '../levels/maker';
 // Class contests live outside the player save: they never touch normal records or unlocks.
@@ -17,6 +18,8 @@ export interface Entry {
   maps: number;
   hpLoss: number;
   time: number;
+  // Kept only for the leader's best run, to race others against it.
+  ghost?: Ghost;
 }
 export interface HostedContest {
   id: string;
@@ -57,6 +60,12 @@ const entry = (e: Partial<Entry>): Entry | null => {
   const name = typeof e.name === 'string' ? cleanName(e.name) : '';
   if (!name || !n(e.score, 99999) || !n(e.stars, 100) || !n(e.maps, 3) || !n(e.hpLoss, 99) || !n(e.time, 3600))
     return null;
+  let ghost: Ghost | undefined;
+  try {
+    if (e.ghost) ghost = validateGhost(e.ghost, 99999);
+  } catch {
+    ghost = undefined;
+  }
   return {
     name,
     score: e.score!,
@@ -65,8 +74,11 @@ const entry = (e: Partial<Entry>): Entry | null => {
     maps: e.maps!,
     hpLoss: e.hpLoss!,
     time: e.time!,
+    ...(ghost ? {ghost} : {}),
   };
 };
+// The leader of a contest, when their record came with a ghost to race.
+export const leaderOf = (c: HostedContest) => rank(c.entries).find(e => e.ghost) ?? null;
 export function readContests(raw: string | null): ContestBook {
   const out: ContestBook = {hosted: [], best: {}};
   if (!raw) return out;
@@ -138,6 +150,13 @@ export class Contests {
       if (better(e, c.entries[i]) > 0) c.entries[i] = e;
     } else if (c.entries.length < MAX_ENTRIES) c.entries.push(e);
     else return {contest: c, added: false};
+    // Only the top three keep a ghost, so the board stays small on the device.
+    const keep = new Set(
+      rank(c.entries)
+        .slice(0, 3)
+        .map(x => x.name),
+    );
+    for (const x of c.entries) if (x.ghost && !keep.has(x.name)) delete x.ghost;
     this.save();
     return {contest: c, added: true};
   }
