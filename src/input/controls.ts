@@ -6,6 +6,9 @@ export interface Actions {
   pauseActive?(): boolean;
   // Toggle mode: one press ducks until the next slide press or a jump.
   slideToggle?(): boolean;
+  // A second sailor on the same keyboard: W jumps, S (held) slides.
+  jump2?(): void;
+  slide2?(held: boolean): void;
 }
 // Accessibility switches usually send Space or Enter; Enter jumps like Space.
 const JUMP_KEYS = ['Enter', 'NumpadEnter'];
@@ -55,6 +58,14 @@ export class Controls {
           return;
         }
         if (!actions.active()) return;
+        if (e.code === 'KeyW' || e.code === 'KeyS') {
+          e.preventDefault();
+          if (e.repeat || this.keys.has(e.code)) return;
+          this.keys.add(e.code);
+          if (e.code === 'KeyW') actions.jump2?.();
+          else actions.slide2?.(true);
+          return;
+        }
         // Let focused semantic buttons handle Space and Enter exactly once, including Pause.
         if (
           (e.code === 'Space' || JUMP_KEYS.includes(e.code)) &&
@@ -73,6 +84,7 @@ export class Controls {
       'keyup',
       e => {
         this.keys.delete(e.code);
+        if (e.code === 'KeyS') actions.slide2?.(false);
         const button = this.buttonKeys.delete(e.code);
         if (e.code === 'ArrowDown' || button) this.syncSlide();
       },

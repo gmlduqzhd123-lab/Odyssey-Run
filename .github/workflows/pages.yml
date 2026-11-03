@@ -70,31 +70,22 @@ jobs:
             run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:classroom
           - suite: loading-update
             run: npm run test:loading && npm run test:update
-          # Clipped or overlapping text on every menu screen at classroom window sizes.
-          - suite: layout-ko-empty
-            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=ko QA_SAVES=empty npm run test:layout
-          - suite: layout-ko-played
-            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=ko QA_SAVES=played npm run test:layout
-          - suite: layout-en-empty
-            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=en QA_SAVES=empty npm run test:layout
-          - suite: layout-en-played
-            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=en QA_SAVES=played npm run test:layout
+          # Clipped or overlapping text on every menu screen at classroom window sizes. The script
+          # runs three viewports at a time (QA_PARALLEL), so one job covers both saves of a language.
+          - suite: layout-ko
+            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=ko npm run test:layout
+          - suite: layout-en
+            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=en npm run test:layout
           - suite: access
             run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:access
           # Bundle and offline-core size, and a 4× slower CPU opening the game and running.
           - suite: budget
             run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:budget
           # The same screens with the device's "more contrast" setting and a 20px browser font.
-          - suite: layout-contrast
-            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_CONTRAST=more QA_LANGS=ko QA_SAVES=played npm run test:layout
-          - suite: layout-large-text
-            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_ROOT_FONT=20 QA_LANGS=ko QA_SAVES=played npm run test:layout
-          - suite: layout-vi
-            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=vi QA_SAVES=played npm run test:layout
-          - suite: layout-zh
-            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=zh QA_SAVES=played npm run test:layout
-          - suite: layout-ru
-            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=ru QA_SAVES=played npm run test:layout
+          - suite: layout-contrast-large-text
+            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_CONTRAST=more QA_LANGS=ko QA_SAVES=played npm run test:layout && QA_URL="http://localhost:4176$PAGES_BASE" QA_ROOT_FONT=20 QA_LANGS=ko QA_SAVES=played npm run test:layout
+          - suite: layout-vi-zh-ru
+            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=vi,zh,ru QA_SAVES=played npm run test:layout
     name: browser (${{ matrix.suite }})
     steps:
       - uses: actions/checkout@v4

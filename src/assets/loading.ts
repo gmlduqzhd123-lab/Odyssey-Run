@@ -22,6 +22,7 @@ export const GAME_FILES = [
   {key: 'terrain-sheet', url: sheetUrl('terrain-sheet'), svg: false},
   // Painted landscapes behind every voyage, and decorations and hazards cut from the terrain sheet.
   {key: 'landscape-sheet', url: sheetUrl('landscape-sheet'), svg: false},
+  {key: 'strait-view', url: sheetUrl('strait-view'), svg: false},
   {key: 'scenery', url: `${import.meta.env.BASE_URL}${SCENERY_ART.file}`, svg: false},
   {key: 'odysseus-run', url: `${import.meta.env.BASE_URL}${RUN_ART.file}`, svg: false},
   {key: 'hero-crouch', url: `${import.meta.env.BASE_URL}${CROUCH_ART.file}`, svg: false},

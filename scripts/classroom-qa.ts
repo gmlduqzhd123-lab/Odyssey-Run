@@ -243,6 +243,96 @@ try {
 } finally {
   await hostile.close();
 }
+// 6. The class leader's ghost: a result with a ghost opens a board with a "race the leader" QR;
+// joining through it shows the leader's ship while running. Then two sailors run at once on a
+// split screen, sharing one keyboard, and the team result adds both scores.
+const duo = await chromium.launch({executablePath, args: ['--no-sandbox']});
+try {
+  const ctx = await duo.newContext({serviceWorkers: 'block', viewport: {width: 1280, height: 720}});
+  await ctx.addInitScript(
+    ([key, save]) => {
+      if (!localStorage.getItem(key)) localStorage.setItem(key, save);
+    },
+    [SAVE, readFileSync(legacy, 'utf8')],
+  );
+  const p = await ctx.newPage();
+  watch(p, 'leader');
+  const ghost = {
+    score: real.score,
+    duration: 75,
+    samples: Array.from({length: 76}, (_, i) => Math.min(24000, i * 320)),
+  };
+  await p.goto(linkUrl({...real, contest: 'ld0001', name: '리더', ghost}, url));
+  await p.waitForSelector('.contest-board');
+  // A board opened by a result alone has no course, so no join or race QR; host it with a course.
+  await p.goto(
+    linkUrl(
+      {kind: 'contest', id: 'ld0001', title: '1등 겨루기', stage: 'beach', variant: 'classic', assist: true},
+      url,
+    ),
+  );
+  await p.waitForSelector('.contest-panel');
+  await visible(p, 'contest-host-here').click();
+  await p.waitForSelector('.contest-board');
+  check((await p.locator('.race-leader').count()) === 1, 'no race-the-leader box on the board');
+  const race = await p.locator('.race-leader input').inputValue();
+  check(/#c=c3\./.test(race), 'race link is not a c3 link: ' + race);
+  await p.goto(race);
+  await p.waitForSelector('.contest-panel');
+  check(/1등 ‘리더’/.test(await p.locator('.contest-panel').innerText()), 'leader line missing on the join panel');
+  await visible(p, 'contest-run').click();
+  await p.waitForSelector('[data-action="start"]:visible');
+  await visible(p, 'start').click();
+  await p.waitForTimeout(4500);
+  check(!(await p.locator('#ghost-marker').isHidden()), 'leader ghost marker hidden during the contest run');
+  check(
+    /1등 ‘리더’/.test((await p.locator('#ghost-delta').textContent()) ?? ''),
+    'ghost delta does not name the leader',
+  );
+  results.leader = {race: race.length, delta: await p.locator('#ghost-delta').textContent()};
+  // Two at once.
+  await p.goto(url);
+  await p.waitForSelector('.home');
+  await visible(p, 'challenges').click();
+  await visible(p, 'duo').click();
+  await p.fill('#duo-a', '지우');
+  await p.fill('#duo-b', '민준');
+  await p.locator('#duo-together').check({force: true});
+  await visible(p, 'duo-start').click();
+  await p.waitForSelector('[data-action="start"]:visible', {timeout: 60000});
+  await visible(p, 'start').click();
+  await p.waitForTimeout(4000);
+  const canvases = await p.evaluate(() =>
+    [...document.querySelectorAll('canvas')].map(c => Math.round(c.getBoundingClientRect().height)),
+  );
+  check(canvases.length === 2 && Math.abs(canvases[0] - canvases[1]) <= 2, 'two equal canvases expected: ' + canvases);
+  check(
+    (await p.evaluate(() => document.querySelector<HTMLElement>('#app')!.dataset.duo)) === 'true',
+    'split screen not on',
+  );
+  const started = Date.now();
+  while (Date.now() - started < 120000) {
+    if ((await p.evaluate(() => document.querySelector<HTMLElement>('#app')!.dataset.screen)) !== 'play') break;
+    await p.keyboard.press('Space');
+    await p.keyboard.press('KeyW');
+    await p.waitForTimeout(600);
+  }
+  await p.waitForSelector('.special-result');
+  const text = await p.locator('.special-result').innerText(),
+    scores = [...text.matchAll(/([\d,]+)점/g)].map(m => Number(m[1].replace(/,/g, ''))),
+    team = Number(/팀 점수 ([\d,]+)/.exec(text)![1].replace(/,/g, ''));
+  check(scores.length >= 2 && scores[0] + scores[1] === team, 'team score is not the sum: ' + text);
+  check(
+    (await p.evaluate(() => document.querySelector<HTMLElement>('#app')!.dataset.duo)) === undefined,
+    'split screen still on',
+  );
+  results.duo = {team, scores: scores.slice(0, 2)};
+  await ctx.close();
+} finally {
+  await duo.close();
+}
 check(!errors.length, `page errors: ${errors.join(' | ')}`);
 console.log(JSON.stringify(results, null, 1));
-console.log('classroom: tabs, backup, reminder, scan, flag, drop, CSV and hostile links passed');
+console.log(
+  'classroom: tabs, backup, reminder, scan, flag, drop, CSV, hostile links, leader ghost and split screen passed',
+);

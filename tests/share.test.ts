@@ -71,6 +71,18 @@ test('contest and result codes round-trip and reject tampering or nonsense', () 
   } as const;
   assert.deepEqual(decodeLink(encodeLink(result)), result);
   assert.deepEqual(parseLinkText('r=' + encodeLink(result)), result);
+  // A result with the run's ghost (r2) and a contest link carrying the leader's ghost (c3).
+  const ghost = {score: 3210, duration: 78.4, samples: Array.from({length: 79}, (_, i) => Math.min(24000, i * 305))};
+  const withGhost = {...result, ghost};
+  const r2 = encodeLink(withGhost);
+  assert.ok(r2.startsWith('r2.'));
+  assert.ok(r2.length < 420, 'fits a phone-scannable QR: ' + r2.length);
+  assert.deepEqual(decodeLink(r2), withGhost);
+  const race = {...contest, leader: {name: '민준', score: 3210, ghost}};
+  const c3 = encodeLink(race);
+  assert.ok(c3.startsWith('c3.'));
+  assert.deepEqual(decodeLink(c3), race);
+  assert.throws(() => decodeLink(c3.replace('.3210.', '.9999.')), /잘렸거나/);
   const code = encodeLink(result);
   assert.throws(() => decodeLink(code.replace('.3210.', '.9999.')), /잘렸거나/);
   assert.throws(() => decodeLink(code.slice(0, -3)));

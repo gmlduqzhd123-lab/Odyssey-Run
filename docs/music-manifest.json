@@ -1,5 +1,5 @@
 {
-  "provenance": "User uploads, described as Suno AI background music. No inferred license.",
+  "provenance": "User uploads, described as Suno AI background music. No inferred license. Circe and strait tracks are synthesized by scripts/compose-music.py (original).",
   "processing": "All MP3 bytes preserved. Runtime gain only, no trim or re-encode.",
   "tracks": [
     {
@@ -37,6 +37,32 @@
       "codec_type": "audio",
       "sample_rate": "48000",
       "channels": 2
+    },
+    {
+      "stage": "circe",
+      "sourceName": "scripts/compose-music.py (synthesized, original)",
+      "file": "assets/audio/circe-4d3516102789.mp3",
+      "sha256": "4d3516102789f1212394b6d84903f785781f47c24ceca9a22ec92bb83f303329",
+      "bytes": 1152671,
+      "durationSeconds": 96.026,
+      "codec_name": "mp3",
+      "codec_type": "audio",
+      "sample_rate": "44100",
+      "channels": 1,
+      "license": "Original, composed in code for this game; no samples."
+    },
+    {
+      "stage": "strait",
+      "sourceName": "scripts/compose-music.py (synthesized, original)",
+      "file": "assets/audio/strait-84049ccca260.mp3",
+      "sha256": "84049ccca260188783b75d43735b4baf28c0a1295901bbff5d51b46cbb0c013b",
+      "bytes": 1152671,
+      "durationSeconds": 96.026,
+      "codec_name": "mp3",
+      "codec_type": "audio",
+      "sample_rate": "44100",
+      "channels": 1,
+      "license": "Original, composed in code for this game; no samples."
     }
   ]
 }

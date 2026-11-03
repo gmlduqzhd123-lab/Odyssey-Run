@@ -56,10 +56,10 @@ export class Gallery {
     this.save();
     return true;
   }
-  vote(i: number, delta: 1 | -1) {
+  vote(i: number, delta: 1 | -1, count = 1) {
     const c = this.list[i];
     if (!c) return;
-    c.votes = Math.max(0, Math.min(999, c.votes + delta));
+    c.votes = Math.max(0, Math.min(999, c.votes + delta * count));
     this.save();
   }
   remove(i: number) {

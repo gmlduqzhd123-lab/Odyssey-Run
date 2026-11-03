@@ -7,7 +7,12 @@ import {makerLength} from '../src/levels/maker';
 
 const memory = () => {
   const m = new Map<string, string>();
-  return {getItem: (k: string) => m.get(k) ?? null, setItem: (k: string, v: string) => void m.set(k, v), m};
+  return {
+    getItem: (k: string) => m.get(k) ?? null,
+    setItem: (k: string, v: string) => void m.set(k, v),
+    removeItem: (k: string) => void m.delete(k),
+    m,
+  };
 };
 
 test('the gallery keeps each course once, counts votes and ranks by them', () => {
@@ -71,4 +76,27 @@ test('a contest on a student course travels by link and checks results against i
   };
   assert.equal(suspicion(finished, length), null);
   assert.ok(suspicion(finished));
+});
+
+test('the class backup carries the gallery and a restore merges courses, keeping the higher votes', async () => {
+  const {classBackup, readClassBackup, restoreClass} = await import('../src/storage/backup');
+  const a = memory(),
+    b = memory();
+  const ga = new Gallery(a);
+  ga.add({stage: 'beach', blocks: 'fpskhgobwl', title: '가시 계곡'});
+  ga.vote(0, 1, 3);
+  const backup = readClassBackup(JSON.parse(JSON.stringify(classBackup(a))));
+  assert.equal(backup.gallery?.length, 1);
+  const gb = new Gallery(b);
+  gb.add({stage: 'beach', blocks: 'fpskhgobwl', title: '같은 코스'});
+  gb.add({stage: 'cave', blocks: 'ffffffffff', title: '평지'});
+  const r = restoreClass(b, backup);
+  assert.equal(r.gallery, 0);
+  const after = new Gallery(b);
+  assert.equal(after.list.length, 2);
+  assert.equal(after.list[0].votes, 3);
+  // Backups written before the gallery existed still restore.
+  const old = JSON.parse(JSON.stringify(backup)) as Record<string, unknown>;
+  delete old.gallery;
+  assert.deepEqual(readClassBackup(old).gallery, []);
 });

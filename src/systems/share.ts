@@ -93,6 +93,8 @@ export interface ContestLink {
   assist: boolean;
   // A student-built course run instead of the island course.
   blocks?: string;
+  // The current leader's record, so students joining late race the leader's ghost.
+  leader?: {name: string; score: number; ghost: Ghost};
 }
 export interface ContestResult {
   kind: 'result';
@@ -104,6 +106,8 @@ export interface ContestResult {
   maps: number;
   hpLoss: number;
   time: number;
+  // The run's per-second distances, so the class leader's ghost can race the others.
+  ghost?: Ghost;
 }
 // A course a student built: island, ten block letters and a title.
 export interface CourseLink {
@@ -127,6 +131,22 @@ export function encodeLink(link: Link): string {
       ['g1', link.stage, link.variant, link.score, d, packSteps(link.ghost.samples), textOut(link.name)].join('.'),
     );
   }
+  if (link.kind === 'contest' && link.leader)
+    return seal(
+      [
+        'c3',
+        link.id,
+        link.stage,
+        link.variant,
+        link.assist ? 1 : 0,
+        link.blocks ?? '-',
+        textOut(link.title),
+        link.leader.score,
+        Math.floor(link.leader.ghost.duration * 10),
+        packSteps(link.leader.ghost.samples),
+        textOut(link.leader.name),
+      ].join('.'),
+    );
   if (link.kind === 'contest' && link.blocks)
     return seal(
       ['c2', link.id, link.stage, link.variant, link.assist ? 1 : 0, link.blocks, textOut(link.title)].join('.'),
@@ -134,20 +154,25 @@ export function encodeLink(link: Link): string {
   if (link.kind === 'contest')
     return seal(['c1', link.id, link.stage, link.variant, link.assist ? 1 : 0, textOut(link.title)].join('.'));
   if (link.kind === 'course') return seal(['m1', link.stage, link.blocks, textOut(link.title)].join('.'));
-  return seal(
-    [
-      'r1',
-      link.contest,
-      link.score,
-      link.complete ? 1 : 0,
-      link.stars,
-      link.maps,
-      link.hpLoss,
-      Math.round(link.time * 10),
-      textOut(link.name),
-    ].join('.'),
-  );
+  const result = [
+    link.contest,
+    link.score,
+    link.complete ? 1 : 0,
+    link.stars,
+    link.maps,
+    link.hpLoss,
+    Math.round(link.time * 10),
+    textOut(link.name),
+  ];
+  if (link.ghost)
+    return seal(['r2', ...result, Math.floor(link.ghost.duration * 10), packSteps(link.ghost.samples)].join('.'));
+  return seal(['r1', ...result].join('.'));
 }
+// A ghost carried in a link: duration in tenths, then packed per-second steps.
+const ghostIn = (tenths: string, steps: string, score: number) => {
+  const duration = int(tenths, GHOST_SECONDS * 10) / 10;
+  return validateGhost({score, duration, samples: unpackSteps(steps, Math.floor(duration))}, MAX_SCORE);
+};
 export function decodeLink(code: string): Link {
   const parts = code.trim().split('.'),
     sum = parts.pop() ?? '';
@@ -176,6 +201,25 @@ export function decodeLink(code: string): Link {
         assist: f[3] === '1',
         title: (cleanName(textIn(f[4])) || '우리 반 대회').slice(0, 12),
       };
+    if (kind === 'c3' && f.length === 10 && /^[a-z0-9]{6}$/.test(f[0]) && /^[01]$/.test(f[3])) {
+      const score = int(f[6], MAX_SCORE);
+      return {
+        kind: 'contest',
+        id: f[0],
+        stage: stage(f[1]),
+        variant: variant(f[2]),
+        assist: f[3] === '1',
+        ...(f[4] === '-'
+          ? {}
+          : isBlocks(f[4])
+            ? {blocks: f[4]}
+            : (() => {
+                throw Error('blocks');
+              })()),
+        title: (cleanName(textIn(f[5])) || '우리 반 대회').slice(0, 12),
+        leader: {score, ghost: ghostIn(f[7], f[8], score), name: name(f[9], '1등')},
+      };
+    }
     if (kind === 'c2' && f.length === 6 && /^[a-z0-9]{6}$/.test(f[0]) && /^[01]$/.test(f[3]) && isBlocks(f[4]))
       return {
         kind: 'contest',
@@ -193,8 +237,14 @@ export function decodeLink(code: string): Link {
         blocks: f[1],
         title: (cleanName(textIn(f[2])) || '나만의 코스').slice(0, 12),
       };
-    if (kind === 'r1' && f.length === 8 && /^[a-z0-9]{6}$/.test(f[0]) && /^[01]$/.test(f[2]))
+    if (
+      (kind === 'r1' || kind === 'r2') &&
+      f.length === (kind === 'r1' ? 8 : 10) &&
+      /^[a-z0-9]{6}$/.test(f[0]) &&
+      /^[01]$/.test(f[2])
+    )
       return {
+        ...(kind === 'r2' ? {ghost: ghostIn(f[8], f[9], int(f[1], MAX_SCORE))} : {}),
         kind: 'result',
         contest: f[0],
         score: int(f[1], MAX_SCORE),

@@ -5,4 +5,5 @@ export const TERRAIN_FILES = {
   'myth-sheet': 'assets/art/myth-sheet-d34eacc8a5a6.webp',
   'landscape-sheet': 'assets/art/landscape-sheet-9271e26c9b34.webp',
   'sea-sheet': 'assets/art/sea-sheet-0e24b00ee26d.webp',
+  'strait-view': 'assets/art/strait-view-e05937f02ab1.webp',
 } as const;

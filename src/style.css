@@ -114,8 +114,43 @@ em {
   position: absolute;
   inset: 0;
 }
-#game canvas {
+#game canvas,
+#game2 canvas {
   display: block;
+}
+/* Two sailors at once: the second canvas takes the lower half of the shell. */
+#game2 {
+  display: none;
+  position: absolute;
+  inset: 50% 0 0 0;
+  border-top: 2px solid #ffe9a855;
+  touch-action: none;
+}
+#app[data-duo='true'] #game {
+  height: 50% !important;
+}
+#app[data-duo='true'] #game2 {
+  display: block;
+}
+#app[data-duo='true'] .touch-controls {
+  bottom: 50%;
+}
+#app[data-duo='true'] .adventure-hud,
+#app[data-duo='true'] #ghost-marker {
+  display: none;
+}
+.hud-two {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  margin-top: 2px;
+}
+.hud-two .hud-caption {
+  max-width: 9em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 #ui {
   z-index: 2;
@@ -2815,6 +2850,16 @@ body {
   border-radius: 8px;
   border: 1px solid #c9bba0;
 }
+.race-leader {
+  margin-top: 0.75rem;
+}
+.race-leader summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+.race-leader .qr-box {
+  margin-top: 0.5rem;
+}
 .rival-result {
   font-size: 1rem;
 }
@@ -3766,12 +3811,24 @@ body {
   #notice {
     display: none !important;
   }
+  /* The game shell is a fixed 16:9 box that hides overflow; on paper the sheet must flow over pages. */
   #app,
+  #shell,
   #ui,
   .page {
     position: static !important;
     overflow: visible !important;
     background: #fff !important;
+  }
+  body,
+  #shell {
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    aspect-ratio: auto !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    container-type: normal !important;
   }
   .sheet {
     border: 0;

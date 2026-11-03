@@ -59,6 +59,11 @@ const SCREENS: [string, string[], string[]?][] = [
   ['countdown', ['islands', 'stage:beach', 'start', 'wait:900'], RUN_SIZES],
   ['play', ['islands', 'stage:beach', 'start', 'wait:4500'], RUN_SIZES],
   ['pause', ['islands', 'stage:beach', 'start', 'wait:4500', 'key:Escape'], RUN_SIZES],
+  // The same run with hazard stripes and the larger warning (a played save, see QA_PREFS below).
+  ['play-marks', ['pref:hazardMarks', 'islands', 'stage:beach', 'start', 'wait:4500'], RUN_SIZES],
+  // Printable pages as the printer sees them: only the sheet, dark text on white.
+  ['worksheet-print', ['profiles', 'progress', 'worksheet', 'media:print']],
+  ['report-print', ['profiles', 'progress', 'report:main', 'media:print']],
 ];
 // Plain source: tsx would wrap named functions with a helper the page does not have.
 const SCAN = `(() => {
@@ -160,12 +165,20 @@ const SCAN = `(() => {
   return problems;
 })()`;
 async function go(p: Page, steps: string[]) {
+  await p.emulateMedia({media: null});
   await p.goto(url);
   await p.waitForSelector('.home', {timeout: 30000});
   for (const s of steps) {
     if (s.startsWith('wait:')) await p.waitForTimeout(Number(s.slice(5)));
     else if (s.startsWith('key:')) await p.keyboard.press(s.slice(4));
-    else await p.locator(`[data-action="${s}"]:visible`).first().click();
+    else if (s.startsWith('media:')) await p.emulateMedia({media: s.slice(6) as 'print' | 'screen'});
+    // pref:name turns a preference on through its settings toggle, then comes back to the start screen.
+    else if (s.startsWith('pref:')) {
+      await p.locator('[data-action="settings"]:visible').first().click();
+      await p.locator(`[data-pref="${s.slice(5)}"]`).check({force: true});
+      await p.goto(url);
+      await p.waitForSelector('.home');
+    } else await p.locator(`[data-action="${s}"]:visible`).first().click();
     await p.waitForTimeout(150);
   }
   await p.waitForTimeout(250);
@@ -175,54 +188,67 @@ const b = await chromium.launch({
   args: ['--no-sandbox'],
 });
 const found = new Map<string, Set<string>>(),
-  errors: string[] = [];
+  errors: string[] = [],
+  saved = (await import('node:fs')).readFileSync(legacy, 'utf8');
+// One pass of every screen for one language, save and viewport, in its own browser context.
+async function pass(lang: string, played: boolean, v: (typeof VIEWPORTS)[number]) {
+  const ctx = await b.newContext({
+    viewport: {width: v.width, height: v.height},
+    hasTouch: !!v.touch,
+    isMobile: !!v.touch,
+    deviceScaleFactor: v.touch ? 2 : 1,
+    serviceWorkers: 'block',
+    // QA_CONTRAST=more checks the device's "more contrast" setting.
+    ...(process.env.QA_CONTRAST === 'more' ? {contrast: 'more' as const} : {}),
+  });
+  await ctx.addInitScript(
+    ([lang, key, save]) => {
+      localStorage.setItem('odyssey-run:lang', lang);
+      if (save && !localStorage.getItem(key)) localStorage.setItem(key, save);
+    },
+    [lang, SAVE, played ? saved : ''],
+  );
+  const p = await ctx.newPage();
+  // QA_ROOT_FONT=20 sets the browser's default font size, as a person raising it would.
+  if (process.env.QA_ROOT_FONT)
+    await (
+      await ctx.newCDPSession(p)
+    ).send('Page.setFontSizes', {fontSizes: {standard: Number(process.env.QA_ROOT_FONT)}});
+  p.on('pageerror', e => errors.push(`${lang} ${v.name}: ${e.message}`));
+  for (const [screen, steps, sizes] of SCREENS) {
+    if ((only && !only.includes(screen)) || (sizes && !sizes.includes(v.name))) continue;
+    try {
+      await go(p, steps);
+    } catch (e) {
+      errors.push(`${lang} ${v.name} ${screen}: could not open (${(e as Error).message.split('\n')[0]})`);
+      continue;
+    }
+    for (const q of (await p.evaluate(SCAN)) as {kind: string; text: string; at: string; by?: string}[]) {
+      const key = `${q.kind} | ${screen} | ${q.text} | ${q.at}${q.by ? ' | by ' + q.by : ''}`;
+      if (!found.has(key)) found.set(key, new Set());
+      found.get(key)!.add(`${lang}${played ? '+save' : ''} ${v.name}`);
+    }
+  }
+  await ctx.close();
+}
+// Passes are independent, so QA_PARALLEL of them (default 3) share the one browser at a time.
+const passes: [string, boolean, (typeof VIEWPORTS)[number]][] = [];
+for (const lang of (process.env.QA_LANGS || 'ko,en').split(','))
+  for (const played of (process.env.QA_SAVES || 'empty,played').split(',').map(v => v === 'played'))
+    for (const v of VIEWPORTS.filter(
+      v => !process.env.QA_VIEWPORTS || process.env.QA_VIEWPORTS.split(',').includes(v.name),
+    ))
+      passes.push([lang, played, v]);
 try {
-  for (const lang of (process.env.QA_LANGS || 'ko,en').split(','))
-    for (const played of (process.env.QA_SAVES || 'empty,played').split(',').map(v => v === 'played'))
-      for (const v of VIEWPORTS.filter(
-        v => !process.env.QA_VIEWPORTS || process.env.QA_VIEWPORTS.split(',').includes(v.name),
-      )) {
-        const ctx = await b.newContext({
-          viewport: {width: v.width, height: v.height},
-          hasTouch: !!v.touch,
-          isMobile: !!v.touch,
-          deviceScaleFactor: v.touch ? 2 : 1,
-          serviceWorkers: 'block',
-          // QA_CONTRAST=more checks the device's "more contrast" setting.
-          ...(process.env.QA_CONTRAST === 'more' ? {contrast: 'more' as const} : {}),
-        });
-        await ctx.addInitScript(
-          ([lang, key, save]) => {
-            localStorage.setItem('odyssey-run:lang', lang);
-            if (save && !localStorage.getItem(key)) localStorage.setItem(key, save);
-          },
-          [lang, SAVE, played ? (await import('node:fs')).readFileSync(legacy, 'utf8') : ''],
-        );
-        const p = await ctx.newPage();
-        // QA_ROOT_FONT=20 sets the browser's default font size, as a person raising it would.
-        if (process.env.QA_ROOT_FONT)
-          await (
-            await ctx.newCDPSession(p)
-          ).send('Page.setFontSizes', {
-            fontSizes: {standard: Number(process.env.QA_ROOT_FONT)},
-          });
-        p.on('pageerror', e => errors.push(`${lang} ${v.name}: ${e.message}`));
-        for (const [screen, steps, sizes] of SCREENS) {
-          if ((only && !only.includes(screen)) || (sizes && !sizes.includes(v.name))) continue;
-          try {
-            await go(p, steps);
-          } catch (e) {
-            errors.push(`${lang} ${v.name} ${screen}: could not open (${(e as Error).message.split('\n')[0]})`);
-            continue;
-          }
-          for (const q of (await p.evaluate(SCAN)) as {kind: string; text: string; at: string; by?: string}[]) {
-            const key = `${q.kind} | ${screen} | ${q.text} | ${q.at}${q.by ? ' | by ' + q.by : ''}`;
-            if (!found.has(key)) found.set(key, new Set());
-            found.get(key)!.add(`${lang}${played ? '+save' : ''} ${v.name}`);
-          }
-        }
-        await ctx.close();
+  let next = 0;
+  await Promise.all(
+    Array.from({length: Math.max(1, Number(process.env.QA_PARALLEL) || 3)}, async () => {
+      while (next < passes.length) {
+        const [lang, played, v] = passes[next++];
+        await pass(lang, played, v);
       }
+    }),
+  );
 } finally {
   await b.close();
 }

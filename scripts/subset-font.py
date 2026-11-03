@@ -20,8 +20,9 @@ chars = {chr(c) for c in range(0x20, 0x7F)}
 OTHER = ('vi', 'zh', 'ru')
 sources = [p for p in ROOT.glob('src/**/*.ts') if not (p.parent.name == 'i18n' and p.stem.split('-')[0] in OTHER)]
 for path in [*sources, ROOT / 'index.html', *ROOT.glob('public/*.js')]:
-    chars.update(ch for ch in path.read_text(encoding='utf-8') if ord(ch) > 0x7E and not ch.isspace())
-# Common sailor-name syllables are not added on purpose: names fall back to the device font.
+    chars.update(ch for ch in path.read_text(encoding='utf-8') if ord(ch) > 0x7E and not ch.isspace() and not 0x4E00 <= ord(ch) <= 0x9FFF)
+# Chinese ideographs (the worksheet's keywords) come from the device font like the rest of the
+# Chinese text. Common sailor-name syllables are not added on purpose: names fall back to the device font.
 text = ''.join(sorted(chars))
 (ROOT / 'public/fonts').mkdir(parents=True, exist_ok=True)
 (ROOT / 'public/fonts/odyssey-ui.chars.txt').write_text(text, encoding='utf-8')

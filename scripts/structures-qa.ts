@@ -61,7 +61,6 @@ try {
     await p.clock.install();
     await p.goto(url);
     await p.waitForSelector('.home');
-    await p.clock.pauseAt((await p.evaluate(() => Date.now())) + 1000);
     const click = async (s: string) => (mobile ? p.locator(s).first().tap() : p.locator(s).first().click());
     const x = async () => Number(await p.locator('#progress').getAttribute('data-distance')),
       hp = async () => p.locator('#hp').getAttribute('aria-label'),
@@ -84,10 +83,15 @@ try {
         const k = Object.keys(localStorage).find(k => k.startsWith('odyssey-run:') && k.endsWith(':save'))!;
         return JSON.parse(localStorage.getItem(k)!);
       });
+    // Settings are reached on the live clock; the clock is paused only once the run is set up, so a
+    // slow runner cannot leave the home screen's handlers waiting under a frozen timer.
     await click('[data-action="settings"]');
+    await p.locator('[data-setting="music"]').waitFor();
     await p.locator('[data-setting="music"]').uncheck();
     await p.locator('[data-setting="sfx"]').uncheck();
     await click('[data-action="home"]');
+    await p.waitForSelector('.home');
+    await p.clock.pauseAt((await p.evaluate(() => Date.now())) + 1000);
     await click('[data-action="islands"]');
     await click('[data-action="stage:beach"]');
     await click('[data-action="start"]');

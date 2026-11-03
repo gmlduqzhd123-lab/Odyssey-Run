@@ -2,6 +2,7 @@ import {validateSave, SaveStore, type Save} from './save';
 import {mergeSaves} from './merge';
 import {readBook, profileKey, PROFILES_KEY, MAX_PROFILES, cleanName, type ProfileBook} from './profiles';
 import {readContests, CONTESTS_KEY, Contests, type ContestBook} from './contests';
+import {readGallery, Gallery, GALLERY_KEY, type GalleryCourse} from './gallery';
 // One file for a whole class: every sailor's save, the sailor list and contest boards.
 // Restoring merges instead of replacing, so nothing already on the device is lost.
 export const CLASS_BACKUP_LIMIT = 4 * 1024 * 1024;
@@ -13,6 +14,8 @@ export interface ClassBackup {
   profiles: ProfileBook;
   saves: Record<string, Save>;
   contests: ContestBook;
+  // The class course gallery (teacher's device); older backups have none.
+  gallery?: GalleryCourse[];
 }
 export function classBackup(storage: Store): ClassBackup {
   const profiles = readBook(storage.getItem(PROFILES_KEY)),
@@ -32,6 +35,7 @@ export function classBackup(storage: Store): ClassBackup {
     profiles,
     saves,
     contests: readContests(storage.getItem(CONTESTS_KEY)),
+    gallery: readGallery(storage.getItem(GALLERY_KEY)),
   };
 }
 export function readClassBackup(raw: unknown): ClassBackup {
@@ -56,6 +60,7 @@ export function readClassBackup(raw: unknown): ClassBackup {
     profiles,
     saves,
     contests: readContests(JSON.stringify(v.contests ?? {})),
+    gallery: readGallery(JSON.stringify(v.gallery ?? [])),
   };
 }
 export interface RestoreSummary {
@@ -63,10 +68,11 @@ export interface RestoreSummary {
   added: number;
   skipped: number;
   contests: number;
+  gallery: number;
 }
 export function restoreClass(storage: Store, backup: ClassBackup): RestoreSummary {
   const book = readBook(storage.getItem(PROFILES_KEY)),
-    summary: RestoreSummary = {merged: 0, added: 0, skipped: 0, contests: 0};
+    summary: RestoreSummary = {merged: 0, added: 0, skipped: 0, contests: 0, gallery: 0};
   for (const p of backup.profiles.list) {
     const name = cleanName(p.name),
       // Same id first, then same name; the first sailor always exists, so it always merges.
@@ -101,5 +107,17 @@ export function restoreClass(storage: Store, backup: ClassBackup): RestoreSummar
     summary.contests++;
   }
   for (const [key, e] of Object.entries(backup.contests.best)) contests.record(key.split(':')[0], key.split(':')[1], e);
+  // Gallery courses merge by course; votes keep the higher count.
+  const gallery = new Gallery(storage);
+  for (const c of backup.gallery ?? []) {
+    const known = gallery.list.find(o => o.stage === c.stage && o.blocks === c.blocks);
+    if (known) {
+      if (c.votes > known.votes) gallery.vote(gallery.list.indexOf(known), 1, c.votes - known.votes);
+    } else if (gallery.add(c)) {
+      const i = gallery.list.length - 1;
+      if (c.votes) gallery.vote(i, 1, c.votes);
+      summary.gallery++;
+    }
+  }
   return summary;
 }

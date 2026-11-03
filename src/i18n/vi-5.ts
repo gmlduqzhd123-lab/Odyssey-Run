@@ -479,4 +479,43 @@ export const VI_5: Record<string, string> = {
   '2. 인물과 알맞은 설명을 선으로 이어 보세요': '2. Nối mỗi nhân vật với mô tả phù hợp',
   '3. 다시 풀어 보는 신화 퀴즈': '3. Ôn lại câu đố thần thoại',
   '정답 (선생님용)': 'Đáp án (dành cho giáo viên)',
+  '1등': 'Hạng nhất',
+  '1등 ‘{x}’': 'Hạng nhất ‘{x}’',
+  '1등 ‘{x}’ {x}점': 'Hạng nhất ‘{x}’ {x} điểm',
+  '· 달리는 동안 1등의 배가 진행 막대에 함께 보여요.': '· Thuyền của hạng nhất hiện trên thanh tiến độ khi bạn chạy.',
+  '지금 1등': 'Hạng nhất hiện tại',
+  '{x}점의 배가 참가자의 진행 막대에 함께 보여요. 순위표를 다시 열면 새 1등으로 바뀌어요.':
+    '({x} điểm): thuyền của bạn ấy hiện trên thanh tiến độ của người tham gia. Mở lại bảng xếp hạng để đổi sang hạng nhất mới.',
+  '🏁 1등 기록과 겨루기 QR': '🏁 Mã QR để đua với kỷ lục hạng nhất',
+  '1등 기록과 겨루는 참가 QR 코드': 'Mã QR tham gia đua với kỷ lục hạng nhất',
+  '겨루기 링크': 'Liên kết đua',
+  '동시에 달리기 (화면을 위아래로 나눠요)': 'Chạy cùng lúc (màn hình chia trên dưới)',
+  '동시에 달리면 키보드 한 대로 함께 달려요: 첫 번째 항해사는 Space·↑·↓(또는 화면 버튼), 두 번째 항해사는 W·S. 번갈아 달리면 차례로 같은 조작을 써요.':
+    'Khi chạy cùng lúc, hai người dùng chung một bàn phím: thủy thủ thứ nhất dùng Space·↑·↓ (hoặc nút trên màn hình), thủy thủ thứ hai dùng W·S. Khi chạy lần lượt, cả hai dùng cùng cách điều khiển.',
+  '전자칠판이나 한 대의 태블릿에서 함께 달리기 좋아요.':
+    'Rất hợp với bảng tương tác hoặc một máy tính bảng dùng chung.',
+  '출발 준비 →': 'Chuẩn bị xuất phát →',
+  '두 번째 화면 준비 중': 'Đang chuẩn bị màn hình thứ hai',
+  '두 번째 항해사의 화면을 준비하고 있어요…': 'Đang chuẩn bị màn hình cho thủy thủ thứ hai…',
+  '두 번째 화면을 준비하지 못했어요. 연결을 확인하고 다시 시도해 주세요.':
+    'Không chuẩn bị được màn hình thứ hai. Hãy kiểm tra kết nối và thử lại.',
+  '두 번째 화면을 준비하지 못했어요.': 'Không chuẩn bị được màn hình thứ hai.',
+  '‘{x}’와 ‘{x}’ 함께 출발': '‘{x}’ và ‘{x}’ cùng xuất phát',
+  '위 화면 · 화면 버튼도 돼요': 'Màn hình trên · nút trên màn hình cũng được',
+  '아래 화면': 'Màn hình dưới',
+  '둘이서 달린 기록은 기록·해금에 반영하지 않아요.': 'Thành tích chạy đôi không tính vào kỷ lục hay mở khóa.',
+  '둘이서 동시에': 'Hai người cùng lúc',
+  '둘이서 동시에 · {x}': 'Hai người cùng lúc · {x}',
+  '👥 {x} · {x} 함께': '👥 {x} · {x} cùng nhau',
+  'W 점프 · S 슬라이드': 'W nhảy · S trượt',
+  '두 번째 항해사 진행률': 'Tiến độ của thủy thủ thứ hai',
+  '두 번째 항해사의 게임 화면': 'Màn hình chơi của thủy thủ thứ hai',
+  '· 갤러리 코스 {x}개': '· {x} đường chạy trong bộ sưu tập',
+  '달리는 항로는 해변·동굴·바람 섬·키르케의 섬·세이렌의 바다·해협이에요. 원화에 적힌 추가 공격과 효과는 이번 항해에 등장하지 않아요.':
+    'Các tuyến bạn chạy là bãi biển, hang động, đảo gió, đảo Circe, biển Siren và eo biển. Các đòn tấn công và hiệu ứng ghi trên tranh gốc không xuất hiện trong chuyến đi này.',
+  '메뉴의 버튼이 차례로 하나씩 강조되고, Space나 Enter(보조 스위치)를 누르면 강조된 버튼을 골라요. 달리는 동안에는 같은 스위치가 점프예요. 「버튼 하나로 항해」를 함께 켜면 숙이기도 저절로 되어 스위치 하나로 끝까지 달릴 수 있어요.':
+    'Các nút trong menu lần lượt được tô sáng; nhấn Space hoặc Enter (công tắc hỗ trợ) để chọn nút đang sáng. Khi chạy, cùng công tắc đó là nhảy. Bật thêm “Đi biển bằng một nút” thì cúi người sẽ tự động, một công tắc chạy được đến cuối.',
+  '스위치로 메뉴를 고르고 있어요. 달리기도 스위치 하나로 하려면 아래 쉬운 항해에서 「버튼 하나로 항해」를 켜 주세요.':
+    'Đang chọn menu bằng công tắc. Để chạy cũng chỉ bằng một công tắc, hãy bật “Đi biển bằng một nút” trong mục Đi biển dễ dàng bên dưới.',
+  '보기:': 'Gợi ý:',
 };

@@ -55,7 +55,7 @@ test('a class backup round-trips through JSON and restores onto an empty device'
   const backup = readClassBackup(file),
     fresh = new Memory();
   const r = restoreClass(fresh, backup);
-  assert.deepEqual(r, {merged: 1, added: 1, skipped: 0, contests: 1});
+  assert.deepEqual(r, {merged: 1, added: 1, skipped: 0, contests: 1, gallery: 0});
   const list = new Profiles(fresh).book.list;
   assert.deepEqual(
     list.map(p => p.name),
