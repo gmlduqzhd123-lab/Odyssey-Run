@@ -3942,7 +3942,9 @@ body {
   gap: 6px;
 }
 .report-islands {
-  columns: 2;
+  /* Two columns where there is room; one on a narrow screen or with large text, so no island
+     name has to break inside a word. */
+  columns: 14em 2;
   padding-left: 18px;
 }
 .note-lines {
