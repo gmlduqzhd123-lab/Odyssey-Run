@@ -44,8 +44,10 @@ input {
   font: inherit;
 }
 /* Korean wraps between words, never inside one (no "고르 / 기"); a single word longer than its
-   box still breaks rather than spilling out of it. */
-:lang(ko) {
+   box still breaks rather than spilling out of it. The rule only changes how CJK letters wrap,
+   so it also keeps Korean names whole on English, Vietnamese and Russian pages; Chinese pages
+   are left out, as Chinese text wraps between its characters. */
+:root:not(:lang(zh)) {
   word-break: keep-all;
   overflow-wrap: break-word;
 }
