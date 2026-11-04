@@ -43,6 +43,12 @@ button,
 input {
   font: inherit;
 }
+/* Korean wraps between words, never inside one (no "고르 / 기"); a single word longer than its
+   box still breaks rather than spilling out of it. */
+:lang(ko) {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
 button,
 .button {
   cursor: pointer;
@@ -912,7 +918,7 @@ progress::-moz-progress-bar {
   margin: 9px 0;
 }
 .result-stars em {
-  color: #c2c2a6;
+  color: #80806a;
 }
 .result-score {
   display: flex;
@@ -921,7 +927,7 @@ progress::-moz-progress-bar {
 }
 .result-score > span {
   font-size: clamp(10px, 1cqw, 14px);
-  color: #7f8a78;
+  color: #5c6657;
 }
 .result-score strong {
   font-size: clamp(35px, 5cqw, 70px);
@@ -931,7 +937,7 @@ progress::-moz-progress-bar {
 }
 .result-score small {
   font-size: clamp(10px, 1.1cqw, 16px);
-  color: #ac7941;
+  color: #7d5424;
 }
 .score-breakdown {
   display: grid;
@@ -949,7 +955,7 @@ progress::-moz-progress-bar {
 }
 .score-breakdown span {
   font-size: clamp(9px, 1cqw, 14px);
-  color: #89917d;
+  color: #5c6657;
 }
 .score-breakdown b {
   font-size: clamp(13px, 1.6cqw, 22px);
@@ -960,7 +966,7 @@ progress::-moz-progress-bar {
   justify-content: center;
   gap: 24px;
   font-size: clamp(10px, 1.2cqw, 17px);
-  color: #8a876c;
+  color: #62604a;
   align-items: center;
 }
 .result-summary .icon {
@@ -1186,7 +1192,8 @@ progress::-moz-progress-bar {
 #notice:empty {
   display: none;
 }
-#rotate {
+#rotate,
+.rotate-hint {
   position: absolute;
   inset: 0;
   z-index: 20;
@@ -1203,21 +1210,66 @@ progress::-moz-progress-bar {
 #rotate[hidden] {
   display: none;
 }
-#rotate > span {
+#rotate > span,
+.rotate-hint > span {
   font-size: 60px;
 }
-#rotate h2 {
+#rotate h2,
+.rotate-hint h2 {
   font-size: 22px;
+  margin: 0;
 }
-#rotate p {
+#rotate p,
+.rotate-hint p {
   font-size: 14px;
-  color: #b7ccc3;
+  color: #d4e2db;
+  max-width: 30em;
+  margin: 0;
 }
 #rotate button {
   background: #f1cf89;
   color: #244d58;
   border-radius: 8px;
   padding: 12px 20px;
+}
+/* The run's rotate prompt sits over the HUD and takes taps (#ui itself lets taps through). */
+.rotate-hint {
+  pointer-events: auto;
+  gap: 14px;
+}
+.rotate-hint .button,
+.rotate-hint button {
+  min-width: 220px;
+}
+.rotate-hint .text-button {
+  color: #fff0ce;
+}
+/* Muted text is dark grey for light panels; on this dark prompt it needs a light tone. */
+.rotate-hint .muted {
+  color: #d4e2db !important;
+}
+.rotate-phone {
+  display: inline-block;
+  animation: turn-phone 2.4s ease-in-out infinite;
+}
+@keyframes turn-phone {
+  0%,
+  25% {
+    transform: rotate(0deg);
+  }
+  55%,
+  85% {
+    transform: rotate(-90deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rotate-phone {
+    animation: none;
+    transform: rotate(-90deg);
+  }
 }
 @media (max-width: 950px) and (orientation: landscape) {
   #app {
@@ -2183,7 +2235,7 @@ progress::-moz-progress-bar {
 
 .mission-badge {
   font-size: clamp(11px, 1.2cqw, 16px);
-  color: #47766a;
+  color: #3a6458;
   background: #e3e9d5;
   padding: 5px 8px;
   border-radius: 6px;
@@ -2616,6 +2668,8 @@ body {
 .damage-summary p {
   font-size: 13px;
   margin: 6px 0;
+  /* The panel's grey is too faint on this parchment box (4.4:1); this one is 5.2:1. */
+  color: #56625a;
 }
 .damage-summary small {
   font-size: 11px;

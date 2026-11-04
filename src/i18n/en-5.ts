@@ -533,4 +533,13 @@ export const EN_5: Record<string, string> = {
   '동시에 달리려면 화면을 가로로 돌려 주세요.': 'To run at the same time, turn the screen sideways.',
   '{x}점의 배가 참가자의 진행 막대에 함께 보여요. 1등이 바뀌면 이 QR도 바로 바뀌어요.':
     "({x} pts): their ship shows on each entrant's progress bar. When the leader changes, this QR changes at once.",
+  '화면을 가로로 돌려 주세요': 'Turn the screen sideways',
+  '가로로 돌리면 코스가 훨씬 넓게 보여 장애물을 일찍 볼 수 있어요. 돌리면 바로 시작해요.':
+    'Sideways, the course is much wider, so you see obstacles sooner. The run starts as soon as you turn.',
+  '⛶ 전체 화면 가로로 하기': '⛶ Full screen, sideways',
+  '화면이 돌아가지 않으면 휴대폰의 ‘화면 자동 회전’을 켜 주세요.':
+    "If the screen does not turn, switch on your phone's auto-rotate.",
+  '세로로 그냥 하기': 'Keep playing upright',
+  '이 기기는 자동으로 돌릴 수 없어요. 휴대폰을 직접 가로로 돌려 주세요.':
+    'This device cannot turn the screen by itself. Please turn the phone sideways.',
 };

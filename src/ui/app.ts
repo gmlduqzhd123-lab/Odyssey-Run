@@ -1144,7 +1144,35 @@ export class App {
   private hud() {
     return `<div class="play-ui" tabindex="-1" role="group" aria-label="게임 조작" data-one-button="${this.assist().autoSlide}"><div class="hud"><div class="hp-block"><span class="hud-caption"${this.together ? ' translate="no"' : ''}>${this.together ? esc(this.duo!.names[0]) : this.hero().name}</span><strong id="hp" role="img" aria-label="체력 3"></strong></div><div class="route-progress"><span>${this.special === 'boss' ? BOSSES[this.selected].name : this.special === 'daily' ? '오늘의 항해 · ' + this.daily!.name : this.special === 'contest' ? '대회 · ' + esc(this.contest!.title) : this.special === 'endless' ? '끝없는 항해 · ' + COURSES[this.selected].name : this.special === 'duo' ? (this.together ? '둘이서 동시에 · ' : '둘이서 번갈아 · ') + COURSES[this.selected].name : this.special === 'custom' ? (this.custom?.name === '나만의 코스' ? '나만의 코스' : '나만의 코스 · ' + esc(this.custom?.name ?? '')) : COURSES[this.selected].name + ' · ' + VARIANT_LABELS[this.selected][this.selectedVariant].name}${this.weatherOn() === 'clear' ? '' : ` · ${WEATHERS[this.weatherOn()].icon} ${WEATHERS[this.weatherOn()].name}`}</span><progress id="progress" data-course="${this.selected}/${this.selectedVariant}" max="24000" value="0" aria-label="섬 진행률"></progress><i id="ghost-marker" hidden aria-label="비교 항해 위치"></i><small id="progress-label">0%</small></div><div class="score-block"><span class="hud-caption">SCORE</span><strong id="score">0</strong></div><div class="hud-actions">${button('fullscreen', '⛶', 'fullscreen-button', 'aria-label="전체 화면 전환"')}${button('pause', 'Ⅱ', 'pause-button', 'aria-label="일시정지"')}</div></div><div class="run-chips"><div class="run-details"><span id="stars">✦ 0 / 100</span><span id="maps">지도 0 / 3</span><span id="effects"></span>${this.assistLabel().length ? `<span class="assist-chip">쉬운 항해 · ${this.assistLabel().join(' · ')}</span>` : ''}</div><div class="adventure-hud"><span id="goal-progress"></span><span id="ghost-delta"></span><span id="discovery-progress"></span></div></div><div class="touch-controls"><button data-control="slide" class="control slide" aria-label="슬라이드, 누르고 유지"><span>⇣</span><b>슬라이드</b><small>↓ 누르기</small></button><button data-control="jump" class="control jump" aria-label="점프, 공중에서 다시 누르면 2단 점프"><span>↟</span><b>점프</b><small>Space / ↑</small></button></div>${this.together ? secondHudMarkup(this.duo!.names[1]) : ''}</div>`;
   }
+  // An upright phone first asks to be turned: the course is much wider sideways. Turning starts
+  // the countdown at once; "keep upright" is remembered until the page is closed.
+  private portraitOk = false;
+  private rotatePrompt() {
+    this.accumulator = 0;
+    this.sound.setPlaying(false);
+    this.run!.state = 'ready';
+    if (this.run2) this.run2.state = 'ready';
+    const lock = document.fullscreenEnabled && 'lock' in (screen.orientation ?? {});
+    this.set(
+      this.hud() +
+        `<div class="rotate-hint" role="dialog" aria-modal="true" aria-labelledby="rotate-title"><span class="rotate-phone" aria-hidden="true">📱</span><h2 id="rotate-title" tabindex="-1">화면을 가로로 돌려 주세요</h2><p>가로로 돌리면 코스가 훨씬 넓게 보여 장애물을 일찍 볼 수 있어요. 돌리면 바로 시작해요.</p>${lock ? button('rotate-lock', '⛶ 전체 화면 가로로 하기', 'primary') : ''}<p class="muted">화면이 돌아가지 않으면 휴대폰의 ‘화면 자동 회전’을 켜 주세요.</p>${button('rotate-skip', '세로로 그냥 하기', 'secondary')}${button('islands', '섬 선택', 'text-button')}</div>`,
+      'rotate',
+    );
+  }
+  private async rotateLock() {
+    try {
+      if (!document.fullscreenElement) await document.documentElement.requestFullscreen({navigationUI: 'hide'});
+      await (screen.orientation as ScreenOrientation & {lock: (o: string) => Promise<void>}).lock('landscape');
+    } catch {
+      this.notice('이 기기는 자동으로 돌릴 수 없어요. 휴대폰을 직접 가로로 돌려 주세요.');
+    }
+    this.resizeDisplay();
+  }
   private beginCountdown() {
+    if (this.portrait && !this.portraitOk && navigator.maxTouchPoints > 0) {
+      this.rotatePrompt();
+      return;
+    }
     this.countdown = 3;
     this.accumulator = 0;
     this.sound.setPlaying(false);
@@ -1229,7 +1257,7 @@ export class App {
       last = r.stage === STAGES.at(-1),
       next = STAGES[STAGES.indexOf(r.stage) + 1];
     this.set(
-      `<div class="veil result-veil"><section class="panel result"><span class="eyebrow">${r.complete ? icon('laurel') : ''} ${r.complete ? 'ISLAND COMPLETE' : 'THE JOURNEY CONTINUES'}</span><h1 tabindex="-1">${r.complete ? (last ? '마침내, 이타카!' : '멋진 항해였어요!') : r.stage === 'cave' ? '거인에게 잡혔어요!' : '다시, 한 걸음 더!'}</h1><p>${r.complete ? (last ? '오디세우스가 고향 항구에 도착했어요. 긴 모험을 함께해 줘서 고마워요.' : COURSES[r.stage].name + ' 완주! 다음 섬의 항로가 열렸어요.') : '괜찮아요. 익숙해질수록 더 멀리 갈 수 있어요.'}</p>${last && r.complete ? regionArt('view-ithaca', 'ending-art', '이타카 도착 항구') : ''}<p class="course-result-label">${VARIANT_LABELS[r.stage][r.variant ?? 'classic'].name}${this.run?.weather && this.run.weather !== 'clear' ? ` · ${WEATHERS[this.run.weather].icon} ${WEATHERS[this.run.weather].name}` : ''}</p><div class="mission-badge">${r.adventure?.stamps.length ? '✓ 도전 도장 · ' + GOALS[this.selectedGoal].name : '◇ 다음 항해에서 도전에 다시 도전해요'}</div><div class="result-stars" aria-label="이번 평점 ${r.rating}점">${'★'.repeat(r.rating)}<em>${'☆'.repeat(3 - r.rating)}</em></div><div class="result-score"><span>이번 항해 점수</span><strong>${r.score.toLocaleString()}</strong><small>코스 최고 ${routeRecord.bestScore.toLocaleString()} ${r.score === routeRecord.bestScore ? '· NEW BEST' : ''}<br>섬 전체 최고 ${record.bestScore.toLocaleString()}</small></div>${this.rivalLine(r)}<div class="score-breakdown"><div><span>최고 전진거리</span><b>${Math.floor(r.distance / 10)}</b></div><div><span>별빛 ${r.stars} × 10</span><b>${r.stars * 10}</b></div><div><span>지도 ${r.maps.length} × 100</span><b>${r.maps.length * 100}</b></div><div><span>완주 보너스</span><b>${r.complete ? 500 : 0}</b></div></div><div class="result-summary"><span>♡ HP 손실 ${r.hpLoss}회</span><span>${icon('map')} 영구 지도 ${record.maps.length}/3</span></div>${this.damageSummary()}<small class="rating-help">완주 ★ · 별빛 70개 이상 ★ · HP 손실 0회 ★</small><div class="result-actions">${button('restart', '재도전', 'secondary')}${button('stage:' + r.stage, '다른 코스 고르기', 'secondary')}${r.complete && next ? button('stage:' + next, '다음 섬으로 →', 'primary') : button('islands', '섬 선택 →', 'primary')}</div>${r.complete ? button('scene:' + (last ? 'ithaca' : r.stage), '📜 그림 이야기 보기', 'text-button') : ''}${r.complete && next ? button('islands', '섬 선택', 'text-button') : ''}${last && r.complete ? button('codex', '귀환의 지도 보기', 'text-button') : ''}<div class="adventure-result"><b>${r.adventure?.stamps.length ? '✓ 도전 성공! ' + GOALS[this.selectedGoal].name : '이번 도전: ' + GOALS[this.selectedGoal].name}</b><p>아슬아슬 회피 ${r.adventure?.nearMisses || 0} · 몬스터 회피 ${r.adventure?.evaded || 0} · 유도 격파 ${r.adventure?.tricked || 0}<br>별자리 ${r.adventure?.constellations.length || 0} · 이야기 ${r.adventure?.stories.length || 0} · 조합 ${r.adventure?.combos.length || 0}</p>${r.adventure ? button('share', '기록 공유 · QR', 'text-button') : ''}${button('quiz', '신화 퀴즈 한 문제', 'text-button')}${button('journal', '모험 수첩', 'text-button')}${button('feats', '업적·주간 도전', 'text-button')}${button('harbor', '달라진 항구 보기', 'text-button')}${button('quit', '게임 종료', 'text-button')}</div></section></div>`,
+      `<div class="veil result-veil"><section class="panel result"><span class="eyebrow">${r.complete ? icon('laurel') : ''} ${r.complete ? 'ISLAND COMPLETE' : 'THE JOURNEY CONTINUES'}</span><h1 tabindex="-1">${r.complete ? (last ? '마침내, 이타카!' : '멋진 항해였어요!') : r.stage === 'cave' ? '거인에게 잡혔어요!' : '다시, 한 걸음 더!'}</h1><p>${r.complete ? (last ? '오디세우스가 고향 항구에 도착했어요. 긴 모험을 함께해 줘서 고마워요.' : COURSES[r.stage].name + ' 완주! 다음 섬의 항로가 열렸어요.') : '괜찮아요. 익숙해질수록 더 멀리 갈 수 있어요.'}</p>${last && r.complete ? regionArt('view-ithaca', 'ending-art', '이타카 도착 항구') : ''}<p class="course-result-label">${VARIANT_LABELS[r.stage][r.variant ?? 'classic'].name}${this.run?.weather && this.run.weather !== 'clear' ? ` · ${WEATHERS[this.run.weather].icon} ${WEATHERS[this.run.weather].name}` : ''}</p><div class="mission-badge">${r.adventure?.stamps.length ? '✓ 도전 도장 · ' + GOALS[this.selectedGoal].name : '◇ 다음 항해에서 도전에 다시 도전해요'}</div><div class="result-stars" role="img" aria-label="이번 평점 ${r.rating}점"><span aria-hidden="true">${'★'.repeat(r.rating)}</span><em aria-hidden="true">${'☆'.repeat(3 - r.rating)}</em></div><div class="result-score"><span>이번 항해 점수</span><strong>${r.score.toLocaleString()}</strong><small>코스 최고 ${routeRecord.bestScore.toLocaleString()} ${r.score === routeRecord.bestScore ? '· NEW BEST' : ''}<br>섬 전체 최고 ${record.bestScore.toLocaleString()}</small></div>${this.rivalLine(r)}<div class="score-breakdown"><div><span>최고 전진거리</span><b>${Math.floor(r.distance / 10)}</b></div><div><span>별빛 ${r.stars} × 10</span><b>${r.stars * 10}</b></div><div><span>지도 ${r.maps.length} × 100</span><b>${r.maps.length * 100}</b></div><div><span>완주 보너스</span><b>${r.complete ? 500 : 0}</b></div></div><div class="result-summary"><span>♡ HP 손실 ${r.hpLoss}회</span><span>${icon('map')} 영구 지도 ${record.maps.length}/3</span></div>${this.damageSummary()}<small class="rating-help">완주 ★ · 별빛 70개 이상 ★ · HP 손실 0회 ★</small><div class="result-actions">${button('restart', '재도전', 'secondary')}${button('stage:' + r.stage, '다른 코스 고르기', 'secondary')}${r.complete && next ? button('stage:' + next, '다음 섬으로 →', 'primary') : button('islands', '섬 선택 →', 'primary')}</div>${r.complete ? button('scene:' + (last ? 'ithaca' : r.stage), '📜 그림 이야기 보기', 'text-button') : ''}${r.complete && next ? button('islands', '섬 선택', 'text-button') : ''}${last && r.complete ? button('codex', '귀환의 지도 보기', 'text-button') : ''}<div class="adventure-result"><b>${r.adventure?.stamps.length ? '✓ 도전 성공! ' + GOALS[this.selectedGoal].name : '이번 도전: ' + GOALS[this.selectedGoal].name}</b><p>아슬아슬 회피 ${r.adventure?.nearMisses || 0} · 몬스터 회피 ${r.adventure?.evaded || 0} · 유도 격파 ${r.adventure?.tricked || 0}<br>별자리 ${r.adventure?.constellations.length || 0} · 이야기 ${r.adventure?.stories.length || 0} · 조합 ${r.adventure?.combos.length || 0}</p>${r.adventure ? button('share', '기록 공유 · QR', 'text-button') : ''}${button('quiz', '신화 퀴즈 한 문제', 'text-button')}${button('journal', '모험 수첩', 'text-button')}${button('feats', '업적·주간 도전', 'text-button')}${button('harbor', '달라진 항구 보기', 'text-button')}${button('quit', '게임 종료', 'text-button')}</div></section></div>`,
       'result',
     );
   }
@@ -2014,6 +2042,12 @@ export class App {
       this.touchLayout();
     },
     fullscreen: () => void this.fullscreen(),
+    'rotate-skip': () => {
+      if (this.screen !== 'rotate') return;
+      this.portraitOk = true;
+      this.beginCountdown();
+    },
+    'rotate-lock': () => this.screen === 'rotate' && void this.rotateLock(),
     home: () => this.home(),
     islands: () => this.islands(),
     codex: () => this.codex(),
@@ -2313,6 +2347,8 @@ export class App {
     this.portrait = portrait;
     document.querySelector<HTMLElement>('#app')!.dataset.portrait = String(portrait);
     if (changed && this.run && ['play', 'countdown'].includes(this.screen)) this.pause();
+    // Turned sideways while asked to: the run starts.
+    else if (!portrait && this.run && this.screen === 'rotate') this.beginCountdown();
   }
   private resizeDisplay() {
     if (!this.game?.isBooted || this.destroyed) return;

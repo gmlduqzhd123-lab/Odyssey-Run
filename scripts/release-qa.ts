@@ -149,7 +149,16 @@ try {
   await expect(p.locator('[data-action="resume"]')).toBeVisible();
   await tap('[data-action="resume"]');
   await finishCount();
-  // Turning the phone upright pauses; the run then continues in portrait with the game strip
+  // Turning the phone upright pauses. Resuming upright first asks to turn the phone sideways,
+  // and turning it starts the countdown at once.
+  await p.setViewportSize({width: 390, height: 844});
+  await expect(p.locator('[data-action="resume"]')).toBeVisible();
+  await tap('[data-action="resume"]');
+  await expect(p.locator('.rotate-hint')).toBeVisible();
+  await p.setViewportSize({width: 844, height: 390});
+  await expect(p.locator('.rotate-hint')).toHaveCount(0);
+  await finishCount();
+  // Upright again: paused; this time the sailor keeps playing upright, with the game strip
   // above the buttons, and turning back pauses again.
   await p.setViewportSize({width: 390, height: 844});
   await expect(p.locator('[data-action="resume"]')).toBeVisible();
@@ -157,6 +166,8 @@ try {
   await p.clock.runFor(11000);
   expect(await x()).toBe(paused);
   await tap('[data-action="resume"]');
+  await expect(p.locator('.rotate-hint')).toBeVisible();
+  await tap('[data-action="rotate-skip"]');
   await finishCount();
   await p.clock.runFor(500);
   expect(await x()).toBeGreaterThan(paused);

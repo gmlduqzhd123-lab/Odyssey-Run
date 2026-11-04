@@ -529,4 +529,13 @@ export const VI_5: Record<string, string> = {
   '동시에 달리려면 화면을 가로로 돌려 주세요.': 'Để chạy cùng lúc, hãy xoay ngang màn hình.',
   '{x}점의 배가 참가자의 진행 막대에 함께 보여요. 1등이 바뀌면 이 QR도 바로 바뀌어요.':
     '({x} điểm): thuyền của bạn ấy hiện trên thanh tiến độ của người tham gia. Khi hạng nhất thay đổi, mã QR này cũng đổi ngay.',
+  '화면을 가로로 돌려 주세요': 'Hãy xoay ngang màn hình',
+  '가로로 돌리면 코스가 훨씬 넓게 보여 장애물을 일찍 볼 수 있어요. 돌리면 바로 시작해요.':
+    'Xoay ngang, đường chạy rộng hơn nhiều nên bạn thấy chướng ngại vật sớm hơn. Xoay xong là bắt đầu ngay.',
+  '⛶ 전체 화면 가로로 하기': '⛶ Toàn màn hình, xoay ngang',
+  '화면이 돌아가지 않으면 휴대폰의 ‘화면 자동 회전’을 켜 주세요.':
+    'Nếu màn hình không xoay, hãy bật “Tự động xoay” trên điện thoại.',
+  '세로로 그냥 하기': 'Cứ chơi màn hình dọc',
+  '이 기기는 자동으로 돌릴 수 없어요. 휴대폰을 직접 가로로 돌려 주세요.':
+    'Thiết bị này không tự xoay được. Hãy tự xoay ngang điện thoại.',
 };
