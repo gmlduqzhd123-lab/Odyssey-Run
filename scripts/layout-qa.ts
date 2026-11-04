@@ -61,6 +61,26 @@ const SCREENS: [string, string[], string[]?][] = [
   ['pause', ['islands', 'stage:beach', 'start', 'wait:4500', 'key:Escape'], RUN_SIZES],
   // The same run with hazard stripes and the larger warning (a played save, see QA_PREFS below).
   ['play-marks', ['pref:hazardMarks', 'islands', 'stage:beach', 'start', 'wait:4500'], RUN_SIZES],
+  // Two sailors at once on a split screen: the start panel and a moment of play with both HUDs
+  // and both sets of buttons. Upright phones are told to turn the screen, so they are left out.
+  [
+    'duo-together',
+    ['challenges', 'duo', 'fill:#duo-a=지우', 'fill:#duo-b=Alexandra', 'check:#duo-together', 'duo-start', 'wait:600'],
+  ],
+  [
+    'duo-play',
+    [
+      'challenges',
+      'duo',
+      'fill:#duo-a=지우',
+      'fill:#duo-b=Alexandra',
+      'check:#duo-together',
+      'duo-start',
+      'start',
+      'wait:4500',
+    ],
+    RUN_SIZES.filter(v => !v.includes('portrait')),
+  ],
   // Printable pages as the printer sees them: only the sheet, dark text on white.
   ['worksheet-print', ['profiles', 'progress', 'worksheet', 'media:print']],
   ['report-print', ['profiles', 'progress', 'report:main', 'media:print']],
@@ -172,6 +192,11 @@ async function go(p: Page, steps: string[]) {
     if (s.startsWith('wait:')) await p.waitForTimeout(Number(s.slice(5)));
     else if (s.startsWith('key:')) await p.keyboard.press(s.slice(4));
     else if (s.startsWith('media:')) await p.emulateMedia({media: s.slice(6) as 'print' | 'screen'});
+    // fill:#id=text types into a field; check:#id ticks a checkbox or toggle.
+    else if (s.startsWith('fill:')) {
+      const [field, ...text] = s.slice(5).split('=');
+      await p.fill(field, text.join('='));
+    } else if (s.startsWith('check:')) await p.locator(s.slice(6)).check({force: true});
     // pref:name turns a preference on through its settings toggle, then comes back to the start screen.
     else if (s.startsWith('pref:')) {
       await p.locator('[data-action="settings"]:visible').first().click();

@@ -87,6 +87,48 @@ try {
   results.device = app;
   await d.close();
 
+  // Two sailors at once with two gamepads: the second pad's A jumps only the lower sailor, the
+  // first pad's A only the upper one.
+  const f = await b.newContext({viewport: {width: 1280, height: 720}, serviceWorkers: 'block'});
+  await f.addInitScript(`(() => {
+    const make = id => ({id, connected: true, mapping: 'standard', axes: [0, 0, 0, 0],
+      buttons: Array.from({length: 17}, () => ({pressed: false, value: 0}))});
+    window.__pads = [make('QA pad 1'), make('QA pad 2')];
+    Object.defineProperty(navigator, 'getGamepads', {value: () => [window.__pads[0], window.__pads[1], null, null]});
+    addEventListener('load', () => setTimeout(() => dispatchEvent(new Event('gamepadconnected')), 300));
+  })()`);
+  const s = await f.newPage();
+  s.on('pageerror', err => errors.push(err.message));
+  await s.goto(url);
+  await s.waitForSelector('.home');
+  for (const a of ['challenges', 'duo']) await s.locator(`[data-action="${a}"]:visible`).first().click();
+  await s.fill('#duo-a', 'A');
+  await s.fill('#duo-b', 'B');
+  await s.locator('#duo-together').check({force: true});
+  await s.locator('[data-action="duo-start"]').click();
+  await s.locator('[data-action="start"]:visible').click({timeout: 60000});
+  await s.waitForSelector('#progress2');
+  await s.waitForSelector('.countdown', {state: 'detached', timeout: 15000});
+  const air = () =>
+    s.evaluate(() => [
+      document.querySelector<HTMLElement>('#progress')!.dataset.air,
+      document.querySelector<HTMLElement>('#progress2')!.dataset.air,
+    ]);
+  const tap = async (pad: number) => {
+    await s.evaluate(i => ((window as any).__pads[i].buttons[0].pressed = true), pad);
+    await s.waitForTimeout(90);
+    const now = await air();
+    await s.evaluate(i => ((window as any).__pads[i].buttons[0].pressed = false), pad);
+    await s.waitForTimeout(900);
+    return now;
+  };
+  const second = await tap(1),
+    first = await tap(0);
+  if (second.join() !== 'false,true') throw Error(`second pad moved ${second}`);
+  if (first.join() !== 'true,false') throw Error(`first pad moved ${first}`);
+  results.twoPads = {second, first};
+  await f.close();
+
   // A picture that cannot load becomes a parchment tile with one notice, never a broken image.
   const e = await b.newContext({viewport: {width: 1280, height: 720}, serviceWorkers: 'block'});
   await e.route(/assets\/art\/(penelope|athena)-/, route => route.abort());
@@ -109,4 +151,6 @@ try {
 }
 if (errors.length) throw Error(`page errors: ${errors.join(' | ')}`);
 console.log(JSON.stringify(results, null, 1));
-console.log('access: gamepad menus/run/pause, reduced motion, more contrast, larger text and missing pictures passed');
+console.log(
+  'access: gamepad menus/run/pause, two pads on a split screen, reduced motion, more contrast, larger text and missing pictures passed',
+);

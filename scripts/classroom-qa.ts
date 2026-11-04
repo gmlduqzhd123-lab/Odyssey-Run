@@ -137,7 +137,13 @@ try {
 
 // 4. Contest board with a fake camera showing a real student's result QR.
 const clip = join(dir, 'result.y4m');
-await writeFile(clip, y4m(linkUrl(real, url)));
+// The result carries the run's ghost (an r2 code), so scanning it also makes 하린 the leader to race.
+const realGhost = {
+  score: real.score,
+  duration: real.time,
+  samples: Array.from({length: 78}, (_, i) => Math.min(24000, i * 320)),
+};
+await writeFile(clip, y4m(linkUrl({...real, ghost: realGhost}, url)));
 const cam = await chromium.launch({
   executablePath,
   args: [
@@ -164,8 +170,12 @@ try {
   await p.locator('[data-action="contests"]').click();
   await p.locator('[data-action="contest-open:qa0001"]').click();
   await p.waitForSelector('.contest-board');
+  check((await p.locator('#race-leader details').count()) === 0, 'a race QR before anyone has a ghost');
   await p.locator('[data-action="contest-scan:qa0001"]').click();
   await p.waitForFunction(() => document.querySelectorAll('#board-list li').length > 0, null, {timeout: 20000});
+  // The race-the-leader QR appears in place, without reopening the board.
+  await p.waitForSelector('#race-leader details', {timeout: 5000});
+  check(/하린/.test((await p.locator('#race-leader').textContent()) ?? ''), 'race QR does not name the scanned leader');
   await p.waitForTimeout(1500);
   check((await p.locator('#board-list li').count()) === 1, 'the same QR was added more than once');
   check((await p.locator('#board-list li.doubt').count()) === 0, 'a real result was flagged');

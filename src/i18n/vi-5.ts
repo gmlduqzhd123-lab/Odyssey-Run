@@ -518,4 +518,15 @@ export const VI_5: Record<string, string> = {
   '스위치로 메뉴를 고르고 있어요. 달리기도 스위치 하나로 하려면 아래 쉬운 항해에서 「버튼 하나로 항해」를 켜 주세요.':
     'Đang chọn menu bằng công tắc. Để chạy cũng chỉ bằng một công tắc, hãy bật “Đi biển bằng một nút” trong mục Đi biển dễ dàng bên dưới.',
   '보기:': 'Gợi ý:',
+  '동시에 달리면 위 화면은 Space·↑·↓와 위쪽 버튼, 아래 화면은 W·S와 아래쪽 버튼으로 달려요. 게임패드가 두 개면 하나씩 나눠 써요. 휴대폰은 가로로 돌려 주세요.':
+    'Khi chạy cùng lúc, màn hình trên dùng Space·↑·↓ và các nút phía trên, màn hình dưới dùng W·S và các nút phía dưới. Có hai tay cầm thì mỗi người dùng một cái. Hãy xoay ngang điện thoại.',
+  '아래 화면 · 아래 버튼이나 두 번째 게임패드도 돼요': 'Màn hình dưới · nút phía dưới hoặc tay cầm thứ hai cũng được',
+  '두 번째 항해사 슬라이드, 누르고 유지': 'Thủy thủ thứ hai trượt, nhấn giữ',
+  '두 번째 항해사 점프, 공중에서 다시 누르면 2단 점프': 'Thủy thủ thứ hai nhảy, nhấn lần nữa trên không để nhảy đôi',
+  'S 누르기': 'Giữ S',
+  '동시에 달리려면 화면을 가로로 돌려 주세요. 세로 화면은 둘로 나누기엔 너무 좁아요.':
+    'Để chạy cùng lúc, hãy xoay ngang màn hình. Màn hình dọc quá hẹp để chia đôi.',
+  '동시에 달리려면 화면을 가로로 돌려 주세요.': 'Để chạy cùng lúc, hãy xoay ngang màn hình.',
+  '{x}점의 배가 참가자의 진행 막대에 함께 보여요. 1등이 바뀌면 이 QR도 바로 바뀌어요.':
+    '({x} điểm): thuyền của bạn ấy hiện trên thanh tiến độ của người tham gia. Khi hạng nhất thay đổi, mã QR này cũng đổi ngay.',
 };

@@ -17,10 +17,10 @@ export const MUSIC = {
     file: 'assets/audio/circe-4d3516102789.mp3',
     gain: 0.26,
   },
-  // No separate Sirens track yet: the sea plays the beach theme.
+  // Composed in code (scripts/compose-music.py): a 6/8 song for a wordless choir, the Sirens' call.
   sea: {
-    file: 'assets/audio/beach-78e90c47be32.mp3',
-    gain: 0.22,
+    file: 'assets/audio/sea-cb5cba35d699.mp3',
+    gain: 0.24,
   },
   // Composed in code (scripts/compose-music.py): a driving piece with sea swells for the strait.
   strait: {

@@ -161,3 +161,30 @@ test('the board keeps ghosts only for the top three and names the best one with 
   const again = new Contests(m).find('abc234')!;
   assert.ok(again.entries.every(e => !e.ghost || Array.isArray(e.ghost.samples)));
 });
+test('the race-the-leader link carries the best run that has a ghost and changes when the leader does', async () => {
+  const {joinLink, raceMarkup} = await import('../src/ui/contest-view');
+  const {decodeLink} = await import('../src/systems/share');
+  const m = new Memory(),
+    c = new Contests(m),
+    ghost = (score: number) => ({
+      score,
+      duration: 80,
+      samples: Array.from({length: 81}, (_, i) => Math.min(24000, i * 300)),
+    }),
+    code = (url: string) => url.split('#c=')[1];
+  c.host({id: 'abc234', title: '대회', stage: 'beach', variant: 'classic', assist: false});
+  const board = () => c.find('abc234')!;
+  assert.equal(joinLink(board(), 'https://x.test/', true), '');
+  assert.equal(raceMarkup(board(), 'https://x.test/'), '');
+  assert.match(code(joinLink(board(), 'https://x.test/')), /^c1\./);
+  c.add(result('가람', 1200, {ghost: ghost(1200)}));
+  const first = decodeLink(code(joinLink(board(), 'https://x.test/', true)));
+  assert.equal(first.kind === 'contest' && first.leader?.name, '가람');
+  assert.match(raceMarkup(board(), 'https://x.test/'), /가람/);
+  c.add(result('나래', 2500, {ghost: ghost(2500)}));
+  const second = decodeLink(code(joinLink(board(), 'https://x.test/', true)));
+  assert.equal(second.kind === 'contest' && second.leader?.name, '나래');
+  // A board that only collects results (no course) has no join or race link.
+  c.add({...result('다온', 900), contest: 'zzz999'});
+  assert.equal(joinLink(c.find('zzz999')!, 'https://x.test/', true), '');
+});
