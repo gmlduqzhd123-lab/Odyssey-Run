@@ -1,5 +1,5 @@
 {
-  "provenance": "User uploads, described as Suno AI background music. No inferred license. Circe and strait tracks are synthesized by scripts/compose-music.py (original).",
+  "provenance": "User uploads, described as Suno AI background music. No inferred license. Circe, strait and sea tracks are synthesized by scripts/compose-music.py (original).",
   "processing": "All MP3 bytes preserved. Runtime gain only, no trim or re-encode.",
   "tracks": [
     {
@@ -56,6 +56,19 @@
       "sourceName": "scripts/compose-music.py (synthesized, original)",
       "file": "assets/audio/strait-84049ccca260.mp3",
       "sha256": "84049ccca260188783b75d43735b4baf28c0a1295901bbff5d51b46cbb0c013b",
+      "bytes": 1152671,
+      "durationSeconds": 96.026,
+      "codec_name": "mp3",
+      "codec_type": "audio",
+      "sample_rate": "44100",
+      "channels": 1,
+      "license": "Original, composed in code for this game; no samples."
+    },
+    {
+      "stage": "sea",
+      "sourceName": "scripts/compose-music.py (synthesized, original)",
+      "file": "assets/audio/sea-cb5cba35d699.mp3",
+      "sha256": "cb5cba35d6999d1bc18a34346fd2a8256f4f0cd3a284482fc7a09c0a98fc8e0c",
       "bytes": 1152671,
       "durationSeconds": 96.026,
       "codec_name": "mp3",

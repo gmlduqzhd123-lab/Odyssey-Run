@@ -127,6 +127,7 @@
 |---|---|---|
 | 키르케의 섬 배경음악 | `assets/audio/circe-4d3516102789.mp3` | `scripts/compose-music.py`가 numpy로 합성(가단조 느린 왈츠: 하프 아르페지오·플루트 선율·드론). 샘플 없음, 자체 제작 |
 | 해협 배경음악 | `assets/audio/strait-84049ccca260.mp3` | 같은 스크립트(라단조 132bpm: 베이스 오스티나토·화음 스탭·파도 스웰). 샘플 없음, 자체 제작 |
+| 세이렌의 바다 배경음악 (2026-11-04) | `assets/audio/sea-cb5cba35d699.mp3` | 같은 스크립트(라 도리아 6/8박 96bpm: 모음 포먼트로 만든 허밍 합창·하프 셋잇단·파도 소리). 샘플 없음, 자체 제작. 이전에는 해변 곡을 같이 썼음 |
 | 해협 풍경 패널 | `assets/art/strait-view-*.webp` | `scripts/compose-strait-view.py`가 「신화의 섬과 항구」 원화의 폭풍 바다 칸을 좌우 반전·청회색 조정하고 절벽과 소용돌이를 그려 만든 파생 이미지 |
 
-두 곡은 96초, 모노 44.1kHz, 96kbps MP3(각 약 1.1MB)이며 SHA-256과 길이는 `docs/music-manifest.json`에 있습니다. 재생 gain은 키르케 0.26, 해협 0.24입니다.
+세 곡은 96초, 모노 44.1kHz, 96kbps MP3(각 약 1.1MB)이며 SHA-256과 길이는 `docs/music-manifest.json`에 있습니다. 재생 gain은 키르케 0.26, 해협 0.24, 세이렌의 바다 0.24입니다.

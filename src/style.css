@@ -135,6 +135,17 @@ em {
 #app[data-duo='true'] .touch-controls {
   bottom: 50%;
 }
+/* The second sailor's buttons sit in the lower half, mirroring the first sailor's. */
+.touch-two {
+  display: none;
+}
+#app[data-duo='true'] .play-ui .touch-controls.touch-two {
+  display: block;
+  top: 50%;
+  bottom: 0;
+}
+/* The first sailor's star and map chips would sit in the lower half and read as the second's. */
+#app[data-duo='true'] .run-chips,
 #app[data-duo='true'] .adventure-hud,
 #app[data-duo='true'] #ghost-marker {
   display: none;

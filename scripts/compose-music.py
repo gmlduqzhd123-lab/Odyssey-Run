@@ -1,10 +1,12 @@
-"""Composes the two island themes the game has no recorded track for, from scratch, with numpy:
-Circe's island (a slow, mysterious waltz in a minor key over a soft drone) and the strait (a
-driving, tense piece with a rolling bass and sea swells). Nothing is sampled; every sound is a
+"""Composes the island themes the game has no recorded track for, from scratch, with numpy:
+Circe's island (a slow, mysterious waltz in a minor key over a soft drone), the strait (a
+driving, tense piece with a rolling bass and sea swells) and the Sirens' sea (a lilting 6/8
+song for a wordless choir over harp and slow waves). Nothing is sampled; every sound is a
 sum of sine partials shaped by an envelope, so the files are original and free to use.
 
   pip install numpy
-  python3 scripts/compose-music.py            # writes public/assets/audio/{circe,strait}-<hash>.mp3
+  python3 scripts/compose-music.py            # writes public/assets/audio/{circe,strait,sea}-<hash>.mp3
+  python3 scripts/compose-music.py sea        # one track only
 Requires ffmpeg for the MP3 encoding step.
 """
 import hashlib
@@ -129,6 +131,59 @@ def strait(seconds=96.0):
     return out
 
 
+def voice(freq, seconds, adsr, gain=1.0, vowel=(800, 1150, 2900)):
+    """A wordless "ah": harmonics weighted by three vowel formants, with a slow singer's vibrato."""
+    n = int(SR * seconds)
+    t = np.arange(n) / SR
+    wobble = 1 + 0.006 * np.sin(2 * np.pi * 5.0 * t + 0.6 * np.sin(2 * np.pi * 0.3 * t))
+    out = np.zeros(n)
+    for k in range(1, 24):
+        f = freq * k
+        if f > 6000:
+            break
+        amp = sum(np.exp(-((f - fc) / (90 + fc * 0.12)) ** 2) * w for fc, w in zip(vowel, (1.0, 0.6, 0.18)))
+        out += (amp + 0.02 / k) * np.sin(2 * np.pi * f * wobble * t)
+    return out * env(n, *adsr, seconds) * gain
+
+
+def sea(seconds=96.0):
+    """6/8 at 96 bpm (dotted-quarter beats) in D dorian: harp in rolling triplets, a two-part
+    wordless choir singing the Sirens' call, a low drone and slow waves on the shore."""
+    beat = 60 / 96  # one dotted quarter
+    eighth = beat / 3
+    bar = 2 * beat
+    out = np.zeros(int(SR * seconds))
+    # Chords (root semitones from A4): Dm, C, Bb (major), Am, Dm, G (major, dorian colour), C, Dm.
+    cycle = [(-7, 'm'), (-9, 'M'), (-11, 'M'), (-12, 'm'), (-7, 'm'), (-14, 'M'), (-9, 'M'), (-7, 'm')]
+    shapes = {'m': [0, 3, 7, 12, 15, 12], 'M': [0, 4, 7, 12, 16, 12]}
+    bars = int(seconds / bar)
+    for b in range(bars):
+        root, q = cycle[b % len(cycle)]
+        start = b * bar
+        place(out, start, tone(hz(root - 12), bar * 1.1, PAD, (0.8, 0.4, 0.6, 0.6), gain=0.06))
+        for i, st in enumerate(shapes[q]):
+            place(out, start + i * eighth, tone(hz(root + st - 12), eighth * 3, HARP, (0.004, 0.3, 0.25, 0.3), gain=0.12))
+        # Waves: a long hush rising and falling over two bars.
+        if b % 2 == 0:
+            n = int(SR * bar * 2)
+            noise = np.random.default_rng(100 + b).standard_normal(n)
+            y = np.zeros(n)
+            for i in range(1, n):
+                y[i] = y[i - 1] + 0.012 * (noise[i] - y[i - 1])
+            place(out, start, y * env(n, bar, 0.1, 0.9, bar * 0.9, bar * 2) * 1.2)
+    # The Sirens' call: a falling-then-rising phrase in D dorian, sung in thirds, every other cycle.
+    phrase = [(5, 3), (3, 1), (1, 2), (0, 3), (-2, 3), (0, 2), (1, 1), (3, 3), (5, 6)]
+    t = 2 * bar
+    while t + 24 * eighth < seconds:
+        for note, length in phrase:
+            d = length * eighth
+            place(out, t, voice(hz(note - 2), d * 1.15, (0.12, 0.2, 0.8, 0.3), gain=0.08))
+            place(out, t, voice(hz(note - 5), d * 1.15, (0.14, 0.2, 0.8, 0.3), gain=0.05, vowel=(700, 1100, 2700)))
+            t += d
+        t += 6 * bar
+    return out
+
+
 def master(x, seconds):
     n = int(SR * seconds)
     x = x[:n]
@@ -158,8 +213,10 @@ def write(name, data):
 
 
 if __name__ == '__main__':
-    which = sys.argv[1:] or ['circe', 'strait']
+    which = sys.argv[1:] or ['circe', 'strait', 'sea']
     if 'circe' in which:
         write('circe', master(circe(), 96))
     if 'strait' in which:
         write('strait', master(strait(), 96))
+    if 'sea' in which:
+        write('sea', master(sea(), 96))

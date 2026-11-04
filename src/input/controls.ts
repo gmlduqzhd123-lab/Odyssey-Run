@@ -6,10 +6,13 @@ export interface Actions {
   pauseActive?(): boolean;
   // Toggle mode: one press ducks until the next slide press or a jump.
   slideToggle?(): boolean;
-  // A second sailor on the same keyboard: W jumps, S (held) slides.
+  // A second sailor on the same keyboard: W jumps, S (held) slides. With split() on, the
+  // lower half's touch buttons and the second connected gamepad also drive this sailor.
   jump2?(): void;
   slide2?(held: boolean): void;
+  split?(): boolean;
 }
+type Control = 'jump' | 'slide' | 'jump2' | 'slide2';
 // Accessibility switches usually send Space or Enter; Enter jumps like Space.
 const JUMP_KEYS = ['Enter', 'NumpadEnter'];
 export interface PadLike {
@@ -38,10 +41,11 @@ type Pad = ReturnType<typeof padState>;
 export const padConnected = () => typeof navigator !== 'undefined' && !!navigator.getGamepads?.().some(Boolean);
 export class Controls {
   private pad: Pad = padState([]);
+  private pad2: Pad = padState([]);
   private polling = 0;
   private keys = new Set<string>();
-  private pointers = new Map<number, 'jump' | 'slide'>();
-  private buttonKeys = new Map<string, 'jump' | 'slide'>();
+  private pointers = new Map<number, Control>();
+  private buttonKeys = new Map<string, Control>();
   private latched = false;
   private abort = new AbortController();
   private buttonAbort = new AbortController();
@@ -63,7 +67,7 @@ export class Controls {
           if (e.repeat || this.keys.has(e.code)) return;
           this.keys.add(e.code);
           if (e.code === 'KeyW') actions.jump2?.();
-          else actions.slide2?.(true);
+          else this.syncSlide2();
           return;
         }
         // Let focused semantic buttons handle Space and Enter exactly once, including Pause.
@@ -84,8 +88,8 @@ export class Controls {
       'keyup',
       e => {
         this.keys.delete(e.code);
-        if (e.code === 'KeyS') actions.slide2?.(false);
         const button = this.buttonKeys.delete(e.code);
+        if (e.code === 'KeyS' || button) this.syncSlide2();
         if (e.code === 'ArrowDown' || button) this.syncSlide();
       },
       options,
@@ -108,9 +112,18 @@ export class Controls {
       if (this.abort.signal.aborted || !pads.some(Boolean)) {
         this.polling = 0;
         this.padInput(padState([]));
+        this.padInput2(padState([]));
         return;
       }
-      this.padInput(padState(pads));
+      // Two sailors at once: the first connected pad is the top sailor, the second the bottom one.
+      const connected = pads.filter(Boolean);
+      if (this.actions.split?.() && connected.length > 1) {
+        this.padInput(padState([connected[0]]));
+        this.padInput2(padState(connected.slice(1)));
+      } else {
+        this.padInput(padState(pads));
+        this.padInput2(padState([]));
+      }
       this.polling = requestAnimationFrame(step);
     };
     this.polling = requestAnimationFrame(step);
@@ -147,6 +160,14 @@ export class Controls {
     }
     if (next.press && !was.press) (document.activeElement as HTMLElement | null)?.click?.();
   }
+  // The second sailor's pad: jump and slide only; pause and menus stay with the first pad.
+  padInput2(next: Pad) {
+    const was = this.pad2;
+    this.pad2 = next;
+    if (!this.actions.active()) return;
+    if (next.jump && !was.jump) this.actions.jump2?.();
+    if (next.slide !== was.slide) this.syncSlide2();
+  }
   bind(root: HTMLElement) {
     this.buttonAbort.abort();
     this.buttonAbort = new AbortController();
@@ -156,11 +177,10 @@ export class Controls {
         e => {
           e.preventDefault();
           if (!this.actions.active() || this.pointers.has(e.pointerId)) return;
-          const type = button.dataset.control as 'jump' | 'slide';
+          const type = button.dataset.control as Control;
           this.pointers.set(e.pointerId, type);
           button.setPointerCapture?.(e.pointerId);
-          if (type === 'jump') this.jump();
-          else this.press();
+          this.act(type);
         },
         {signal: this.buttonAbort.signal},
       );
@@ -169,6 +189,7 @@ export class Controls {
         e => {
           this.pointers.delete(e.pointerId);
           this.syncSlide();
+          this.syncSlide2();
         },
         {signal: this.buttonAbort.signal},
       );
@@ -179,14 +200,28 @@ export class Controls {
           if (e.code !== 'Enter' && e.code !== 'Space') return;
           e.preventDefault();
           if (!this.actions.active() || e.repeat || this.buttonKeys.has(e.code)) return;
-          const type = button.dataset.control as 'jump' | 'slide';
+          const type = button.dataset.control as Control;
           this.buttonKeys.set(e.code, type);
-          if (type === 'jump') this.jump();
-          else this.press();
+          this.act(type);
         },
         {signal: this.buttonAbort.signal},
       );
     });
+  }
+  private act(type: Control) {
+    if (type === 'jump') this.jump();
+    else if (type === 'slide') this.press();
+    else if (type === 'jump2') this.actions.jump2?.();
+    else this.syncSlide2();
+  }
+  // The second sailor always holds to slide (the slide-toggle setting is the first sailor's).
+  private syncSlide2() {
+    this.actions.slide2?.(
+      this.keys.has('KeyS') ||
+        [...this.pointers.values()].includes('slide2') ||
+        [...this.buttonKeys.values()].includes('slide2') ||
+        this.pad2.slide,
+    );
   }
   private jump() {
     if (this.latched) {
@@ -218,6 +253,7 @@ export class Controls {
     this.buttonKeys.clear();
     this.latched = false;
     this.actions.slide(false);
+    this.actions.slide2?.(false);
   }
   destroy() {
     this.clear();
