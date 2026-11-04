@@ -51,6 +51,12 @@ input {
   word-break: keep-all;
   overflow-wrap: break-word;
 }
+/* Chinese text wraps between its characters, but sailors' names (kept untranslated, usually
+   Korean) still stay whole on Chinese pages. */
+:root:lang(zh) [translate='no'] {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
 button,
 .button {
   cursor: pointer;
