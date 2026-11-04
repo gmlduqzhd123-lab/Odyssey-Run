@@ -22,8 +22,8 @@ import {
 import {Contests, contestLength, newContestId, type Entry} from '../storage/contests';
 import {Gallery} from '../storage/gallery';
 import {galleryMarkup} from './gallery-view';
-import {worksheetMarkup} from './worksheet-view';
-import {activityMarkup, studentReportMarkup} from './report-view';
+import {LEVELS, worksheetMarkup, type Level} from './worksheet-view';
+import {activityMarkup, reportAllMarkup, studentReportMarkup, trendMarkup} from './report-view';
 import {
   backupAge,
   backupReminder,
@@ -33,7 +33,14 @@ import {
   requestProtection,
   type Protection,
 } from '../storage/durability';
-import {dropSpareCopies, spareCopies, storageUse, STORAGE_LIMIT} from '../storage/durability';
+import {
+  dropSpareCopies,
+  freeRemixGhosts,
+  remixGhostBytes,
+  spareCopies,
+  storageUse,
+  STORAGE_LIMIT,
+} from '../storage/durability';
 import {classBackup, readClassBackup, restoreClass, CLASS_BACKUP_LIMIT, type ClassBackup} from '../storage/backup';
 import {buildEndless, sectionsPassed, ENDLESS_SECTIONS} from '../levels/endless';
 import type {Course} from '../levels/courses';
@@ -57,6 +64,7 @@ import {COURSES, STAGES, MAP_STORIES, type StageId} from '../levels/courses';
 import {Runner} from '../player/runner';
 import {Profiles, profileKey, readBook, cleanName, PROFILES_KEY, MAX_PROFILES, MAIN_PROFILE} from '../storage/profiles';
 import {
+  dropRemixGhosts,
   SaveStore,
   mergeResult,
   unlocked,
@@ -94,6 +102,16 @@ import {
 import {World} from '../scenes/World';
 import {SplitScreen} from '../rendering/split-screen';
 import {
+  LOCK_KEY,
+  UNLOCK_MS,
+  checkPin,
+  guarded,
+  lessonOpen,
+  makeLock,
+  readLock,
+  type LockConfig,
+} from '../storage/teacher-lock';
+import {
   duoLoadingMarkup,
   duoPageMarkup,
   duoPrepareMarkup,
@@ -102,6 +120,7 @@ import {
   secondHudMarkup,
   updateSecondHud,
   type Duo,
+  type DuoCourse,
 } from './duo-view';
 import {assetUrl, STAGE_RELIC} from '../assets/catalog';
 import {STAGE_VIEW, regionArt} from '../assets/terrain';
@@ -125,8 +144,9 @@ const MAKER_KEY = SAVE_KEY + ':maker';
 // How long each menu button stays highlighted while switch scanning (ms).
 const SCAN_STEP = 1600;
 // Logical width of the portrait game strip (4:3): closer than the landscape 960 so the hero and
-// hazards are drawn larger on a phone held upright.
-const PORTRAIT_VIEW = 720;
+// hazards are drawn larger on a phone held upright, yet wide enough (it was 720) to see a little
+// more of the course ahead.
+const PORTRAIT_VIEW = 800;
 export class App {
   private ui = document.querySelector<HTMLDivElement>('#ui')!;
   private store: SaveStore;
@@ -146,6 +166,11 @@ export class App {
     () => ({view: this.view, density: this.renderDensity}),
   );
   private run2: Runner | null = null;
+  // The teacher's lock (see storage/teacher-lock): guarded actions wait for the PIN.
+  private lock: LockConfig | null = null;
+  private unlockedUntil = 0;
+  private pinFails = 0;
+  private pinWaitUntil = 0;
   private offline: Offline;
   private controls: Controls;
   private sound: Sound;
@@ -211,6 +236,9 @@ export class App {
       storage = localStorage;
     } catch {}
     this.storage = storage;
+    try {
+      this.lock = readLock(storage?.getItem(LOCK_KEY) ?? null);
+    } catch {}
     setLang(initialLang(storage));
     const roots = ['#ui', '#notice', '#game', '#game2', 'footer'].map(s => document.querySelector(s)).filter(e => !!e);
     roots.forEach(translateTree);
@@ -246,6 +274,7 @@ export class App {
     this.contests = new Contests(storage);
     this.gallery = new Gallery(storage);
     this.store = new SaveStore(storage, profileKey(this.profiles.active.id));
+    this.store.onFull = () => freeRemixGhosts(this.storage);
     this.renderDensity = displayDensity(
       document.querySelector('#shell')!.clientWidth,
       devicePixelRatio,
@@ -614,16 +643,36 @@ export class App {
   private duoPage(message = '') {
     this.abandon();
     this.world.showHome();
-    const open = STAGES.filter(id => unlocked(this.store.data, id));
-    this.set(duoPageMarkup(this.header('둘이서 번갈아', 'challenges'), open, message), 'duo');
+    const open = STAGES.filter(id => unlocked(this.store.data, id) && lessonOpen(this.lock, id));
+    this.duoCourses = this.duoCourseList();
+    this.set(duoPageMarkup(this.header('둘이서 번갈아', 'challenges'), open, message, this.duoCourses), 'duo');
+  }
+  // Student-made courses two sailors can race on: this device's own draft when it passes the
+  // course check, then the class gallery's top courses.
+  private duoCourses: DuoCourse[] = [];
+  private duoCourseList(): DuoCourse[] {
+    const out: DuoCourse[] = [],
+      d = this.loadDraft();
+    if (
+      d.blocks !== 'f'.repeat(MAKER_SLOTS) &&
+      checkCustom(buildCustom(d.stage, d.blocks, d.title || '나만의 코스')).ok
+    )
+      out.push({stage: d.stage, blocks: d.blocks, title: d.title || '나만의 코스'});
+    for (const g of this.gallery.ranked().slice(0, 10))
+      if (!out.some(c => c.blocks === g.blocks && c.stage === g.stage))
+        out.push({stage: g.stage, blocks: g.blocks, title: g.title || '학생 코스'});
+    return out;
   }
   private async duoRun() {
     if (this.screen === 'duo') {
       const a = cleanName(this.ui.querySelector<HTMLInputElement>('#duo-a')?.value ?? ''),
         b = cleanName(this.ui.querySelector<HTMLInputElement>('#duo-b')?.value ?? ''),
-        stage = this.ui.querySelector<HTMLSelectElement>('#duo-stage')?.value as StageId;
+        pick = this.ui.querySelector<HTMLSelectElement>('#duo-stage')?.value ?? '',
+        course = pick.startsWith('course:') ? this.duoCourses[Number(pick.slice(7))] : undefined,
+        stage = (course?.stage ?? pick) as StageId;
       if (!a || !b) return this.setText('#duo-message', '두 항해사의 이름을 적어 주세요.');
-      if (!STAGES.includes(stage) || !unlocked(this.store.data, stage)) return;
+      if (!STAGES.includes(stage) || (!course && (!unlocked(this.store.data, stage) || !lessonOpen(this.lock, stage))))
+        return;
       const together = !!this.ui.querySelector<HTMLInputElement>('#duo-together')?.checked;
       if (together && this.portrait)
         return this.setText(
@@ -635,11 +684,13 @@ export class App {
         stage,
         scores: [],
         together,
+        ...(course ? {course} : {}),
       };
     }
     const d = this.duo;
     if (!d) return;
-    await this.prepare(d.stage);
+    // A student course runs like a contest course: its island need not be open on this device.
+    await this.prepare(d.stage, !!d.course);
     if (this.screen !== 'prepare' || this.selected !== d.stage || this.duo !== d) return;
     if (d.together) {
       // The second scene loads the same island into its own canvas before the countdown.
@@ -978,7 +1029,7 @@ export class App {
         this.profiles.book.list.length > 1 || this.contests.book.hosted.length > 0,
       );
       if (storageUse(this.storage) > STORAGE_LIMIT * 0.7 && this.weekly('storage-full'))
-        this.notice('저장 공간을 70% 넘게 쓰고 있어요. 설정 → 반 전체 내보내기 뒤 복원 전 사본을 정리해 주세요.');
+        this.notice('저장 공간을 70% 넘게 쓰고 있어요. 설정 → 반 전체 내보내기 뒤 「저장 공간 정리」를 눌러 주세요.');
       else if (message) this.notice(message);
       else if (iosBrowserTab() && this.weekly('ios-home-hint'))
         this.notice('아이폰·아이패드는 공유 → 홈 화면에 추가로 설치하면 주소창 없이 화면을 꽉 채워요.');
@@ -995,8 +1046,10 @@ export class App {
         (id, i) => {
           const c = COURSES[id],
             r = save.stages[id],
-            open = unlocked(save, id);
-          return `<button class="island-card ${open ? '' : 'locked'}" data-action="stage:${id}" ${open ? '' : `disabled aria-label="${c.name}, ${COURSES[STAGES[i - 1]].name} 완주 후 해금"`}><div class="island-art ${id}" style="background-image:url('${asset(id + '-mid')}'),url('${asset(id + '-far')}'),url('${asset(id + '-sky')}')">${regionArt(STAGE_VIEW[id], 'stage-illustration')}<span class="card-number">0${i + 1}</span><span class="island-badge">${r.complete ? '⚑ 완주' : open ? '탐험 가능' : '🔒 잠긴 항로'}</span></div><div class="card-copy"><span class="eyebrow">${c.subtitle}</span><h2>${c.name}</h2>${open ? `<div class="record-line"><span class="rating">${'★'.repeat(r.bestRating)}<em>${'☆'.repeat(3 - r.bestRating)}</em></span><span>지도 ${r.maps.length}/3</span></div><div class="card-bottom"><span>전체 최고 <b>${r.bestScore.toLocaleString()}</b> · 코스 3개</span><span class="round-arrow">↗</span></div>` : `<p class="unlock-hint">${COURSES[STAGES[i - 1]].name}<br>완주 후 열려요</p>`}</div></button>`;
+            earned = unlocked(save, id),
+            lesson = earned && !lessonOpen(this.lock, id),
+            open = earned && !lesson;
+          return `<button class="island-card ${open ? '' : 'locked'}" data-action="stage:${id}" ${open ? '' : lesson ? `disabled aria-label="${c.name}, 이번 수업에서는 닫혀 있어요"` : `disabled aria-label="${c.name}, ${COURSES[STAGES[i - 1]].name} 완주 후 해금"`}><div class="island-art ${id}" style="background-image:url('${asset(id + '-mid')}'),url('${asset(id + '-far')}'),url('${asset(id + '-sky')}')">${regionArt(STAGE_VIEW[id], 'stage-illustration')}<span class="card-number">0${i + 1}</span><span class="island-badge">${lesson ? '📚 수업 중 닫힘' : r.complete ? '⚑ 완주' : open ? '탐험 가능' : '🔒 잠긴 항로'}</span></div><div class="card-copy"><span class="eyebrow">${c.subtitle}</span><h2>${c.name}</h2>${open ? `<div class="record-line"><span class="rating">${'★'.repeat(r.bestRating)}<em>${'☆'.repeat(3 - r.bestRating)}</em></span><span>지도 ${r.maps.length}/3</span></div><div class="card-bottom"><span>전체 최고 <b>${r.bestScore.toLocaleString()}</b> · 코스 3개</span><span class="round-arrow">↗</span></div>` : lesson ? '<p class="unlock-hint">선생님이 이번 수업에서<br>고른 섬만 열려 있어요</p>' : `<p class="unlock-hint">${COURSES[STAGES[i - 1]].name}<br>완주 후 열려요</p>`}</div></button>`;
         },
       ).join(
         '',
@@ -1006,7 +1059,7 @@ export class App {
   }
   // Contests may open any island; they never record it as the last (possibly locked) stage.
   private async prepare(id: StageId, contest = false) {
-    if (!contest && !unlocked(this.store.data, id)) {
+    if (!contest && (!unlocked(this.store.data, id) || !lessonOpen(this.lock, id))) {
       this.islands();
       return;
     }
@@ -1081,7 +1134,9 @@ export class App {
     )}<p>모든 코스는 약 75초 · 별빛 100 · 지도 3<br>어느 코스든 완주하면 다음 섬이 열려요. 지도와 발견은 함께 모아요.</p></fieldset>`;
   }
   private start() {
-    if (this.special !== 'contest' && !unlocked(this.store.data, this.selected)) {
+    // Contests and student courses in two-player mode may run on an island this device has not opened.
+    const anyIsland = this.special === 'contest' || (this.special === 'duo' && !!this.duo?.course);
+    if (!anyIsland && !unlocked(this.store.data, this.selected)) {
       this.islands();
       return;
     }
@@ -1100,7 +1155,9 @@ export class App {
             ? this.custom
             : this.special === 'contest' && this.contest?.blocks
               ? buildCustom(this.contest.stage, this.contest.blocks, this.contest.title)
-              : undefined,
+              : this.special === 'duo' && this.duo?.course
+                ? buildCustom(this.duo.course.stage, this.duo.course.blocks, this.duo.course.title)
+                : undefined,
       this.special === 'daily' && this.daily?.rule === 'no-shield' ? 'no-shield' : 'none',
     );
     this.run.autoSlide = this.assist().autoSlide;
@@ -1118,7 +1175,14 @@ export class App {
     this.world.showRun(this.run);
     this.run2 = null;
     if (this.together && this.split.world) {
-      this.run2 = new Runner(this.selected, this.selectedGoal, this.selectedVariant);
+      this.run2 = new Runner(
+        this.selected,
+        this.selectedGoal,
+        this.selectedVariant,
+        this.duo?.course
+          ? buildCustom(this.duo.course.stage, this.duo.course.blocks, this.duo.course.title)
+          : undefined,
+      );
       this.run2.autoSlide = this.run.autoSlide;
       this.run2.weather = this.run.weather;
       this.run2.speed = this.run.speed;
@@ -1509,6 +1573,7 @@ export class App {
     }
     this.abandon();
     this.store = new SaveStore(this.storage, profileKey(id));
+    this.store.onFull = () => freeRemixGhosts(this.storage);
     this.selected = this.store.data.lastStage;
     this.selectedVariant = 'classic';
     this.question = null;
@@ -1667,8 +1732,11 @@ export class App {
         protection: this.protectionLine(),
         canAskProtection: this.protectionState === 'best-effort',
         spare: spareCopies(this.storage).length,
+        ghostBytes: remixGhostBytes(this.storage),
+        used: storageUse(this.storage) / STORAGE_LIMIT,
         backedUpToday: backupAge(this.storage) === 0,
         deviceMotion: deviceReducedMotion(),
+        lock: this.lock ? {lesson: this.lock.lesson} : null,
       }),
       'settings',
     );
@@ -1887,6 +1955,7 @@ export class App {
     this.contests = new Contests(this.storage);
     this.gallery = new Gallery(this.storage);
     this.store = new SaveStore(this.storage, profileKey(this.profiles.active.id));
+    this.store.onFull = () => freeRemixGhosts(this.storage);
     this.selected = this.store.data.lastStage;
     this.resizeDisplay();
     this.settings();
@@ -1962,6 +2031,7 @@ export class App {
             rows.length,
           ) +
             activityMarkup(rows, koreanDay()) +
+            trendMarkup(rows, koreanDay()) +
             quizReportMarkup(rows),
         ),
         'progress',
@@ -1983,14 +2053,28 @@ export class App {
     contests: () => this.contestsPage(),
     gallery: () => this.galleryPage(),
     worksheet: () => {
+      // Re-made from the page's own choices when it is already open.
+      const level = this.ui.querySelector<HTMLSelectElement>('#ws-level')?.value ?? 'mid',
+        island = this.ui.querySelector<HTMLSelectElement>('#ws-island')?.value ?? '';
       this.abandon();
       this.world.showHome();
       this.set(
-        worksheetMarkup(this.header('활동지', 'progress'), quizReport(this.profiles.progress()), koreanDay()),
+        worksheetMarkup(this.header('활동지', 'progress'), quizReport(this.profiles.progress()), koreanDay(), {
+          level: level in LEVELS ? (level as Level) : 'mid',
+          stage: STAGES.includes(island as StageId) ? (island as StageId) : null,
+        }),
         'worksheet',
       );
     },
     'worksheet-print': () => window.print(),
+    'report-all': () => {
+      this.abandon();
+      this.world.showHome();
+      this.set(
+        reportAllMarkup(this.header('학생 요약 모두', 'progress'), this.profiles.progress(), koreanDay()),
+        'report',
+      );
+    },
     duo: () => {
       this.duo = null;
       this.duoPage();
@@ -2042,6 +2126,20 @@ export class App {
       this.touchLayout();
     },
     fullscreen: () => void this.fullscreen(),
+    'pin-check': () => void this.pinCheck(),
+    'pin-cancel': () => this.ui.querySelector('.pin-veil')?.remove(),
+    'lock-set': () => void this.lockSet(),
+    'lock-off': () => this.saveLock(null, '잠금을 껐어요.'),
+    'lesson-save': () => {
+      if (!this.lock) return;
+      const picked = STAGES.filter(id => this.ui.querySelector<HTMLInputElement>(`[data-lesson="${id}"]`)?.checked);
+      if (!picked.length) return this.setText('#lock-message', '열 섬을 하나 이상 골라 주세요.');
+      this.saveLock(
+        {...this.lock, lesson: picked.length === STAGES.length ? null : picked},
+        picked.length === STAGES.length ? '모든 섬을 열었어요.' : `수업 중에는 ${picked.length}개 섬만 열려요.`,
+      );
+    },
+    'lesson-clear': () => this.lock && this.saveLock({...this.lock, lesson: null}, '모든 섬을 열었어요.'),
     'rotate-skip': () => {
       if (this.screen !== 'rotate') return;
       this.portraitOk = true;
@@ -2092,6 +2190,17 @@ export class App {
       this.settings();
       this.notice(`복원 전 사본 ${n}개를 정리했어요. 기록은 그대로예요.`);
     },
+    'storage-clean': () => {
+      if (backupAge(this.storage) !== 0) return;
+      const n = freeRemixGhosts(this.storage);
+      // The open sailor's record in memory is cleaned too, or the next save would write it back.
+      dropRemixGhosts(this.store.data);
+      this.store.persist();
+      this.settings();
+      this.notice(
+        `변형 코스의 비교 항해 ${Math.round(n / 1024)}KB를 정리했어요. 기록·지도·기본 항로 고스트는 그대로예요.`,
+      );
+    },
     protect: () => this.askProtection(),
     'class-import-confirm': () => this.classRestore(),
     'import-confirm': () => this.importConfirm(),
@@ -2110,9 +2219,76 @@ export class App {
     reload: () => location.reload(),
   };
   private action(action: string) {
+    if (this.lock && guarded(action) && Date.now() > this.unlockedUntil) {
+      this.askPin(action);
+      return;
+    }
     const route = this.argRoutes.find(([prefix]) => action.startsWith(prefix));
     if (route) route[1](action.slice(route[0].length));
     else if (Object.hasOwn(this.routes, action)) this.routes[action]();
+  }
+  // A guarded action asks for the PIN in a small dialog over the current screen, so the screen
+  // the action expects is still there when the PIN is right and the action runs.
+  private pendingGuard = '';
+  private askPin(action: string) {
+    this.pendingGuard = action;
+    this.ui.querySelector('.pin-veil')?.remove();
+    const veil = document.createElement('div');
+    veil.className = 'veil pin-veil';
+    veil.innerHTML = `<section class="panel" role="dialog" aria-modal="true" aria-labelledby="pin-title"><span class="eyebrow">FOR TEACHERS</span><h2 id="pin-title">선생님 비밀번호</h2><p>기록을 지우거나 바꾸는 일이라 선생님 확인이 필요해요.</p><label>비밀번호 <input id="teacher-pin" type="password" inputmode="numeric" maxlength="8" autocomplete="off"></label><p role="status" id="pin-message"></p><div class="button-row">${button('pin-check', '확인', 'primary')}${button('pin-cancel', '취소', 'secondary')}</div></section>`;
+    this.ui.append(veil);
+    const input = veil.querySelector<HTMLInputElement>('#teacher-pin')!;
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') void this.pinCheck();
+    });
+    input.focus();
+  }
+  private async pinCheck() {
+    const input = this.ui.querySelector<HTMLInputElement>('#teacher-pin');
+    if (!input || !this.lock) return;
+    if (Date.now() < this.pinWaitUntil) return this.setText('#pin-message', '잠시 뒤에 다시 입력해 주세요.');
+    if (await checkPin(this.lock, input.value)) {
+      this.pinFails = 0;
+      this.unlockedUntil = Date.now() + UNLOCK_MS;
+      this.ui.querySelector('.pin-veil')?.remove();
+      const action = this.pendingGuard;
+      this.pendingGuard = '';
+      if (action) this.action(action);
+      return;
+    }
+    input.value = '';
+    // Five wrong tries in a row wait 30 seconds before the next one.
+    if (++this.pinFails >= 5) {
+      this.pinFails = 0;
+      this.pinWaitUntil = Date.now() + 30_000;
+      return this.setText('#pin-message', '비밀번호가 5번 틀렸어요. 30초 뒤에 다시 입력해 주세요.');
+    }
+    this.setText('#pin-message', '비밀번호가 맞지 않아요.');
+  }
+  private async lockSet() {
+    const a = this.ui.querySelector<HTMLInputElement>('#lock-pin')?.value ?? '',
+      b = this.ui.querySelector<HTMLInputElement>('#lock-pin2')?.value ?? '';
+    if (a !== b) return this.setText('#lock-message', '두 비밀번호가 달라요. 다시 입력해 주세요.');
+    try {
+      const lock = await makeLock(a);
+      this.unlockedUntil = Date.now() + UNLOCK_MS;
+      this.saveLock(lock, '잠금을 켰어요. 기록을 지우거나 바꿀 때 비밀번호를 물어요.');
+    } catch (error) {
+      this.setText('#lock-message', (error as Error).message);
+    }
+  }
+  private saveLock(lock: LockConfig | null, message: string) {
+    try {
+      if (lock) this.storage?.setItem(LOCK_KEY, JSON.stringify(lock));
+      else this.storage?.removeItem(LOCK_KEY);
+    } catch {
+      return this.setText('#lock-message', '저장 공간이 부족해서 잠금을 저장하지 못했어요.');
+    }
+    this.lock = lock;
+    if (!lock) this.unlockedUntil = 0;
+    this.settings();
+    this.setText('#lock-message', message);
+    this.ui.querySelector('.teacher-lock')?.scrollIntoView({block: 'nearest'});
   }
   private equip(arg: string) {
     const [slot, id] = arg.split(':'),

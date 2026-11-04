@@ -1,11 +1,13 @@
-"""Composes the island themes the game has no recorded track for, from scratch, with numpy:
+"""Composes every island theme from scratch, with numpy: the departure beach (a 6/8 sea
+shanty), the Cyclops's cave (slow footfalls and dripping bells), the island of winds (fast 3/4
+gusts and a soaring flute), the palace of Ithaca (a homecoming march with horns and choir),
 Circe's island (a slow, mysterious waltz in a minor key over a soft drone), the strait (a
 driving, tense piece with a rolling bass and sea swells) and the Sirens' sea (a lilting 6/8
 song for a wordless choir over harp and slow waves). Nothing is sampled; every sound is a
 sum of sine partials shaped by an envelope, so the files are original and free to use.
 
   pip install numpy
-  python3 scripts/compose-music.py            # writes public/assets/audio/{circe,strait,sea}-<hash>.mp3
+  python3 scripts/compose-music.py            # writes all seven: public/assets/audio/<island>-<hash>.mp3
   python3 scripts/compose-music.py sea        # one track only
 Requires ffmpeg for the MP3 encoding step.
 """
@@ -184,6 +186,154 @@ def sea(seconds=96.0):
     return out
 
 
+HORN = [(1, 1.0), (2, 0.55), (3, 0.3), (4, 0.15), (5, 0.07)]
+BELL = [(1, 1.0), (2.76, 0.4), (5.4, 0.18), (8.9, 0.06)]
+
+
+def noise_hit(seconds, seed, cutoff=0.25, gain=1.0):
+    """A short filtered noise burst: a drum skin or a splash."""
+    n = int(SR * seconds)
+    x = np.random.default_rng(seed).standard_normal(n)
+    y = np.zeros(n)
+    for i in range(1, n):
+        y[i] = y[i - 1] + cutoff * (x[i] - y[i - 1])
+    return y * np.exp(-np.linspace(0, 9, n)) * gain
+
+
+def beach(seconds=96.0):
+    """6/8 at 112 bpm in D major: a bright sea shanty for setting out. Plucked chords on the
+    beat, a whistle melody, a bouncing bass and a light drum."""
+    beat = 60 / 112
+    eighth = beat / 3
+    bar = 2 * beat
+    out = np.zeros(int(SR * seconds))
+    cycle = [(-7, 'M'), (-2, 'M'), (-7, 'M'), (-12, 'M'), (-7, 'M'), (-2, 'M'), (-12, 'M'), (-7, 'M')]
+    shapes = {'M': [0, 4, 7], 'm': [0, 3, 7]}
+    bars = int(seconds / bar)
+    for b in range(bars):
+        root, q = cycle[b % len(cycle)]
+        start = b * bar
+        for k in (0, 3):
+            place(out, start + k * eighth, tone(hz(root - 24), eighth * 2.2, BASS, (0.004, 0.08, 0.4, 0.1), gain=0.15))
+            place(out, start + (k + 2) * eighth, tone(hz(root - 17), eighth * 1.2, BASS, (0.004, 0.06, 0.3, 0.1), gain=0.08))
+        for k in (1, 2, 4, 5):
+            for st in shapes[q]:
+                place(out, start + k * eighth, tone(hz(root + st - 12), eighth * 0.9, HARP, (0.003, 0.12, 0.2, 0.1), gain=0.045))
+        place(out, start, noise_hit(0.12, b, 0.3, 0.35))
+        place(out, start + beat, noise_hit(0.08, b + 500, 0.6, 0.18))
+    # The whistle tune: a rising call answered by a falling one, every other cycle of eight bars.
+    tune = [(2, 2), (4, 1), (5, 2), (7, 1), (9, 3), (7, 3), (5, 2), (4, 1), (2, 3), (0, 3),
+            (2, 2), (4, 1), (5, 2), (4, 1), (2, 3), (-3, 3), (2, 6)]
+    t = 2 * bar
+    while t + 40 * eighth < seconds:
+        for note, length in tune:
+            place(out, t, tone(hz(note), length * eighth * 1.05, FLUTE, (0.02, 0.1, 0.75, 0.12), vibrato=0.005, gain=0.1))
+            t += length * eighth
+        t += 4 * bar
+    return out
+
+
+def cave(seconds=96.0):
+    """4/4 at 76 bpm in E minor: the Cyclops's cave. A low drone, slow heavy drum steps like a
+    giant's footfalls, dripping bells in the dark and a low horn line."""
+    beat = 60 / 76
+    bar = 4 * beat
+    out = np.zeros(int(SR * seconds))
+    roots = [-5, -5, -7, -9, -5, -5, -4, -9]  # E, E, D, C, E, E, F, C (from A4, low)
+    bars = int(seconds / bar)
+    rng = np.random.default_rng(7)
+    for b in range(bars):
+        root = roots[b % len(roots)]
+        start = b * bar
+        place(out, start, tone(hz(root - 24), bar * 1.05, PAD, (0.8, 0.5, 0.7, 0.6), gain=0.12))
+        place(out, start, tone(hz(root - 12), bar * 1.05, PAD, (1.2, 0.5, 0.5, 0.6), gain=0.05))
+        # Footfalls on beats 1 and 3: a deep thump.
+        for k in (0, 2):
+            place(out, start + k * beat, tone(hz(root - 36) * 2, 0.5, [(1, 1.0), (2, 0.3)], (0.002, 0.25, 0.0, 0.2), gain=0.35))
+            place(out, start + k * beat, noise_hit(0.3, b * 4 + k, 0.05, 0.6))
+        # Drips: two or three high bell notes at uneven places in the bar.
+        for _ in range(rng.integers(2, 4)):
+            at = start + rng.uniform(0, bar)
+            note = root + 24 + int(rng.choice([0, 3, 7, 10, 12]))
+            place(out, at, tone(hz(note), 1.2, BELL, (0.002, 0.4, 0.0, 0.6), gain=0.035))
+    # A low horn line in the second half of each cycle.
+    line = [(-5, 3), (-2, 1), (0, 2), (-2, 2), (-5, 4), (-7, 2), (-9, 2), (-5, 4)]
+    t = 4 * bar
+    while t + 20 * beat < seconds:
+        for note, length in line:
+            place(out, t, tone(hz(note - 12), length * beat, HORN, (0.25, 0.3, 0.7, 0.4), gain=0.07))
+            t += length * beat
+        t += 4 * bar
+    return out
+
+
+def wind(seconds=96.0):
+    """3/4 at 132 bpm in G major: Aeolus's island of winds. Fast rising arpeggios like gusts, an
+    airy flute tune soaring above, a soft pulse and rushing air."""
+    beat = 60 / 132
+    bar = 3 * beat
+    out = np.zeros(int(SR * seconds))
+    cycle = [(-2, 'M'), (-9, 'm'), (-14, 'M'), (-12, 'M'), (-2, 'M'), (-7, 'm'), (-12, 'M'), (-2, 'M')]
+    shapes = {'M': [0, 4, 7, 12, 16, 19], 'm': [0, 3, 7, 12, 15, 19]}
+    bars = int(seconds / bar)
+    for b in range(bars):
+        root, q = cycle[b % len(cycle)]
+        start = b * bar
+        place(out, start, tone(hz(root - 24), bar * 0.9, BASS, (0.01, 0.2, 0.4, 0.2), gain=0.12))
+        for i, st in enumerate(shapes[q]):
+            place(out, start + i * beat / 2, tone(hz(root + st - 12), beat * 0.8, HARP, (0.003, 0.15, 0.2, 0.2), gain=0.08))
+        if b % 2 == 1:
+            n = int(SR * bar * 2)
+            x = np.random.default_rng(300 + b).standard_normal(n)
+            y = np.zeros(n)
+            for i in range(1, n):
+                y[i] = y[i - 1] + 0.06 * (x[i] - y[i - 1])
+            place(out, start, (y - np.convolve(y, np.ones(40) / 40, 'same')) * env(n, bar, 0.1, 0.9, bar, bar * 2) * 1.6)
+    tune = [(-2, 3), (2, 2), (5, 1), (7, 3), (10, 2), (9, 1), (7, 3), (5, 3), (2, 2), (5, 1), (7, 6)]
+    t = 2 * bar
+    while t + 30 * beat < seconds:
+        for note, length in tune:
+            place(out, t, tone(hz(note + 12), length * beat, FLUTE, (0.04, 0.1, 0.75, 0.2), vibrato=0.006, gain=0.08))
+            t += length * beat
+        t += 4 * bar
+    return out
+
+
+def palace(seconds=96.0):
+    """4/4 at 100 bpm in C major: the homecoming. A stately march with horns, a steady drum, warm
+    chords and, in the second half of each cycle, the wordless choir from the Sirens' sea now
+    singing in a major key."""
+    beat = 60 / 100
+    bar = 4 * beat
+    out = np.zeros(int(SR * seconds))
+    cycle = [(-9, 'M'), (-4, 'M'), (-7, 'm'), (-2, 'M'), (-9, 'M'), (-12, 'm'), (-2, 'M'), (-9, 'M')]
+    shapes = {'M': [0, 4, 7, 12], 'm': [0, 3, 7, 12]}
+    bars = int(seconds / bar)
+    for b in range(bars):
+        root, q = cycle[b % len(cycle)]
+        start = b * bar
+        for k in range(4):
+            place(out, start + k * beat, tone(hz(root - 24 + (7 if k % 2 else 0)), beat * 0.9, BASS, (0.005, 0.1, 0.5, 0.15), gain=0.13))
+        for st in shapes[q]:
+            place(out, start, tone(hz(root + st - 12), bar * 1.02, PAD, (0.3, 0.4, 0.6, 0.4), gain=0.04))
+        place(out, start, noise_hit(0.25, 700 + b, 0.12, 0.5))
+        place(out, start + 2 * beat, noise_hit(0.25, 900 + b, 0.12, 0.4))
+        place(out, start + 3.5 * beat, noise_hit(0.1, 1100 + b, 0.5, 0.15))
+    fanfare = [(3, 2), (7, 1), (10, 1), (12, 4), (10, 2), (7, 2), (8, 3), (7, 1), (5, 4),
+               (3, 2), (7, 2), (12, 2), (14, 2), (15, 6), (12, 2)]
+    t = 2 * bar
+    while t + 40 * beat < seconds:
+        for note, length in fanfare:
+            place(out, t, tone(hz(note - 12), length * beat * 0.95, HORN, (0.05, 0.2, 0.75, 0.2), vibrato=0.003, gain=0.08))
+            t += length * beat
+        for note, length in fanfare[:8]:
+            place(out, t, voice(hz(note), length * beat * 1.1, (0.15, 0.2, 0.8, 0.3), gain=0.07))
+            place(out, t, voice(hz(note - 4), length * beat * 1.1, (0.15, 0.2, 0.8, 0.3), gain=0.045, vowel=(700, 1100, 2700)))
+            t += length * beat
+        t += 2 * bar
+    return out
+
+
 def master(x, seconds):
     n = int(SR * seconds)
     x = x[:n]
@@ -213,10 +363,13 @@ def write(name, data):
 
 
 if __name__ == '__main__':
-    which = sys.argv[1:] or ['circe', 'strait', 'sea']
+    which = sys.argv[1:] or ['beach', 'cave', 'wind', 'circe', 'sea', 'strait', 'palace']
     if 'circe' in which:
         write('circe', master(circe(), 96))
     if 'strait' in which:
         write('strait', master(strait(), 96))
     if 'sea' in which:
         write('sea', master(sea(), 96))
+    for name, make in (('beach', beach), ('cave', cave), ('wind', wind), ('palace', palace)):
+        if name in which:
+            write(name, master(make(), 96))

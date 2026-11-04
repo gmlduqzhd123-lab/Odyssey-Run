@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {emptySave, mergeResult, validateSave, type Save} from '../src/storage/save';
+import {emptySave, mergeResult, validateSave, COURSE_GHOST_SECONDS, type Save} from '../src/storage/save';
 import {STAGES} from '../src/levels/courses';
 import {VARIANTS} from '../src/levels/course-ids';
 import {quizIds} from '../src/levels/quiz';
@@ -40,8 +40,9 @@ function fullSave(): Save {
           tricked: 9,
           ghost: {
             score: 4200,
-            duration: GHOST_SECONDS,
-            samples: Array.from({length: GHOST_SECONDS + 1}, (_, i) => Math.min(24000, i * 320)),
+            // The longest ghost a course keeps.
+            duration: COURSE_GHOST_SECONDS,
+            samples: Array.from({length: COURSE_GHOST_SECONDS + 1}, (_, i) => Math.min(24000, i * 320)),
           },
         },
       });
@@ -133,4 +134,76 @@ test('a class backup of a full device (every sailor, contest and gallery slot at
   assert.equal(back.gallery?.length, MAX_GALLERY);
   assert.ok(m.has(PROFILES_KEY) && m.has(CONTESTS_KEY) && m.has(GALLERY_KEY));
   console.log(`class backup at maximum: ${(bytes / 1048576).toFixed(2)}MB of ${CLASS_BACKUP_LIMIT / 1048576}MB`);
+});
+test('a course keeps no ghost from a run longer than five minutes, but keeps the faster one it had', () => {
+  const run = (duration: number, score: number) => ({
+    stage: 'beach' as const,
+    variant: 'classic' as const,
+    complete: true,
+    score,
+    rating: 3,
+    stars: 100,
+    maps: [],
+    hpLoss: 0,
+    distance: C.length,
+    adventure: {
+      stamps: [],
+      stories: [],
+      constellations: [],
+      combos: [],
+      routes: [],
+      nearMisses: 0,
+      evaded: 0,
+      tricked: 0,
+      ghost: {score, duration, samples: Array.from({length: duration + 1}, (_, i) => Math.min(24000, i * 60))},
+    },
+  });
+  let s = mergeResult(emptySave(), run(120, 3000));
+  assert.equal(s.courses['beach/classic']?.ghost?.duration, 120);
+  s = mergeResult(s, run(COURSE_GHOST_SECONDS + 60, 3500));
+  assert.equal(s.courses['beach/classic']?.ghost?.duration, 120);
+  assert.equal(s.courses['beach/classic']?.bestScore, 3500);
+});
+test('a full device frees the remix courses’ ghosts, keeping records, maps and the standard route’s ghost', async () => {
+  const {freeRemixGhosts, remixGhostBytes} = await import('../src/storage/durability');
+  const {SaveStore, SAVE_KEY} = await import('../src/storage/save');
+  const m = new Map<string, string>(),
+    storage = {
+      getItem: (k: string) => m.get(k) ?? null,
+      setItem: (k: string, v: string) => void m.set(k, v),
+      removeItem: (k: string) => void m.delete(k),
+      key: (i: number) => [...m.keys()][i] ?? null,
+      get length() {
+        return m.size;
+      },
+    };
+  const full = fullSave();
+  storage.setItem(SAVE_KEY, JSON.stringify(full));
+  storage.setItem(SAVE_KEY + ':p:p2', JSON.stringify(full));
+  const before = remixGhostBytes(storage);
+  assert.ok(before > 50_000, String(before));
+  assert.equal(freeRemixGhosts(storage), before);
+  assert.equal(remixGhostBytes(storage), 0);
+  const back = JSON.parse(storage.getItem(SAVE_KEY)!);
+  for (const [key, r] of Object.entries(back.courses) as [string, {ghost?: unknown; bestScore: number}][]) {
+    assert.equal(r.bestScore, full.courses[key as keyof typeof full.courses]!.bestScore);
+    assert.equal(!!r.ghost, key.endsWith('/classic'), key);
+  }
+  // A save store whose storage is full makes room once and then saves.
+  let room = false;
+  const tight = {
+    ...storage,
+    setItem: (k: string, v: string) => {
+      if (!room && v.length > 1000) throw Object.assign(Error('full'), {name: 'QuotaExceededError'});
+      m.set(k, v);
+    },
+  };
+  storage.setItem(SAVE_KEY + ':p:p3', JSON.stringify(full));
+  const store = new SaveStore(tight, SAVE_KEY + ':p:p3');
+  store.onFull = () => {
+    room = true;
+    return 1;
+  };
+  assert.ok(store.persist());
+  assert.ok(Object.entries(store.data.courses).every(([k, r]) => k.endsWith('/classic') || !r?.ghost));
 });

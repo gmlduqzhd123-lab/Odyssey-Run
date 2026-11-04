@@ -9,18 +9,30 @@ export interface Duo {
   stage: StageId;
   scores: RunResult[];
   together: boolean;
+  // A student-made course instead of the island's standard route.
+  course?: DuoCourse;
 }
-export function duoPageMarkup(header: string, open: StageId[], message: string) {
-  return `<div class="page duo">${header}<div class="page-heading"><span class="eyebrow">TWO SAILORS, ONE SCREEN</span><h1 tabindex="-1">둘이서 번갈아 달리기</h1><p>한 화면에서 두 명이 같은 코스를 차례로 달리고, 두 점수를 합쳐 팀 점수를 만들어요. 기록·해금에는 반영하지 않아요.</p></div><section class="maker-form"><div class="maker-meta"><label>첫 번째 항해사 <input id="duo-a" maxlength="12" autocomplete="off" placeholder="예: 지우"></label><label>두 번째 항해사 <input id="duo-b" maxlength="12" autocomplete="off" placeholder="예: 민준"></label><label>섬 <select id="duo-stage">${open.map(id => `<option value="${id}">${COURSES[id].name}</option>`).join('')}</select></label></div><label class="toggle"><span>동시에 달리기 (화면을 위아래로 나눠요)</span><input type="checkbox" id="duo-together"><i aria-hidden="true"></i></label><small>동시에 달리면 위 화면은 Space·↑·↓와 위쪽 버튼, 아래 화면은 W·S와 아래쪽 버튼으로 달려요. 게임패드가 두 개면 하나씩 나눠 써요. 휴대폰은 가로로 돌려 주세요.</small>${button('duo-start', '출발 준비 →', 'primary')}<p role="status" id="duo-message">${esc(message)}</p><small>전자칠판이나 한 대의 태블릿에서 함께 달리기 좋아요.</small></section></div>`;
+export interface DuoCourse {
+  stage: StageId;
+  blocks: string;
+  title: string;
+}
+// courses: the sailor's own passing course and the class gallery's, offered beside the islands.
+export function duoPageMarkup(header: string, open: StageId[], message: string, courses: DuoCourse[] = []) {
+  return `<div class="page duo">${header}<div class="page-heading"><span class="eyebrow">TWO SAILORS, ONE SCREEN</span><h1 tabindex="-1">둘이서 번갈아 달리기</h1><p>한 화면에서 두 명이 같은 코스를 차례로 달리고, 두 점수를 합쳐 팀 점수를 만들어요. 기록·해금에는 반영하지 않아요.</p></div><section class="maker-form"><div class="maker-meta"><label>첫 번째 항해사 <input id="duo-a" maxlength="12" autocomplete="off" placeholder="예: 지우"></label><label>두 번째 항해사 <input id="duo-b" maxlength="12" autocomplete="off" placeholder="예: 민준"></label><label>코스 <select id="duo-stage">${open.map(id => `<option value="${id}">${COURSES[id].name} · 기본 항로</option>`).join('')}${courses.length ? `<optgroup label="학생이 만든 코스">${courses.map((c, i) => `<option value="course:${i}">⚒ ${esc(c.title)} · ${COURSES[c.stage].name}</option>`).join('')}</optgroup>` : ''}</select></label></div><label class="toggle"><span>동시에 달리기 (화면을 위아래로 나눠요)</span><input type="checkbox" id="duo-together"><i aria-hidden="true"></i></label><small>동시에 달리면 위 화면은 Space·↑·↓와 위쪽 버튼, 아래 화면은 W·S와 아래쪽 버튼으로 달려요. 게임패드가 두 개면 하나씩 나눠 써요. 휴대폰은 가로로 돌려 주세요.</small>${button('duo-start', '출발 준비 →', 'primary')}<p role="status" id="duo-message">${esc(message)}</p><small>전자칠판이나 한 대의 태블릿에서 함께 달리기 좋아요.</small></section></div>`;
 }
 export const duoLoadingMarkup = () =>
   `<div class="veil"><section class="panel"><h1 tabindex="-1">두 번째 화면 준비 중</h1><p>두 번째 항해사의 화면을 준비하고 있어요…</p>${button('duo', '그만두기', 'secondary')}</section></div>`;
 export function duoPrepareMarkup(d: Duo) {
   const who = d.names[d.scores.length];
   return d.together
-    ? `<div class="veil"><section class="panel"><span class="eyebrow">TWO SAILORS · TOGETHER</span><h1 tabindex="-1">‘${esc(d.names[0])}’와 ‘${esc(d.names[1])}’ 함께 출발</h1><p>${COURSES[d.stage].name} · 기본 항로 · 약 75초</p><div class="control-guide"><div><kbd>Space / ↑ · ↓</kbd><b translate="no">${esc(d.names[0])}</b><span>위 화면 · 화면 버튼도 돼요</span></div><div><kbd>W · S</kbd><b translate="no">${esc(d.names[1])}</b><span>아래 화면 · 아래 버튼이나 두 번째 게임패드도 돼요</span></div></div>${button('start', '출발 →', 'primary large')}${button('duo', '그만두기', 'secondary')}</section></div>`
-    : `<div class="veil"><section class="panel"><span class="eyebrow">TWO SAILORS · ${d.scores.length + 1} / 2</span><h1 tabindex="-1">‘${esc(who)}’ 차례예요</h1><p>${COURSES[d.stage].name} · 기본 항로 · 약 75초</p>${d.scores.length ? `<p class="muted">‘${esc(d.names[0])}’ ${d.scores[0].score.toLocaleString()}점</p>` : ''}${button('start', '출발 →', 'primary large')}${button('duo', '그만두기', 'secondary')}</section></div>`;
+    ? `<div class="veil"><section class="panel"><span class="eyebrow">TWO SAILORS · TOGETHER</span><h1 tabindex="-1">‘${esc(d.names[0])}’와 ‘${esc(d.names[1])}’ 함께 출발</h1><p>${courseLine(d)}</p><div class="control-guide"><div><kbd>Space / ↑ · ↓</kbd><b translate="no">${esc(d.names[0])}</b><span>위 화면 · 화면 버튼도 돼요</span></div><div><kbd>W · S</kbd><b translate="no">${esc(d.names[1])}</b><span>아래 화면 · 아래 버튼이나 두 번째 게임패드도 돼요</span></div></div>${button('start', '출발 →', 'primary large')}${button('duo', '그만두기', 'secondary')}</section></div>`
+    : `<div class="veil"><section class="panel"><span class="eyebrow">TWO SAILORS · ${d.scores.length + 1} / 2</span><h1 tabindex="-1">‘${esc(who)}’ 차례예요</h1><p>${courseLine(d)}</p>${d.scores.length ? `<p class="muted">‘${esc(d.names[0])}’ ${d.scores[0].score.toLocaleString()}점</p>` : ''}${button('start', '출발 →', 'primary large')}${button('duo', '그만두기', 'secondary')}</section></div>`;
 }
+const courseLine = (d: Duo) =>
+  d.course
+    ? `학생 코스 ‘${esc(d.course.title)}’ · ${COURSES[d.stage].name}`
+    : `${COURSES[d.stage].name} · 기본 항로 · 약 75초`;
 // After the first of two turns.
 export const duoTurnMarkup = (d: Duo, r: RunResult) =>
   `<div class="veil"><section class="panel result special-result"><span class="eyebrow">TWO SAILORS · 1 / 2</span><h1 tabindex="-1">‘${esc(d.names[0])}’ ${r.score.toLocaleString()}점</h1><p>별빛 ${r.stars} · 지도 ${r.maps.length} · HP 손실 ${r.hpLoss}회</p>${button('duo-next', `‘${esc(d.names[1])}’ 차례로 →`, 'primary large')}${button('duo', '그만두기', 'secondary')}</section></div>`;

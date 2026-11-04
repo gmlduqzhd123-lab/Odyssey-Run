@@ -87,8 +87,15 @@ const SCREENS: [string, string[], string[]?][] = [
     ],
     RUN_SIZES.filter(v => !v.includes('portrait')),
   ],
+  // The teacher's lock: the settings section once locked, and the PIN dialog over a reset.
+  [
+    'pin',
+    ['settings', 'fill:#lock-pin=2468', 'fill:#lock-pin2=2468', 'lock-set', 'reload', 'settings', 'reset-confirm'],
+  ],
+  ['report-all', ['profiles', 'progress', 'report-all']],
   // Printable pages as the printer sees them: only the sheet, dark text on white.
   ['worksheet-print', ['profiles', 'progress', 'worksheet', 'media:print']],
+  ['report-all-print', ['profiles', 'progress', 'report-all', 'media:print']],
   ['report-print', ['profiles', 'progress', 'report:main', 'media:print']],
 ];
 // Plain source: tsx would wrap named functions with a helper the page does not have.
@@ -228,6 +235,11 @@ async function go(p: Page, steps: string[]) {
       )
         await b.click();
     } else if (s.startsWith('media:')) await p.emulateMedia({media: s.slice(6) as 'print' | 'screen'});
+    // reload starts the page again with what is stored (a teacher's lock asks for the PIN again).
+    else if (s === 'reload') {
+      await p.reload();
+      await p.waitForSelector('.home');
+    }
     // fill:#id=text types into a field; check:#id ticks a checkbox or toggle.
     else if (s.startsWith('fill:')) {
       const [field, ...text] = s.slice(5).split('=');

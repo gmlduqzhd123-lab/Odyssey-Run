@@ -341,8 +341,74 @@ try {
 } finally {
   await duo.close();
 }
+// 7. The teacher's lock: a PIN guards a reset (a wrong PIN is refused, the right one goes on to the
+// reset question), and a lesson leaves only the chosen island open on the island map.
+const teacher = await chromium.launch({executablePath, args: ['--no-sandbox']});
+try {
+  const ctx = await teacher.newContext({serviceWorkers: 'block', viewport: {width: 1280, height: 720}});
+  await ctx.addInitScript(
+    ([key, save]) => {
+      if (!localStorage.getItem(key)) localStorage.setItem(key, save);
+    },
+    [SAVE, readFileSync(legacy, 'utf8')],
+  );
+  const p = await ctx.newPage();
+  watch(p, 'teacher lock');
+  await p.goto(url);
+  await p.waitForSelector('.home');
+  await visible(p, 'settings').click();
+  await p.fill('#lock-pin', '2468');
+  await p.fill('#lock-pin2', '1357');
+  await visible(p, 'lock-set').click();
+  check(/달라요/.test((await p.locator('#lock-message').textContent()) ?? ''), 'mismatched PINs accepted');
+  await p.fill('#lock-pin', '2468');
+  await p.fill('#lock-pin2', '2468');
+  await visible(p, 'lock-set').click();
+  await p.waitForFunction(() => /잠금을 켰어요/.test(document.querySelector('#lock-message')?.textContent ?? ''));
+  check(!(await p.evaluate(() => JSON.stringify(localStorage))).includes('2468'), 'the PIN is stored in plain text');
+  // A fresh page starts locked.
+  await p.reload();
+  await p.waitForSelector('.home');
+  await visible(p, 'settings').click();
+  await visible(p, 'reset-confirm').click();
+  await p.waitForSelector('.pin-veil');
+  check(
+    (await p.evaluate(() => document.querySelector('#app')!.getAttribute('data-screen'))) === 'settings',
+    'PIN dialog replaced the screen',
+  );
+  await p.fill('#teacher-pin', '1111');
+  await visible(p, 'pin-check').click();
+  await p.waitForFunction(() => /맞지 않아요/.test(document.querySelector('#pin-message')?.textContent ?? ''));
+  check((await p.locator('.pin-veil').count()) === 1, 'a wrong PIN closed the dialog');
+  await p.fill('#teacher-pin', '2468');
+  await p.keyboard.press('Enter');
+  await p.waitForSelector('.pin-veil', {state: 'detached'});
+  check(
+    (await p.evaluate(() => document.querySelector('#app')!.getAttribute('data-screen'))) === 'reset',
+    'right PIN did not continue to the reset question',
+  );
+  results.pin = 'wrong refused, right continues';
+  // A lesson with only the cave open: the beach card is closed for the lesson.
+  await visible(p, 'settings').click();
+  for (const box of await p.locator('[data-lesson]').all()) {
+    const id = await box.getAttribute('data-lesson');
+    if ((await box.isChecked()) !== (id === 'cave')) await box.click({force: true});
+  }
+  await visible(p, 'lesson-save').click();
+  await p.waitForFunction(() => /1개 섬만/.test(document.querySelector('#lock-message')?.textContent ?? ''));
+  await visible(p, 'home').click();
+  await visible(p, 'islands').click();
+  await p.waitForSelector('.island-card');
+  const beach = p.locator('[data-action="stage:beach"]');
+  check(await beach.isDisabled(), 'beach still open during a lesson on the cave');
+  check(/수업 중/.test((await beach.textContent()) ?? ''), 'closed island does not say why');
+  results.lesson = 'only the chosen island is open';
+  await ctx.close();
+} finally {
+  await teacher.close();
+}
 check(!errors.length, `page errors: ${errors.join(' | ')}`);
 console.log(JSON.stringify(results, null, 1));
 console.log(
-  'classroom: tabs, backup, reminder, scan, flag, drop, CSV, hostile links, leader ghost and split screen passed',
+  'classroom: tabs, backup, reminder, scan, flag, drop, CSV, hostile links, leader ghost, split screen, teacher lock and lesson passed',
 );

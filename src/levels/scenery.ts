@@ -5,6 +5,7 @@ import type {Course, StageId} from './courses';
 // terrain sheet along the way. Decorations sit behind the course and are never touched.
 export type ViewId = keyof typeof REGIONS & `view-${string}`;
 export const ISLAND_VIEWS = ['view-beach', 'view-cave', 'view-wind', 'view-circe', 'view-sea', 'view-strait'] as const;
+// The palace stage walks through Ithaca itself, so its landscape is the harbor of Ithaca.
 // The five panels no island owns: each special voyage gets one.
 export const SPARE_VIEWS = ['view-ruins', 'view-storm', 'view-forest', 'view-palace', 'view-night'] as const;
 const BOSS_VIEWS: Record<StageId, ViewId> = {
@@ -14,12 +15,13 @@ const BOSS_VIEWS: Record<StageId, ViewId> = {
   circe: 'view-night',
   sea: 'view-palace',
   strait: 'view-storm',
+  palace: 'view-ruins',
 };
 export function sceneryView(course: Pick<Course, 'id' | 'mode'>, special: 'daily' | null = null, day = 0): ViewId {
   if (course.mode === 'endless') return 'view-night';
   if (course.mode === 'boss') return BOSS_VIEWS[course.id];
   if (special === 'daily') return SPARE_VIEWS[((day % 5) + 5) % 5];
-  return `view-${course.id}`;
+  return course.id === 'palace' ? 'view-ithaca' : `view-${course.id}`;
 }
 // The harbor of Ithaca rises behind the last stretch of every island voyage.
 export const HARBOR_FADE = {from: 2600, to: 1400} as const;
@@ -43,6 +45,7 @@ const SETS: Record<StageId, DecorFrame[]> = {
   circe: ['torch', 'vase', 'ruins', 'banner'],
   sea: ['ruins', 'vase', 'banner', 'sign'],
   strait: ['sign', 'ruins', 'vase', 'banner'],
+  palace: ['banner', 'torch', 'vase', 'banner'],
 };
 const HEIGHT: Record<DecorFrame, number> = {banner: 118, torch: 96, ruins: 84, vase: 54, sign: 52};
 export function decorFor(course: Pick<Course, 'id' | 'gaps' | 'obstacles' | 'platforms' | 'length'>): Decor[] {

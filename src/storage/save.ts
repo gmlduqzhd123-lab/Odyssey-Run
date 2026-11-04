@@ -1,6 +1,7 @@
 import {cosmeticUnlocked} from '../systems/cosmetics';
 import {heroUnlocked} from '../systems/heroes';
 import {emptyWeekly, readDays, readQuizPicks, readWeekly, type Weekly} from './feats';
+import {emptySeason, readSeason, type Season} from './season';
 import {emptyExpeditions, readExpeditions, type Expeditions} from './expeditions';
 import {defaultPreferences, readPreferences, type Preferences} from './preferences';
 import {emptyJournal, validateJournal, validateGhost, type Ghost, type Journal, type AdventureResult} from './journal';
@@ -44,6 +45,8 @@ export interface Save {
   // Korean dates with a finished voyage or quiz answer (the voyage calendar), oldest first.
   days: string[];
   weekly: Weekly;
+  // This month's season goals and the months whose goals were all met.
+  season: Season;
   // How often each quiz option was chosen, for the teacher's question report.
   quizPicks: Partial<Record<string, [number, number, number]>>;
 }
@@ -53,7 +56,9 @@ export interface EndlessRecord {
 }
 export const SAVE_KEY = `odyssey-run:${new URL(import.meta.env?.BASE_URL || './', typeof location === 'undefined' ? 'http://local/' : location.href).pathname}:save`;
 export const BACKUP_KEY = SAVE_KEY + ':backup';
-const LATER_STAGES: readonly StageId[] = ['sea', 'circe', 'strait'];
+// The longest run whose ghost is kept on a course (older saves may hold longer ones; they still load).
+export const COURSE_GHOST_SECONDS = 300;
+const LATER_STAGES: readonly StageId[] = ['sea', 'circe', 'strait', 'palace'];
 const emptyRecord = (): RecordData => ({complete: false, bestScore: 0, bestRating: 0, bestStars: 0, maps: []});
 export const emptySave = (): Save => ({
   schemaVersion: 1,
@@ -70,6 +75,7 @@ export const emptySave = (): Save => ({
     circe: emptyRecord(),
     sea: emptyRecord(),
     strait: emptyRecord(),
+    palace: emptyRecord(),
   },
   savedAt: new Date().toISOString(),
   journal: emptyJournal(),
@@ -78,6 +84,7 @@ export const emptySave = (): Save => ({
   endless: {},
   days: [],
   weekly: emptyWeekly(),
+  season: emptySeason(),
   quizPicks: {},
 });
 const obj = (v: unknown): Record<string, unknown> => {
@@ -211,6 +218,7 @@ export function validateSave(raw: unknown): Save {
   if (!heroUnlocked(out, out.preferences.hero)) throw Error('아직 열리지 않은 영웅이 선택돼 있어요.');
   out.days = readDays(v.days);
   out.weekly = readWeekly(v.weekly);
+  out.season = readSeason(v.season);
   out.quizPicks = readQuizPicks(v.quizPicks);
   if (v.endless !== undefined) {
     const e = obj(v.endless);
@@ -272,7 +280,12 @@ export function mergeResult(save: Save, r: RunResult): Save {
     for (const key of ['stamps', 'stories', 'constellations', 'combos', 'routes'] as const)
       (j[key] as string[]) = [...new Set([...j[key], ...a[key]])];
     const prior = record.ghost ?? courseGhost(save, r.stage, variant);
-    if (!prior || a.ghost.score > prior.score || (a.ghost.score === prior.score && a.ghost.duration < prior.duration))
+    // A ghost from a run longer than COURSE_GHOST_SECONDS is no use for racing a 75 s course and
+    // would crowd the device's storage, so the earlier (faster) ghost stays instead.
+    if (
+      a.ghost.duration <= COURSE_GHOST_SECONDS &&
+      (!prior || a.ghost.score > prior.score || (a.ghost.score === prior.score && a.ghost.duration < prior.duration))
+    )
       record.ghost = structuredClone(a.ghost);
     if (variant === 'classic' && record.ghost) j.ghosts[r.stage] = structuredClone(record.ghost);
   }
@@ -289,6 +302,17 @@ export const unlocked = (save: Save, id: StageId) => {
   if (id === 'strait') return save.stages.sea.complete && save.stages.circe.complete;
   return save.stages[STAGES[i - 1]].complete;
 };
+// Removes the comparison ghosts of remix courses from a save (records, maps and the standard
+// route's ghost stay). Returns how many characters of stored text that frees.
+export function dropRemixGhosts(save: Save) {
+  let freed = 0;
+  for (const [key, record] of Object.entries(save.courses))
+    if (record?.ghost && !key.endsWith('/classic')) {
+      freed += JSON.stringify(record.ghost).length + 9;
+      delete record.ghost;
+    }
+  return freed;
+}
 export class SaveStore {
   data = emptySave();
   blocked = false;
@@ -296,6 +320,8 @@ export class SaveStore {
   readonly backupKey: string;
   // The raw text last read or written here; anything else in storage came from another tab.
   private lastRaw: string | null = null;
+  // Called once when storage is full: frees space elsewhere and returns how much (0: nothing).
+  onFull: (() => number) | null = null;
   constructor(
     private storage: Pick<Storage, 'getItem' | 'setItem' | 'removeItem'> | null,
     readonly key = SAVE_KEY,
@@ -310,7 +336,7 @@ export class SaveStore {
       this.warning = '기존 기록을 읽지 못했어요. 원본을 보존했어요. 설정에서 복원하거나 초기화해 주세요.';
     }
   }
-  persist() {
+  persist(retried = false): boolean {
     if (this.blocked) {
       this.warning = '기존 원본은 보존돼 있어요. 이번 기록을 저장하지 못했어요. 기록 파일로 내보낼 수 있어요.';
       return false;
@@ -326,6 +352,11 @@ export class SaveStore {
       this.warning = '';
       return true;
     } catch {
+      // Full storage: make room once (old remix-course ghosts), then try again.
+      if (!retried && this.onFull) {
+        const freed = this.onFull() + dropRemixGhosts(this.data);
+        if (freed > 0) return this.persist(true);
+      }
       this.warning = '이번 기록을 저장하지 못했어요. 기록 파일로 내보낼 수 있어요.';
       return false;
     }

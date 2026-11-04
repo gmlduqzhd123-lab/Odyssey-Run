@@ -80,7 +80,8 @@ test('special voyages are painted with the five landscapes no island owns', () =
     assert.ok(used.has(v), v);
     assert.ok(v in REGIONS, v);
   }
-  for (const id of STAGES) assert.equal(sceneryView(COURSES[id]), `view-${id}`);
+  // Each island shows its own panel; the palace walks through Ithaca, so it shows the harbor of Ithaca.
+  for (const id of STAGES) assert.equal(sceneryView(COURSES[id]), id === 'palace' ? 'view-ithaca' : `view-${id}`);
   // Ithaca rises only at the end of an island voyage.
   assert.equal(harborMix(COURSES.beach, 1000), 0);
   assert.equal(harborMix(COURSES.beach, C.length), 1);

@@ -56,6 +56,7 @@ export function adventurePlan(stage: StageId): AdventurePlan {
     circe: ['하얀 꽃 몰리', '돌아온 동료들'],
     sea: ['밀랍 귀마개', '돛대의 약속'],
     strait: ['절벽 쪽으로', '키르케의 조언'],
+    palace: ['페넬로페의 베 짜기', '늙은 개 아르고스'],
   }[stage];
   const words = {
     beach: [
@@ -108,6 +109,16 @@ export function adventurePlan(stage: StageId): AdventurePlan {
         '키르케는 해협을 건널 때 멈추지 말고 서둘러 지나가라고 일러 주었어요. 오디세우스는 그 말을 기억하고 한순간도 노를 멈추지 않게 했어요.',
       ],
     ],
+    palace: [
+      [
+        '기다림에도 지혜가 필요해요.',
+        '페넬로페는 수의를 다 짜면 구혼자 가운데 한 사람을 고르겠다고 했어요. 그러고는 낮에 짠 천을 밤마다 몰래 풀어, 오랜 세월 남편을 기다렸지요.',
+      ],
+      [
+        '변장해도 알아보는 마음이 있어요.',
+        '거지 차림으로 돌아온 오디세우스를 아무도 알아보지 못했어요. 그런데 문 앞에 누워 있던 늙은 개 아르고스만은 꼬리를 흔들며 주인을 알아보았지요.',
+      ],
+    ],
     sea: [
       [
         '귀를 막으면 마음의 방향을 지킬 수 있어요.',
@@ -136,7 +147,7 @@ export function adventurePlan(stage: StageId): AdventurePlan {
           ? 16750
           : stage === 'cave'
             ? 17300
-            : stage === 'sea' || stage === 'circe' || stage === 'strait'
+            : stage === 'sea' || stage === 'circe' || stage === 'strait' || stage === 'palace'
               ? 16850
               : 18800,
       y: 440,
@@ -168,37 +179,45 @@ export function adventurePlan(stage: StageId): AdventurePlan {
               name: '거인의 손을 피해!',
               hint: '손 아래로 숙인 뒤 끊어진 길에서 점프!',
             }
-          : stage === 'strait'
+          : stage === 'palace'
             ? {
-                id: 'strait-whirl',
-                start: 12700,
-                end: 14200,
-                name: '카리브디스의 소용돌이',
-                hint: '소용돌이 위에서는 느려져요 · 점프로 건너요',
+                id: 'palace-bow',
+                start: 10200,
+                end: 11600,
+                name: '활 시위의 시험',
+                hint: '낮은 문 아래로 숙여, 열두 도끼 구멍을 지나요!',
               }
-            : stage === 'circe'
+            : stage === 'strait'
               ? {
-                  id: 'circe-spell',
-                  start: 9900,
-                  end: 12300,
-                  name: '키르케의 마법',
-                  hint: '몰리 약초를 먹으면 마법이 풀려요 · 2단 점프 봉인',
+                  id: 'strait-whirl',
+                  start: 12700,
+                  end: 14200,
+                  name: '카리브디스의 소용돌이',
+                  hint: '소용돌이 위에서는 느려져요 · 점프로 건너요',
                 }
-              : stage === 'sea'
+              : stage === 'circe'
                 ? {
-                    id: 'sea-sirens',
-                    start: 12700,
-                    end: 14200,
-                    name: '세이렌의 노래',
-                    hint: '노래에 끌리지 말고 2단 점프로 바다를 건너요!',
+                    id: 'circe-spell',
+                    start: 9900,
+                    end: 12300,
+                    name: '키르케의 마법',
+                    hint: '몰리 약초를 먹으면 마법이 풀려요 · 2단 점프 봉인',
                   }
-                : {
-                    id: 'wind-clouds',
-                    start: 19200,
-                    end: 20750,
-                    name: '구름 징검다리',
-                    hint: '바람과 2단 점프로 높은 구름길에 도전!',
-                  },
+                : stage === 'sea'
+                  ? {
+                      id: 'sea-sirens',
+                      start: 12700,
+                      end: 14200,
+                      name: '세이렌의 노래',
+                      hint: '노래에 끌리지 말고 2단 점프로 바다를 건너요!',
+                    }
+                  : {
+                      id: 'wind-clouds',
+                      start: 19200,
+                      end: 20750,
+                      name: '구름 징검다리',
+                      hint: '바람과 2단 점프로 높은 구름길에 도전!',
+                    },
   };
 }
 export const ADVENTURE_PLANS = {
@@ -208,6 +227,7 @@ export const ADVENTURE_PLANS = {
   circe: adventurePlan('circe'),
   sea: adventurePlan('sea'),
   strait: adventurePlan('strait'),
+  palace: adventurePlan('palace'),
 };
 export const storyIds = Object.values(ADVENTURE_PLANS).flatMap(p => p.stories.map(s => s.id));
 export const constellationIds = Object.values(ADVENTURE_PLANS).flatMap(p => p.constellations.map(s => s.id));

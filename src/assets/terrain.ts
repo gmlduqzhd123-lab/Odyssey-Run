@@ -18,6 +18,8 @@ export const REGIONS = {
   'ground-circe': {sheet: 'terrain-sheet', x: 36, y: 394, w: 255, h: 25},
   // The strait walks the beach's sand; its landscape is the stormy sea panel.
   'ground-strait': {sheet: 'terrain-sheet', x: 46, y: 153, w: 239, h: 33},
+  // The palace walks the beach's sand of Ithaca; its landscape is the harbor of Ithaca.
+  'ground-palace': {sheet: 'terrain-sheet', x: 46, y: 153, w: 239, h: 33},
   'wood-platform': {sheet: 'terrain-sheet', x: 693, y: 207, w: 161, h: 15},
   'view-beach': {sheet: 'landscape-sheet', x: 8, y: 49, w: 750, h: 140},
   'view-cave': {sheet: 'landscape-sheet', x: 8, y: 245, w: 750, h: 147},
@@ -41,6 +43,7 @@ export const STAGE_VIEW: Record<StageId, keyof typeof REGIONS> = {
   circe: 'view-circe',
   sea: 'view-sea',
   strait: 'view-strait',
+  palace: 'view-ithaca',
 };
 export function regionArt(name: keyof typeof REGIONS, className: string, label = '') {
   const r = REGIONS[name];
@@ -56,7 +59,7 @@ export const ART_SHEETS = [
     id: 'landscape-sheet',
     name: '신화의 섬과 항구',
     description:
-      '출항의 해변, 키클롭스의 동굴, 바람 섬, 마법의 숲, 세이렌의 절벽, 폭풍의 해협과 도착 항구의 풍경이에요. 이번 항로는 여섯 곳을 지나 이타카로 이어져요.',
+      '출항의 해변, 키클롭스의 동굴, 바람 섬, 마법의 숲, 세이렌의 절벽, 폭풍의 해협과 도착 항구의 풍경이에요. 이번 항로는 여섯 곳을 지나 이타카의 항구와 궁전으로 이어져요.',
   },
   {
     id: 'enemy-sheet',

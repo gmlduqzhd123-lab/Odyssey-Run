@@ -2943,7 +2943,9 @@ body {
 .contest-form input,
 .contest-form select,
 .contest-list input,
-.contest-board input#contest-code {
+.contest-board input#contest-code,
+.teacher-lock input[type='password'],
+.worksheet-options select {
   font: inherit;
   padding: 0.4rem 0.6rem;
   border-radius: 10px;
@@ -3256,8 +3258,15 @@ body {
 #app[data-portrait='true'] #shell .play-ui .control {
   bottom: calc(max(16px, env(safe-area-inset-bottom)) + var(--control-bottom, 0px));
   width: calc(50vw - 24px);
-  height: min(24vh, 170px);
+  /* Taller thumbs targets upright: the space under the game strip is otherwise empty. */
+  height: min(28vh, 200px);
   border-radius: 22px;
+}
+#app[data-portrait='true'] #shell .play-ui .control span {
+  font-size: clamp(34px, 9vw, 52px);
+}
+#app[data-portrait='true'] #shell .play-ui .control b {
+  font-size: clamp(16px, 4.4vw, 22px);
 }
 #app[data-portrait='true'] .countdown {
   inset: auto 0 auto 0;
@@ -3964,4 +3973,131 @@ body {
 .volumes input {
   width: 50%;
   accent-color: #3f7f7a;
+}
+/* The teacher's PIN dialog sits above whatever screen asked for it. */
+.pin-veil {
+  z-index: 30;
+}
+.pin-veil .panel {
+  max-width: 420px;
+}
+.pin-veil input {
+  font-size: 22px;
+  letter-spacing: 0.3em;
+  width: 10em;
+  text-align: center;
+}
+.teacher-lock label {
+  display: block;
+  margin: 6px 0;
+}
+.lesson-picker {
+  border: 1px solid #d8ccab;
+  border-radius: 10px;
+  padding: 8px 12px;
+  margin: 10px 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 4px 12px;
+}
+.lesson-picker legend {
+  font-weight: 700;
+  padding: 0 4px;
+}
+.lesson-picker label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 44px;
+}
+.lesson-picker input {
+  width: 22px;
+  height: 22px;
+}
+/* Monthly season titles won so far. */
+.season-titles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.season-title {
+  background: #f5e6c5;
+  border: 1px solid #d8bf86;
+  border-radius: 999px;
+  padding: 4px 12px;
+  color: #5c4a22;
+  font-weight: 700;
+}
+.season-title small {
+  color: #5c6657;
+  font-weight: 400;
+  margin-left: 4px;
+}
+/* Per-student trend: small weekly bars and a mark on whoever may need a look. */
+.trend {
+  background: #fbf6e8;
+  border: 1px solid #ddd3b8;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin: 14px 5.2%;
+}
+.trend h2 small {
+  font-size: 13px;
+  color: #5b6f66;
+  margin-left: 6px;
+}
+.trend table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.trend th,
+.trend td {
+  padding: 6px 10px;
+  text-align: left;
+  border-bottom: 1px solid #e6dcc1;
+}
+.trend thead th {
+  font-size: 13px;
+  color: #3f4d44;
+}
+.trend-bars {
+  width: 96px;
+  height: 30px;
+  display: block;
+}
+.trend tr.needs-help th,
+.trend tr.needs-help td:last-child {
+  color: #8a3b1f;
+  font-weight: 700;
+}
+/* Every student's summary at once: one sheet per printed page. */
+.all-reports .sheet + .sheet {
+  margin-top: 24px;
+}
+@media print {
+  .all-reports .sheet {
+    break-after: page;
+  }
+  .all-reports .sheet:last-of-type {
+    break-after: auto;
+  }
+}
+.worksheet-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  align-items: end;
+  margin: 0 5.2% 12px;
+}
+/* Storage use on the settings page: a bar with the share used. */
+.storage-use label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+}
+.storage-use progress {
+  width: min(240px, 50%);
+  height: 12px;
 }

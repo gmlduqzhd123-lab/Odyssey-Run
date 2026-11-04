@@ -1,4 +1,4 @@
-import {SAVE_KEY, validateSave} from './save';
+import {SAVE_KEY, dropRemixGhosts, validateSave} from './save';
 // Browsers may clear site storage: Safari after seven days without a visit (unless the game is
 // installed to the home screen), others when the disk runs low. Records live only here, so the
 // game asks for persistent storage and reminds the teacher to keep a whole-class backup.
@@ -89,6 +89,38 @@ export function storageUse(storage: Listing | null) {
   } catch {
     return 0;
   }
+}
+// Every sailor's saved record on this device (not the restore copies).
+const sailorKeys = (storage: Listing) =>
+  appKeys(storage).filter(k => (k === SAVE_KEY || k.startsWith(SAVE_KEY + ':p:')) && !k.endsWith(':backup'));
+// Space the remix courses' comparison ghosts take across every sailor, in bytes (UTF-16).
+export function remixGhostBytes(storage: Listing | null) {
+  if (!storage) return 0;
+  let n = 0;
+  try {
+    for (const k of sailorKeys(storage))
+      try {
+        n += dropRemixGhosts(validateSave(JSON.parse(storage.getItem(k) ?? 'null'))) * 2;
+      } catch {}
+  } catch {}
+  return n;
+}
+// Removes them from every sailor's stored record (records, maps and the standard route's ghost
+// stay). Returns the bytes freed; a save that cannot be read is left exactly as it is.
+export function freeRemixGhosts(storage: (Listing & Pick<Storage, 'setItem'>) | null) {
+  if (!storage) return 0;
+  let n = 0;
+  try {
+    for (const k of sailorKeys(storage))
+      try {
+        const save = validateSave(JSON.parse(storage.getItem(k) ?? 'null')),
+          freed = dropRemixGhosts(save);
+        if (!freed) continue;
+        storage.setItem(k, JSON.stringify(save));
+        n += freed * 2;
+      } catch {}
+  } catch {}
+  return n;
 }
 // Copies kept from before a record file was restored. One is only removable while the sailor's
 // current save is readable (a damaged save's copy is the original and always stays).

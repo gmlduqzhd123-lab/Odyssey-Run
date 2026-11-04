@@ -29,6 +29,11 @@ export const VARIANT_LABELS: Record<StageId, Record<VariantId, {name: string; de
     'remix-a': {name: '절벽 바짝 항로', description: '스킬라의 절벽을 따라 새로운 순서로 달려요.'},
     'remix-b': {name: '소용돌이 우회길', description: '달라진 물살과 소용돌이를 살펴봐요.'},
   },
+  palace: {
+    classic: {name: '기본 항로', description: '궁전의 회랑을 익숙한 길로 지나요.'},
+    'remix-a': {name: '하인들의 뒷길', description: '충직한 하인을 따라 새로운 순서로 궁전을 달려요.'},
+    'remix-b': {name: '활터 가는 길', description: '활 시위의 시험장까지 달라진 회랑을 살펴봐요.'},
+  },
   sea: {
     classic: {name: '기본 항로', description: '노래가 들리는 바다를 익숙한 길로 건너요.'},
     'remix-a': {name: '절벽 신전길', description: '세이렌 석상 사이를 새로운 순서로 지나요.'},
@@ -45,6 +50,7 @@ export const COURSE_ORDERS: Record<StageId, Record<Exclude<VariantId, 'classic'>
   wind: {'remix-a': [3, 4, 5, 0, 1, 2], 'remix-b': [5, 0, 1, 2, 3, 4]},
   circe: {'remix-a': [2, 0, 1, 5, 3, 4], 'remix-b': [4, 0, 3, 1, 5, 2]},
   strait: {'remix-a': [2, 0, 1, 4, 3, 5], 'remix-b': [1, 0, 2, 3, 5, 4]},
+  palace: {'remix-a': [3, 0, 1, 4, 5, 2], 'remix-b': [1, 2, 0, 5, 3, 4]},
   sea: {'remix-a': [1, 2, 0, 4, 5, 3], 'remix-b': [3, 0, 2, 1, 5, 4]},
 };
 export function rearrangeCourse(
@@ -98,7 +104,9 @@ export function rearrangeCourse(
               ? 10100
               : stage === 'strait'
                 ? 13200
-                : 19800,
+                : stage === 'palace'
+                  ? 10800
+                  : 19800,
     delta = move(anchor) - anchor;
   plan.highlight.start = Math.max(0, plan.highlight.start + delta);
   plan.highlight.end = Math.min(C.length, plan.highlight.end + delta);
