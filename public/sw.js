@@ -6,7 +6,7 @@ const CORE = PREFIX + VERSION + '-core';
 // The chosen language's dictionary, kept by the page (src/systems/lang-cache.ts).
 const LANG = 'odyssey-run-lang:' + new URL(ROOT).pathname;
 // Must match STAGES in src/levels/courses.ts (checked by tests).
-const STAGES = ['beach', 'cave', 'wind', 'circe', 'sea', 'strait'];
+const STAGES = ['beach', 'cave', 'wind', 'circe', 'sea', 'strait', 'palace'];
 let manifest;
 const getManifest = async () =>
   manifest ||

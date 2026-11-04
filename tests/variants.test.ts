@@ -149,6 +149,7 @@ test('old v1 imports keep exact core records and attribute previous ghosts only 
     circe: {complete: false, bestScore: 0, bestRating: 0, bestStars: 0, maps: []},
     sea: {complete: false, bestScore: 0, bestRating: 0, bestStars: 0, maps: []},
     strait: {complete: false, bestScore: 0, bestRating: 0, bestStars: 0, maps: []},
+    palace: {complete: false, bestScore: 0, bestRating: 0, bestStars: 0, maps: []},
   });
   assert.deepEqual(s.settings, legacy.settings);
   for (const stage of STAGES) {

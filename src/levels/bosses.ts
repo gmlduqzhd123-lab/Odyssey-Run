@@ -29,6 +29,11 @@ export const BOSSES = {
     description: '스킬라의 머리를 넘고, 하르피아 아래로 숙이고, 소용돌이 위를 점프로 건너요.',
     phases: ['스킬라의 머리 · 점프', '바다 바람의 하르피아 · 숙이기', '소용돌이 · 점프로 건너기'],
   },
+  palace: {
+    name: '구혼자들의 연회장',
+    description: '연회장의 석상병을 넘고, 구혼자의 그림자를 숙여 피하고, 마지막 시험을 지나요.',
+    phases: ['연회장의 석상병 · 점프', '구혼자의 그림자 · 숙이기', '열두 도끼의 시험 · 점프'],
+  },
   sea: {
     name: '세이렌의 노래',
     description: '세이렌의 날갯짓 → 스킬라의 머리 → 바위섬 집게를 읽어요.',
@@ -55,6 +60,7 @@ function build(stage: StageId): Course {
     circe: ['shade', 'shade', 'stone', 'stone', 'crab', 'crab'],
     sea: ['harpy', 'harpy', 'scylla', 'scylla', 'crab', 'crab'],
     strait: ['scylla', 'scylla', 'harpy', 'harpy', 'crab', 'crab'],
+    palace: ['stone', 'stone', 'shade', 'shade', 'stone', 'stone'],
   };
   const obstacles: Obstacle[] =
     stage === 'cave' ? [{id: 'cave-boss-hand', kind: 'hand', role: 'hazard', x: 8400, y: 365, w: 180, h: 39}] : [];

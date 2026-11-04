@@ -82,6 +82,16 @@ export const CHAPTERS: readonly Chapter[] = [
     ],
   },
   {
+    id: 'palace',
+    title: '궁전으로 돌아온 왕',
+    view: 'view-ruins',
+    lines: [
+      '아테나는 오디세우스를 늙은 거지로 변장시켜 궁전으로 보냈어요.',
+      '페넬로페는 남편의 활에 시위를 걸어 열두 도끼 구멍을 꿰뚫으라는 시험을 냈어요.',
+      '아무도 못 한 일을 거지가 해내자, 모두가 마침내 왕을 알아보았지요.',
+    ],
+  },
+  {
     id: 'ithaca',
     title: '마침내 이타카',
     view: 'view-ithaca',

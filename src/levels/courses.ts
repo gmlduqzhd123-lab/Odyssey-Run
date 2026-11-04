@@ -3,7 +3,8 @@ import {ADVENTURE_PLANS, type AdventurePlan} from './adventure';
 import type {VariantId} from './course-ids';
 import type {EnemyKind, EnemyPlacement} from './enemies';
 // Myth order: Circe's island comes between the winds and the Sirens.
-export const STAGES = ['beach', 'cave', 'wind', 'circe', 'sea', 'strait'] as const;
+// The palace of Ithaca is the homecoming: the last course, after the strait.
+export const STAGES = ['beach', 'cave', 'wind', 'circe', 'sea', 'strait', 'palace'] as const;
 export type StageId = (typeof STAGES)[number];
 export type ItemKind =
   'star' | 'map' | 'shield' | 'wings' | 'magnet' | 'apple' | 'trident' | 'lantern' | 'compass' | 'moly';
@@ -102,6 +103,12 @@ const meta = {
     description: '소용돌이를 뛰어넘고 절벽의 스킬라를 피해, 마지막 해협을 지나 이타카로!',
     color: '#6f9fb4',
   },
+  palace: {
+    name: '이타카의 궁전',
+    subtitle: 'THE HOMECOMING',
+    description: '거지로 변장해 궁전으로! 석상병과 그림자를 지나 활 시위의 시험에 도전해요.',
+    color: '#d1a86a',
+  },
 };
 // All courses are deterministic. Coordinates are world-space logical pixels.
 const plans: Record<StageId, {crates: number[]; pillars: number[]; gates: number[]; gaps: number[]; rocks: number[]}> =
@@ -141,6 +148,13 @@ const plans: Record<StageId, {crates: number[]; pillars: number[]; gates: number
       gaps: [8500, 13200, 19700],
       rocks: [],
     },
+    palace: {
+      crates: [3600, 7400, 11800, 16200, 20400],
+      pillars: [5200, 9700, 14600, 18700],
+      gates: [6400, 10800, 17400, 21600],
+      gaps: [8500, 13200, 19700],
+      rocks: [],
+    },
     sea: {
       crates: [3600, 7300, 12000, 16300, 20500],
       pillars: [5100, 9800, 14700, 18800],
@@ -160,7 +174,7 @@ function build(id: StageId): Course {
   p.rocks.forEach(x => add(x, 'falling', 'hazard', 60, 64));
   const gaps = p.gaps.map(x => ({
     x,
-    w: id === 'wind' ? 210 : id === 'sea' || id === 'strait' ? 180 : id === 'circe' ? 165 : 150,
+    w: id === 'wind' ? 210 : id === 'sea' || id === 'strait' || id === 'palace' ? 180 : id === 'circe' ? 165 : 150,
   }));
   const winds: Rect[] =
     id === 'wind'
@@ -194,7 +208,11 @@ function build(id: StageId): Course {
     }
   }
   const highMapX =
-    id === 'beach' || id === 'sea' || id === 'circe' || id === 'strait' ? 15400 : id === 'wind' ? 9500 : 5750;
+    id === 'beach' || id === 'sea' || id === 'circe' || id === 'strait' || id === 'palace'
+      ? 15400
+      : id === 'wind'
+        ? 9500
+        : 5750;
   const guides = [...items].sort((a, b) => Math.abs(a.x - highMapX) - Math.abs(b.x - highMapX)).slice(0, 5);
   guides.forEach((item, j) => {
     item.x = highMapX - 180 + j * 60;
@@ -214,18 +232,24 @@ function build(id: StageId): Course {
     circe: ['stone', 'crab', 'stone', 'scylla'],
     sea: ['scylla', 'crab', 'crab', 'scylla'],
     strait: ['scylla', 'scylla', 'crab', 'scylla'],
+    // The palace's statue soldiers guard the halls where the suitors feast.
+    palace: ['stone', 'stone', 'crab', 'stone'],
   };
   const enemies: EnemyPlacement[] = p.crates
     .slice(1)
     .map((x, i) => ({id: `${id}-enemy-ground-${i + 1}`, kind: groundKinds[id][i], x}));
   const air =
-    id === 'beach' || id === 'sea' || id === 'circe' || id === 'strait'
+    id === 'beach' || id === 'sea' || id === 'circe' || id === 'strait' || id === 'palace'
       ? [5700, 14000, 18200]
       : id === 'cave'
         ? [4500, 12900, 19500]
         : [4300, 12000, 21600];
   air.forEach((x, i) =>
-    enemies.push({id: `${id}-enemy-air-${i + 1}`, kind: id === 'cave' || id === 'circe' ? 'shade' : 'harpy', x}),
+    enemies.push({
+      id: `${id}-enemy-air-${i + 1}`,
+      kind: id === 'cave' || id === 'circe' || id === 'palace' ? 'shade' : 'harpy',
+      x,
+    }),
   );
   // Replace four crate encounters, leaving tutorial crate, pillars, gates and gaps.
   for (let i = obstacles.length - 1; i >= 0; i--)
@@ -237,6 +261,7 @@ function build(id: StageId): Course {
     circe: {trident: [4200, 15100], lantern: [12900, 17800], compass: [7800, 16800]},
     sea: {trident: [4200, 15100], lantern: [12900, 17800], compass: [7800, 16800]},
     strait: {trident: [4200, 15100], lantern: [12900, 17800], compass: [7800, 16800]},
+    palace: {trident: [4200, 15100], lantern: [12900, 17800], compass: [7800, 16800]},
   };
   for (const kind of ['trident', 'lantern', 'compass'] as const)
     extra[id][kind].forEach((x, i) =>
@@ -289,7 +314,7 @@ function build(id: StageId): Course {
     group.stars.forEach((starId, j) => {
       const star = items.find(i => i.id === starId)!;
       const centers =
-        id === 'beach' || id === 'sea' || id === 'circe' || id === 'strait'
+        id === 'beach' || id === 'sea' || id === 'circe' || id === 'strait' || id === 'palace'
           ? [4430, 7800, 22200]
           : id === 'cave'
             ? [7770, 9600, 23300]
@@ -300,7 +325,11 @@ function build(id: StageId): Course {
   );
   items.find(i => i.id === `${id}-magnet-2`)!.x = 4800;
   items.find(i => i.id === `${id}-lantern-extra-1`)!.x =
-    id === 'cave' ? 4150 : id === 'beach' || id === 'sea' || id === 'circe' || id === 'strait' ? 4300 : 6900;
+    id === 'cave'
+      ? 4150
+      : id === 'beach' || id === 'sea' || id === 'circe' || id === 'strait' || id === 'palace'
+        ? 4300
+        : 6900;
   // Spike strips from the terrain sheet: on clear ground away from every other encounter,
   // star trail, story spot and gap, so the course keeps its rhythm. Jumped like a crate.
   const plan = ADVENTURE_PLANS[id];
@@ -446,5 +475,17 @@ export const MAP_STORIES = [
     '해협 한쪽 절벽에는 머리 여섯 개의 스킬라가, 다른 쪽에는 바닷물을 삼키는 소용돌이 카리브디스가 있었어요.',
   ],
   ['소용돌이를 피해', '오디세우스는 키르케의 조언대로 소용돌이에서 멀리, 절벽 쪽으로 배를 몰아 해협을 빠져나왔어요.'],
+  [
+    '홀로 남은 항해',
+    '해협을 지난 뒤 배를 모두 잃은 오디세우스는 칼립소의 섬에 오래 머물다, 뗏목을 타고 다시 고향으로 떠났어요.',
+  ],
+  [
+    '거지로 변장한 왕',
+    '아테나는 오디세우스를 늙은 거지로 변장시켰어요. 궁전에는 그의 자리를 노리는 구혼자들이 가득했지요.',
+  ],
+  [
+    '활 시위의 시험',
+    '페넬로페는 남편의 활에 시위를 걸어 열두 도끼 구멍을 꿰뚫는 사람과 결혼하겠다고 했어요. 해낸 사람은 거지로 변장한 오디세우스뿐이었어요.',
+  ],
   ['마침내 이타카', '긴 여정 끝에 돌아온 고향. 오디세우스의 귀환 이야기는 《오디세이아》에 전해져요.'],
 ];

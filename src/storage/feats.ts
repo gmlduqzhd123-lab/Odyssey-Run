@@ -4,6 +4,7 @@ import {QUIZ, quizIds} from '../levels/quiz';
 import {seeded} from '../levels/endless';
 import {HEROES, heroUnlocked} from '../systems/heroes';
 import type {RunResult, Save} from './save';
+import {mergeSeason, seasonQuiz, seasonRun} from './season';
 // Achievements, weekly challenges and the voyage calendar. Badges are read from the record
 // itself; only the days sailed, this week's counters and quiz answers are stored.
 export interface Weekly {
@@ -77,6 +78,7 @@ export function recordRun(save: Save, r: RunResult, date: string, how: {special:
   bump(out, date, 'dodge', r.adventure?.evaded ?? 0);
   if (how.special) bump(out, date, 'special', 1);
   if (how.weather && r.complete) bump(out, date, 'weather', 1);
+  seasonRun(out, r, date);
   return out;
 }
 export function recordQuiz(save: Save, id: string, choice: number, date: string): Save {
@@ -88,6 +90,7 @@ export function recordQuiz(save: Save, id: string, choice: number, date: string)
   out.quizPicks[id] = picks;
   markDay(out, date);
   if (choice === q.answer) bump(out, date, 'quiz', 1);
+  seasonQuiz(out, choice === q.answer, date);
   return out;
 }
 // Longest run of consecutive days, and the run ending today (or yesterday, not yet broken).
@@ -231,6 +234,13 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
     icon: '🏅',
     done: s => s.weekly.done >= 1,
   },
+  {
+    id: 'season',
+    name: '시즌 칭호',
+    description: '한 달의 시즌 도전 네 개를 모두 해내요',
+    icon: '👑',
+    done: s => s.season.won.length >= 1,
+  },
 ];
 // Validation for the stored parts (save.ts calls these; older saves have none of them).
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -290,6 +300,7 @@ export function mergeFeats(a: Save, b: Save, out: Save) {
     out.weekly.claimed = early.claimed || late.claimed;
   }
   out.weekly.done = Math.max(a.weekly.done, b.weekly.done);
+  out.season = mergeSeason(a.season, b.season);
   out.quizPicks = {};
   for (const id of new Set([...Object.keys(a.quizPicks), ...Object.keys(b.quizPicks)])) {
     const x = a.quizPicks[id] ?? [0, 0, 0],

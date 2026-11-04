@@ -98,7 +98,7 @@ export const EN_5: Record<string, string> = {
   '별빛 300개 모으기': 'Collect 300 starlight',
   '지도 탐험': 'Map hunt',
   '지도 조각 5개 줍기': 'Pick up 5 map fragments',
-  '상처 없는 항해': 'Unhurt voyages',
+  '상처 없는 항해': 'Voyage Without a Scratch',
   '체력을 잃지 않고 2번 완주하기': 'Finish twice without losing a heart',
   '몬스터 15마리 피하기': 'Dodge 15 monsters',
   '신화 공부': 'Myth study',
@@ -128,7 +128,7 @@ export const EN_5: Record<string, string> = {
   '다섯 보스를 모두 돌파해요': 'Clear all five bosses',
   '먼 바다로': 'To the open sea',
   '끝없는 항해에서 1,000m를 가요': 'Go 1,000 m on an endless voyage',
-  '신화 박사': 'Myth expert',
+  '신화 박사': 'Myth Scholar',
   '신화 퀴즈를 모두 맞혀요': 'Answer every myth quiz question',
   '모두의 오디세이': "Everyone's Odyssey",
   '네 영웅을 모두 만나요': 'Meet all four heroes',
@@ -239,7 +239,7 @@ export const EN_5: Record<string, string> = {
     'The whole class gets the same challenges. They change every Monday.',
   '지금까지 {n}주 완수.': '{n} weeks completed so far.',
   '✓ 이번 주 도전을 모두 해냈어요!': '✓ You met every challenge this week!',
-  '항해 달력': 'Voyage calendar',
+  '항해 달력': 'Voyage Calendar',
   '연속 {n}일 · 최고 연속 {n}일 · 모두 {n}일 항해했어요.':
     'Streak {n} days · best streak {n} days · {n} sailing days in all.',
   배지: 'Badges',
@@ -382,7 +382,7 @@ export const EN_5: Record<string, string> = {
   '모든 보스를 돌파해요': 'Clear every boss',
   '소리 크기 설정을 확인해 주세요.': 'Please check the volume settings.',
   '보기·조작 도움 설정을 확인해 주세요.': 'Please check the viewing and control help settings.',
-  '학생이 만든 코스': "a student's course",
+  '학생이 만든 코스': 'Courses made by students',
   '둘이서 번갈아 달리기': 'Two sailors, taking turns',
   '한 화면에서 두 명이 같은 코스를 차례로 달리고, 두 점수를 합쳐 팀 점수를 만들어요. 기록·해금에는 반영하지 않아요.':
     "Two sailors run the same course in turn on one screen, and the two scores add up to a team score. Records and unlocks don't change.",
@@ -542,4 +542,272 @@ export const EN_5: Record<string, string> = {
   '세로로 그냥 하기': 'Keep playing upright',
   '이 기기는 자동으로 돌릴 수 없어요. 휴대폰을 직접 가로로 돌려 주세요.':
     'This device cannot turn the screen by itself. Please turn the phone sideways.',
+  '이타카의 궁전': 'The Palace of Ithaca',
+  '거지로 변장해 궁전으로! 석상병과 그림자를 지나 활 시위의 시험에 도전해요.':
+    'Into the palace disguised as a beggar! Pass the statue soldiers and shadows, then take the test of the bow.',
+  '페넬로페의 베 짜기': "Penelope's Weaving",
+  '늙은 개 아르고스': 'Argos the old dog',
+  '기다림에도 지혜가 필요해요.': 'Waiting, too, takes wisdom.',
+  '페넬로페는 수의를 다 짜면 구혼자 가운데 한 사람을 고르겠다고 했어요. 그러고는 낮에 짠 천을 밤마다 몰래 풀어, 오랜 세월 남편을 기다렸지요.':
+    'Penelope said she would choose one of the suitors once she finished weaving a burial shroud. Then each night she secretly unpicked what she had woven by day, and so waited many years for her husband.',
+  '변장해도 알아보는 마음이 있어요.': 'Some hearts know you even in disguise.',
+  '거지 차림으로 돌아온 오디세우스를 아무도 알아보지 못했어요. 그런데 문 앞에 누워 있던 늙은 개 아르고스만은 꼬리를 흔들며 주인을 알아보았지요.':
+    'No one recognized Odysseus when he came home dressed as a beggar. Only Argos, the old dog lying by the door, wagged his tail and knew his master.',
+  '활 시위의 시험': 'The Test of the Bow',
+  '낮은 문 아래로 숙여, 열두 도끼 구멍을 지나요!': 'Duck under the low gates, through the twelve axe-heads!',
+  '구혼자들의 연회장': "The Suitors' Banquet Hall",
+  '연회장의 석상병을 넘고, 구혼자의 그림자를 숙여 피하고, 마지막 시험을 지나요.':
+    "Leap the hall's statue soldiers, duck the suitors' shadows and pass the final test.",
+  '연회장의 석상병 · 점프': 'Statue soldiers of the hall · jump',
+  '구혼자의 그림자 · 숙이기': "The suitors' shadows · duck",
+  '열두 도끼의 시험 · 점프': 'The test of twelve axes · jump',
+  '궁전으로 돌아온 왕': 'The King Comes Home',
+  '아테나는 오디세우스를 늙은 거지로 변장시켜 궁전으로 보냈어요.':
+    'Athena disguised Odysseus as an old beggar and sent him to the palace.',
+  '페넬로페는 남편의 활에 시위를 걸어 열두 도끼 구멍을 꿰뚫으라는 시험을 냈어요.':
+    "Penelope set a test: string her husband's bow and shoot through twelve axe-heads.",
+  '아무도 못 한 일을 거지가 해내자, 모두가 마침내 왕을 알아보았지요.':
+    'When the beggar did what no one else could, at last everyone knew their king.',
+  '홀로 남은 항해': 'Sailing On Alone',
+  '해협을 지난 뒤 배를 모두 잃은 오디세우스는 칼립소의 섬에 오래 머물다, 뗏목을 타고 다시 고향으로 떠났어요.':
+    "After the strait, Odysseus lost all his ships. He stayed long on Calypso's island, then set off for home again on a raft.",
+  '거지로 변장한 왕': 'A King in Disguise',
+  '아테나는 오디세우스를 늙은 거지로 변장시켰어요. 궁전에는 그의 자리를 노리는 구혼자들이 가득했지요.':
+    'Athena disguised Odysseus as an old beggar. His palace was full of suitors who wanted his place.',
+  '페넬로페는 남편의 활에 시위를 걸어 열두 도끼 구멍을 꿰뚫는 사람과 결혼하겠다고 했어요. 해낸 사람은 거지로 변장한 오디세우스뿐이었어요.':
+    "Penelope said she would marry whoever could string her husband's bow and shoot through twelve axe-heads. The only one who did it was Odysseus, disguised as a beggar.",
+  '궁전의 회랑을 익숙한 길로 지나요.': 'Pass through the palace halls by the familiar way.',
+  '하인들의 뒷길': "The Servants' Back Way",
+  '충직한 하인을 따라 새로운 순서로 궁전을 달려요.': 'Follow the loyal servant and run the palace in a new order.',
+  '활터 가는 길': 'The Road to the Archery Hall',
+  '활 시위의 시험장까지 달라진 회랑을 살펴봐요.': 'Watch the changed halls all the way to the test of the bow.',
+  '용기와 지혜로 여러 바다와 섬을 지나, 마침내 이타카의 궁전으로 돌아가요.':
+    'With courage and wits he crosses many seas and islands and at last returns to the palace of Ithaca.',
+  '이 모험의 주인공이에요. 용기와 지혜로 여러 바다와 섬을 지나, 마침내 이타카의 궁전으로 돌아가요.':
+    'The hero of this adventure. With courage and wits he crosses many seas and islands and at last returns to the palace of Ithaca.',
+  '이 게임의 안내 인물이에요. 스물한 조각의 지도를 모으며 이타카로 가는 길을 찾아요.':
+    'A guide made for this game. She gathers twenty-one map fragments to find the way to Ithaca.',
+  '출항의 해변, 키클롭스의 동굴, 바람 섬, 마법의 숲, 세이렌의 절벽, 폭풍의 해협과 도착 항구의 풍경이에요. 이번 항로는 여섯 곳을 지나 이타카의 항구와 궁전으로 이어져요.':
+    "Landscapes of the Beach of Departure, the Cyclops' Cave, the Island of the Winds, the magic forest, the Sirens' cliffs, the stormy strait and the harbour of arrival. This voyage passes six places on the way to the harbour and palace of Ithaca.",
+  '달리는 항로는 해변·동굴·바람 섬·키르케의 섬·세이렌의 바다·해협·이타카의 궁전이에요. 원화에 적힌 추가 공격과 효과는 이번 항해에 등장하지 않아요.':
+    "The routes you run are the beach, the cave, the island of winds, Circe's island, the sea of Sirens, the strait and the palace of Ithaca. The extra attacks and effects written on the artwork do not appear in this voyage.",
+  '고대의 뱃사람들은 밤바다에서 무엇을 보며 길을 찾았을까요?':
+    'What did ancient sailors watch to find their way on the night sea?',
+  무지개: 'A rainbow',
+  '파도 소리': 'The sound of waves',
+  '밤하늘의 별자리는 방향을 알려 주는 지도였어요.':
+    'The constellations of the night sky were a map that showed the way.',
+  '이야기 속 오디세우스의 가장 큰 힘은 무엇일까요?': "In the story, what is Odysseus's greatest strength?",
+  '엄청난 근육': 'Huge muscles',
+  '지혜와 꾀': 'Wisdom and cunning',
+  '하늘을 나는 능력': 'The power to fly',
+  '오디세우스는 힘보다 꾀와 지혜로 위기를 넘긴 영웅이에요.':
+    'Odysseus is a hero who got through danger with cunning and wisdom rather than strength.',
+  '키클롭스 폴리페모스의 아버지인 바다의 신은?': 'Which sea god was the father of the Cyclops Polyphemus?',
+  제우스: 'Zeus',
+  아폴론: 'Apollo',
+  '폴리페모스가 아버지 포세이돈에게 복수를 빌어서 귀향길이 더 험해졌다고 전해요.':
+    'It is said Polyphemus begged his father Poseidon for revenge, which made the way home even harder.',
+  '오디세우스는 거인을 깊이 잠들게 하려고 무엇을 마시게 했을까요?':
+    'What did Odysseus give the giant to drink so he would fall fast asleep?',
+  '독한 포도주': 'Strong wine',
+  '따뜻한 우유': 'Warm milk',
+  바닷물: 'Sea water',
+  '거인은 독한 포도주를 마시고 깊은 잠에 빠졌어요.': 'The giant drank the strong wine and fell into a deep sleep.',
+  '키클롭스는 어떤 모습의 거인일까요?': 'What does a Cyclops look like?',
+  '머리가 셋': 'Three heads',
+  '눈이 하나': 'One eye',
+  '날개가 둘': 'Two wings',
+  '키클롭스는 이마 한가운데 커다란 눈 하나가 있는 거인이에요.':
+    'A Cyclops is a giant with one huge eye in the middle of his forehead.',
+  '바람 자루가 열린 뒤 배는 어떻게 되었을까요?': 'What happened to the ship after the bag of winds was opened?',
+  '곧장 이타카에 닿았다': 'It reached Ithaca at once',
+  '다시 먼 바다로 밀려났다': 'It was blown far out to sea again',
+  '하늘로 날아올랐다': 'It flew up into the sky',
+  '쏟아져 나온 바람에 배는 아이올로스의 섬까지 되돌아갔어요.':
+    "The rushing winds blew the ship all the way back to Aeolus's island.",
+  '바람의 주인 아이올로스가 살던 섬은 어떤 섬이었을까요?':
+    'What kind of island did Aeolus, master of the winds, live on?',
+  '물 위에 떠다니는 섬': 'An island floating on the water',
+  '얼음으로 된 섬': 'An island made of ice',
+  '땅속에 있는 섬': 'An island under the ground',
+  '아이올로스의 섬은 청동 벽에 둘러싸인 채 바다 위를 떠다녔다고 전해요.':
+    "Aeolus's island is said to have floated on the sea, ringed by a wall of bronze.",
+  '키르케는 어떤 인물일까요?': 'Who was Circe?',
+  '바다의 괴물': 'A sea monster',
+  '마법을 쓰는 여신': 'A goddess who used magic',
+  '이타카의 공주': 'A princess of Ithaca',
+  '키르케는 약과 주문으로 사람을 짐승으로 바꾸는 마법의 여신이에요.':
+    'Circe is a goddess of magic who turns people into animals with potions and spells.',
+  '몰리 약초의 꽃은 무슨 색이었을까요?': 'What colour was the flower of the moly herb?',
+  하얀색: 'White',
+  빨간색: 'Red',
+  검은색: 'Black',
+  '헤르메스가 준 몰리는 뿌리는 검고 꽃은 우유처럼 하얬다고 해요.':
+    'The moly Hermes gave had a black root and a flower as white as milk.',
+  '키르케는 다음 항해를 위해 오디세우스에게 무엇을 알려 주었을까요?':
+    'What did Circe tell Odysseus for his next voyage?',
+  '보물이 묻힌 곳': 'Where treasure was buried',
+  '앞으로 만날 위험과 피하는 법': 'The dangers ahead and how to avoid them',
+  '하늘을 나는 주문': 'A spell for flying',
+  '키르케는 세이렌과 해협의 괴물을 지나는 방법을 미리 일러 주었어요.':
+    'Circe told him in advance how to get past the Sirens and the monsters of the strait.',
+  '세이렌은 어떻게 뱃사람들을 바위섬으로 끌어들였을까요?': 'How did the Sirens lure sailors to their rocky island?',
+  '아름다운 노래로': 'With beautiful songs',
+  '맛있는 음식으로': 'With delicious food',
+  '큰 폭풍으로': 'With a great storm',
+  '노래에 홀린 뱃사람들은 바위섬으로 배를 몰다가 돌아오지 못했어요.':
+    'Sailors bewitched by the song steered for the rocks and never came back.',
+  '돛대에 묶인 오디세우스가 풀어 달라고 하자 선원들은 어떻게 했을까요?':
+    'When Odysseus, tied to the mast, asked to be untied, what did the sailors do?',
+  '바로 풀어 주었다': 'Untied him at once',
+  '배에서 내렸다': 'Got off the ship',
+  '더 단단히 묶었다': 'Tied him even tighter',
+  '미리 한 약속대로 선원들은 그를 더 꽁꽁 묶었어요.':
+    'Just as they had promised, the sailors tied him up even tighter.',
+  '오디세우스는 해협에서 어느 쪽으로 배를 몰았을까요?': 'Which way did Odysseus steer in the strait?',
+  '소용돌이 쪽': 'Toward the whirlpool',
+  '스킬라의 절벽 쪽': "Toward Scylla's cliff",
+  '뒤로 돌아갔다': 'He turned back',
+  '배를 통째로 잃지 않으려고, 키르케의 조언대로 절벽 쪽으로 붙어 빨리 지나갔어요.':
+    'So as not to lose the whole ship, he kept close to the cliff and hurried past, as Circe had advised.',
+  '배를 모두 잃은 오디세우스가 오래 머물렀던 섬의 주인은?':
+    'Who ruled the island where Odysseus stayed for a long time after losing all his ships?',
+  '요정 칼립소의 섬에서 오래 머문 뒤, 뗏목을 타고 다시 고향으로 떠났어요.':
+    "After a long stay on the nymph Calypso's island, he set off for home again on a raft.",
+  '이타카에 돌아온 오디세우스를 늙은 거지로 변장시킨 신은?':
+    'Which goddess disguised Odysseus as an old beggar when he came back to Ithaca?',
+  '아테나는 구혼자들이 알아보지 못하게 오디세우스를 늙은 거지로 바꾸었어요.':
+    'Athena turned Odysseus into an old beggar so the suitors would not recognize him.',
+  '거지로 변장한 오디세우스를 가장 먼저 알아본 것은?':
+    "Who was the first to recognize Odysseus in his beggar's disguise?",
+  구혼자들: 'The suitors',
+  '궁전의 말': 'The palace horse',
+  '오랜 세월 주인을 기다린 늙은 개 아르고스는 꼬리를 흔들며 그를 알아보았어요.':
+    'Argos, the old dog who had waited for his master for many years, wagged his tail and knew him.',
+  '페넬로페가 구혼자들에게 낸 시험은 무엇일까요?': 'What test did Penelope set the suitors?',
+  '바다를 헤엄쳐 건너기': 'Swim across the sea',
+  '활에 시위를 걸어 도끼 구멍 꿰뚫기': 'String the bow and shoot through the axe-heads',
+  '거인과 씨름하기': 'Wrestle a giant',
+  '구혼자들은 활에 시위조차 걸지 못했고, 거지로 변장한 오디세우스만 해냈어요.':
+    'The suitors could not even string the bow. Only Odysseus, disguised as a beggar, did it.',
+  '오디세우스가 없는 동안 궁전에 몰려와 왕의 자리를 노린 사람들은?':
+    "Who crowded into the palace while Odysseus was away, hoping to take the king's place?",
+  세이렌들: 'The Sirens',
+  키클롭스들: 'The Cyclopes',
+  '구혼자들은 페넬로페와 결혼해 이타카의 왕이 되려고 궁전에서 잔치를 벌였어요.':
+    'The suitors feasted in the palace, each hoping to marry Penelope and become king of Ithaca.',
+  '일곱 항로 순례': 'All Seven Routes',
+  '이번 달에 서로 다른 섬 7곳 완주하기': 'Finish 7 different islands this month',
+  '꾸준한 항해': 'Steady Sailing',
+  '섬을 20번 완주하기': 'Finish islands 20 times',
+  '이번 달에 10일 항해하기': 'Sail on 10 days this month',
+  '신화 퀴즈 20문제 맞히기': 'Answer 20 myth quiz questions right',
+  '체력을 잃지 않고 5번 완주하기': 'Finish 5 times without losing a heart',
+  '별빛 바다': 'Sea of Starlight',
+  '별빛 1,500개 모으기': 'Collect 1,500 starlight',
+  '새해의 항해사': "New Year's Sailor",
+  '별빛 길잡이': 'Starlight Guide',
+  '봄바람의 선장': 'Captain of the Spring Wind',
+  '이야기 수집가': 'Story Collector',
+  '푸른 바다의 영웅': 'Hero of the Blue Sea',
+  '여름 항로의 개척자': 'Pioneer of the Summer Route',
+  '세이렌을 이긴 귀': 'Ears That Beat the Sirens',
+  '해협의 용사': 'Brave of the Strait',
+  '지혜의 항해사': 'Sailor of Wisdom',
+  '아테나의 제자': "Athena's Pupil",
+  '이타카의 수호자': 'Guardian of Ithaca',
+  '귀환의 영웅': 'Hero of the Homecoming',
+  '시즌 칭호': 'Season Title',
+  '한 달의 시즌 도전 네 개를 모두 해내요': 'Meet all four season challenges in a month',
+  '이번 달 시즌 도전': "This Month's Season",
+  '네 가지를 모두 해내면 칭호 「{x}」를 받아요. 한 달 동안 이어지고, 매달 1일에 바뀌어요.':
+    'Meet all four to earn the title “{x}”. It runs all month and changes on the 1st.',
+  '✓ 이번 달 칭호를 받았어요!': "✓ You earned this month's title!",
+  'BADGES · WEEKLY · SEASON': 'BADGES · WEEKLY · SEASON',
+  '교사 잠금': 'Teacher Lock',
+  '기록 초기화·가져오기와 대회·항해사·갤러리 지우기를 비밀번호로 막아요. 잠근 뒤에는 수업 중에 열 섬도 고를 수 있어요.':
+    'A PIN guards resetting and importing records and deleting contests, sailors and gallery courses. Once locked, you can also choose which islands are open during a lesson.',
+  '비밀번호 (숫자 4~8자리)': 'PIN (4–8 digits)',
+  '한 번 더': 'Once more',
+  '🔒 잠금 켜기': '🔒 Turn on lock',
+  '비밀번호를 잊으면 이 기기의 사이트 데이터를 지워야 풀 수 있고, 그러면 기록도 지워져요. 잠그기 전에 반 전체 내보내기로 백업해 두세요.':
+    "If you forget the PIN, the only way out is clearing this site's data on the device, which also erases the records. Back up with Export whole class before locking.",
+  '🔒 잠금 켜짐 · 기록을 지우거나 바꾸는 일은 선생님 비밀번호가 필요해요. 한 번 입력하면 10분 동안 다시 묻지 않아요.':
+    "🔒 Lock is on · deleting or replacing records needs the teacher's PIN. After one entry it won't ask again for 10 minutes.",
+  '수업 중에 열 섬 {x}': 'Islands open during the lesson {x}',
+  '(지금 {x}곳)': '({x} now)',
+  '(지금 모든 섬)': '(all islands now)',
+  '수업 섬은 섬 지도에서만 적용돼요. 대회와 특별 항해는 그대로 열려 있어요.':
+    'Lesson islands apply to the island map only. Contests and special voyages stay open.',
+  '수업 섬 저장': 'Save lesson islands',
+  '모든 섬 열기': 'Open all islands',
+  '잠금 끄기': 'Turn off lock',
+  '선생님 비밀번호': "Teacher's PIN",
+  '기록을 지우거나 바꾸는 일이라 선생님 확인이 필요해요.':
+    'This deletes or replaces records, so the teacher needs to confirm.',
+  비밀번호: 'PIN',
+  확인: 'OK',
+  '잠시 뒤에 다시 입력해 주세요.': 'Please try again in a moment.',
+  '비밀번호가 5번 틀렸어요. 30초 뒤에 다시 입력해 주세요.':
+    'The PIN was wrong 5 times. Please try again in 30 seconds.',
+  '비밀번호가 맞지 않아요.': 'That PIN is not right.',
+  '두 비밀번호가 달라요. 다시 입력해 주세요.': 'The two PINs differ. Please enter them again.',
+  '잠금을 켰어요. 기록을 지우거나 바꿀 때 비밀번호를 물어요.':
+    'Lock is on. The PIN will be asked before records are deleted or replaced.',
+  '잠금을 껐어요.': 'Lock is off.',
+  '저장 공간이 부족해서 잠금을 저장하지 못했어요.': 'Storage is full, so the lock could not be saved.',
+  '열 섬을 하나 이상 골라 주세요.': 'Choose at least one island to open.',
+  '모든 섬을 열었어요.': 'All islands are open.',
+  '수업 중에는 {x}개 섬만 열려요.': 'During the lesson only {x} islands are open.',
+  '비밀번호는 숫자 4~8자리로 정해 주세요.': 'Please choose a PIN of 4–8 digits.',
+  '📚 수업 중 닫힘': '📚 Closed for the lesson',
+  '선생님이 이번 수업에서': 'Your teacher opened only',
+  '고른 섬만 열려 있어요': 'some islands for this lesson',
+  '{x}, 이번 수업에서는 닫혀 있어요': '{x}, closed for this lesson',
+  '학생 요약 모두': 'All student summaries',
+  '🖨 학생 요약 {x}장 한꺼번에': '🖨 All {x} student summaries at once',
+  '🖨 {x}명 모두 인쇄하기': '🖨 Print all {x}',
+  '한 학생이 한 장씩 인쇄돼요.': 'Each student prints on a page of their own.',
+  '학생별 흐름': 'Student Trends',
+  '최근 {x}주': 'Last {x} weeks',
+  '막대 하나가 한 주예요(높을수록 그 주에 여러 날 항해). {x}':
+    'Each bar is one week (taller means more days sailed that week). {x}',
+  '살펴볼 학생 {x}명을 표시했어요.': '{x} students are marked for a look.',
+  '모두 꾸준히 항해하고 있어요.': 'Everyone is sailing steadily.',
+  '주별 항해': 'Weekly sailing',
+  '이번 주': 'This week',
+  살펴보기: 'Look at',
+  '2주 동안 항해하지 않았어요': 'Has not sailed for two weeks',
+  '반 친구들보다 섬 진도가 느려요': 'Behind the class on islands',
+  '{x}일': '{x} days',
+  '최근 {x}주 주별 항해일 {x}': 'Days sailed per week over the last {x} weeks: {x}',
+  저학년: 'Lower grades',
+  중학년: 'Middle grades',
+  고학년: 'Upper grades',
+  학년: 'Grade',
+  '모든 섬': 'All islands',
+  '다시 만들기': 'Make again',
+  '4. 생각을 써 보세요': '4. Write your thoughts',
+  '내가 오디세우스였다면 가장 어려웠을 순간은 언제였을지, 그 까닭과 함께 써 보세요.':
+    'If you were Odysseus, which moment would have been hardest? Write it down with your reasons.',
+  '이야기에 나온 인물 한 명에게 편지를 써 보세요. 무엇을 묻거나 고맙다고 말하고 싶나요?':
+    'Write a letter to one person from the story. What would you ask, or thank them for?',
+  '오디세이 런 활동지 · {x}': 'Odyssey Run worksheet · {x}',
+  '저장 공간': 'Storage',
+  '저장 공간 {x}% 사용': '{x}% of storage used',
+  '🧹 저장 공간 정리 · 변형 코스 고스트 {x}KB': '🧹 Free up storage · remix-course ghosts {x}KB',
+  '변형 코스의 비교 항해(고스트)가 {x}KB예요. 오늘 반 전체 내보내기를 하면 정리할 수 있어요.':
+    "Remix courses' comparison runs (ghosts) take {x}KB. Export the whole class today to free them.",
+  '가득 차면 저장하기 전에 변형 코스 고스트부터 저절로 정리해요. 기록·지도·기본 항로 고스트는 지우지 않아요.':
+    'When storage is full, remix-course ghosts are cleared first, automatically, before saving. Records, maps and classic-route ghosts are never removed.',
+  '변형 코스의 비교 항해 {x}KB를 정리했어요. 기록·지도·기본 항로 고스트는 그대로예요.':
+    'Freed {x}KB of remix-course comparison runs. Records, maps and classic-route ghosts are untouched.',
+  '저장 공간을 70% 넘게 쓰고 있어요. 설정 → 반 전체 내보내기 뒤 「저장 공간 정리」를 눌러 주세요.':
+    'Over 70% of storage is in use. Go to Settings → Export whole class, then press “Free up storage”.',
+  '학생 코스': 'Student course',
+  '학생 코스 ‘{x}’ · {x}': 'Student course ‘{x}’ · {x}',
+  '{x} · 기본 항로': '{x} · Classic route',
+  별: 'Stars',
+  코스: 'Course',
 };

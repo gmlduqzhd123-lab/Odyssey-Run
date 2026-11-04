@@ -545,7 +545,9 @@ export class World extends Phaser.Scene {
               ? 0x8f9a7e
               : this.stage === 'strait'
                 ? 0xb9a98a
-                : 0xcab28c,
+                : this.stage === 'palace'
+                  ? 0xd2b78c
+                  : 0xcab28c,
       ).fillRect(a - cam, 440, b - a, 100);
       g.fillStyle(dark ? 0x465360 : 0x81988e, 0.12).fillRect(a - cam, 516, b - a, 24);
       const band = this.groundArt[spanIndex++];

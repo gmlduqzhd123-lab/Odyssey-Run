@@ -124,7 +124,7 @@ export function translateTo(target: Lang, text: string) {
   return out;
 }
 export const translate = (text: string) => translateTo(lang, text);
-const ATTRS = ['aria-label', 'placeholder', 'alt', 'title'];
+const ATTRS = ['aria-label', 'placeholder', 'alt', 'title', 'label'];
 export function translateTree(root: Node) {
   if (lang === 'ko') return;
   const walk = (node: Node) => {

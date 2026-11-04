@@ -72,6 +72,7 @@ try {
     circe: {complete: false, bestScore: 0, bestRating: 0, bestStars: 0, maps: []},
     sea: {complete: false, bestScore: 0, bestRating: 0, bestStars: 0, maps: []},
     strait: {complete: false, bestScore: 0, bestRating: 0, bestStars: 0, maps: []},
+    palace: {complete: false, bestScore: 0, bestRating: 0, bestStars: 0, maps: []},
   });
   expect(current.settings).toEqual(old.settings);
   result.legacyCorePreserved = true;

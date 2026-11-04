@@ -1,42 +1,51 @@
 {
-  "provenance": "User uploads, described as Suno AI background music. No inferred license. Circe, strait and sea tracks are synthesized by scripts/compose-music.py (original).",
-  "processing": "All MP3 bytes preserved. Runtime gain only, no trim or re-encode.",
+  "provenance": "All seven island themes are synthesized by scripts/compose-music.py (original, no samples). The user-supplied Suno tracks used before 2026-11-04 for the beach, cave and wind were replaced and remain in git history.",
+  "processing": "Synthesized with numpy, encoded by ffmpeg to 96 kbps mono MP3, 96 s each. Runtime gain evens out loudness.",
   "tracks": [
     {
       "stage": "beach",
-      "sourceName": "Odyssey Run — Road to Ithaca (1).mp3",
-      "file": "assets/audio/beach-78e90c47be32.mp3",
-      "sha256": "78e90c47be32734999de364ad2d370036439db53af9b91b37d1f130d4a86a1e6",
-      "bytes": 4023920,
-      "durationSeconds": 162.144,
+      "sourceName": "scripts/compose-music.py (synthesized, original)",
+      "file": "assets/audio/beach-7c1535b327e2.mp3",
+      "sha256": "7c1535b327e2cdcbd1d73896467c5cf14b859f4ac829401a9af54e391ffe67dc",
+      "bytes": 1152671,
+      "durationSeconds": 96.026,
       "codec_name": "mp3",
       "codec_type": "audio",
-      "sample_rate": "48000",
-      "channels": 2
+      "sample_rate": "44100",
+      "channels": 1,
+      "license": "Original, composed in code for this game; no samples.",
+      "gain": 0.31,
+      "meanVolumeDb": -17.8
     },
     {
       "stage": "cave",
-      "sourceName": "Odyssey Run — Road to Ithaca (2).mp3",
-      "file": "assets/audio/cave-3b7dca88f289.mp3",
-      "sha256": "3b7dca88f28932f4390057c9de59faab2c19b52d71c2eee30665998e81b42adc",
-      "bytes": 2607992,
-      "durationSeconds": 108.0,
+      "sourceName": "scripts/compose-music.py (synthesized, original)",
+      "file": "assets/audio/cave-38472ced6025.mp3",
+      "sha256": "38472ced6025f58a3b67dc005eb7a5e8c702cd298c8a143d343618bc12dbd99b",
+      "bytes": 1152671,
+      "durationSeconds": 96.026,
       "codec_name": "mp3",
       "codec_type": "audio",
-      "sample_rate": "48000",
-      "channels": 2
+      "sample_rate": "44100",
+      "channels": 1,
+      "license": "Original, composed in code for this game; no samples.",
+      "gain": 0.28,
+      "meanVolumeDb": -16.9
     },
     {
       "stage": "wind",
-      "sourceName": "Odyssey Run — Road to Ithaca (3).mp3",
-      "file": "assets/audio/wind-135cdecfaf1b.mp3",
-      "sha256": "135cdecfaf1b9f31df4780638528b4efe7b9939b4aa1f18dde55659c661df855",
-      "bytes": 2326338,
-      "durationSeconds": 96.912,
+      "sourceName": "scripts/compose-music.py (synthesized, original)",
+      "file": "assets/audio/wind-026db27307dc.mp3",
+      "sha256": "026db27307dcb4d6061131cce869816fda3c36cb726d634ae13f8f41d94566f7",
+      "bytes": 1152671,
+      "durationSeconds": 96.026,
       "codec_name": "mp3",
       "codec_type": "audio",
-      "sample_rate": "48000",
-      "channels": 2
+      "sample_rate": "44100",
+      "channels": 1,
+      "license": "Original, composed in code for this game; no samples.",
+      "gain": 0.26,
+      "meanVolumeDb": -16.1
     },
     {
       "stage": "circe",
@@ -49,20 +58,9 @@
       "codec_type": "audio",
       "sample_rate": "44100",
       "channels": 1,
-      "license": "Original, composed in code for this game; no samples."
-    },
-    {
-      "stage": "strait",
-      "sourceName": "scripts/compose-music.py (synthesized, original)",
-      "file": "assets/audio/strait-84049ccca260.mp3",
-      "sha256": "84049ccca260188783b75d43735b4baf28c0a1295901bbff5d51b46cbb0c013b",
-      "bytes": 1152671,
-      "durationSeconds": 96.026,
-      "codec_name": "mp3",
-      "codec_type": "audio",
-      "sample_rate": "44100",
-      "channels": 1,
-      "license": "Original, composed in code for this game; no samples."
+      "license": "Original, composed in code for this game; no samples.",
+      "gain": 0.18,
+      "meanVolumeDb": -13.2
     },
     {
       "stage": "sea",
@@ -75,7 +73,39 @@
       "codec_type": "audio",
       "sample_rate": "44100",
       "channels": 1,
-      "license": "Original, composed in code for this game; no samples."
+      "license": "Original, composed in code for this game; no samples.",
+      "gain": 0.21,
+      "meanVolumeDb": -14.4
+    },
+    {
+      "stage": "strait",
+      "sourceName": "scripts/compose-music.py (synthesized, original)",
+      "file": "assets/audio/strait-84049ccca260.mp3",
+      "sha256": "84049ccca260188783b75d43735b4baf28c0a1295901bbff5d51b46cbb0c013b",
+      "bytes": 1152671,
+      "durationSeconds": 96.026,
+      "codec_name": "mp3",
+      "codec_type": "audio",
+      "sample_rate": "44100",
+      "channels": 1,
+      "license": "Original, composed in code for this game; no samples.",
+      "gain": 0.24,
+      "meanVolumeDb": -15.6
+    },
+    {
+      "stage": "palace",
+      "sourceName": "scripts/compose-music.py (synthesized, original)",
+      "file": "assets/audio/palace-254f178294de.mp3",
+      "sha256": "254f178294de7907da5e8fc2632e3a4b1cf991021ba1a2b82b8494851dcf66a1",
+      "bytes": 1152671,
+      "durationSeconds": 96.026,
+      "codec_name": "mp3",
+      "codec_type": "audio",
+      "sample_rate": "44100",
+      "channels": 1,
+      "license": "Original, composed in code for this game; no samples.",
+      "gain": 0.28,
+      "meanVolumeDb": -16.9
     }
   ]
 }
