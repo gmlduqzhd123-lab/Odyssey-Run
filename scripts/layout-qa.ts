@@ -26,6 +26,7 @@ const VIEWPORTS = [
   {name: 'phone-bars-740', width: 740, height: 300, touch: true},
   {name: 'phone-portrait-390', width: 390, height: 664, touch: true},
 ];
+const RESULT_SIZES = ['chromebook-1024', 'phone-844', 'phone-portrait-390'];
 const RUN_SIZES = ['short-1280', 'phone-844', 'phone-667', 'phone-bars-658', 'phone-bars-740', 'phone-portrait-390'];
 // Screens reached by a button on the home page (or a page reached from there).
 const SCREENS: [string, string[], string[]?][] = [
@@ -56,11 +57,16 @@ const SCREENS: [string, string[], string[]?][] = [
   ['offline', ['settings', 'offline']],
   // A run: the countdown, a moment of play, then the pause dialog (wait:ms and key:Name are steps).
   // Runs are checked where space is tight: phones and the smallest laptop window.
-  ['countdown', ['islands', 'stage:beach', 'start', 'wait:900'], RUN_SIZES],
-  ['play', ['islands', 'stage:beach', 'start', 'wait:4500'], RUN_SIZES],
-  ['pause', ['islands', 'stage:beach', 'start', 'wait:4500', 'key:Escape'], RUN_SIZES],
+  ['countdown', ['islands', 'stage:beach', 'start', 'opt:rotate-skip', 'wait:900'], RUN_SIZES],
+  ['play', ['islands', 'stage:beach', 'start', 'opt:rotate-skip', 'wait:4500'], RUN_SIZES],
+  ['pause', ['islands', 'stage:beach', 'start', 'opt:rotate-skip', 'wait:4500', 'key:Escape'], RUN_SIZES],
+  // The result screen after a run (no input, so the hero runs out of hearts): its row of three
+  // buttons is where a Korean word once broke in two. Checked at a few common window sizes.
+  ['result', ['islands', 'stage:beach', 'start', 'opt:rotate-skip', 'until:.result-actions'], RESULT_SIZES],
+  // An upright phone is asked to turn sideways before the countdown.
+  ['rotate', ['islands', 'stage:beach', 'start', 'wait:400'], ['phone-portrait-390']],
   // The same run with hazard stripes and the larger warning (a played save, see QA_PREFS below).
-  ['play-marks', ['pref:hazardMarks', 'islands', 'stage:beach', 'start', 'wait:4500'], RUN_SIZES],
+  ['play-marks', ['pref:hazardMarks', 'islands', 'stage:beach', 'start', 'opt:rotate-skip', 'wait:4500'], RUN_SIZES],
   // Two sailors at once on a split screen: the start panel and a moment of play with both HUDs
   // and both sets of buttons. Upright phones are told to turn the screen, so they are left out.
   [
@@ -143,6 +149,24 @@ const SCAN = `(() => {
       }
       boxes.push({text: text.slice(0, 40), at: label(el), el, r});
     }
+    // Broken word: a Korean word split over two lines ("고르 / 기"). A text run that wraps has one
+    // rect per line; each pair of neighbouring Hangul letters must sit on the same line.
+    if (rects.length > 1 && text.length <= 160 && /[가-힣]{2}/.test(text)) {
+      const raw = n.nodeValue || '', one = document.createRange(), top = i => {
+        one.setStart(n, i);
+        one.setEnd(n, i + 1);
+        const r = [...one.getClientRects()].find(x => x.width > 0);
+        return r ? r.top : NaN;
+      };
+      for (let i = 0; i + 1 < raw.length; i++) {
+        if (!/[가-힣]/.test(raw[i]) || !/[가-힣]/.test(raw[i + 1])) continue;
+        const a = top(i), b = top(i + 1);
+        if (b - a > 4) {
+          problems.push({kind: 'broken-word', text: text.slice(0, 40), at: label(el) + ' at ' + raw.slice(Math.max(0, i - 3), i + 4)});
+          break;
+        }
+      }
+    }
     // Contrast (WCAG AA): 4.5:1, or 3:1 for large text, against the nearest solid background.
     // Text over pictures, gradients or the game canvas has no single background and is skipped,
     // as are disabled controls.
@@ -191,7 +215,19 @@ async function go(p: Page, steps: string[]) {
   for (const s of steps) {
     if (s.startsWith('wait:')) await p.waitForTimeout(Number(s.slice(5)));
     else if (s.startsWith('key:')) await p.keyboard.press(s.slice(4));
-    else if (s.startsWith('media:')) await p.emulateMedia({media: s.slice(6) as 'print' | 'screen'});
+    // until:selector waits (up to two minutes) for something to appear, such as the result screen.
+    else if (s.startsWith('until:')) await p.waitForSelector(s.slice(6), {timeout: 120000});
+    // opt:action clicks a button only if it shows up (the rotate prompt appears on upright phones).
+    else if (s.startsWith('opt:')) {
+      const b = p.locator(`[data-action="${s.slice(4)}"]:visible`).first();
+      if (
+        await b.waitFor({timeout: 400}).then(
+          () => true,
+          () => false,
+        )
+      )
+        await b.click();
+    } else if (s.startsWith('media:')) await p.emulateMedia({media: s.slice(6) as 'print' | 'screen'});
     // fill:#id=text types into a field; check:#id ticks a checkbox or toggle.
     else if (s.startsWith('fill:')) {
       const [field, ...text] = s.slice(5).split('=');
