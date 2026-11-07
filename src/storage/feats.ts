@@ -242,6 +242,39 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
     done: s => s.season.won.length >= 1,
   },
 ];
+// Badges, once earned, stay: a new island or course must never take one away. The ids are kept
+// in the save (save.earned) and every check counts a badge earned before or earned now.
+export const badgeEarned = (s: Save, a: Achievement) => s.earned.includes(a.id) || a.done(s);
+export const earnedBadges = (s: Save) => ACHIEVEMENTS.filter(a => badgeEarned(s, a));
+export function keepBadges(s: Save) {
+  const now = ACHIEVEMENTS.filter(a => a.done(s)).map(a => a.id);
+  if (now.every(id => s.earned.includes(id))) return;
+  s.earned = ACHIEVEMENTS.map(a => a.id).filter(id => s.earned.includes(id) || now.includes(id));
+}
+// Saves from before badges were kept (and before the palace of Ithaca): the "every …" badges are
+// checked against the six islands there were then, so whoever had finished them all keeps them.
+const BEFORE_PALACE = STAGES.filter(id => id !== 'palace');
+const beforePalace = (ids: readonly string[]) => ids.filter(id => !id.startsWith('palace-'));
+export function legacyBadges(s: Save): string[] {
+  const all = (list: readonly string[], have: readonly string[]) => list.every(id => have.includes(id));
+  const checks: Record<string, boolean> = {
+    islands: BEFORE_PALACE.every(id => s.stages[id].complete),
+    maps: BEFORE_PALACE.reduce((n, id) => n + s.stages[id].maps.length, 0) === BEFORE_PALACE.length * 3,
+    sky: all(beforePalace(constellationIds), s.journal.constellations),
+    stories: all(beforePalace(storyIds), s.journal.stories),
+    'stamps-all': all(beforePalace(stampIds), s.journal.stamps),
+    bosses: BEFORE_PALACE.every(id => s.expeditions.bosses[id]?.complete),
+  };
+  return Object.keys(checks).filter(id => checks[id]);
+}
+// The homecoming: every island complete, or every island there was when this sailor finished.
+export const returnedHome = (s: Save) => s.earned.includes('islands') || STAGES.every(id => s.stages[id].complete);
+export function readEarned(v: unknown): string[] {
+  const ids = ACHIEVEMENTS.map(a => a.id);
+  if (!Array.isArray(v) || v.some(id => typeof id !== 'string' || !ids.includes(id)) || new Set(v).size !== v.length)
+    throw Error('배지 기록을 확인해 주세요.');
+  return ids.filter(id => v.includes(id));
+}
 // Validation for the stored parts (save.ts calls these; older saves have none of them).
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const count = (v: unknown, max: number) => typeof v === 'number' && Number.isSafeInteger(v) && v >= 0 && v <= max;
@@ -301,6 +334,7 @@ export function mergeFeats(a: Save, b: Save, out: Save) {
   }
   out.weekly.done = Math.max(a.weekly.done, b.weekly.done);
   out.season = mergeSeason(a.season, b.season);
+  out.earned = ACHIEVEMENTS.map(x => x.id).filter(id => a.earned.includes(id) || b.earned.includes(id));
   out.quizPicks = {};
   for (const id of new Set([...Object.keys(a.quizPicks), ...Object.keys(b.quizPicks)])) {
     const x = a.quizPicks[id] ?? [0, 0, 0],

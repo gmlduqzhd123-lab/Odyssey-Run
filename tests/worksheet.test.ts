@@ -27,8 +27,15 @@ test('the worksheet blanks a keyword in at least eight stories in every language
     ['zh', ZH],
     ['ru', RU],
   ] as const) {
-    const found = MAP_STORIES.map(([, story]) => blankFrom(dict[story] ?? EN[story], lang)).filter(b => b !== null);
+    const lines = MAP_STORIES.map(([, story]) => blankFrom(dict[story] ?? EN[story], lang)),
+      found = lines.filter(b => b !== null);
     assert.ok(found.length >= 8, `${lang}: ${found.length}`);
+    // Every island has a line of its own, so a sheet for one island has something from it.
+    for (let i = 0; i < MAP_STORIES.length; i += 3)
+      assert.ok(
+        lines.slice(i, i + 3).some(b => b),
+        `${lang}: no blank for island ${i / 3 + 1}`,
+      );
     for (const b of found) {
       assert.ok(b.text.includes('(            )'));
       // The blank covers a whole word, not a piece of one (Chinese has no spaces; its keywords are whole words).

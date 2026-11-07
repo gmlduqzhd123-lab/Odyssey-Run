@@ -810,4 +810,12 @@ export const EN_5: Record<string, string> = {
   '{x} · 기본 항로': '{x} · Classic route',
   별: 'Stars',
   코스: 'Course',
+  '세 섬 순례': 'Three-Island Pilgrimage',
+  '이번 달에 서로 다른 섬 3곳 완주하기': 'Finish 3 different islands this month',
+  '배지 기록을 확인해 주세요.': 'Please check the badge record.',
+  '🔓 지금은 비밀번호를 입력해서 잠시 열려 있어요. 기기를 학생에게 넘기기 전에 다시 잠가 주세요.':
+    '🔓 The PIN was entered, so it is open for a little while. Lock it again before handing the device to a student.',
+  '🔒 지금 다시 잠그기': '🔒 Lock again now',
+  '다시 잠갔어요. 기록을 지우거나 바꿀 때 비밀번호를 다시 물어요.':
+    'Locked again. The PIN will be asked again before records are deleted or replaced.',
 };

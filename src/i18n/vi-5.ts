@@ -797,4 +797,12 @@ export const VI_5: Record<string, string> = {
   '{x} · 기본 항로': '{x} · Hải trình cổ điển',
   별: 'Sao',
   코스: 'Đường chạy',
+  '세 섬 순례': 'Hành hương ba đảo',
+  '이번 달에 서로 다른 섬 3곳 완주하기': 'Hoàn thành 3 hòn đảo khác nhau trong tháng này',
+  '배지 기록을 확인해 주세요.': 'Hãy kiểm tra dữ liệu huy hiệu.',
+  '🔓 지금은 비밀번호를 입력해서 잠시 열려 있어요. 기기를 학생에게 넘기기 전에 다시 잠가 주세요.':
+    '🔓 Đã nhập mật khẩu nên đang tạm mở. Hãy khóa lại trước khi đưa thiết bị cho học sinh.',
+  '🔒 지금 다시 잠그기': '🔒 Khóa lại ngay',
+  '다시 잠갔어요. 기록을 지우거나 바꿀 때 비밀번호를 다시 물어요.':
+    'Đã khóa lại. Mật khẩu sẽ được hỏi lại khi xóa hoặc thay kỷ lục.',
 };

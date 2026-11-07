@@ -1,6 +1,15 @@
 import {cosmeticUnlocked} from '../systems/cosmetics';
 import {heroUnlocked} from '../systems/heroes';
-import {emptyWeekly, readDays, readQuizPicks, readWeekly, type Weekly} from './feats';
+import {
+  emptyWeekly,
+  keepBadges,
+  legacyBadges,
+  readDays,
+  readEarned,
+  readQuizPicks,
+  readWeekly,
+  type Weekly,
+} from './feats';
 import {emptySeason, readSeason, type Season} from './season';
 import {emptyExpeditions, readExpeditions, type Expeditions} from './expeditions';
 import {defaultPreferences, readPreferences, type Preferences} from './preferences';
@@ -47,6 +56,8 @@ export interface Save {
   weekly: Weekly;
   // This month's season goals and the months whose goals were all met.
   season: Season;
+  // Badges earned so far (achievement ids). Kept so a new island never takes one away.
+  earned: string[];
   // How often each quiz option was chosen, for the teacher's question report.
   quizPicks: Partial<Record<string, [number, number, number]>>;
 }
@@ -85,6 +96,7 @@ export const emptySave = (): Save => ({
   days: [],
   weekly: emptyWeekly(),
   season: emptySeason(),
+  earned: [],
   quizPicks: {},
 });
 const obj = (v: unknown): Record<string, unknown> => {
@@ -219,6 +231,7 @@ export function validateSave(raw: unknown): Save {
   out.days = readDays(v.days);
   out.weekly = readWeekly(v.weekly);
   out.season = readSeason(v.season);
+  out.earned = v.earned === undefined ? [] : readEarned(v.earned);
   out.quizPicks = readQuizPicks(v.quizPicks);
   if (v.endless !== undefined) {
     const e = obj(v.endless);
@@ -231,6 +244,12 @@ export function validateSave(raw: unknown): Save {
       if (bestScore < Math.floor(bestDistance / 10)) throw Error('끝없는 항해의 점수와 거리가 맞지 않아요.');
       out.endless[id as StageId] = {bestScore, bestDistance};
     }
+  }
+  // A save from before badges were kept gets every badge it had then, with the islands of then.
+  // (Later badges are added as the sailor earns them, when the save is written.)
+  if (v.earned === undefined) {
+    out.earned = legacyBadges(out);
+    keepBadges(out);
   }
   return out;
 }
@@ -346,6 +365,7 @@ export class SaveStore {
       const current = this.storage.getItem(this.key);
       if (current !== null && current !== this.lastRaw) this.adopt(current);
       this.data.savedAt = new Date().toISOString();
+      keepBadges(this.data);
       const raw = JSON.stringify(this.data);
       this.storage.setItem(this.key, raw);
       this.lastRaw = raw;

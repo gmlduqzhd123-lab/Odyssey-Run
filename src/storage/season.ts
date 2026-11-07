@@ -14,7 +14,8 @@ export interface Season {
   won: string[];
 }
 export const SEASON_GOALS = {
-  islands: {name: '일곱 항로 순례', description: '이번 달에 서로 다른 섬 7곳 완주하기', target: 7},
+  // Three different islands: reachable from the first weeks of the voyage (the first three open in turn).
+  islands: {name: '세 섬 순례', description: '이번 달에 서로 다른 섬 3곳 완주하기', target: 3},
   runs: {name: '꾸준한 항해', description: '섬을 20번 완주하기', target: 20},
   days: {name: '항해 달력', description: '이번 달에 10일 항해하기', target: 10},
   quiz: {name: '신화 박사', description: '신화 퀴즈 20문제 맞히기', target: 20},
