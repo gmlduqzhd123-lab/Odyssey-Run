@@ -26,6 +26,11 @@ const KEYWORDS = [
   '자루',
   '별',
   '동료',
+  // Later in the list, so the earlier stories keep their blanks: the strait's last story and the palace's.
+  '아테나',
+  '페넬로페',
+  '해협',
+  '고향',
 ];
 // The same keywords in the other languages, as the translated stories spell them.
 const KEYWORD_I18N: Record<Exclude<Lang, 'ko'>, Record<string, string>> = {
@@ -47,6 +52,10 @@ const KEYWORD_I18N: Record<Exclude<Lang, 'ko'>, Record<string, string>> = {
     자루: 'bag',
     별: 'stars',
     동료: 'shipmates',
+    아테나: 'Athena',
+    페넬로페: 'Penelope',
+    해협: 'strait',
+    고향: 'Home',
   },
   vi: {
     키클롭스: 'Cyclops',
@@ -66,6 +75,10 @@ const KEYWORD_I18N: Record<Exclude<Lang, 'ko'>, Record<string, string>> = {
     자루: 'túi',
     별: 'sao',
     동료: 'bạn',
+    아테나: 'Athena',
+    페넬로페: 'Penelope',
+    해협: 'eo biển',
+    고향: 'Quê nhà',
   },
   zh: {
     키클롭스: '独眼巨人',
@@ -85,6 +98,10 @@ const KEYWORD_I18N: Record<Exclude<Lang, 'ko'>, Record<string, string>> = {
     자루: '袋子',
     별: '星星',
     동료: '伙伴',
+    아테나: '雅典娜',
+    페넬로페: '珀涅罗珀',
+    해협: '海峡',
+    고향: '家乡',
   },
   ru: {
     키클롭스: 'Циклоп',
@@ -104,6 +121,10 @@ const KEYWORD_I18N: Record<Exclude<Lang, 'ko'>, Record<string, string>> = {
     자루: 'мешок',
     별: 'звёзд',
     동료: 'товарищ',
+    아테나: 'Афин',
+    페넬로페: 'Пенелоп',
+    해협: 'пролив',
+    고향: 'Дом',
   },
 };
 export interface Blank {

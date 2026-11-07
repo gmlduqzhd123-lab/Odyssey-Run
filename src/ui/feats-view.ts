@@ -1,4 +1,4 @@
-import {ACHIEVEMENTS, WEEKLY_TASKS, streaks, weekKey, weeklyTasks} from '../storage/feats';
+import {ACHIEVEMENTS, WEEKLY_TASKS, badgeEarned, streaks, weekKey, weeklyTasks} from '../storage/feats';
 import type {Save} from '../storage/save';
 import {button} from './html';
 import {SEASON_GOALS, monthKey, seasonCount, seasonGoals, seasonMet, titleFor} from '../storage/season';
@@ -8,7 +8,7 @@ export function featsMarkup(header: string, save: Save, today: string) {
     counts = save.weekly.week === week ? save.weekly.counts : {},
     tasks = weeklyTasks(week),
     claimed = save.weekly.week === week && save.weekly.claimed,
-    done = ACHIEVEMENTS.filter(a => a.done(save)),
+    done = ACHIEVEMENTS.filter(a => badgeEarned(save, a)),
     streak = streaks(save.days, today);
   const weekly = tasks
     .map(id => {
@@ -46,7 +46,7 @@ export function featsMarkup(header: string, save: Save, today: string) {
     ].join('');
   return `<div class="page feats">${header}<div class="page-heading"><span class="eyebrow">BADGES · WEEKLY · SEASON</span><h1 tabindex="-1">업적과 주간 도전</h1><p>항해할수록 배지가 쌓여요. 점수를 쓰지 않고, 기록은 이 기기에만 남아요.</p></div><section class="feats-section"><h2>이번 주 도전 <small>${week}</small></h2><p class="muted"><span>같은 반 친구 모두 같은 도전이에요. 월요일마다 바뀌어요.</span>${claimed ? ' <b>✓ 이번 주 도전을 모두 해냈어요!</b>' : ''} <span>지금까지 ${save.weekly.done}주 완수.</span></p><div class="weekly-grid">${weekly}</div></section>${seasonMarkup}<section class="feats-section"><h2>항해 달력 <small>${year}년 ${monthNo}월</small></h2><p class="muted">연속 ${streak.current}일 · 최고 연속 ${streak.best}일 · 모두 ${save.days.length}일 항해했어요.</p><div class="calendar" role="grid" aria-label="${monthNo}월 항해 달력">${cells}</div></section><section class="feats-section"><h2>배지 <small>${done.length} / ${ACHIEVEMENTS.length}</small></h2><div class="badge-grid">${ACHIEVEMENTS.map(
     a =>
-      `<article class="badge ${a.done(save) ? 'earned' : ''}"><span class="badge-icon" aria-hidden="true">${a.done(save) ? a.icon : '🔒'}</span><b>${a.name}</b><small>${a.description}</small></article>`,
+      `<article class="badge ${badgeEarned(save, a) ? 'earned' : ''}"><span class="badge-icon" aria-hidden="true">${badgeEarned(save, a) ? a.icon : '🔒'}</span><b>${a.name}</b><small>${a.description}</small></article>`,
   ).join(
     '',
   )}</div></section><div class="page-foot">${button('journal', '모험 수첩', 'secondary')}${button('islands', '항해하러 가기 →', 'primary')}</div></div>`;

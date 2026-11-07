@@ -388,6 +388,16 @@ try {
     'right PIN did not continue to the reset question',
   );
   results.pin = 'wrong refused, right continues';
+  // Locking again at once closes the open minutes: the next guarded action asks for the PIN.
+  await visible(p, 'settings').click();
+  await visible(p, 'lock-now').click();
+  await p.waitForFunction(() => /다시 잠갔어요/.test(document.querySelector('#lock-message')?.textContent ?? ''));
+  await visible(p, 'reset-confirm').click();
+  await p.waitForSelector('.pin-veil');
+  await p.fill('#teacher-pin', '2468');
+  await p.keyboard.press('Enter');
+  await p.waitForSelector('.pin-veil', {state: 'detached'});
+  results.lockNow = 'asks again after locking now';
   // A lesson with only the cave open: the beach card is closed for the lesson.
   await visible(p, 'settings').click();
   for (const box of await p.locator('[data-lesson]').all()) {

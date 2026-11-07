@@ -1,6 +1,6 @@
 import {SAVE_KEY, validateSave, type Save} from './save';
 import {STAGES} from '../levels/courses';
-import {ACHIEVEMENTS} from './feats';
+import {earnedBadges} from './feats';
 // Several players can share one device. The first profile keeps the original save key,
 // so saves written before profiles existed stay where they were.
 export const MAIN_PROFILE = 'main';
@@ -146,7 +146,7 @@ export function progress(save: Save | null) {
     saved: save ? save.savedAt.slice(0, 10) : '',
     picks: save?.quizPicks ?? {},
     days: save?.days ?? [],
-    badges: save ? ACHIEVEMENTS.filter(a => a.done(save)).length : 0,
+    badges: save ? earnedBadges(save).length : 0,
   };
 }
 export function summary(save: Save | null) {

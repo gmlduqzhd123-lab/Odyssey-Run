@@ -30,7 +30,7 @@ export interface SettingsView {
   // The device asks for reduced motion, which applies whatever the toggle says.
   deviceMotion: boolean;
   // The teacher's lock, when it is on, and the islands its lesson opens (null: all).
-  lock: {lesson: StageId[] | null} | null;
+  lock: {lesson: StageId[] | null; open: boolean} | null;
 }
 // How full the device is, and (when there is something to free) the clean-up of the remix
 // courses' comparison ghosts, offered after today's whole-class backup like the restore copies.
@@ -43,7 +43,7 @@ function storageMarkup(used: number, ghostBytes: number, backedUpToday: boolean)
 export function lockMarkup(lock: SettingsView['lock']) {
   if (!lock)
     return `<section class="teacher-lock"><h2>교사 잠금</h2><p class="muted">기록 초기화·가져오기와 대회·항해사·갤러리 지우기를 비밀번호로 막아요. 잠근 뒤에는 수업 중에 열 섬도 고를 수 있어요.</p><label>비밀번호 (숫자 4~8자리) <input id="lock-pin" type="password" inputmode="numeric" maxlength="8" autocomplete="new-password"></label><label>한 번 더 <input id="lock-pin2" type="password" inputmode="numeric" maxlength="8" autocomplete="new-password"></label>${button('lock-set', '🔒 잠금 켜기', 'secondary')}<p role="status" id="lock-message"></p><p class="muted">비밀번호를 잊으면 이 기기의 사이트 데이터를 지워야 풀 수 있고, 그러면 기록도 지워져요. 잠그기 전에 반 전체 내보내기로 백업해 두세요.</p></section>`;
-  return `<section class="teacher-lock"><h2>교사 잠금</h2><p>🔒 잠금 켜짐 · 기록을 지우거나 바꾸는 일은 선생님 비밀번호가 필요해요. 한 번 입력하면 10분 동안 다시 묻지 않아요.</p><fieldset class="lesson-picker"><legend>수업 중에 열 섬 ${lock.lesson ? `<small>(지금 ${lock.lesson.length}곳)</small>` : '<small>(지금 모든 섬)</small>'}</legend>${STAGES.map(id => `<label><input type="checkbox" data-lesson="${id}" ${!lock.lesson || lock.lesson.includes(id) ? 'checked' : ''}> ${COURSES[id].name}</label>`).join('')}</fieldset><p class="muted">수업 섬은 섬 지도에서만 적용돼요. 대회와 특별 항해는 그대로 열려 있어요.</p><div class="button-row">${button('lesson-save', '수업 섬 저장', 'secondary')}${button('lesson-clear', '모든 섬 열기', 'text-button')}${button('lock-off', '잠금 끄기', 'text-button danger')}</div><p role="status" id="lock-message"></p></section>`;
+  return `<section class="teacher-lock"><h2>교사 잠금</h2><p>🔒 잠금 켜짐 · 기록을 지우거나 바꾸는 일은 선생님 비밀번호가 필요해요. 한 번 입력하면 10분 동안 다시 묻지 않아요.</p><fieldset class="lesson-picker"><legend>수업 중에 열 섬 ${lock.lesson ? `<small>(지금 ${lock.lesson.length}곳)</small>` : '<small>(지금 모든 섬)</small>'}</legend>${STAGES.map(id => `<label><input type="checkbox" data-lesson="${id}" ${!lock.lesson || lock.lesson.includes(id) ? 'checked' : ''}> ${COURSES[id].name}</label>`).join('')}</fieldset><p class="muted">수업 섬은 섬 지도에서만 적용돼요. 대회와 특별 항해는 그대로 열려 있어요.</p><div class="button-row">${button('lesson-save', '수업 섬 저장', 'secondary')}${button('lesson-clear', '모든 섬 열기', 'text-button')}${button('lock-off', '잠금 끄기', 'text-button danger')}</div>${lock.open ? `<p class="assist-note">🔓 지금은 비밀번호를 입력해서 잠시 열려 있어요. 기기를 학생에게 넘기기 전에 다시 잠가 주세요.</p>${button('lock-now', '🔒 지금 다시 잠그기', 'secondary')}` : ''}<p role="status" id="lock-message"></p></section>`;
 }
 export function settingsMarkup({
   header,

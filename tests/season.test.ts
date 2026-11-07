@@ -55,6 +55,8 @@ test('runs and quiz answers count toward this month, a new month starts fresh, a
   assert.ok(seasonMet(s, month));
   assert.deepEqual(s.season.won, ['2026-11']);
   assert.equal(seasonCount(s, 'islands', month), STAGES.length);
+  // The islands goal asks for three different islands, which the first three islands already give.
+  assert.ok(SEASON_GOALS.islands.target <= 3);
   // A run in December starts December's counters; November's title stays.
   s = recordRun(s, run('beach', {hpLoss: 1}), '2026-12-01', {special: false, weather: false});
   assert.equal(s.season.month, '2026-12');
@@ -84,4 +86,45 @@ test('stored seasons are checked, and two copies of a sailor merge without losin
   });
   const later = {month: '2026-12', counts: {runs: 1}, islands: [], won: []};
   assert.deepEqual(mergeSeason(a, later), {month: '2026-12', counts: {runs: 1}, islands: [], won: ['2026-09']});
+});
+test('badges once earned stay, and a sailor who had finished the six islands before the palace keeps them', async () => {
+  const {validateSave, mergeResult, emptySave: empty} = await import('../src/storage/save');
+  const {earnedBadges, returnedHome, keepBadges} = await import('../src/storage/feats');
+  const {chapterOpen} = await import('../src/levels/chronicle');
+  const {ADVENTURE_PLANS} = await import('../src/levels/adventure');
+  let s = empty();
+  for (const stage of STAGES.filter(id => id !== 'palace'))
+    s = mergeResult(s, {
+      ...run(stage),
+      maps: [1, 2, 3].map(i => `${stage}-map-${i}`),
+      adventure: {
+        stamps: [],
+        stories: ADVENTURE_PLANS[stage].stories.map(x => x.id),
+        constellations: ADVENTURE_PLANS[stage].constellations.map(x => x.id),
+        combos: [],
+        routes: [],
+        nearMisses: 0,
+        evaded: 0,
+        tricked: 0,
+        ghost: {score: 3000, duration: 80, samples: Array.from({length: 81}, (_, i) => Math.min(24000, i * 300))},
+      },
+    });
+  // A save written before badges were kept: no "earned" list.
+  const old = structuredClone(s) as Partial<typeof s>;
+  delete old.earned;
+  const back = validateSave(old);
+  for (const id of ['islands', 'maps', 'sky', 'stories']) assert.ok(back.earned.includes(id), id);
+  assert.ok(returnedHome(back));
+  assert.ok(chapterOpen(back, 'ithaca'));
+  // A new save with the same six islands has not finished every island, and gets no such badge.
+  const fresh = structuredClone(s);
+  fresh.earned = [];
+  keepBadges(fresh);
+  assert.ok(!fresh.earned.includes('islands'));
+  assert.ok(!returnedHome(fresh));
+  // Earned badges survive the save check and a merge with a copy that lacks them.
+  const merged = (await import('../src/storage/merge')).mergeSaves(back, fresh);
+  assert.ok(merged.earned.includes('islands'));
+  assert.ok(earnedBadges(back).some(a => a.id === 'islands'));
+  assert.throws(() => validateSave({...back, earned: ['nope']}), /배지/);
 });

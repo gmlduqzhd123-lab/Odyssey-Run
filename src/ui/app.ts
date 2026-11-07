@@ -101,16 +101,7 @@ import {
 } from './contest-view';
 import {World} from '../scenes/World';
 import {SplitScreen} from '../rendering/split-screen';
-import {
-  LOCK_KEY,
-  UNLOCK_MS,
-  checkPin,
-  guarded,
-  lessonOpen,
-  makeLock,
-  readLock,
-  type LockConfig,
-} from '../storage/teacher-lock';
+import {TeacherLock} from './lock-controller';
 import {
   duoLoadingMarkup,
   duoPageMarkup,
@@ -128,7 +119,7 @@ import {displayDensity, displayViewport} from '../rendering/display';
 import {FrameWatch} from '../rendering/frame-watch';
 import {WEATHERS, STORM_SPEED, isWeather, type WeatherId} from '../levels/weather';
 import {HEROES, heroInfo, heroUnlocked} from '../systems/heroes';
-import {recordQuiz, recordRun} from '../storage/feats';
+import {recordQuiz, recordRun, returnedHome} from '../storage/feats';
 import {featsMarkup} from './feats-view';
 import {chronicleMarkup, posterBlob, sceneMarkup} from './chronicle-view';
 import {CHAPTERS, chapter, chapterOpen} from '../levels/chronicle';
@@ -166,11 +157,8 @@ export class App {
     () => ({view: this.view, density: this.renderDensity}),
   );
   private run2: Runner | null = null;
-  // The teacher's lock (see storage/teacher-lock): guarded actions wait for the PIN.
-  private lock: LockConfig | null = null;
-  private unlockedUntil = 0;
-  private pinFails = 0;
-  private pinWaitUntil = 0;
+  // The teacher's lock (see storage/teacher-lock and ui/lock-controller): guarded actions wait for the PIN.
+  private lock!: TeacherLock;
   private offline: Offline;
   private controls: Controls;
   private sound: Sound;
@@ -236,9 +224,13 @@ export class App {
       storage = localStorage;
     } catch {}
     this.storage = storage;
-    try {
-      this.lock = readLock(storage?.getItem(LOCK_KEY) ?? null);
-    } catch {}
+    this.lock = new TeacherLock({
+      ui: this.ui,
+      storage,
+      run: action => this.action(action),
+      refresh: () => this.settings(),
+      say: (selector, text) => this.setText(selector, text),
+    });
     setLang(initialLang(storage));
     const roots = ['#ui', '#notice', '#game', '#game2', 'footer'].map(s => document.querySelector(s)).filter(e => !!e);
     roots.forEach(translateTree);
@@ -643,7 +635,7 @@ export class App {
   private duoPage(message = '') {
     this.abandon();
     this.world.showHome();
-    const open = STAGES.filter(id => unlocked(this.store.data, id) && lessonOpen(this.lock, id));
+    const open = STAGES.filter(id => unlocked(this.store.data, id) && this.lock.lessonOpen(id));
     this.duoCourses = this.duoCourseList();
     this.set(duoPageMarkup(this.header('둘이서 번갈아', 'challenges'), open, message, this.duoCourses), 'duo');
   }
@@ -671,7 +663,7 @@ export class App {
         course = pick.startsWith('course:') ? this.duoCourses[Number(pick.slice(7))] : undefined,
         stage = (course?.stage ?? pick) as StageId;
       if (!a || !b) return this.setText('#duo-message', '두 항해사의 이름을 적어 주세요.');
-      if (!STAGES.includes(stage) || (!course && (!unlocked(this.store.data, stage) || !lessonOpen(this.lock, stage))))
+      if (!STAGES.includes(stage) || (!course && (!unlocked(this.store.data, stage) || !this.lock.lessonOpen(stage))))
         return;
       const together = !!this.ui.querySelector<HTMLInputElement>('#duo-together')?.checked;
       if (together && this.portrait)
@@ -1017,7 +1009,7 @@ export class App {
     this.rival = null;
     this.abandon();
     this.world.showHome();
-    const done = STAGES.every(id => this.store.data.stages[id].complete);
+    const done = returnedHome(this.store.data);
     this.set(
       `<div class="home">${this.header('ODYSSEY RUN', 'home')}<div class="home-copy"><span class="eyebrow"><i></i> 작은 영웅의 긴 귀환</span><h1 tabindex="-1">오디세이 런<span>이타카로!</span></h1><p>별자리를 잇고, 숨은 이야기를 찾고,<br>우리만의 항구를 완성하러 떠나요.</p><div class="home-actions">${button('islands', '항해 시작 <span>↗</span>', 'primary large')}${button('codex', icon('map') + ' 지도 도감', 'secondary')}</div><div class="home-status">${done ? '⚑ 귀환 완료 · ' : ''}도장 ${this.store.data.journal.stamps.length}/${stampIds.length} · 별자리 ${this.store.data.journal.constellations.length}/${constellationIds.length} · 이야기 ${this.store.data.journal.stories.length}/${storyIds.length}</div>${this.offline?.waiting ? `<div class="update-bar" role="status"><span>새 버전이 준비됐어요.</span>${button('update', '지금 업데이트', 'secondary')}</div>` : ''}</div><div class="hero-caption"><span>${this.hero().eyebrow}</span><b>${this.hero().title}</b><i>${this.hero().line}</i></div><div class="home-bottom">${button('challenges', '⚔ 특별 항해', 'text-button')}${button('wardrobe', '♧ 영웅의 옷장', 'text-button')}${button('harbor', '⚓ 나의 항구', 'text-button')}${button('journal', '✧ 모험 수첩', 'text-button')}${button('feats', '🏅 업적', 'text-button')}${button('chronicle', '📜 연대기', 'text-button')}${button('settings', '⚙ 설정', 'text-button')}${button('quit', '게임 종료', 'text-button')}</div></div>`,
       'home',
@@ -1047,19 +1039,19 @@ export class App {
           const c = COURSES[id],
             r = save.stages[id],
             earned = unlocked(save, id),
-            lesson = earned && !lessonOpen(this.lock, id),
+            lesson = earned && !this.lock.lessonOpen(id),
             open = earned && !lesson;
           return `<button class="island-card ${open ? '' : 'locked'}" data-action="stage:${id}" ${open ? '' : lesson ? `disabled aria-label="${c.name}, 이번 수업에서는 닫혀 있어요"` : `disabled aria-label="${c.name}, ${COURSES[STAGES[i - 1]].name} 완주 후 해금"`}><div class="island-art ${id}" style="background-image:url('${asset(id + '-mid')}'),url('${asset(id + '-far')}'),url('${asset(id + '-sky')}')">${regionArt(STAGE_VIEW[id], 'stage-illustration')}<span class="card-number">0${i + 1}</span><span class="island-badge">${lesson ? '📚 수업 중 닫힘' : r.complete ? '⚑ 완주' : open ? '탐험 가능' : '🔒 잠긴 항로'}</span></div><div class="card-copy"><span class="eyebrow">${c.subtitle}</span><h2>${c.name}</h2>${open ? `<div class="record-line"><span class="rating">${'★'.repeat(r.bestRating)}<em>${'☆'.repeat(3 - r.bestRating)}</em></span><span>지도 ${r.maps.length}/3</span></div><div class="card-bottom"><span>전체 최고 <b>${r.bestScore.toLocaleString()}</b> · 코스 3개</span><span class="round-arrow">↗</span></div>` : lesson ? '<p class="unlock-hint">선생님이 이번 수업에서<br>고른 섬만 열려 있어요</p>' : `<p class="unlock-hint">${COURSES[STAGES[i - 1]].name}<br>완주 후 열려요</p>`}</div></button>`;
         },
       ).join(
         '',
-      )}</div><div class="page-foot"><span>${STAGES.every(id => save.stages[id].complete) ? '⚑ 전체 귀환 완료! 이타카가 영웅을 반겨요.' : '서두르지 않아도 괜찮아요. 다시 도전할 수 있으니까요.'}</span>${button('codex', '지도 도감 →', 'text-button')}</div></div>`,
+      )}</div><div class="page-foot"><span>${returnedHome(save) ? '⚑ 전체 귀환 완료! 이타카가 영웅을 반겨요.' : '서두르지 않아도 괜찮아요. 다시 도전할 수 있으니까요.'}</span>${button('codex', '지도 도감 →', 'text-button')}</div></div>`,
       'islands',
     );
   }
   // Contests may open any island; they never record it as the last (possibly locked) stage.
   private async prepare(id: StageId, contest = false) {
-    if (!contest && (!unlocked(this.store.data, id) || !lessonOpen(this.lock, id))) {
+    if (!contest && (!unlocked(this.store.data, id) || !this.lock.lessonOpen(id))) {
       this.islands();
       return;
     }
@@ -1736,7 +1728,7 @@ export class App {
         used: storageUse(this.storage) / STORAGE_LIMIT,
         backedUpToday: backupAge(this.storage) === 0,
         deviceMotion: deviceReducedMotion(),
-        lock: this.lock ? {lesson: this.lock.lesson} : null,
+        lock: this.lock.config ? {lesson: this.lock.config.lesson, open: this.lock.open} : null,
       }),
       'settings',
     );
@@ -2126,20 +2118,13 @@ export class App {
       this.touchLayout();
     },
     fullscreen: () => void this.fullscreen(),
-    'pin-check': () => void this.pinCheck(),
-    'pin-cancel': () => this.ui.querySelector('.pin-veil')?.remove(),
-    'lock-set': () => void this.lockSet(),
-    'lock-off': () => this.saveLock(null, '잠금을 껐어요.'),
-    'lesson-save': () => {
-      if (!this.lock) return;
-      const picked = STAGES.filter(id => this.ui.querySelector<HTMLInputElement>(`[data-lesson="${id}"]`)?.checked);
-      if (!picked.length) return this.setText('#lock-message', '열 섬을 하나 이상 골라 주세요.');
-      this.saveLock(
-        {...this.lock, lesson: picked.length === STAGES.length ? null : picked},
-        picked.length === STAGES.length ? '모든 섬을 열었어요.' : `수업 중에는 ${picked.length}개 섬만 열려요.`,
-      );
-    },
-    'lesson-clear': () => this.lock && this.saveLock({...this.lock, lesson: null}, '모든 섬을 열었어요.'),
+    'pin-check': () => void this.lock.check(),
+    'pin-cancel': () => this.lock.cancel(),
+    'lock-set': () => void this.lock.set(),
+    'lock-now': () => this.lock.now(),
+    'lock-off': () => this.lock.off(),
+    'lesson-save': () => this.lock.saveLesson(),
+    'lesson-clear': () => this.lock.clearLesson(),
     'rotate-skip': () => {
       if (this.screen !== 'rotate') return;
       this.portraitOk = true;
@@ -2219,76 +2204,10 @@ export class App {
     reload: () => location.reload(),
   };
   private action(action: string) {
-    if (this.lock && guarded(action) && Date.now() > this.unlockedUntil) {
-      this.askPin(action);
-      return;
-    }
+    if (this.lock.stops(action)) return;
     const route = this.argRoutes.find(([prefix]) => action.startsWith(prefix));
     if (route) route[1](action.slice(route[0].length));
     else if (Object.hasOwn(this.routes, action)) this.routes[action]();
-  }
-  // A guarded action asks for the PIN in a small dialog over the current screen, so the screen
-  // the action expects is still there when the PIN is right and the action runs.
-  private pendingGuard = '';
-  private askPin(action: string) {
-    this.pendingGuard = action;
-    this.ui.querySelector('.pin-veil')?.remove();
-    const veil = document.createElement('div');
-    veil.className = 'veil pin-veil';
-    veil.innerHTML = `<section class="panel" role="dialog" aria-modal="true" aria-labelledby="pin-title"><span class="eyebrow">FOR TEACHERS</span><h2 id="pin-title">선생님 비밀번호</h2><p>기록을 지우거나 바꾸는 일이라 선생님 확인이 필요해요.</p><label>비밀번호 <input id="teacher-pin" type="password" inputmode="numeric" maxlength="8" autocomplete="off"></label><p role="status" id="pin-message"></p><div class="button-row">${button('pin-check', '확인', 'primary')}${button('pin-cancel', '취소', 'secondary')}</div></section>`;
-    this.ui.append(veil);
-    const input = veil.querySelector<HTMLInputElement>('#teacher-pin')!;
-    input.addEventListener('keydown', e => {
-      if (e.key === 'Enter') void this.pinCheck();
-    });
-    input.focus();
-  }
-  private async pinCheck() {
-    const input = this.ui.querySelector<HTMLInputElement>('#teacher-pin');
-    if (!input || !this.lock) return;
-    if (Date.now() < this.pinWaitUntil) return this.setText('#pin-message', '잠시 뒤에 다시 입력해 주세요.');
-    if (await checkPin(this.lock, input.value)) {
-      this.pinFails = 0;
-      this.unlockedUntil = Date.now() + UNLOCK_MS;
-      this.ui.querySelector('.pin-veil')?.remove();
-      const action = this.pendingGuard;
-      this.pendingGuard = '';
-      if (action) this.action(action);
-      return;
-    }
-    input.value = '';
-    // Five wrong tries in a row wait 30 seconds before the next one.
-    if (++this.pinFails >= 5) {
-      this.pinFails = 0;
-      this.pinWaitUntil = Date.now() + 30_000;
-      return this.setText('#pin-message', '비밀번호가 5번 틀렸어요. 30초 뒤에 다시 입력해 주세요.');
-    }
-    this.setText('#pin-message', '비밀번호가 맞지 않아요.');
-  }
-  private async lockSet() {
-    const a = this.ui.querySelector<HTMLInputElement>('#lock-pin')?.value ?? '',
-      b = this.ui.querySelector<HTMLInputElement>('#lock-pin2')?.value ?? '';
-    if (a !== b) return this.setText('#lock-message', '두 비밀번호가 달라요. 다시 입력해 주세요.');
-    try {
-      const lock = await makeLock(a);
-      this.unlockedUntil = Date.now() + UNLOCK_MS;
-      this.saveLock(lock, '잠금을 켰어요. 기록을 지우거나 바꿀 때 비밀번호를 물어요.');
-    } catch (error) {
-      this.setText('#lock-message', (error as Error).message);
-    }
-  }
-  private saveLock(lock: LockConfig | null, message: string) {
-    try {
-      if (lock) this.storage?.setItem(LOCK_KEY, JSON.stringify(lock));
-      else this.storage?.removeItem(LOCK_KEY);
-    } catch {
-      return this.setText('#lock-message', '저장 공간이 부족해서 잠금을 저장하지 못했어요.');
-    }
-    this.lock = lock;
-    if (!lock) this.unlockedUntil = 0;
-    this.settings();
-    this.setText('#lock-message', message);
-    this.ui.querySelector('.teacher-lock')?.scrollIntoView({block: 'nearest'});
   }
   private equip(arg: string) {
     const [slot, id] = arg.split(':'),

@@ -1,6 +1,7 @@
-import {STAGES, type StageId} from './courses';
+import type {StageId} from './courses';
 import type {REGIONS} from '../assets/terrain';
 import type {Save} from '../storage/save';
+import {returnedHome} from '../storage/feats';
 // The chronicle follows the Odyssey from Troy to Ithaca. Each chapter is a short picture story
 // (a painting, three lines read in turn) that opens when its island is complete; the whole
 // chronicle can be watched as a story on its own and saved as a timeline poster.
@@ -105,6 +106,6 @@ export const CHAPTERS: readonly Chapter[] = [
 export const chapter = (id: string) => CHAPTERS.find(c => c.id === id);
 export function chapterOpen(save: Save, id: Chapter['id']) {
   if (id === 'troy') return true;
-  if (id === 'ithaca') return STAGES.every(s => save.stages[s].complete);
+  if (id === 'ithaca') return returnedHome(save);
   return save.stages[id].complete;
 }
