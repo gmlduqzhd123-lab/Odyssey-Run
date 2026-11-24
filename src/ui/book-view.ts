@@ -6,20 +6,9 @@ import {ENEMY_TYPES, type EnemyKind} from '../levels/enemies';
 import {MONSTER_ART} from '../assets/expansion-art';
 import {button, readButton} from './html';
 // The read-only book pages (maps, people, relics, monsters, artwork). Each takes the page header.
-export const TOTAL_MAPS = STAGES.length * 3;
-export function bookNav(active: string) {
-  return `<nav class="book-nav" aria-label="도감 종류">${[
-    ['codex', '지도 조각'],
-    ['journal', '모험 수첩'],
-    ['harbor', '이타카 항구'],
-    ['people', '여정의 인물'],
-    ['relics', '아이템과 상징'],
-    ['bestiary', '몬스터'],
-    ['landscapes', '풍경과 원화'],
-  ]
-    .map(([id, label]) => button(id, label, 'book-tab', active === id ? 'aria-current="page"' : ''))
-    .join('')}</nav>`;
-}
+// They load on first use; the book tabs and the map total live in ui/book-nav (always loaded).
+export {TOTAL_MAPS, bookNav} from './book-nav';
+import {TOTAL_MAPS, bookNav} from './book-nav';
 
 // Each map fragment shows its own third of the island's painted landscape, so the three pieces
 // of an island line up into the whole view once all are found.

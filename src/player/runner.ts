@@ -36,6 +36,21 @@ import {
   type Gate,
   type Treasure,
 } from '../levels/play-extras';
+import {
+  CHASERS,
+  CHASE_BONUS,
+  FEVER_FULL,
+  FEVER_STEP,
+  FEVER_TIME,
+  MISSION_REWARD,
+  MISSION_TEXT,
+  ROPE_END,
+  ROPE_LAUNCH,
+  SPRING_LAUNCH,
+  STOMPABLE,
+  STOMP_BOUNCE,
+  type Mission,
+} from '../levels/play-dynamics';
 export type RunState = 'ready' | 'playing' | 'paused' | 'success' | 'failure';
 export interface RunnerEvent {
   kind:
@@ -65,7 +80,17 @@ export interface RunnerEvent {
     | 'route'
     | 'gate'
     | 'treasure'
-    | 'rescue';
+    | 'rescue'
+    | 'stomp'
+    | 'fever'
+    | 'spring'
+    | 'swing'
+    | 'mission'
+    | 'mission-start'
+    | 'mission-fail'
+    | 'chase-start'
+    | 'chase'
+    | 'revive';
   x: number;
   y: number;
   text?: string;
@@ -126,6 +151,27 @@ export class Runner {
   combo = 0;
   bestCombo = 0;
   comboPoints = 0;
+  // The dynamic extras of an ordinary run (see levels/play-dynamics); the app turns them on.
+  extras = false;
+  feverGauge = 0;
+  fever = 0;
+  fevers = 0;
+  springX: number | null = null;
+  ropeX: number | null = null;
+  ropeUsed = false;
+  // Seconds the rope is still drawn taut after the throw.
+  ropeSwing = 0;
+  missions: Mission[] = [];
+  mission: (Mission & {until: number; progress: number; base: {stars: number; hpLoss: number; stomps: number}}) | null =
+    null;
+  private missionIndex = 0;
+  missionsDone = 0;
+  chase: {start: number; end: number} | null = null;
+  chasing = false;
+  chaseHits = 0;
+  chaseEscaped = false;
+  // Monsters landed on (in every mode).
+  stomps = 0;
   readonly adventure;
   goal: GoalId;
   constellations = new Set<string>();
@@ -245,10 +291,42 @@ export class Runner {
       this.bestCombo = Math.max(this.bestCombo, this.combo);
       this.comboPoints = Math.min(
         MAX_COMBO_POINTS,
-        this.comboPoints + Math.round(COMBO_POINTS[kind as ComboKind] * comboMultiplier(this.combo)),
+        this.comboPoints +
+          Math.round(COMBO_POINTS[kind as ComboKind] * comboMultiplier(this.combo) * (this.fever > 0 ? 2 : 1)),
       );
-    } else if (kind === 'hurt' || kind === 'fall') this.combo = 0;
+      if (this.extras && this.fever <= 0) this.fill(FEVER_STEP);
+    } else if (kind === 'hurt' || kind === 'fall') {
+      this.combo = 0;
+      this.feverGauge = 0;
+    }
     this.events.push({kind, x: this.x, y: this.y - 45, text: this.message});
+  }
+  private say(kind: RunnerEvent['kind'], message: string) {
+    this.message = message;
+    this.emit(kind);
+  }
+  // The fever gauge: full, it turns into five seconds of fever (shelter, pull and double combo points).
+  private fill(n: number) {
+    this.feverGauge = Math.min(FEVER_FULL, this.feverGauge + n);
+    if (this.feverGauge < FEVER_FULL || this.fever > 0) return;
+    this.feverGauge = 0;
+    this.fever = FEVER_TIME;
+    this.fevers++;
+    this.say('fever', '피버 타임! 5초 동안 무적 질주');
+  }
+  // Two sailors at once: a partner's combo brings a fallen sailor back with one heart.
+  revive() {
+    if (this.state !== 'failure') return;
+    this.state = 'playing';
+    this.hp = 1;
+    this.x = this.prevX = this.safeX;
+    this.y = this.prevY = C.ground;
+    this.vy = 0;
+    this.grounded = true;
+    this.invincible = C.invincible;
+    this.recovering = 0.35;
+    this.finalized = null;
+    this.say('revive', '친구가 일으켜 줬어요! 체력 1');
   }
   // Called once before the start: Athena's shield is held from the first step.
   bless(id: BlessingId) {
@@ -290,7 +368,8 @@ export class Runner {
     this.grace = Math.max(this.grace, seconds);
   }
   hurt(fall = false, kind: DamageKind = fall ? 'fall' : 'contact') {
-    if (this.state !== 'playing' || (!fall && (this.invincible > 0 || this.grace > 0))) return;
+    if (this.state !== 'playing' || (!fall && (this.invincible > 0 || this.grace > 0 || this.fever > 0))) return;
+    if (this.chasing) this.chaseHits++;
     if (!fall && this.shield) {
       this.shield = false;
       this.emit('block');
@@ -316,6 +395,9 @@ export class Runner {
     this.time += dt;
     this.invincible = Math.max(0, this.invincible - dt);
     this.grace = Math.max(0, this.grace - dt);
+    this.fever = Math.max(0, this.fever - dt);
+    this.ropeSwing = Math.max(0, this.ropeSwing - dt);
+    if (this.fever > 0) this.magnet = Math.max(this.magnet, dt * 2);
     this.wings = Math.max(0, this.wings - dt);
     this.magnet = Math.max(0, this.magnet - dt);
     this.lantern = Math.max(0, this.lantern - dt);
@@ -387,6 +469,7 @@ export class Runner {
       this.sliding = this.wantsSlide() || (this.sliding && !this.canStand());
       this.tryJump();
     }
+    this.updateMoves();
     if (!this.grounded && this.coyote === 0 && this.jumps === 0) this.jumps = 1;
     this.maxDistance = Math.min(this.length, Math.max(this.maxDistance, this.x));
     if (this.grounded && !this.sliding && this.y === C.ground) {
@@ -411,6 +494,7 @@ export class Runner {
     }
     this.updateAdventure();
     this.updateExtras(body);
+    this.updatePacing();
     this.updateEnemies();
     for (const source of this.enemyStates) {
       if (!source.projectile.active) continue;
@@ -455,6 +539,7 @@ export class Runner {
       this.observePass(o.id, obstaclePose(o, this.x), false);
     }
     for (const enemy of this.enemyStates) {
+      if (this.stomp(enemy)) continue;
       if (enemyContact(pose, body, enemy) || projectileContact(pose, body, enemy.projectile)) {
         this.contacts.add(enemy.id);
         this.hurt(false, projectileContact(pose, body, enemy.projectile) ? 'projectile' : enemy.kind);
@@ -502,6 +587,104 @@ export class Runner {
           this.message = '멋진 회피!';
           this.emit('near');
         }
+      }
+    }
+  }
+  // Landing on a monster from above defeats it and bounces the hero up (every mode).
+  private stomp(e: EnemyState) {
+    if (e.defeated || !e.active || e.repelled || !STOMPABLE.includes(e.kind) || this.vy <= 0) return false;
+    const b = this.body;
+    if (b.x + b.w <= e.x + 6 || b.x >= e.x + e.w - 6 || this.prevY > e.y + 14 || this.y < e.y - 2) return false;
+    this.defeated.add(e.id);
+    e.defeated = true;
+    e.active = false;
+    e.projectile.active = false;
+    this.contacts.add(e.id + ':stomp');
+    this.vy = STOMP_BOUNCE;
+    this.y = e.y;
+    this.grounded = false;
+    this.jumps = 1;
+    this.stomps++;
+    this.say('stomp', '몬스터를 밟았어요!');
+    return true;
+  }
+  // The spring pad and the swing rope of an ordinary run.
+  private updateMoves() {
+    if (!this.extras) return;
+    if (
+      this.springX !== null &&
+      this.grounded &&
+      this.y === C.ground &&
+      Math.abs(this.x - this.springX) < 24 &&
+      !this.sliding
+    ) {
+      this.vy = SPRING_LAUNCH;
+      this.grounded = false;
+      this.coyote = 0;
+      this.jumps = 1;
+      this.say('spring', '스프링 발판! 하늘 높이');
+    }
+    if (
+      this.ropeX !== null &&
+      !this.ropeUsed &&
+      !this.grounded &&
+      Math.hypot(this.x - this.ropeX, this.y - 32 - ROPE_END.y) < ROPE_END.r
+    ) {
+      this.ropeUsed = true;
+      this.ropeSwing = 0.4;
+      this.vy = ROPE_LAUNCH;
+      this.jumps = 1;
+      this.say('swing', '밧줄을 잡고 휙!');
+    }
+  }
+  // Surprise missions and the chase.
+  private updatePacing() {
+    if (!this.extras) return;
+    const next = this.missions[this.missionIndex];
+    if (!this.mission && next && this.x >= next.at) {
+      this.missionIndex++;
+      this.mission = {
+        ...next,
+        until: this.time + next.seconds,
+        progress: 0,
+        base: {stars: this.stars, hpLoss: this.hpLoss, stomps: this.stomps},
+      };
+      this.say(
+        'mission-start',
+        MISSION_TEXT[next.kind].replace('{s}', String(next.seconds)).replace('{n}', String(next.goal)),
+      );
+    }
+    const m = this.mission;
+    if (m) {
+      m.progress =
+        m.kind === 'stars'
+          ? this.stars - m.base.stars
+          : m.kind === 'stomp'
+            ? this.stomps - m.base.stomps
+            : Math.min(m.seconds, m.seconds - Math.max(0, m.until - this.time));
+      const hurt = this.hpLoss > m.base.hpLoss,
+        won = m.kind === 'clean' ? !hurt && this.time >= m.until : m.progress >= m.goal;
+      if (won) {
+        this.mission = null;
+        this.missionsDone++;
+        this.comboPoints = Math.min(MAX_COMBO_POINTS, this.comboPoints + MISSION_REWARD);
+        this.say('mission', '미션 성공! 콤보 점수 +200');
+        this.fill(FEVER_FULL / 2);
+      } else if (this.time >= m.until || (m.kind === 'clean' && hurt)) {
+        this.mission = null;
+        this.say('mission-fail', '아쉬워요! 다음 미션을 노려요');
+      }
+    }
+    const c = this.chase;
+    if (c && !this.chasing && !this.chaseEscaped && this.x >= c.start && this.x < c.end && this.chaseHits === 0) {
+      this.chasing = true;
+      this.say('chase-start', `${CHASERS[this.stage].name}! 달려요!`);
+    } else if (c && this.chasing && this.x >= c.end) {
+      this.chasing = false;
+      if (this.chaseHits === 0) {
+        this.chaseEscaped = true;
+        this.comboPoints = Math.min(MAX_COMBO_POINTS, this.comboPoints + CHASE_BONUS);
+        this.say('chase', '추격을 따돌렸어요! 콤보 점수 +300');
       }
     }
   }
@@ -624,6 +807,9 @@ export class Runner {
         blessing: this.blessing,
         ...(this.treasureFound && this.treasure ? {treasure: this.treasure.id} : {}),
         ...(this.gate && this.gateRight !== null ? {gate: {quiz: this.gate.quiz, right: this.gateRight}} : {}),
+        ...(this.extras
+          ? {missions: this.missionsDone, fevers: this.fevers, chase: this.chaseEscaped, stomps: this.stomps}
+          : {}),
       },
     };
     return this.finalized;

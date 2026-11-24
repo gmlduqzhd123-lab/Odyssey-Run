@@ -4,7 +4,7 @@ import {stampIds, constellationIds, storyIds} from '../levels/adventure';
 import {PACES, type Assist} from '../storage/preferences';
 import type {Save, Settings} from '../storage/save';
 import type {ClassBackup} from '../storage/backup';
-import {TOTAL_MAPS} from './book-view';
+import {TOTAL_MAPS} from './book-nav';
 import {button, esc, icon} from './html';
 import {getLang} from '../i18n';
 import type {StageId} from '../levels/courses';

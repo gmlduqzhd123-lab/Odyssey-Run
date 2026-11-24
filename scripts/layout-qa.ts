@@ -45,6 +45,7 @@ const SCREENS: [string, string[], string[]?][] = [
   ['landscapes', ['codex', 'landscapes']],
   ['quiz', ['journal', 'quiz']],
   ['profiles', ['profiles']],
+  ['live-mission', ['profiles', 'live-start']],
   ['progress', ['profiles', 'progress']],
   ['feats', ['feats']],
   ['maker', ['challenges', 'maker']],

@@ -36,6 +36,9 @@ export const COMBO_POINTS = {
   map: 80,
   gate: 40,
   treasure: 100,
+  stomp: 40,
+  spring: 20,
+  swing: 30,
 } as const;
 export type ComboKind = keyof typeof COMBO_POINTS;
 export const comboMultiplier = (n: number) => (n >= 50 ? 3 : n >= 25 ? 2 : n >= 10 ? 1.5 : 1);

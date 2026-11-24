@@ -19,6 +19,11 @@ export interface RunExtras {
   blessing: BlessingId;
   treasure?: string;
   gate?: {quiz: string; right: boolean};
+  // Dynamic extras of an ordinary run: missions met, fevers, the chase escaped, monsters stomped.
+  missions?: number;
+  fevers?: number;
+  chase?: boolean;
+  stomps?: number;
 }
 export const MAX_GATES = 100_000;
 export const TREASURE_KEYS: readonly string[] = STAGES.flatMap(s => VARIANTS.map(v => courseKey(s, v)));

@@ -50,6 +50,8 @@ try {
   while ((await p.locator('.countdown').count()) && i++ < 300) await p.clock.runFor(17);
   // Athena's shield is held from the first step.
   await expect(p.locator('#effects')).toContainText('방패');
+  // The fever gauge shows on an ordinary island run.
+  await expect(p.locator('#fever')).toBeVisible();
   const course = getCourse('beach', 'classic'),
     plan = routeInputs('beach', 'upper', true),
     gate = gateFor(course, 'qa')!,
@@ -61,12 +63,17 @@ try {
       {x: s.end, type: 'up'},
     ]),
   ].sort((a, b) => a.x - b.x);
-  let comboSeen = false,
+  let missionSeen = false,
+    comboSeen = false,
     shotChest = false,
     shotGate = false;
   for (const e of events) {
     await advance(e.x);
     if (!comboSeen && (await p.locator('#combo').textContent())?.includes('콤보')) comboSeen = true;
+    if (!missionSeen && (await p.locator('#mission').textContent())?.includes('🎯')) {
+      missionSeen = true;
+      await p.screenshot({path: 'artifacts/extras-mission.png'});
+    }
     if (!shotChest && (await x()) > chest.x - 700) {
       shotChest = true;
       await p.screenshot({path: 'artifacts/extras-chest.png'});
@@ -81,6 +88,8 @@ try {
   await p.clock.runFor(1800);
   await expect(p.locator('.result')).toBeVisible();
   expect(comboSeen).toBe(true);
+  expect(missionSeen).toBe(true);
+  await expect(p.locator('.extras-result')).toContainText('돌발 미션');
   await expect(p.locator('.extras-result')).toContainText('최고 콤보');
   await expect(p.locator('.extras-result')).toContainText('아테나의 방패');
   await expect(p.locator('.extras-result')).toContainText('O/X');
@@ -120,9 +129,28 @@ try {
   await tap('[data-action="profiles"]');
   await expect(p.locator('.horse-grid i.built')).toHaveCount(1);
   await p.locator('.horse').screenshot({path: 'artifacts/extras-horse.png'});
+  // The class's live mission starts with a clock and can be stopped.
+  await tap('[data-action="live-start"]');
+  await expect(p.locator('#live-time')).toContainText('남은 시간');
+  await p.locator('.live-mission').screenshot({path: 'artifacts/extras-live.png'});
+  await tap('[data-action="live-stop"]');
+  await expect(p.locator('.live-form')).toBeVisible();
+  // Today's shuffled route opens from the special voyages once the island is complete.
+  await tap('[data-action="home"]');
+  await tap('[data-action="challenges"]');
+  await tap('[data-action="shuffle:beach"]');
+  await p.waitForSelector('[data-action="start"]');
+  await tap('[data-action="start"]');
+  i = 0;
+  while ((await p.locator('.countdown').count()) && i++ < 300) await p.clock.runFor(17);
+  await expect(p.locator('.route-progress span').first()).toContainText('셔플 항로');
+  await p.clock.runFor(1000);
+  await p.screenshot({path: 'artifacts/extras-shuffle.png'});
   expect(errors).toEqual([]);
   await writeFile('artifacts/extras-qa.json', JSON.stringify({play: s.play, errors}, null, 1));
-  console.log('extras: blessing, combo, chest, gate, result, photo, device status and horse passed');
+  console.log(
+    'extras: blessing, combo, fever, mission, chest, gate, result, photo, device status, horse, live mission and shuffle passed',
+  );
 } finally {
   await b.close();
 }

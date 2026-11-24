@@ -4,7 +4,7 @@ import {stampIds} from '../levels/adventure';
 import type {progress} from '../storage/profiles';
 import {toCsv} from '../systems/scanner';
 import {translate} from '../i18n';
-import {TOTAL_MAPS} from './book-view';
+import {TOTAL_MAPS} from './book-nav';
 import {button, esc} from './html';
 // The teacher's view of every sailor on this device: islands, maps, stamps, quiz and last save.
 export type SailorProgress = ReturnType<typeof progress> & {id: string; name: string};
