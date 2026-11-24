@@ -1319,7 +1319,7 @@ export class App {
     if (this.screen !== 'pause' || !this.run) return;
     this.world.photo(this.photoPose);
     this.set(
-      `<div class="photo-ui"><section class="photo-bar" role="group" aria-labelledby="photo-title"><h2 id="photo-title" tabindex="-1">📷 사진 찍기</h2><fieldset><legend>영웅의 자세</legend>${PHOTO_POSES.map(([id, name]) => `<label><input type="radio" name="photo-pose" value="${id}" ${id === this.photoPose ? 'checked' : ''}><span>${name}</span></label>`).join('')}</fieldset>${button('photo-save', '사진 저장', 'primary')}${button('photo-close', '돌아가기', 'secondary')}<p role="status" id="photo-status"></p></section></div>`,
+      `<div class="photo-ui"><section class="photo-bar" role="group" aria-labelledby="photo-title"><h2 id="photo-title" tabindex="-1">📷 사진 찍기</h2><fieldset aria-label="영웅의 자세">${PHOTO_POSES.map(([id, name]) => `<label><input type="radio" name="photo-pose" value="${id}" ${id === this.photoPose ? 'checked' : ''}><span>${name}</span></label>`).join('')}</fieldset>${button('photo-save', '사진 저장', 'primary')}${button('photo-close', '돌아가기', 'secondary')}<p role="status" id="photo-status"></p></section></div>`,
       'photo',
     );
   }
