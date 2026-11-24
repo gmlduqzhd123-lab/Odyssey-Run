@@ -29,17 +29,21 @@ export function displayDensity(
   deviceRatio: number,
   height = (width * 9) / 16,
   quality: Quality = 'high',
+  // "Auto" quality's step on this device (see rendering/frame-watch AUTO_STEPS): 1 lighter, 2 light.
+  autoStep = 0,
 ) {
   const low =
-    quality === 'low' ||
-    (quality === 'auto' &&
-      typeof navigator !== 'undefined' &&
-      ((navigator as Navigator & {deviceMemory?: number}).deviceMemory ?? 8) <= 2);
+      quality === 'low' ||
+      (quality === 'auto' &&
+        (autoStep >= 2 ||
+          (typeof navigator !== 'undefined' &&
+            ((navigator as Navigator & {deviceMemory?: number}).deviceMemory ?? 8) <= 2))),
+    lighter = !low && quality === 'auto' && autoStep === 1;
   const view = displayViewport(width, height),
-    needed = view.scale * Math.min(low ? 1 : DISPLAY.maxDeviceRatio, Math.max(1, deviceRatio || 1));
+    needed = view.scale * Math.min(low ? 1 : lighter ? 1.5 : DISPLAY.maxDeviceRatio, Math.max(1, deviceRatio || 1));
   return Math.min(
     DISPLAY.maxDensity,
-    Math.sqrt((low ? 1920 * 1080 : DISPLAY.maxPixels) / (view.width * view.height)),
+    Math.sqrt((low ? 1920 * 1080 : lighter ? 2560 * 1440 : DISPLAY.maxPixels) / (view.width * view.height)),
     needed,
   );
 }

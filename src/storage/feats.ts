@@ -5,6 +5,7 @@ import {seeded} from '../levels/endless';
 import {HEROES, heroUnlocked} from '../systems/heroes';
 import type {RunResult, Save} from './save';
 import {mergeSeason, seasonQuiz, seasonRun} from './season';
+import {mergePlay, playRun} from './play';
 // Achievements, weekly challenges and the voyage calendar. Badges are read from the record
 // itself; only the days sailed, this week's counters and quiz answers are stored.
 export interface Weekly {
@@ -79,6 +80,12 @@ export function recordRun(save: Save, r: RunResult, date: string, how: {special:
   if (how.special) bump(out, date, 'special', 1);
   if (how.weather && r.complete) bump(out, date, 'weather', 1);
   seasonRun(out, r, date);
+  // An O/X gate answered right counts as a myth question for the week and the season.
+  playRun(out.play, r.stage, r.extras);
+  if (r.extras?.gate?.right) {
+    bump(out, date, 'quiz', 1);
+    seasonQuiz(out, true, date);
+  }
   return out;
 }
 export function recordQuiz(save: Save, id: string, choice: number, date: string): Save {
@@ -241,6 +248,20 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
     icon: '👑',
     done: s => s.season.won.length >= 1,
   },
+  {
+    id: 'combo',
+    name: '끊기지 않는 항해',
+    description: '한 번에 콤보 50을 이어요',
+    icon: '⛓',
+    done: s => Object.values(s.play.combos).some(c => (c?.best ?? 0) >= 50),
+  },
+  {
+    id: 'treasure',
+    name: '보물 사냥꾼',
+    description: '숨은 보물 상자 7개를 찾아요',
+    icon: '🗝',
+    done: s => s.play.treasures.length >= 7,
+  },
 ];
 // Badges, once earned, stay: a new island or course must never take one away. The ids are kept
 // in the save (save.earned) and every check counts a badge earned before or earned now.
@@ -334,6 +355,7 @@ export function mergeFeats(a: Save, b: Save, out: Save) {
   }
   out.weekly.done = Math.max(a.weekly.done, b.weekly.done);
   out.season = mergeSeason(a.season, b.season);
+  out.play = mergePlay(a.play, b.play);
   out.earned = ACHIEVEMENTS.map(x => x.id).filter(id => a.earned.includes(id) || b.earned.includes(id));
   out.quizPicks = {};
   for (const id of new Set([...Object.keys(a.quizPicks), ...Object.keys(b.quizPicks)])) {

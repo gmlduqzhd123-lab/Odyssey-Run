@@ -4,6 +4,12 @@ import {MUSIC} from '../assets/music';
 import type {Volume} from '../storage/preferences';
 import type {WeatherId} from '../levels/weather';
 // Only the selected island's decoded buffer is retained; effects stay synthesized.
+// Do, re, mi… a major scale up from the star's own note, two octaves at most.
+const MAJOR = [0, 2, 4, 5, 7, 9, 11];
+export const starNote = (step: number) => {
+  const n = Math.max(0, Math.min(14, Math.floor(step)));
+  return 950 * 2 ** ((Math.floor(n / 7) * 12 + MAJOR[n % 7]) / 12);
+};
 export class Sound {
   private ctx: AudioContext | null = null;
   private playing = false;
@@ -251,11 +257,12 @@ export class Sound {
     this.loadMusic();
     this.startMusic();
   }
-  effect(kind: string) {
+  // A chain of starlight climbs a scale (see systems/run-feel): step 0 is the plain star note.
+  effect(kind: string, step = 0) {
     if (!this.settings().sfx || this.dead) return;
     const hz =
       kind === 'star'
-        ? 950
+        ? starNote(step)
         : kind === 'jump'
           ? 420
           : kind === 'hurt' || kind === 'fall'

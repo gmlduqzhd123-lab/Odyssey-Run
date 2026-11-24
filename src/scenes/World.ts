@@ -9,7 +9,7 @@ import type {Runner} from '../player/runner';
 import {assetUrl} from '../assets/catalog';
 import {REGIONS, sheetUrl} from '../assets/terrain';
 import {SCENERY_ART} from '../assets/scenery-art';
-import {CRUMBLE_DELAY} from '../levels/courses';
+import {CRUMBLE_DELAY, isCeiling} from '../levels/courses';
 import {decorFor, harborMix, type ViewId} from '../levels/scenery';
 import {FOG} from '../levels/weather';
 import {heroInfo} from '../systems/heroes';
@@ -19,6 +19,7 @@ import {CROUCH_ART, MONSTER_ART} from '../assets/expansion-art';
 import {ENEMY_TYPES} from '../levels/enemies';
 import {heroPose, itemPose, enemyPose, obstaclePose} from '../rendering/poses';
 import {HOME_FILES, GAME_FILES, backgroundFiles} from '../assets/loading';
+import {GATE_O, GATE_X, gateStatement} from '../levels/play-extras';
 // Phaser measures text with '|MÉqgy'; without the É the accented-letter font file is not
 // fetched for Korean and English players.
 const TEST_STRING = '|Mqgy';
@@ -32,6 +33,8 @@ export interface SceneHost {
   cosmetics(): Preferences;
   // The comparison voyage's position now, drawn as a see-through runner.
   ghost(): {x: number; friend: boolean} | null;
+  // How far the run is between its last two steps (0 to 1), to draw smoothly in between.
+  blend?(): number;
 }
 const PAINTED_TOP: Record<string, number> = {'view-cave': 0.5, 'view-storm': 0.5, 'view-palace': 0.55};
 // The night route's painted stars would read as collectible starlight: cool them to blue.
@@ -67,6 +70,23 @@ export class World extends Phaser.Scene {
   private run: Runner | null = null;
   private mode: 'home' | 'run' = 'home';
   private failed = false;
+  // Feel (see systems/run-feel): the hit flash, the landing squash and the dust it raises.
+  private flash = 0;
+  private land = 0;
+  private wasGrounded = true;
+  private dust: {x: number; y: number; vx: number; life: number}[] = [];
+  private frameDelta = 1 / 60;
+  private chest: Phaser.GameObjects.Image | null = null;
+  private cue!: Phaser.GameObjects.Text;
+  // Photo mode: the hero drawn in a chosen pose over the paused course (null while playing).
+  private posed: 'run' | 'jump' | 'crouch' | 'cheer' | null = null;
+  photo(pose: 'run' | 'jump' | 'crouch' | 'cheer' | null) {
+    this.posed = pose;
+    this.label?.setVisible(!pose);
+    this.warning?.setVisible(!pose);
+    this.cue?.setVisible(!pose);
+    this.bursts.forEach(b => b.text.setVisible(!pose));
+  }
   constructor(private host: SceneHost) {
     super('World');
   }
@@ -178,6 +198,19 @@ export class World extends Phaser.Scene {
       })
       .setOrigin(0.5)
       .setDepth(20);
+    this.cue = this.add
+      .text(0, 0, '', {
+        fontFamily: "'Odyssey UI', sans-serif",
+        testString: TEST_STRING,
+        fontStyle: 'bold',
+        fontSize: '16px',
+        color: '#fff6dc',
+        stroke: '#20394b',
+        strokeThickness: 4,
+        resolution: this.host.density(),
+      })
+      .setOrigin(0.5)
+      .setDepth(21);
     this.syncDisplay();
     this.host.loaded();
   }
@@ -262,6 +295,13 @@ export class World extends Phaser.Scene {
     g.fillStyle(0x4d4a46);
     for (let x = 6; x < 74; x += 14) g.fillTriangle(x, 186, x + 7, 190, x + 14, 186);
     g.generateTexture('pounder', 74, 190);
+    // The hidden treasure chest.
+    g.clear();
+    g.fillStyle(0x6b4423).fillRoundedRect(0, 8, 36, 22, 3);
+    g.fillStyle(0x8a5a2e).fillRoundedRect(0, 0, 36, 12, {tl: 8, tr: 8, bl: 0, br: 0});
+    g.fillStyle(0xe7c35a).fillRect(0, 10, 36, 3).fillRect(16, 6, 4, 24);
+    g.fillStyle(0xfff0b0).fillRect(17, 14, 2, 4);
+    g.generateTexture('chest', 36, 30);
     g.destroy();
   }
   showHome() {
@@ -285,6 +325,7 @@ export class World extends Phaser.Scene {
     this.weatherFx.clear();
     this.label.setText('');
     this.warning.setText('');
+    this.cue?.setText('');
   }
   setStage(id: StageId) {
     this.stage = id;
@@ -309,6 +350,7 @@ export class World extends Phaser.Scene {
     if (this.label) this.label.setResolution(d);
     if (this.ghostTag) this.ghostTag.setResolution(d);
     if (this.warning) this.warning.setResolution(d);
+    if (this.cue) this.cue.setResolution(d);
     this.bursts.forEach(b => b.text.setResolution(d).setX(v.width / 2));
     const context = this.game.canvas.getContext('2d');
     if (context) context.imageSmoothingQuality = 'high';
@@ -398,6 +440,13 @@ export class World extends Phaser.Scene {
         this.add.image(e.x, e.y, 'rock').setOrigin(0).setDisplaySize(36, 28).setDepth(5).setVisible(false),
       );
     });
+    if (run.treasure && this.textures.exists('chest'))
+      this.chest = this.add.image(run.treasure.x, run.treasure.y, 'chest').setOrigin(0).setDepth(6);
+    this.photo(null);
+    this.flash = this.land = 0;
+    this.dust = [];
+    this.wasGrounded = true;
+    this.cue.setText('');
     this.hero.setDepth(10);
     this.label.setDepth(20);
     this.fx.setDepth(15);
@@ -418,8 +467,12 @@ export class World extends Phaser.Scene {
     this.projectiles = [];
     this.bursts.forEach(b => b.text.destroy());
     this.bursts = [];
+    this.chest?.destroy();
+    this.chest = null;
   }
   feedback(kind: string, x: number, y: number, message?: string) {
+    // A hit flashes the screen for a blink (never with reduced motion).
+    if ((kind === 'hurt' || kind === 'fall') && !this.host.reduced()) this.flash = 0.12;
     if (kind === 'jump' || kind === 'star') return;
     this.bursts.forEach(b => b.text.destroy());
     this.bursts = [];
@@ -444,9 +497,20 @@ export class World extends Phaser.Scene {
         this.view.width / 2,
         180,
         translate(
-          ['near', 'discovery', 'constellation', 'combo', 'route', 'highlight', 'trick', 'strike', 'charm'].includes(
-            kind,
-          )
+          [
+            'near',
+            'discovery',
+            'constellation',
+            'combo',
+            'route',
+            'highlight',
+            'trick',
+            'strike',
+            'charm',
+            'gate',
+            'treasure',
+            'rescue',
+          ].includes(kind)
             ? message || words[kind] || '새로운 발견!'
             : words[kind] || '',
         ),
@@ -455,7 +519,12 @@ export class World extends Phaser.Scene {
           testString: TEST_STRING,
           fontStyle: 'bold',
           fontSize: '18px',
-          color: kind === 'hurt' ? '#ffb8a3' : kind === 'charm' ? '#e6c8ff' : '#ffebae',
+          color:
+            kind === 'hurt' || (kind === 'gate' && message?.startsWith('아쉬워요'))
+              ? '#ffb8a3'
+              : kind === 'charm'
+                ? '#e6c8ff'
+                : '#ffebae',
           stroke: '#20394b',
           strokeThickness: 4,
           resolution: this.host.density(),
@@ -467,6 +536,7 @@ export class World extends Phaser.Scene {
   }
   update(_time: number, delta: number) {
     if (!this.hero) return;
+    this.frameDelta = Math.min(0.1, delta / 1000);
     this.host.frame(delta / 1000);
     if (this.mode === 'home') {
       this.backgroundScroll(0, 310);
@@ -521,7 +591,12 @@ export class World extends Phaser.Scene {
   private drawRun() {
     const r = this.run;
     if (!r) return;
-    const cam = r.x - this.view.heroX;
+    // Draw between the last two steps; a jump back to a safe point is drawn at once.
+    const k = r.state === 'playing' && Math.abs(r.x - r.prevX) < 60 ? (this.host.blend?.() ?? 1) : 1,
+      rx = r.prevX + (r.x - r.prevX) * k,
+      ry = r.prevY + (r.y - r.prevY) * k,
+      rt = r.prevTime + (r.time - r.prevTime) * k;
+    const cam = rx - this.view.heroX;
     const dark = this.stage === 'cave';
     const reduced = this.host.reduced();
     this.backgroundScroll(0, 310);
@@ -573,7 +648,7 @@ export class World extends Phaser.Scene {
     groundSpan(start, cam + this.view.width + 40);
     this.obstacles.forEach((s, i) => {
       const o = r.course.obstacles[i],
-        p = obstaclePose(o, r.x),
+        p = obstaclePose(o, rx),
         x = p.x - cam;
       s.setVisible(x > -200 && x < this.view.width + 60).setPosition(x, p.y);
     });
@@ -593,13 +668,13 @@ export class World extends Phaser.Scene {
       if (p.seesaw) {
         // Pivot in the middle; the plank turns with the slope under the hero.
         const mid = p.x + p.w / 2;
-        s.setPosition(mid - cam, r.seesawY(p, mid))
-          .setRotation(Math.atan(r.seesawSlope(p)))
+        s.setPosition(mid - cam, r.seesawY(p, mid, rx))
+          .setRotation(Math.atan(r.seesawSlope(p, rx)))
           .setVisible(visible);
         return;
       }
       if (!p.crumble) {
-        s.setPosition(p.x - cam, r.platformY(p)).setVisible(visible);
+        s.setPosition(p.x - cam, r.platformY(p, rx, rt, rx)).setVisible(visible);
         return;
       }
       // A crumbling plank shakes once stood on, then drops away; it is whole again after a fall.
@@ -686,13 +761,13 @@ export class World extends Phaser.Scene {
       const x = p.x - cam;
       if (x + p.w < -20 || x > this.view.width + 20) return;
       if (p.lift) {
-        const y = r.platformY(p);
+        const y = r.platformY(p, rx, rt, rx);
         fx.lineStyle(2, 0x6d6a64, 0.8)
           .lineBetween(x + 6, 40, x + 6, y)
           .lineBetween(x + p.w - 6, 40, x + p.w - 6, y);
       } else if (p.seesaw) {
         const mid = x + p.w / 2,
-          top = r.seesawY(p, p.x + p.w / 2) + 16;
+          top = r.seesawY(p, p.x + p.w / 2, rx) + 16;
         fx.fillStyle(0x7a5a3a, 1).fillTriangle(mid, top, mid - 14, C.ground + 30, mid + 14, C.ground + 30);
       }
     });
@@ -746,7 +821,7 @@ export class World extends Phaser.Scene {
       };
       r.course.obstacles.forEach(o => {
         if (o.role !== 'hazard') return;
-        const p = obstaclePose(o, r.x);
+        const p = obstaclePose(o, rx);
         if (p.x - cam > -200 && p.x - cam < this.view.width + 60) frame(p.x - cam, p.y, p.w, p.h);
       });
       r.enemyStates.forEach(e => {
@@ -763,22 +838,39 @@ export class World extends Phaser.Scene {
       fx.fillStyle(0xe8be72, 0.7).fillTriangle(x, 300, x - 6, 310, x + 6, 310);
     });
     this.drawAdventure(r, cam, reduced);
+    this.drawExtras(r, cam, rt);
     this.drawWeather(r, reduced);
+    this.drawSpeed(r, rt, reduced);
     this.drawGhost(r, cam);
-    this.drawHero(r);
-    this.drawCostume(this.view.heroX, r.y, r.sliding, false);
+    this.drawHero(r, ry, reduced);
+    this.drawCostume(
+      this.view.heroX,
+      ry - (this.posed === 'jump' && r.grounded ? 90 : 0),
+      this.posed ? this.posed === 'crouch' : r.sliding,
+      false,
+    );
+    this.drawDust(r, cam, reduced);
     if (r.shield) {
       fx.lineStyle(2, 0xffdf85, 0.8).strokeEllipse(
         this.view.heroX,
-        r.y - (r.sliding ? 18 : 40),
+        ry - (r.sliding ? 18 : 40),
         r.sliding ? 66 : 86,
         r.sliding ? 44 : 96,
       );
     }
     if (r.wings > 0) {
       fx.lineStyle(4, 0xf4f3d4, 0.8);
-      fx.lineBetween(this.view.heroX - 32, r.y - 40, this.view.heroX - 60, r.y - 63);
-      fx.lineBetween(this.view.heroX + 30, r.y - 40, this.view.heroX + 54, r.y - 63);
+      fx.lineBetween(this.view.heroX - 32, ry - 40, this.view.heroX - 60, ry - 63);
+      fx.lineBetween(this.view.heroX + 30, ry - 40, this.view.heroX + 54, ry - 63);
+    }
+    if (this.flash > 0) {
+      this.flash -= this.frameDelta;
+      fx.fillStyle(0xffffff, Math.max(0, this.flash / 0.12) * 0.35).fillRect(
+        0,
+        -this.view.extraHeight,
+        this.view.width,
+        this.view.height,
+      );
     }
     this.giant
       .setVisible(this.stage === 'cave')
@@ -811,15 +903,23 @@ export class World extends Phaser.Scene {
     if (r.x >= highlight.start && r.x <= highlight.end) {
       captionX = 580;
       caption = `${highlight.name}\n${highlight.hint}`;
-    } else if (r.x >= branch.start - 700 && r.x < branch.end) {
+    } else if (r.x >= branch.start - 700 && r.x < branch.end && !this.chest?.visible) {
+      // The route hint makes way for the hidden chest, which floats at the caption's height.
       captionX = 620;
       caption = '↑ 높은 길: 별자리와 이야기 · 아래: 안전한 길';
+    }
+    const gate = r.gate;
+    if (gate && r.gateSaid === null && r.x >= gate.x - 1500 && r.x < gate.x) {
+      const g = gateStatement(gate);
+      captionX = 560;
+      caption = `O/X · ${g.question} → ${g.option}\nO라면 점프해서 ⭕, X라면 그대로 달려 ❌`;
     }
     if (r.course.mode === 'boss') {
       captionX = 576;
       captionY = 210;
       caption = BOSSES[r.stage].phases[bossPhase(r.stage, r.x)];
     }
+    this.drawCue(r, ry);
     this.label.setPosition((this.view.width * captionX) / 960, captionY);
     caption = translate(caption);
     if (this.label.text !== caption) this.label.setText(caption);
@@ -1031,16 +1131,145 @@ export class World extends Phaser.Scene {
         .fillPoints(points, true);
     }
   }
-  private drawHero(r: Runner) {
-    const p = heroPose(r);
+  private drawHero(r: Runner, ry: number, reduced: boolean) {
+    const posed = this.posed,
+      lift = posed === 'jump' && r.grounded ? 90 : 0,
+      p = posed
+        ? heroPose({
+            x: r.x,
+            y: r.y - lift,
+            time: r.time,
+            sliding: posed === 'crouch',
+            grounded: posed === 'run' || posed === 'cheer' || posed === 'crouch',
+            state: posed === 'cheer' ? 'success' : 'playing',
+          })
+        : heroPose(r);
+    if (posed === 'cheer') p.anchorY = r.y + 2;
+    if (lift) p.anchorY = r.y - lift + 2;
     this.hero
       .setTexture(p.texture, p.frame)
       .setOrigin(p.originX, p.originY)
-      .setPosition(this.view.heroX, p.anchorY)
+      .setPosition(this.view.heroX, p.anchorY + ry - r.y)
       .setRotation(0)
       .setAlpha(r.invincible > 0 ? 0.72 : 1)
       .setTint(r.charmed ? 0xf3c6e4 : heroInfo(this.host.cosmetics().hero).tint);
     if (p.scale !== undefined) this.hero.setScale(p.scale);
     else this.hero.setDisplaySize(p.w, p.h);
+    // Stretch while rising, squash on landing (kept still with reduced motion).
+    if (reduced || r.state !== 'playing') {
+      this.land = 0;
+      this.wasGrounded = r.grounded;
+      return;
+    }
+    if (r.grounded && !this.wasGrounded) {
+      this.land = 0.14;
+      this.puff(r.x, r.y, 4);
+    } else if (!r.grounded && this.wasGrounded && r.vy < 0) this.puff(r.x, r.y, 3);
+    this.wasGrounded = r.grounded;
+    let sx = 1,
+      sy = 1;
+    if (this.land > 0) {
+      const t = this.land / 0.14;
+      sx = 1 + 0.16 * t;
+      sy = 1 - 0.13 * t;
+      this.land -= this.frameDelta;
+    } else if (!r.grounded && r.vy < -250) {
+      sx = 0.94;
+      sy = 1.07;
+    }
+    if (sx !== 1 || sy !== 1) this.hero.setScale(this.hero.scaleX * sx, this.hero.scaleY * sy);
+  }
+  private puff(x: number, y: number, n: number) {
+    for (let i = 0; i < n; i++) this.dust.push({x: x - 10 + i * 7, y: y - 2, vx: -40 - i * 25, life: 0.35});
+    if (this.dust.length > 24) this.dust.splice(0, this.dust.length - 24);
+  }
+  private drawDust(r: Runner, cam: number, reduced: boolean) {
+    if (reduced) {
+      this.dust = [];
+      return;
+    }
+    const dark = this.stage === 'cave';
+    for (let i = this.dust.length - 1; i >= 0; i--) {
+      const d = this.dust[i];
+      if (r.state === 'playing') {
+        d.life -= this.frameDelta;
+        d.x += d.vx * this.frameDelta;
+        d.y -= 18 * this.frameDelta;
+      }
+      if (d.life <= 0) {
+        this.dust.splice(i, 1);
+        continue;
+      }
+      this.fx
+        .fillStyle(dark ? 0xb7c0c8 : 0xf1e2c0, (d.life / 0.35) * 0.7)
+        .fillCircle(d.x - cam, d.y, 3 + (0.35 - d.life) * 10);
+    }
+  }
+  // A long run without losing HP draws a light wind streaming past (only the picture changes).
+  private drawSpeed(r: Runner, rt: number, reduced: boolean) {
+    if (reduced || r.state !== 'playing') return;
+    const calm = rt - (r.damageLog.at(-1)?.time ?? 0),
+      power = Math.max(0, Math.min(1, (calm - 10) / 30));
+    if (!power) return;
+    const w = this.weatherFx,
+      width = this.view.width,
+      lines = Math.round(3 + 9 * power);
+    w.lineStyle(2, 0xffffff, 0.12 + 0.18 * power);
+    for (let i = 0; i < lines; i++) {
+      const y = 70 + ((i * 89) % 330),
+        len = 40 + 50 * power + (i % 3) * 18,
+        x = width - ((rt * (700 + 400 * power) + i * 173) % (width + 200)) + 100;
+      w.lineBetween(x, y, x + len, y);
+    }
+  }
+  // Boss runs: a jump or duck sign over the hero just before the next attack reaches them.
+  private drawCue(r: Runner, ry: number) {
+    let cue = '';
+    if (r.course.mode === 'boss' && r.state === 'playing') {
+      const reach = r.speed * 0.8,
+        front = r.x + 21,
+        next = r.course.obstacles
+          .filter(o => o.role === 'hazard' && o.x + o.w > r.x - 21 && o.x - front <= reach)
+          .sort((a, b) => a.x - b.x)[0],
+        enemy = r.enemyStates
+          .filter(e => !e.defeated && !e.repelled && e.x + e.w > r.x - 21 && e.x - front <= reach)
+          .sort((a, b) => a.x - b.x)[0];
+      if (next && (!enemy || next.x <= enemy.x)) cue = isCeiling(next.kind) ? '↓ 숙여요!' : '↑ 점프!';
+      else if (enemy) cue = ENEMY_TYPES[enemy.kind].hint.includes('숙') ? '↓ 숙여요!' : '↑ 점프!';
+    }
+    cue = translate(cue);
+    if (this.cue.text !== cue) this.cue.setText(cue);
+    if (!cue) return;
+    const x = this.view.heroX,
+      y = ry - (r.sliding ? 70 : 118);
+    this.fx.fillStyle(cue.startsWith('↓') ? 0x2f6f8a : 0x8a5a2e, 0.9).fillRoundedRect(x - 52, y - 15, 104, 30, 8);
+    this.cue.setPosition(x, y);
+  }
+  // The hidden chest (faint until near) and the O/X gate's two signs.
+  private drawExtras(r: Runner, cam: number, rt: number) {
+    const t = r.treasure;
+    if (this.chest && t) {
+      const x = t.x - cam;
+      this.chest
+        .setPosition(x, t.y + Math.sin(rt * 3) * 2)
+        .setAlpha(x - this.view.heroX < 360 ? 1 : 0.5)
+        .setVisible(!r.treasureFound && x > -60 && x < this.view.width + 40);
+    }
+    const g = r.gate;
+    if (!g || r.gateSaid !== null) return;
+    const x = g.x - cam;
+    if (x < -80 || x > this.view.width + 80) return;
+    const fx = this.fx;
+    fx.fillStyle(0x6e5236, 0.85)
+      .fillRect(x - 34, 250, 6, 190)
+      .fillRect(x + 28, 250, 6, 190);
+    fx.fillStyle(0xf6e8c5, 0.9).fillRoundedRect(x - 36, 244, 72, 10, 4);
+    const o = {x: x + GATE_O.x + GATE_O.w / 2, y: GATE_O.y + GATE_O.h / 2},
+      xx = {x: x + GATE_X.x + GATE_X.w / 2, y: GATE_X.y + GATE_X.h / 2};
+    fx.fillStyle(0x20394b, 0.7).fillCircle(o.x, o.y, 22).fillCircle(xx.x, xx.y, 22);
+    fx.lineStyle(5, 0x8fe0a8, 1).strokeCircle(o.x, o.y, 13);
+    fx.lineStyle(5, 0xff9f8a, 1)
+      .lineBetween(xx.x - 11, xx.y - 11, xx.x + 11, xx.y + 11)
+      .lineBetween(xx.x + 11, xx.y - 11, xx.x - 11, xx.y + 11);
   }
 }

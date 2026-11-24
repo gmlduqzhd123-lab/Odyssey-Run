@@ -23,6 +23,21 @@ export function fleetMarkup(stars: number, goal: number, sailors: number) {
     '',
   )}</div><p><b>별빛 ${stars.toLocaleString()} / ${goal.toLocaleString()}</b> · <span>${share >= 1 ? '⚑ 함대가 이타카에 도착했어요!' : `지금 ${FLEET_STEPS[reached]} 근처 · 이타카까지 ${Math.round((1 - share) * 100)}%`}</span></p><p class="muted">각 항해사가 섬마다 모은 최고 별빛을 모두 더해요. 목표는 선생님이 정해요.</p><label class="fleet-goal">함대 목표 별빛 <input id="fleet-goal" type="number" inputmode="numeric" min="50" max="100000" step="50" value="${goal}"></label>${button('fleet-goal', '목표 바꾸기', 'secondary')}</section>`;
 }
+// The class's wooden horse: one plank for each share of this week's finished runs, the whole
+// class together. Everyone builds it; nobody can lose a plank. It starts again each Monday.
+export const HORSE = ['....##', '#####.', '####..', '#..#..'];
+export const HORSE_PIECES = HORSE.join('').split('#').length - 1;
+// A week's goal: three finished runs a sailor (at least one plank a run for a small class).
+export const horseGoal = (sailors: number) => Math.max(HORSE_PIECES, sailors * 3);
+export function horseMarkup(runs: number, sailors: number) {
+  const goal = horseGoal(sailors),
+    built = Math.min(HORSE_PIECES, Math.floor((runs / goal) * HORSE_PIECES + 1e-9));
+  let k = 0;
+  const cells = HORSE.flatMap(row =>
+    [...row].map(c => (c === '#' ? `<i class="${k++ < built ? 'built' : ''}"></i>` : '<i class="air"></i>')),
+  ).join('');
+  return `<section class="horse"><h2>🐴 이번 주 트로이 목마 <small>반 모두의 완주가 널빤지가 돼요</small></h2><div class="horse-grid" role="img" aria-label="목마 ${built}/${HORSE_PIECES}조각">${cells}</div><p><b>완주 ${runs.toLocaleString()} / ${goal.toLocaleString()}</b> <span>${built >= HORSE_PIECES ? '⚑ 목마 완성! 트로이 성문이 열렸어요' : `널빤지 ${built}/${HORSE_PIECES}`}</span></p><p class="muted">이 기기의 항해사들이 이번 주(월요일부터)에 섬을 완주한 횟수를 모두 더해요. 반 전체 백업을 가져오면 다른 기기의 항해도 합쳐져요.</p></section>`;
+}
 export interface QuestionReport {
   id: string;
   question: string;

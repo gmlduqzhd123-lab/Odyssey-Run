@@ -4109,3 +4109,124 @@ body {
   width: min(240px, 50%);
   height: 12px;
 }
+/* Playful extras: the blessing picker, the combo chip, the result line, the wooden horse and the device status. */
+.blessing-picker {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.blessing-picker label {
+  min-height: 64px;
+}
+@media (max-width: 700px) {
+  .blessing-picker {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+#combo:empty {
+  display: none;
+}
+#combo {
+  background: rgba(255, 214, 120, 0.22);
+  border-radius: 999px;
+  padding: 0 0.6em;
+  font-weight: 800;
+}
+.extras-result {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 16px;
+  margin: 6px 0;
+  font-size: clamp(10px, 1.15cqw, 16px);
+  color: #4f4d3a;
+}
+.profiles .horse {
+  max-width: 760px;
+  margin: 1rem auto;
+}
+.horse-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 34px);
+  grid-auto-rows: 24px;
+  gap: 3px;
+  justify-content: center;
+  margin: 8px 0;
+}
+.horse-grid i {
+  border-radius: 4px;
+  background: #e3dccb;
+  outline: 1px dashed #b9ab8a;
+}
+.horse-grid i.built {
+  background: linear-gradient(#a86f3c, #7b4c25);
+  outline: 1px solid #5d3818;
+}
+.horse-grid i.air {
+  background: none;
+  outline: none;
+}
+.device-status {
+  margin-top: 10px;
+}
+.device-status summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+.device-status dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 2px 12px;
+  margin: 8px 0;
+}
+.device-status dt {
+  color: #5d5a47;
+}
+.device-status dd {
+  margin: 0;
+}
+/* Photo mode: a slim bar along the bottom, the paused course in full view above it. */
+.photo-ui {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  justify-content: center;
+  padding: 0 12px 12px;
+  pointer-events: none;
+}
+.photo-bar {
+  pointer-events: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 12px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: rgba(16, 39, 54, 0.88);
+  color: #fff6dc;
+}
+.photo-bar h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+.photo-bar fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+.photo-bar label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 246, 220, 0.14);
+  cursor: pointer;
+}
+.photo-bar p {
+  margin: 0;
+  min-height: 1em;
+  font-size: 0.85rem;
+}
