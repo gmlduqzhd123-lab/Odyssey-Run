@@ -23,6 +23,19 @@ import {getCourse} from '../levels/variants';
 import {sceneryView, type ViewId} from '../levels/scenery';
 import type {VariantId} from '../levels/course-ids';
 import type {WeatherId} from '../levels/weather';
+import {
+  COMBO_POINTS,
+  GATE_O,
+  GATE_X,
+  HERMES_JUMP,
+  MAX_COMBO,
+  MAX_COMBO_POINTS,
+  comboMultiplier,
+  type BlessingId,
+  type ComboKind,
+  type Gate,
+  type Treasure,
+} from '../levels/play-extras';
 export type RunState = 'ready' | 'playing' | 'paused' | 'success' | 'failure';
 export interface RunnerEvent {
   kind:
@@ -49,7 +62,10 @@ export interface RunnerEvent {
     | 'highlight'
     | 'combo'
     | 'trick'
-    | 'route';
+    | 'route'
+    | 'gate'
+    | 'treasure'
+    | 'rescue';
   x: number;
   y: number;
   text?: string;
@@ -66,6 +82,11 @@ export class Runner {
   hpLoss = 0;
   maxDistance = 0;
   time = 0;
+  // Where the hero was one step ago: the screen draws between that and now (see World.drawRun),
+  // so a 90 or 120 Hz display scrolls smoothly although the rules run 60 times a second.
+  prevX = 0;
+  prevY: number = C.ground;
+  prevTime = 0;
   grounded = true;
   sliding = false;
   jumps = 0;
@@ -75,6 +96,9 @@ export class Runner {
   // One-button voyages duck automatically just before a low ceiling on the ground.
   autoSlide = false;
   invincible = 0;
+  // Seconds of shelter after the device froze for a moment (see rendering/frame-watch Pacer):
+  // contact cannot hurt, falls still count, and nothing is drawn differently.
+  grace = 0;
   shield = false;
   wings = 0;
   magnet = 0;
@@ -89,6 +113,19 @@ export class Runner {
   weather: WeatherId = 'clear';
   defeated = new Set<string>();
   readonly enemyStates: EnemyState[];
+  // Ordinary island runs only (see levels/play-extras): the app sets these before the start.
+  blessing: BlessingId = 'none';
+  gate: Gate | null = null;
+  treasure: Treasure | null = null;
+  // The O/X gate's answer once passed (true = said O), and the chest once found.
+  gateSaid: boolean | null = null;
+  treasureFound = false;
+  // Poseidon's one free fall.
+  private rescues = 0;
+  // The combo chain now, its best this run, and the combo points earned.
+  combo = 0;
+  bestCombo = 0;
+  comboPoints = 0;
   readonly adventure;
   goal: GoalId;
   constellations = new Set<string>();
@@ -125,13 +162,16 @@ export class Runner {
     goal: GoalId = 'maps',
     readonly variant: VariantId = 'classic',
     course = getCourse(stage, variant),
-    readonly rule: 'none' | 'no-shield' = 'none',
+    // The daily voyage's rule: no shield, or an oracle's gift held all run (see levels/daily).
+    readonly rule: 'none' | 'no-shield' | 'magnet' | 'lantern' = 'none',
   ) {
     this.goal = goal;
     this.course = course;
     this.scenery = sceneryView(course);
     this.adventure = course.adventure ?? ADVENTURE_PLANS[stage];
     this.enemyStates = this.course.enemies.map(createEnemyState);
+    if (rule === 'magnet') this.magnet = C.step * 2;
+    if (rule === 'lantern') this.lantern = C.step * 2;
     this.updateEnemies();
   }
   private updateEnemies() {
@@ -161,21 +201,22 @@ export class Runner {
   slide(held: boolean) {
     this.slideHeld = held;
   }
-  platformY(p: Platform, x = this.x) {
-    if (p.lift) return p.y - (LIFT.rise * (1 - Math.cos((this.time * 2 * Math.PI) / LIFT.period))) / 2;
-    if (p.seesaw) return this.seesawY(p, x);
-    return p.y + (p.moving ? Math.sin(this.time * 1.6) * 22 : 0);
+  // The time and hero position default to now; the screen passes the in-between ones it draws.
+  platformY(p: Platform, x = this.x, time = this.time, heroX = this.x) {
+    if (p.lift) return p.y - (LIFT.rise * (1 - Math.cos((time * 2 * Math.PI) / LIFT.period))) / 2;
+    if (p.seesaw) return this.seesawY(p, x, heroX);
+    return p.y + (p.moving ? Math.sin(time * 1.6) * 22 : 0);
   }
   // The seesaw tilts toward the hero: the end nearer the hero dips to the ground line and the
   // far end rises, so the plank surface under the hero runs from the ground up to the middle.
-  seesawSlope(p: Platform) {
+  seesawSlope(p: Platform, heroX = this.x) {
     const half = p.w / 2,
-      t = Math.max(-1, Math.min(1, (this.x - (p.x + half)) / half));
+      t = Math.max(-1, Math.min(1, (heroX - (p.x + half)) / half));
     return (t * SEESAW.rise) / half;
   }
-  seesawY(p: Platform, x = this.x) {
+  seesawY(p: Platform, x = this.x, heroX = this.x) {
     const half = p.w / 2;
-    return p.y - SEESAW.rise + (x - (p.x + half)) * this.seesawSlope(p);
+    return p.y - SEESAW.rise + (x - (p.x + half)) * this.seesawSlope(p, heroX);
   }
   // Seconds since a crumbling plank was first stood on, or -1 while it is untouched.
   crumbleAge(p: Platform) {
@@ -199,7 +240,21 @@ export class Runner {
     );
   }
   private emit(kind: RunnerEvent['kind']) {
+    if (Object.hasOwn(COMBO_POINTS, kind)) {
+      this.combo = Math.min(MAX_COMBO, this.combo + 1);
+      this.bestCombo = Math.max(this.bestCombo, this.combo);
+      this.comboPoints = Math.min(
+        MAX_COMBO_POINTS,
+        this.comboPoints + Math.round(COMBO_POINTS[kind as ComboKind] * comboMultiplier(this.combo)),
+      );
+    } else if (kind === 'hurt' || kind === 'fall') this.combo = 0;
     this.events.push({kind, x: this.x, y: this.y - 45, text: this.message});
+  }
+  // Called once before the start: Athena's shield is held from the first step.
+  bless(id: BlessingId) {
+    this.blessing = id;
+    if (id === 'athena' && this.rule !== 'no-shield') this.shield = true;
+    this.rescues = id === 'poseidon' ? 1 : 0;
   }
   private tryJump() {
     if (this.buffer <= 0 || !this.canStand()) return;
@@ -208,7 +263,7 @@ export class Runner {
     this.jumps = groundJump ? 1 : 2;
     this.grounded = false;
     this.coyote = 0;
-    this.vy = C.jump;
+    this.vy = C.jump * (!groundJump && this.blessing === 'hermes' ? HERMES_JUMP : 1);
     this.sliding = false;
     this.buffer = 0;
     this.emit('jump');
@@ -230,11 +285,19 @@ export class Runner {
     if (item.kind === 'shield' && this.rule === 'no-shield') return;
     this.emit(item.kind);
   }
+  // A moment of shelter after the device froze (the app calls this; it never stacks up).
+  shelter(seconds: number) {
+    this.grace = Math.max(this.grace, seconds);
+  }
   hurt(fall = false, kind: DamageKind = fall ? 'fall' : 'contact') {
-    if (this.state !== 'playing' || (!fall && this.invincible > 0)) return;
+    if (this.state !== 'playing' || (!fall && (this.invincible > 0 || this.grace > 0))) return;
     if (!fall && this.shield) {
       this.shield = false;
       this.emit('block');
+    } else if (fall && this.rescues > 0) {
+      this.rescues--;
+      this.message = '포세이돈이 건져 줬어요! 체력 그대로';
+      this.emit('rescue');
     } else {
       this.hp--;
       this.hpLoss++;
@@ -247,12 +310,18 @@ export class Runner {
   tick(dt: number = C.step) {
     if (this.state !== 'playing') return;
     this.events.length = 0;
+    this.prevX = this.x;
+    this.prevY = this.y;
+    this.prevTime = this.time;
     this.time += dt;
     this.invincible = Math.max(0, this.invincible - dt);
+    this.grace = Math.max(0, this.grace - dt);
     this.wings = Math.max(0, this.wings - dt);
     this.magnet = Math.max(0, this.magnet - dt);
     this.lantern = Math.max(0, this.lantern - dt);
     this.moly = Math.max(0, this.moly - dt);
+    if (this.rule === 'magnet') this.magnet = Math.max(this.magnet, dt * 2);
+    if (this.rule === 'lantern') this.lantern = Math.max(this.lantern, dt * 2);
     const spelled = !!this.course.spells?.some(z => this.x >= z.x && this.x < z.x + z.w) && this.moly <= 0;
     if (spelled && !this.charmed) {
       this.charmed = true;
@@ -267,7 +336,10 @@ export class Runner {
     const oldY = this.y,
       oldTop = this.body.y;
     // Charybdis's current holds the feet back; a jump carries the hero over it at full speed.
-    const held = this.grounded && !!this.course.currents?.some(z => this.x >= z.x && this.x < z.x + z.w);
+    const held =
+      this.grounded &&
+      this.blessing !== 'poseidon' &&
+      !!this.course.currents?.some(z => this.x >= z.x && this.x < z.x + z.w);
     this.x += this.speed * (held ? CURRENT_PULL : 1) * dt;
     this.sliding = this.grounded && (this.wantsSlide() || (this.sliding && !this.canStand()));
     this.vy += C.gravity * dt;
@@ -338,6 +410,7 @@ export class Runner {
         this.collect(item);
     }
     this.updateAdventure();
+    this.updateExtras(body);
     this.updateEnemies();
     for (const source of this.enemyStates) {
       if (!source.projectile.active) continue;
@@ -391,8 +464,8 @@ export class Runner {
     if (this.y > C.fallBoundary && this.recovering <= 0) {
       this.hurt(true);
       if (this.hp > 0) {
-        this.x = this.safeX;
-        this.y = C.ground;
+        this.x = this.prevX = this.safeX;
+        this.y = this.prevY = C.ground;
         this.vy = 0;
         this.grounded = true;
         this.jumps = 0;
@@ -431,6 +504,28 @@ export class Runner {
         }
       }
     }
+  }
+  private updateExtras(body: Rect) {
+    const t = this.treasure;
+    if (t && !this.treasureFound && overlap(body, t)) {
+      this.treasureFound = true;
+      this.message = '숨은 보물 상자 발견!';
+      this.emit('treasure');
+    }
+    const g = this.gate;
+    if (g && this.gateSaid === null && this.x >= g.x) {
+      const o = {...GATE_O, x: g.x + GATE_O.x},
+        said = overlap(body, o) || this.y < GATE_X.y - 8;
+      this.gateSaid = said;
+      const right = said === g.truth;
+      if (right && this.rule !== 'no-shield') this.shield = true;
+      this.message = right ? '정답! 아테나의 방패를 받았어요' : '아쉬워요! 수첩에서 다시 알아봐요';
+      if (right) this.emit('gate');
+      else this.events.push({kind: 'gate', x: this.x, y: this.y - 45, text: this.message});
+    }
+  }
+  get gateRight() {
+    return this.gate && this.gateSaid !== null ? this.gateSaid === this.gate.truth : null;
   }
   private updateAdventure() {
     for (const [id, active] of [
@@ -522,6 +617,13 @@ export class Runner {
         evaded: this.evaded.size,
         tricked: this.tricked.size,
         ghost: {score: this.points, duration: Math.min(GHOST_SECONDS, this.time), samples: [...this.trace]},
+      },
+      extras: {
+        combo: this.bestCombo,
+        comboPoints: this.comboPoints,
+        blessing: this.blessing,
+        ...(this.treasureFound && this.treasure ? {treasure: this.treasure.id} : {}),
+        ...(this.gate && this.gateRight !== null ? {gate: {quiz: this.gate.quiz, right: this.gateRight}} : {}),
       },
     };
     return this.finalized;

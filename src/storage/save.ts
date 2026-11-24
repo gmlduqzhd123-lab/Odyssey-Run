@@ -11,6 +11,7 @@ import {
   type Weekly,
 } from './feats';
 import {emptySeason, readSeason, type Season} from './season';
+import {emptyPlay, readPlay, type PlayRecord, type RunExtras} from './play';
 import {emptyExpeditions, readExpeditions, type Expeditions} from './expeditions';
 import {defaultPreferences, readPreferences, type Preferences} from './preferences';
 import {emptyJournal, validateJournal, validateGhost, type Ghost, type Journal, type AdventureResult} from './journal';
@@ -60,6 +61,8 @@ export interface Save {
   earned: string[];
   // How often each quiz option was chosen, for the teacher's question report.
   quizPicks: Partial<Record<string, [number, number, number]>>;
+  // Best combos, hidden chests found and O/X gates answered right.
+  play: PlayRecord;
 }
 export interface EndlessRecord {
   bestScore: number;
@@ -98,6 +101,7 @@ export const emptySave = (): Save => ({
   season: emptySeason(),
   earned: [],
   quizPicks: {},
+  play: emptyPlay(),
 });
 const obj = (v: unknown): Record<string, unknown> => {
   if (!v || typeof v !== 'object' || Array.isArray(v)) throw Error('기록 형식을 확인해 주세요.');
@@ -231,6 +235,7 @@ export function validateSave(raw: unknown): Save {
   out.days = readDays(v.days);
   out.weekly = readWeekly(v.weekly);
   out.season = readSeason(v.season);
+  out.play = readPlay(v.play);
   out.earned = v.earned === undefined ? [] : readEarned(v.earned);
   out.quizPicks = readQuizPicks(v.quizPicks);
   if (v.endless !== undefined) {
@@ -264,6 +269,8 @@ export interface RunResult {
   hpLoss: number;
   distance: number;
   adventure?: AdventureResult;
+  // Combo, blessing, hidden chest and O/X gate of the run (see levels/play-extras).
+  extras?: RunExtras;
 }
 export function courseRecord(save: Save, stage: StageId, variant: VariantId): CourseRecord {
   return (

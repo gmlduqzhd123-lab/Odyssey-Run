@@ -67,7 +67,7 @@ jobs:
           - suite: i18n-vi-zh-ru
             run: for l in vi zh ru; do QA_LANG=$l QA_URL="http://localhost:4176$PAGES_BASE" npm run test:i18n || exit 1; done
           - suite: classroom
-            run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:classroom
+            run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:classroom && QA_URL="http://localhost:4176$PAGES_BASE" npm run test:extras
           - suite: loading-update
             run: npm run test:loading && npm run test:update
           # Clipped or overlapping text on every menu screen at classroom window sizes. The script

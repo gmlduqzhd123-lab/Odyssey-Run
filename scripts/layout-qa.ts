@@ -60,6 +60,12 @@ const SCREENS: [string, string[], string[]?][] = [
   ['countdown', ['islands', 'stage:beach', 'start', 'opt:rotate-skip', 'wait:900'], RUN_SIZES],
   ['play', ['islands', 'stage:beach', 'start', 'opt:rotate-skip', 'wait:4500'], RUN_SIZES],
   ['pause', ['islands', 'stage:beach', 'start', 'opt:rotate-skip', 'wait:4500', 'key:Escape'], RUN_SIZES],
+  // Photo mode from the pause dialog: the slim bar of poses along the bottom of the paused course.
+  [
+    'photo',
+    ['islands', 'stage:beach', 'start', 'opt:rotate-skip', 'wait:4500', 'key:Escape', 'photo', 'wait:300'],
+    RUN_SIZES,
+  ],
   // The result screen after a run (no input, so the hero runs out of hearts): its row of three
   // buttons is where a Korean word once broke in two. Checked at a few common window sizes.
   ['result', ['islands', 'stage:beach', 'start', 'opt:rotate-skip', 'until:.result-actions'], RESULT_SIZES],

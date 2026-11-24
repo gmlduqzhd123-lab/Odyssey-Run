@@ -150,8 +150,11 @@ export function progress(save: Save | null) {
   };
 }
 export function summary(save: Save | null) {
-  if (!save) return {total: 0, islands: 0, maps: 0, quiz: 0, stars: 0};
+  if (!save) return {total: 0, islands: 0, maps: 0, quiz: 0, stars: 0, week: '', weekRuns: 0};
   return {
+    // This sailor's finished runs in their latest recorded week (the class's wooden horse counts them).
+    week: save.weekly.week,
+    weekRuns: save.weekly.counts.runs ?? 0,
     total: STAGES.reduce((n, id) => n + save.stages[id].bestScore, 0),
     stars: STAGES.reduce((n, id) => n + save.stages[id].bestStars, 0),
     islands: STAGES.filter(id => save.stages[id].complete).length,

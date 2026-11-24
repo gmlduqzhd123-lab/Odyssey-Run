@@ -128,7 +128,7 @@ test('daily selection is deterministic with all three variants and rules over ni
     assert.equal(s.stage, 'beach');
   }
   assert.equal(ids.size, 3);
-  assert.equal(rules.size, 3);
+  assert.equal(rules.size, 5);
   assert.equal(koreanDay(new Date('2026-10-26T15:00:00Z')), '2026-10-27');
 });
 test('daily completion requires same-run condition; no-shield mode suppresses only shield', () => {

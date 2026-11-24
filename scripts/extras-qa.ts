@@ -1,0 +1,128 @@
+import {existsSync} from 'node:fs';
+import {mkdir, writeFile} from 'node:fs/promises';
+import {chromium, expect} from '@playwright/test';
+import {routeInputs} from './check-routes';
+import {getCourse} from '../src/levels/variants';
+import {gateFor, treasureFor} from '../src/levels/play-extras';
+// The playful extras in a real browser: the blessing picker, Athena's shield from the start, the
+// combo chip, a full scripted beach run past the chest and the O/X gate, the result's extras line
+// and saved record, photo mode's picture, the device status and the class's wooden horse.
+const url = process.env.QA_URL || 'http://localhost:4176/Odyssey-Run/';
+const b = await chromium.launch({
+  executablePath: process.env.QA_CHROMIUM_PATH || (existsSync('/usr/bin/chromium') ? '/usr/bin/chromium' : undefined),
+  args: ['--no-sandbox'],
+});
+const errors: string[] = [];
+await mkdir('artifacts', {recursive: true});
+try {
+  const c = await b.newContext({viewport: {width: 1280, height: 720}, acceptDownloads: true});
+  const p = await c.newPage();
+  p.on('pageerror', e => errors.push(e.message));
+  await p.clock.install();
+  await p.goto(url);
+  await p.waitForSelector('.home');
+  await p.clock.pauseAt((await p.evaluate(() => Date.now())) + 1000);
+  const tap = (s: string) => p.locator(s).first().click(),
+    x = async () => Number(await p.locator('#progress').getAttribute('data-distance')),
+    save = () =>
+      p.evaluate(() => {
+        const k = Object.keys(localStorage).find(k => k.startsWith('odyssey-run:') && k.endsWith(':save'))!;
+        return JSON.parse(localStorage.getItem(k)!);
+      }),
+    advance = async (target: number) => {
+      let n = 0;
+      while ((await x()) < target && n++ < 20)
+        await p.clock.runFor(Math.max(17, Math.ceil(((target - (await x())) / 320) * 1000)));
+    },
+    key = async (type: string) => {
+      if (type === 'jump') await p.keyboard.press('Space');
+      else if (type === 'down') await p.keyboard.down('ArrowDown');
+      else await p.keyboard.up('ArrowDown');
+    };
+  await tap('[data-action="islands"]');
+  await tap('[data-action="stage:beach"]');
+  await p.waitForSelector('.blessing-picker');
+  await expect(p.locator('.blessing-picker input')).toHaveCount(4);
+  await p.locator('.blessing-picker input[value="athena"]').check({force: true});
+  await p.screenshot({path: 'artifacts/extras-prepare.png'});
+  await tap('[data-action="start"]');
+  let i = 0;
+  while ((await p.locator('.countdown').count()) && i++ < 300) await p.clock.runFor(17);
+  // Athena's shield is held from the first step.
+  await expect(p.locator('#effects')).toContainText('방패');
+  const course = getCourse('beach', 'classic'),
+    plan = routeInputs('beach', 'upper', true),
+    gate = gateFor(course, 'qa')!,
+    chest = treasureFor(course)!;
+  const events = [
+    ...plan.jumps.map(x => ({x, type: 'jump'})),
+    ...plan.slides.flatMap(s => [
+      {x: s.start, type: 'down'},
+      {x: s.end, type: 'up'},
+    ]),
+  ].sort((a, b) => a.x - b.x);
+  let comboSeen = false,
+    shotChest = false,
+    shotGate = false;
+  for (const e of events) {
+    await advance(e.x);
+    if (!comboSeen && (await p.locator('#combo').textContent())?.includes('콤보')) comboSeen = true;
+    if (!shotChest && (await x()) > chest.x - 700) {
+      shotChest = true;
+      await p.screenshot({path: 'artifacts/extras-chest.png'});
+    }
+    if (!shotGate && (await x()) > gate.x - 900) {
+      shotGate = true;
+      await p.screenshot({path: 'artifacts/extras-gate.png'});
+    }
+    await key(e.type);
+  }
+  await advance(23700);
+  await p.clock.runFor(1800);
+  await expect(p.locator('.result')).toBeVisible();
+  expect(comboSeen).toBe(true);
+  await expect(p.locator('.extras-result')).toContainText('최고 콤보');
+  await expect(p.locator('.extras-result')).toContainText('아테나의 방패');
+  await expect(p.locator('.extras-result')).toContainText('O/X');
+  await p.screenshot({path: 'artifacts/extras-result.png'});
+  const s = await save();
+  expect(s.play.combos.beach.best).toBeGreaterThan(5);
+  expect(s.stages.beach.complete).toBe(true);
+  // Photo mode from the pause dialog of a new run.
+  await tap('[data-action="restart"]');
+  i = 0;
+  while ((await p.locator('.countdown').count()) && i++ < 300) await p.clock.runFor(17);
+  await p.clock.runFor(1500);
+  await p.keyboard.press('Escape');
+  await tap('[data-action="photo"]');
+  await expect(p.locator('.photo-bar')).toBeVisible();
+  await expect(p.locator('.hud')).toHaveCount(0);
+  await p.locator('input[name="photo-pose"][value="cheer"]').check({force: true});
+  await p.clock.runFor(100);
+  await p.screenshot({path: 'artifacts/extras-photo.png'});
+  const download = p.waitForEvent('download');
+  await tap('[data-action="photo-save"]');
+  for (let k = 0; k < 5; k++) await p.clock.runFor(50);
+  const file = await download;
+  expect(file.suggestedFilename()).toMatch(/^odyssey-beach-\d{4}-\d{2}-\d{2}\.png$/);
+  await expect(p.locator('#photo-status')).toContainText('저장했어요');
+  await tap('[data-action="photo-close"]');
+  await expect(p.locator('.pause-panel')).toBeVisible();
+  await tap('[data-action="islands"]');
+  // The device status shows the last run's average frame rate.
+  await tap('[data-action="home"]');
+  await tap('[data-action="settings"]');
+  await p.locator('.device-status summary').click();
+  await expect(p.locator('.device-status')).toContainText('fps');
+  await p.screenshot({path: 'artifacts/extras-device.png'});
+  // The class's wooden horse has a plank for the finished run.
+  await tap('[data-action="home"]');
+  await tap('[data-action="profiles"]');
+  await expect(p.locator('.horse-grid i.built')).toHaveCount(1);
+  await p.locator('.horse').screenshot({path: 'artifacts/extras-horse.png'});
+  expect(errors).toEqual([]);
+  await writeFile('artifacts/extras-qa.json', JSON.stringify({play: s.play, errors}, null, 1));
+  console.log('extras: blessing, combo, chest, gate, result, photo, device status and horse passed');
+} finally {
+  await b.close();
+}
