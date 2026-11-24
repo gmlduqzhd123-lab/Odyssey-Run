@@ -4230,3 +4230,73 @@ body {
   min-height: 1em;
   font-size: 0.85rem;
 }
+/* Dynamic play: the fever gauge, the surprise mission chip and the close race at the end. */
+#fever {
+  display: inline-block;
+  width: 64px;
+  height: 10px;
+  align-self: center;
+  border-radius: 999px;
+  background: rgba(255, 242, 210, 0.22);
+  overflow: hidden;
+  outline: 1px solid rgba(255, 214, 120, 0.6);
+}
+#fever[hidden] {
+  display: none;
+}
+#fever i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, #f3b33d, #ffe08a);
+  transition: width 0.15s;
+}
+#fever.on i {
+  background: linear-gradient(90deg, #ffdf6b, #fff6c8);
+}
+#mission:empty {
+  display: none;
+}
+#mission {
+  background: rgba(214, 74, 58, 0.28);
+  border-radius: 999px;
+  padding: 0 0.6em;
+  font-weight: 800;
+}
+#ghost-delta.close-race {
+  font-size: 1.15em;
+  font-weight: 800;
+}
+@media (prefers-reduced-motion: reduce) {
+  #fever i {
+    transition: none;
+  }
+}
+.profiles .live-mission {
+  max-width: 760px;
+  margin: 1rem auto;
+}
+.live-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 10px 16px;
+}
+.live-count #live-time {
+  margin-left: 0.6em;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.live-mission .fleet-line {
+  display: block;
+  position: relative;
+  height: 10px;
+  border-radius: 999px;
+  background: #e3dccb;
+  overflow: hidden;
+}
+.live-mission .fleet-line i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #d9a441, #f1cf7b);
+}

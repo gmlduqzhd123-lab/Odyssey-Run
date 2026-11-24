@@ -20,6 +20,8 @@ import {ENEMY_TYPES} from '../levels/enemies';
 import {heroPose, itemPose, enemyPose, obstaclePose} from '../rendering/poses';
 import {HOME_FILES, GAME_FILES, backgroundFiles} from '../assets/loading';
 import {GATE_O, GATE_X, gateStatement} from '../levels/play-extras';
+import {CHASERS, ROPE_END, ROPE_TOP} from '../levels/play-dynamics';
+import {seeded} from '../levels/endless';
 // Phaser measures text with '|MÉqgy'; without the É the accented-letter font file is not
 // fetched for Korean and English players.
 const TEST_STRING = '|Mqgy';
@@ -36,6 +38,14 @@ export interface SceneHost {
   // How far the run is between its last two steps (0 to 1), to draw smoothly in between.
   blend?(): number;
 }
+// What the hero says at a few moments of a run.
+const SPEECH: Record<string, string> = {
+  fever: '가자!',
+  'chase-start': '뛰어!',
+  mission: '해냈다!',
+  stomp: '에잇!',
+  revive: '고마워!',
+};
 const PAINTED_TOP: Record<string, number> = {'view-cave': 0.5, 'view-storm': 0.5, 'view-palace': 0.55};
 // The night route's painted stars would read as collectible starlight: cool them to blue.
 const PAINTED_TINT: Record<string, number> = {'view-night': 0x8f9cc8};
@@ -77,6 +87,13 @@ export class World extends Phaser.Scene {
   private dust: {x: number; y: number; vx: number; life: number}[] = [];
   private frameDelta = 1 / 60;
   private chest: Phaser.GameObjects.Image | null = null;
+  // The moving camera (zoom out in the air, a shake on a hit) and the hero's speech bubble.
+  private zoom = 1;
+  private shake = 0;
+  private baseScroll = {x: 0, y: 0};
+  private speech!: Phaser.GameObjects.Text;
+  private speechLife = 0;
+  private said = new Set<string>();
   private cue!: Phaser.GameObjects.Text;
   // Photo mode: the hero drawn in a chosen pose over the paused course (null while playing).
   private posed: 'run' | 'jump' | 'crouch' | 'cheer' | null = null;
@@ -96,8 +113,9 @@ export class World extends Phaser.Scene {
   private get bgWidth() {
     return 1600 * Math.max(this.view.height / 540, this.view.width / 1600);
   }
+  // A little taller than the view, so the camera zoomed out in the air never shows an empty band.
   private get bgHeight() {
-    return 540 * Math.max(this.view.height / 540, this.view.width / 1600);
+    return 540 * Math.max(this.view.height / 540, this.view.width / 1600) + 40;
   }
   preload() {
     this.load.xhr.timeout = 20000;
@@ -211,6 +229,17 @@ export class World extends Phaser.Scene {
       })
       .setOrigin(0.5)
       .setDepth(21);
+    this.speech = this.add
+      .text(0, 0, '', {
+        fontFamily: "'Odyssey UI', sans-serif",
+        testString: TEST_STRING,
+        fontStyle: 'bold',
+        fontSize: '15px',
+        color: '#22404f',
+        resolution: this.host.density(),
+      })
+      .setOrigin(0.5)
+      .setDepth(22);
     this.syncDisplay();
     this.host.loaded();
   }
@@ -326,6 +355,10 @@ export class World extends Phaser.Scene {
     this.label.setText('');
     this.warning.setText('');
     this.cue?.setText('');
+    this.speech?.setText('');
+    this.zoom = 1;
+    this.shake = 0;
+    this.camera();
   }
   setStage(id: StageId) {
     this.stage = id;
@@ -342,15 +375,17 @@ export class World extends Phaser.Scene {
     // extend the world; the fixed camera never animates or crops the course.
     const width = Math.round(v.width * d),
       height = Math.round(v.height * d);
+    this.baseScroll = {x: (width * (1 - d)) / (2 * d), y: (height * (1 - d)) / (2 * d) - v.extraHeight};
     this.cameras.main
       .setSize(width, height)
-      .setZoom(d)
-      .setScroll((width * (1 - d)) / (2 * d), (height * (1 - d)) / (2 * d) - v.extraHeight);
+      .setZoom(d * this.zoom)
+      .setScroll(this.baseScroll.x, this.baseScroll.y);
     this.bg.forEach(pair => pair.forEach(b => b.setDisplaySize(this.bgWidth, this.bgHeight)));
     if (this.label) this.label.setResolution(d);
     if (this.ghostTag) this.ghostTag.setResolution(d);
     if (this.warning) this.warning.setResolution(d);
     if (this.cue) this.cue.setResolution(d);
+    if (this.speech) this.speech.setResolution(d);
     this.bursts.forEach(b => b.text.setResolution(d).setX(v.width / 2));
     const context = this.game.canvas.getContext('2d');
     if (context) context.imageSmoothingQuality = 'high';
@@ -360,7 +395,7 @@ export class World extends Phaser.Scene {
       offset = ((position % width) + width) % width;
     this.bg[layer].forEach((image, i) => {
       const x = i * width - offset;
-      image.setPosition(x, -this.view.extraHeight).setVisible(x < this.view.width && x + width > 0);
+      image.setPosition(x, -this.view.extraHeight - 20).setVisible(x < this.view.width + 60 && x + width > -60);
     });
   }
   showRun(run: Runner) {
@@ -443,6 +478,9 @@ export class World extends Phaser.Scene {
     if (run.treasure && this.textures.exists('chest'))
       this.chest = this.add.image(run.treasure.x, run.treasure.y, 'chest').setOrigin(0).setDepth(6);
     this.photo(null);
+    this.said.clear();
+    this.speechLife = 0;
+    this.speech.setText('');
     this.flash = this.land = 0;
     this.dust = [];
     this.wasGrounded = true;
@@ -472,7 +510,12 @@ export class World extends Phaser.Scene {
   }
   feedback(kind: string, x: number, y: number, message?: string) {
     // A hit flashes the screen for a blink (never with reduced motion).
-    if ((kind === 'hurt' || kind === 'fall') && !this.host.reduced()) this.flash = 0.12;
+    if ((kind === 'hurt' || kind === 'fall') && !this.host.reduced()) {
+      this.flash = 0.12;
+      this.shake = 0.25;
+    }
+    const line = SPEECH[kind];
+    if (line) this.speak(line);
     if (kind === 'jump' || kind === 'star') return;
     this.bursts.forEach(b => b.text.destroy());
     this.bursts = [];
@@ -510,6 +553,17 @@ export class World extends Phaser.Scene {
             'gate',
             'treasure',
             'rescue',
+            'stomp',
+            'fever',
+            'spring',
+            'swing',
+            'mission',
+            'mission-start',
+            'mission-fail',
+            'chase-start',
+            'chase',
+            'revive',
+            'overtake',
           ].includes(kind)
             ? message || words[kind] || '새로운 발견!'
             : words[kind] || '',
@@ -520,7 +574,7 @@ export class World extends Phaser.Scene {
           fontStyle: 'bold',
           fontSize: '18px',
           color:
-            kind === 'hurt' || (kind === 'gate' && message?.startsWith('아쉬워요'))
+            kind === 'hurt' || kind === 'mission-fail' || (kind === 'gate' && message?.startsWith('아쉬워요'))
               ? '#ffb8a3'
               : kind === 'charm'
                 ? '#e6c8ff'
@@ -606,7 +660,7 @@ export class World extends Phaser.Scene {
     const g = this.ground;
     g.clear();
     // Ground spans retain the complete logical view, including on small screens.
-    let start = cam - 20,
+    let start = cam - 80,
       spanIndex = 0;
     this.groundArt.forEach(s => s.setVisible(false));
     const groundSpan = (a: number, b: number) => {
@@ -623,7 +677,7 @@ export class World extends Phaser.Scene {
                 : this.stage === 'palace'
                   ? 0xd2b78c
                   : 0xcab28c,
-      ).fillRect(a - cam, 440, b - a, 100);
+      ).fillRect(a - cam, 440, b - a, 200);
       g.fillStyle(dark ? 0x465360 : 0x81988e, 0.12).fillRect(a - cam, 516, b - a, 24);
       const band = this.groundArt[spanIndex++];
       if (band && b - a >= 1) {
@@ -645,7 +699,7 @@ export class World extends Phaser.Scene {
       groundSpan(start, gap.x);
       start = gap.x + gap.w;
     }
-    groundSpan(start, cam + this.view.width + 40);
+    groundSpan(start, cam + this.view.width + 120);
     this.obstacles.forEach((s, i) => {
       const o = r.course.obstacles[i],
         p = obstaclePose(o, rx),
@@ -839,8 +893,11 @@ export class World extends Phaser.Scene {
     });
     this.drawAdventure(r, cam, reduced);
     this.drawExtras(r, cam, rt);
+    this.drawMoves(r, cam, rt, ry);
     this.drawWeather(r, reduced);
     this.drawSpeed(r, rt, reduced);
+    this.drawScenery(r, rt, reduced);
+    this.drawChase(r, rt, ry, reduced);
     this.drawGhost(r, cam);
     this.drawHero(r, ry, reduced);
     this.drawCostume(
@@ -863,6 +920,21 @@ export class World extends Phaser.Scene {
       fx.lineBetween(this.view.heroX - 32, ry - 40, this.view.heroX - 60, ry - 63);
       fx.lineBetween(this.view.heroX + 30, ry - 40, this.view.heroX + 54, ry - 63);
     }
+    if (r.fever > 0) {
+      // Fever: a golden glow around the hero and a warm wash over the course.
+      const pulse = reduced ? 0.5 : 0.5 + 0.5 * Math.sin(rt * 12);
+      fx.fillStyle(0xffd76a, 0.06).fillRect(0, -this.view.extraHeight, this.view.width, this.view.height);
+      fx.lineStyle(4, 0xffd76a, 0.5 + 0.4 * pulse).strokeEllipse(this.view.heroX, ry - 40, 96 + pulse * 10, 110);
+      if (!reduced)
+        for (let i = 0; i < 6; i++)
+          fx.fillStyle(0xfff1b8, 0.8).fillCircle(
+            this.view.heroX - 20 - ((rt * 400 + i * 37) % 160),
+            ry - 20 - ((i * 23) % 60),
+            2.5,
+          );
+    }
+    this.drawSpeech(r, ry);
+    this.camera(r, ry, reduced);
     if (this.flash > 0) {
       this.flash -= this.frameDelta;
       fx.fillStyle(0xffffff, Math.max(0, this.flash / 0.12) * 0.35).fillRect(
@@ -1178,6 +1250,150 @@ export class World extends Phaser.Scene {
       sy = 1.07;
     }
     if (sx !== 1 || sy !== 1) this.hero.setScale(this.hero.scaleX * sx, this.hero.scaleY * sy);
+  }
+  // The moving camera: zoom out a little high in the air, in the wind and in fever, in a little at
+  // a boss's first steps, and a short shake on a hit. Still with reduced motion.
+  private camera(r?: Runner, ry: number = C.ground, reduced = true) {
+    const cam = this.cameras?.main;
+    if (!cam) return;
+    let target = 1;
+    if (r && !reduced && r.state === 'playing') {
+      const inWind = r.course.winds.some(w => r.x > w.x && r.x < w.x + w.w);
+      target =
+        r.course.mode === 'boss' && r.x < 900
+          ? 1.05
+          : (!r.grounded && ry < 310) || inWind
+            ? 0.93
+            : r.fever > 0
+              ? 0.96
+              : 1;
+    }
+    if (reduced) this.shake = 0;
+    this.zoom = r ? this.zoom + (target - this.zoom) * Math.min(1, this.frameDelta * 3) : 1;
+    const shake = this.shake > 0 ? (this.shake / 0.25) * 6 : 0;
+    if (this.shake > 0) this.shake -= this.frameDelta;
+    cam
+      .setZoom(this.host.density() * this.zoom)
+      .setScroll(this.baseScroll.x + (Math.random() - 0.5) * shake, this.baseScroll.y + (Math.random() - 0.5) * shake);
+  }
+  private speak(text: string) {
+    if (!this.speech || this.posed) return;
+    text = translate(text);
+    if (this.speech.text !== text) this.speech.setText(text);
+    this.speechLife = 1.6;
+  }
+  // Short lines from the hero: low on hearts, close to the end, a long combo.
+  private drawSpeech(r: Runner, ry: number) {
+    const once = (id: string, on: boolean, line: string) => {
+      if (on && !this.said.has(id)) {
+        this.said.add(id);
+        this.speak(line);
+      }
+    };
+    if (r.state === 'playing') {
+      once('low', r.hp === 1, '조심해야 해!');
+      once('combo', r.combo >= 25, '좋아, 이대로!');
+      once('end', r.x > r.length * 0.9 && r.course.mode !== 'endless', '조금만 더!');
+      this.speechLife -= this.frameDelta;
+    }
+    const show = this.speechLife > 0 && !this.cue.text && !this.posed;
+    this.speech.setVisible(show);
+    if (!show) return;
+    const x = this.view.heroX + 70,
+      y = ry - 112,
+      w = this.speech.width + 18;
+    this.fx.fillStyle(0xfffaf0, 0.95).fillRoundedRect(x - w / 2, y - 14, w, 28, 10);
+    this.fx.fillTriangle(x - w / 2 + 12, y + 12, x - w / 2 + 26, y + 12, x - w / 2 + 6, y + 24);
+    this.speech.setPosition(x, y);
+  }
+  // The spring pad and the swing rope (ordinary runs).
+  private drawMoves(r: Runner, cam: number, rt: number, ry: number) {
+    const fx = this.fx;
+    if (r.springX !== null) {
+      const x = r.springX - cam;
+      if (x > -60 && x < this.view.width + 60) {
+        fx.lineStyle(3, 0x9aa4ad, 1);
+        for (let k = 0; k < 4; k++) fx.lineBetween(x - 14, C.ground - 4 - k * 5, x + 14, C.ground - 6 - k * 5);
+        fx.fillStyle(0xe8b04d, 1).fillRoundedRect(x - 22, C.ground - 26, 44, 7, 3);
+        fx.fillStyle(0xfff0b0, 0.9).fillTriangle(x, C.ground - 52, x - 9, C.ground - 38, x + 9, C.ground - 38);
+      }
+    }
+    if (r.ropeX !== null) {
+      const x = r.ropeX - cam;
+      if (x > -80 && x < this.view.width + 80) {
+        fx.fillStyle(0x6e5236, 1).fillRect(x - 30, ROPE_TOP - 8, 60, 8);
+        if (r.ropeSwing > 0) fx.lineStyle(3, 0xc9a26a, 1).lineBetween(x, ROPE_TOP, this.view.heroX, ry - 40);
+        else {
+          const sway = Math.sin(rt * 2) * 8,
+            end = {x: x + sway, y: ROPE_END.y};
+          fx.lineStyle(3, 0xc9a26a, 1).lineBetween(x, ROPE_TOP, end.x, end.y);
+          if (!r.ropeUsed) fx.lineStyle(3, 0xffe3a2, 0.9).strokeCircle(end.x, end.y, 10);
+        }
+      }
+    }
+  }
+  // Something comes up behind the hero during the chase, closer with each hit.
+  private drawChase(r: Runner, rt: number, ry: number, reduced: boolean) {
+    if (!r.chasing || r.state !== 'playing') return;
+    const fx = this.fx,
+      top = -this.view.extraHeight,
+      near = Math.min(2, r.chaseHits),
+      edge = this.view.heroX - 170 + near * 50 + (reduced ? 0 : Math.sin(rt * 5) * 8);
+    // A red glow along the left edge.
+    for (let i = 0; i < 6; i++) fx.fillStyle(0xd0443a, 0.05 * (6 - i)).fillRect(i * 10, top, 10, this.view.height);
+    const kind = CHASERS[r.stage].texture;
+    if (kind === 'wave' || kind === 'whirl') {
+      fx.fillStyle(0x2f7f9a, 0.85).fillEllipse(edge - 90, C.ground - 40, 240, 200);
+      fx.fillStyle(0xe6f4f8, 0.8).fillEllipse(edge - 20, C.ground - 120, 90, 40);
+    } else if (kind === 'giant' || kind === 'suitors') {
+      const n = kind === 'giant' ? 1 : 3;
+      for (let i = 0; i < n; i++) {
+        const x = edge - 60 - i * 55,
+          h = kind === 'giant' ? 200 : 110;
+        fx.fillStyle(0x2a2a33, 0.85).fillRoundedRect(x - 30, C.ground - h, 60, h, 16);
+        fx.fillCircle(x, C.ground - h - 18, kind === 'giant' ? 34 : 18);
+        fx.fillStyle(0xffd76a, 0.9).fillCircle(x + 8, C.ground - h - 20, kind === 'giant' ? 8 : 3);
+      }
+    } else {
+      // Gust, mist or song: rolling shapes in the island's colour.
+      const color = kind === 'mist' ? 0xb48ad8 : kind === 'song' ? 0xf6e2a8 : 0xe8f1f4;
+      for (let i = 0; i < 5; i++)
+        fx.fillStyle(color, 0.55).fillCircle(edge - 40 - i * 34, ry - 30 - ((i * 47 + rt * 90) % 160), 26 - i * 3);
+    }
+  }
+  // Harmless scenery moments every few seconds: gulls, a wave's spray, drifting leaves.
+  private drawScenery(r: Runner, rt: number, reduced: boolean) {
+    if (reduced || r.state !== 'playing') return;
+    const period = 14,
+      i = Math.floor(rt / period),
+      t = rt - i * period;
+    if (t > 4) return;
+    const kind = Math.floor(seeded(`${r.stage}:${i}`)() * 3),
+      w = this.weatherFx,
+      width = this.view.width;
+    if (kind === 0)
+      for (let k = 0; k < 5; k++) {
+        const x = width - t * 330 + k * 34,
+          y = 90 + (k % 2) * 18 + Math.sin(rt * 6 + k) * 4;
+        w.lineStyle(2, 0x34495a, 0.7)
+          .lineBetween(x - 8, y - 4, x, y)
+          .lineBetween(x, y, x + 8, y - 4);
+      }
+    else if (kind === 1)
+      for (let k = 0; k < 8; k++)
+        w.fillStyle(0xe6f4f8, 0.7 * (1 - t / 4)).fillCircle(
+          width * 0.85 + k * 9,
+          C.ground - 10 - t * 60 - (k % 3) * 14,
+          4,
+        );
+    else
+      for (let k = 0; k < 6; k++)
+        w.fillStyle(0x8fbf6a, 0.75).fillEllipse(
+          width - t * 260 + k * 47,
+          120 + k * 40 + Math.sin(rt * 4 + k) * 12,
+          9,
+          5,
+        );
   }
   private puff(x: number, y: number, n: number) {
     for (let i = 0; i < n; i++) this.dust.push({x: x - 10 + i * 7, y: y - 2, vx: -40 - i * 25, life: 0.35});

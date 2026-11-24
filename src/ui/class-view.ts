@@ -38,6 +38,46 @@ export function horseMarkup(runs: number, sailors: number) {
   ).join('');
   return `<section class="horse"><h2>🐴 이번 주 트로이 목마 <small>반 모두의 완주가 널빤지가 돼요</small></h2><div class="horse-grid" role="img" aria-label="목마 ${built}/${HORSE_PIECES}조각">${cells}</div><p><b>완주 ${runs.toLocaleString()} / ${goal.toLocaleString()}</b> <span>${built >= HORSE_PIECES ? '⚑ 목마 완성! 트로이 성문이 열렸어요' : `널빤지 ${built}/${HORSE_PIECES}`}</span></p><p class="muted">이 기기의 항해사들이 이번 주(월요일부터)에 섬을 완주한 횟수를 모두 더해요. 반 전체 백업을 가져오면 다른 기기의 항해도 합쳐져요.</p></section>`;
 }
+// The class's live mission on the shared board: a few minutes to gather starlight together. The
+// teacher starts it; every sailor's starlight from then on counts (kept on this device).
+export interface LiveMission {
+  start: number;
+  minutes: number;
+  goal: number;
+  base: number;
+}
+export const LIVE_MINUTES = [5, 10, 15, 20];
+export function readLive(raw: string | null): LiveMission | null {
+  try {
+    const v = JSON.parse(raw ?? 'null');
+    if (
+      v &&
+      Number.isFinite(v.start) &&
+      LIVE_MINUTES.includes(v.minutes) &&
+      Number.isSafeInteger(v.goal) &&
+      v.goal >= 10 &&
+      v.goal <= 100_000 &&
+      Number.isSafeInteger(v.base) &&
+      v.base >= 0
+    )
+      return {start: v.start, minutes: v.minutes, goal: v.goal, base: v.base};
+  } catch {}
+  return null;
+}
+export const liveLeft = (m: LiveMission, now: number) => Math.max(0, m.start + m.minutes * 60_000 - now);
+export const clock = (ms: number) => {
+  const s = Math.ceil(ms / 1000);
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+};
+export function liveMarkup(m: LiveMission | null, stars: number, sailors: number, now: number) {
+  if (!m)
+    return `<section class="live-mission"><h2>⏱ 반 실시간 미션 <small>전자칠판에 띄워 두고 차례로 달려요</small></h2><div class="live-form"><label>시간 <select id="live-minutes">${LIVE_MINUTES.map(n => `<option value="${n}" ${n === 10 ? 'selected' : ''}>${n}분</option>`).join('')}</select></label><label>목표 별빛 <input id="live-goal" type="number" inputmode="numeric" min="10" max="100000" step="10" value="${Math.max(50, sailors * 40)}"></label>${button('live-start', '미션 시작', 'primary')}</div><p class="muted">시작한 뒤 이 기기의 항해사들이 모은 별빛을 모두 더해요.</p></section>`;
+  const got = Math.max(0, stars - m.base),
+    left = liveLeft(m, now),
+    share = Math.min(1, got / m.goal),
+    done = got >= m.goal;
+  return `<section class="live-mission"><h2>⏱ 반 실시간 미션 <small>${m.minutes}분 · 목표 별빛 ${m.goal.toLocaleString()}</small></h2><p class="live-count"><b>별빛 ${got.toLocaleString()} / ${m.goal.toLocaleString()}</b> <span id="live-time" role="timer">${left ? '남은 시간 ' + clock(left) : '시간 종료'}</span></p><span class="fleet-line" role="img" aria-label="미션 진행 ${Math.round(share * 100)}%"><i style="width:${share * 100}%"></i></span><p>${done ? '⚑ 미션 성공! 모두 함께 해냈어요' : left ? '한 명씩 달려서 별빛을 모아요' : '아쉬워요! 다음엔 목표를 조금 낮춰 봐요'}</p>${button('live-stop', left && !done ? '미션 그만두기' : '미션 닫기', 'secondary')}</section>`;
+}
 export interface QuestionReport {
   id: string;
   question: string;

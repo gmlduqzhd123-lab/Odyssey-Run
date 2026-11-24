@@ -3,6 +3,7 @@ import type {StageId} from '../levels/courses';
 import {MUSIC} from '../assets/music';
 import type {Volume} from '../storage/preferences';
 import type {WeatherId} from '../levels/weather';
+import {MusicLayers, STINGERS, THEME_BEAT} from './music-layers';
 // Only the selected island's decoded buffer is retained; effects stay synthesized.
 // Do, re, mi… a major scale up from the star's own note, two octaves at most.
 const MAJOR = [0, 2, 4, 5, 7, 9, 11];
@@ -28,6 +29,11 @@ export class Sound {
   private startedAt = 0;
   private weather: WeatherId = 'clear';
   private rain: {source: AudioBufferSourceNode; gain: GainNode} | null = null;
+  private layers = new MusicLayers();
+  // 0 the theme alone, 1 with a drum pulse, 2 with an arpeggio too (see systems/music-layers).
+  setIntensity(level: number) {
+    this.layers.level = level;
+  }
   constructor(
     private settings: () => Settings,
     private volume: () => Volume = () => ({music: 1, sfx: 1, voice: 1}),
@@ -256,6 +262,22 @@ export class Sound {
     if (!this.playing || !this.settings().music || !this.ctx || this.ctx.state !== 'running') return;
     this.loadMusic();
     this.startMusic();
+    const c = this.ctx,
+      stage = this.stage;
+    if (this.source && this.buffer && stage && this.gain) {
+      const songStart = this.startedAt - (this.offset % this.buffer.duration);
+      this.layers.schedule(c, c.destination, songStart, stage, this.volume().music * 0.9);
+    } else this.layers.reset();
+  }
+  // A short rising phrase on the island's key for the big moments (a map, fever, a mission…).
+  stinger(kind: string) {
+    const steps = STINGERS[kind],
+      c = this.ctx;
+    if (!steps || !this.settings().sfx || this.dead || !c || c.state !== 'running') return;
+    const root = THEME_BEAT[this.stage ?? 'beach'].root * 2;
+    steps.forEach((n, i) =>
+      setTimeout(() => this.tone(root * 2 ** (n / 12), 0.18, 0.035 * this.volume().sfx + 0.0001, 'triangle'), i * 70),
+    );
   }
   // A chain of starlight climbs a scale (see systems/run-feel): step 0 is the plain star note.
   effect(kind: string, step = 0) {

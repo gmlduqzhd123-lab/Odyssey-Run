@@ -19,7 +19,7 @@ export function resultExtrasMarkup(stage: StageId, x: RunExtras | undefined, pla
   const best = play.combos[stage],
     g = gate && x.gate ? gateStatement(gate) : null;
   const newBest = !!best && !!x.comboPoints && x.comboPoints >= best.points;
-  return `<div class="extras-result"><span>⛓ 최고 콤보 ${x.combo} · 콤보 점수 ${x.comboPoints.toLocaleString()}${newBest ? ' · NEW BEST' : ''}</span>${x.blessing !== 'none' ? `<span>신의 축복 · ${BLESSINGS[x.blessing].name}</span>` : ''}<span>${x.treasure ? '🗝 숨은 보물 발견!' : '🗝 숨은 보물은 이번엔 못 찾았어요'} · ${play.treasures.length}/${TREASURE_KEYS.length}</span>${g ? `<span>${x.gate!.right ? '⭕ O/X 문 정답' : '❌ O/X 문 오답'} · ${g.question} → 정답 「${g.answer}」</span>` : ''}</div>`;
+  return `<div class="extras-result"><span>⛓ 최고 콤보 ${x.combo} · 콤보 점수 ${x.comboPoints.toLocaleString()}${newBest ? ' · NEW BEST' : ''}</span>${x.blessing !== 'none' ? `<span>신의 축복 · ${BLESSINGS[x.blessing].name}</span>` : ''}<span>${x.treasure ? '🗝 숨은 보물 발견!' : '🗝 숨은 보물은 이번엔 못 찾았어요'} · ${play.treasures.length}/${TREASURE_KEYS.length}</span>${g ? `<span>${x.gate!.right ? '⭕ O/X 문 정답' : '❌ O/X 문 오답'} · ${g.question} → 정답 「${g.answer}」</span>` : ''}${x.missions !== undefined ? `<span>🎯 돌발 미션 ${x.missions}/2</span><span>🔥 피버 ${x.fevers ?? 0}번</span><span>👟 몬스터 밟기 ${x.stomps ?? 0}</span><span>${x.chase ? '🏃 추격을 따돌렸어요' : '🏃 추격에 붙잡혔어요'}</span>` : ''}</div>`;
 }
 export interface DeviceStatus {
   quality: Quality;
