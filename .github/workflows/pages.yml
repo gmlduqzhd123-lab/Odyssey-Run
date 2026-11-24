@@ -14,7 +14,7 @@ concurrency:
 jobs:
   build:
     timeout-minutes: 15
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -48,10 +48,11 @@ jobs:
         with:
           path: dist
   # Browser checks run side by side against the same build; deploy waits for all of them.
+  # Pinned: ubuntu-latest moved to 26.04, where Playwright 1.56 cannot install Chromium.
   browser:
     needs: build
     timeout-minutes: 20
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -146,7 +147,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [build, browser]
     steps:
       - uses: actions/configure-pages@v5
