@@ -1,7 +1,7 @@
 import {COURSES, STAGES} from '../levels/courses';
 import {QUIZ} from '../levels/quiz';
 import {ACHIEVEMENTS, streaks, weekKey} from '../storage/feats';
-import {TOTAL_MAPS} from './book-view';
+import {TOTAL_MAPS} from './book-nav';
 import {button, esc} from './html';
 import type {SailorProgress} from './progress-view';
 // Learning over time for the teacher: how many sailors sailed in each of the last weeks, and a

@@ -1,5 +1,5 @@
 import {chromium} from '@playwright/test';
-import {existsSync, readdirSync, readFileSync} from 'node:fs';
+import {existsSync, readFileSync} from 'node:fs';
 import {writeFile} from 'node:fs/promises';
 import {gzipSync} from 'node:zlib';
 // Low-end classroom devices: the built bundle and offline core stay inside a budget, and with the
@@ -8,13 +8,18 @@ const url = process.env.QA_URL || 'http://localhost:4176/Odyssey-Run/',
   BUDGET = {indexGzipKB: 140, coreMB: 3.5, homeMs: 9000, paceShare: 0.7, p95FrameMs: 150},
   results: Record<string, unknown> = {},
   problems: string[] = [];
-const index = readdirSync('dist/assets').find(f => /^index-.*\.js$/.test(f))!,
-  indexGzipKB = gzipSync(readFileSync(`dist/assets/${index}`)).length / 1024,
+// Every script the page loads at start (the entry and the chunks it imports), Phaser aside: it
+// keeps its own cached file. Summed, so splitting code into more files cannot hide growth.
+const startup = [...readFileSync('dist/index.html', 'utf8').matchAll(/assets\/([^"]+\.js)/g)]
+    .map(m => m[1])
+    .filter((f, i, all) => !f.startsWith('phaser-') && all.indexOf(f) === i),
+  index = startup.join(' + '),
+  indexGzipKB = startup.reduce((n, f) => n + gzipSync(readFileSync(`dist/assets/${f}`)).length, 0) / 1024,
   manifest = JSON.parse(readFileSync('dist/offline-manifest.json', 'utf8')) as {core: {bytes: number}[]},
   coreMB = manifest.core.reduce((n, f) => n + f.bytes, 0) / 1048576;
 results.bundle = {index, indexGzipKB: Math.round(indexGzipKB), coreMB: Math.round(coreMB * 100) / 100};
 if (indexGzipKB > BUDGET.indexGzipKB)
-  problems.push(`main script ${indexGzipKB.toFixed(0)}KB gzip > ${BUDGET.indexGzipKB}KB`);
+  problems.push(`startup scripts ${indexGzipKB.toFixed(0)}KB gzip > ${BUDGET.indexGzipKB}KB`);
 if (coreMB > BUDGET.coreMB) problems.push(`offline core ${coreMB.toFixed(2)}MB > ${BUDGET.coreMB}MB`);
 const b = await chromium.launch({
   executablePath: process.env.QA_CHROMIUM_PATH || (existsSync('/usr/bin/chromium') ? '/usr/bin/chromium' : undefined),

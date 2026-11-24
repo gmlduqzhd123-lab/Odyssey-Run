@@ -21,9 +21,12 @@ import {
 } from '../systems/share';
 import {Contests, contestLength, newContestId, type Entry} from '../storage/contests';
 import {Gallery} from '../storage/gallery';
-import {galleryMarkup} from './gallery-view';
-import {LEVELS, worksheetMarkup, type Level} from './worksheet-view';
-import {activityMarkup, reportAllMarkup, studentReportMarkup, trendMarkup} from './report-view';
+import type {Level} from './worksheet-view';
+// Pages away from the voyage itself load on first use (kept out of the startup scripts): the
+// teacher's pages, the book, achievements, the chronicle and the class gallery.
+const teacherViews = () =>
+  Promise.all([import('./worksheet-view'), import('./report-view'), import('./progress-view')]);
+const pageViews = () => Promise.all([import('./feats-view'), import('./chronicle-view'), import('./gallery-view')]);
 import {
   backupAge,
   backupReminder,
@@ -46,17 +49,9 @@ import {buildEndless, sectionsPassed, ENDLESS_SECTIONS} from '../levels/endless'
 import type {Course} from '../levels/courses';
 import {button, downloadFile, esc, icon, readButton} from './html';
 import {Narrator} from '../systems/narrator';
-import {
-  bookNav,
-  codexPage,
-  landscapesPage,
-  sheetPage,
-  peoplePage,
-  personPage,
-  relicsPage,
-  bestiaryPage,
-  TOTAL_MAPS,
-} from './book-view';
+import {bookNav, TOTAL_MAPS} from './book-nav';
+// The book's read-only pages load on first use.
+const bookPages = () => import('./book-view');
 import {harborArt, harborUnlocks, harborRequirements, journalCards} from './adventure-view';
 import Phaser from 'phaser';
 import {C} from '../config';
@@ -89,7 +84,6 @@ import {sceneryView} from '../levels/scenery';
 import {keepLanguage} from '../systems/lang-cache';
 import {replaceMissingArt} from './missing-art';
 import {classPreviewMarkup, importPreviewMarkup, settingToggle, settingsMarkup} from './settings-view';
-import {progressCsv, progressMarkup} from './progress-view';
 import {
   BoardScanner,
   boardMarkup,
@@ -131,8 +125,6 @@ import {
 import {WEATHERS, STORM_SPEED, isWeather, type WeatherId} from '../levels/weather';
 import {HEROES, heroInfo, heroUnlocked} from '../systems/heroes';
 import {recordQuiz, recordRun, returnedHome, weekKey} from '../storage/feats';
-import {featsMarkup} from './feats-view';
-import {chronicleMarkup, posterBlob, sceneMarkup} from './chronicle-view';
 import {CHAPTERS, chapter, chapterOpen} from '../levels/chronicle';
 import {
   clock,
@@ -780,7 +772,9 @@ export class App {
   private galleryPage(message = '') {
     this.abandon();
     this.world.showHome();
-    this.set(galleryMarkup(this.header('반 코스 갤러리', 'contests'), this.gallery.ranked(), message), 'gallery');
+    void this.later(pageViews, ([, , g]) =>
+      this.set(g.galleryMarkup(this.header('반 코스 갤러리', 'contests'), this.gallery.ranked(), message), 'gallery'),
+    );
   }
   private galleryAction(kind: string, arg = '') {
     const i = Number(arg);
@@ -1610,29 +1604,36 @@ export class App {
     const last = damageGuidance(events.at(-1)!);
     return `<section class="damage-summary"><h2>다음 항해의 힌트</h2><p>마지막 HP 손실: <b>${last.name}</b> · ${last.meters}m 지점</p><p>${last.hint}</p><small>방패 방어는 HP 손실에 포함하지 않아요. 회복해도 피해 이력은 남아요.</small></section>`;
   }
+  private bookPage(show: (pages: Awaited<ReturnType<typeof bookPages>>) => void) {
+    return this.later(bookPages, show);
+  }
   private codex() {
     const found = new Set(STAGES.flatMap(id => this.store.data.stages[id].maps));
-    this.set(codexPage(this.header('귀환의 지도'), found), 'codex');
+    void this.bookPage(b => this.set(b.codexPage(this.header('귀환의 지도'), found), 'codex'));
   }
   private landscapes() {
-    this.set(landscapesPage(this.header('항해 도감')), 'landscapes');
+    void this.bookPage(b => this.set(b.landscapesPage(this.header('항해 도감')), 'landscapes'));
   }
   private sheet(id: string) {
-    const html = sheetPage(this.header('풍경과 원화', 'landscapes'), id);
-    if (html) this.set(html, 'sheet');
+    void this.bookPage(b => {
+      const html = b.sheetPage(this.header('풍경과 원화', 'landscapes'), id);
+      if (html) this.set(html, 'sheet');
+    });
   }
   private people() {
-    this.set(peoplePage(this.header('항해 도감')), 'people');
+    void this.bookPage(b => this.set(b.peoplePage(this.header('항해 도감')), 'people'));
   }
   private person(id: string) {
-    const html = personPage(id);
-    if (html) this.set(html, 'person');
+    void this.bookPage(b => {
+      const html = b.personPage(id);
+      if (html) this.set(html, 'person');
+    });
   }
   private relics() {
-    this.set(relicsPage(this.header('항해 도감')), 'relics');
+    void this.bookPage(b => this.set(b.relicsPage(this.header('항해 도감')), 'relics'));
   }
   private bestiary() {
-    this.set(bestiaryPage(this.header('항해 도감')), 'bestiary');
+    void this.bookPage(b => this.set(b.bestiaryPage(this.header('항해 도감')), 'bestiary'));
   }
   private journal() {
     this.abandon();
@@ -1698,6 +1699,19 @@ export class App {
         if (!left) return this.profilesPage();
         this.setText('#live-time', '남은 시간 ' + clock(left));
       }, 1000);
+  }
+  // Shows a page once its code has loaded, unless another screen was chosen meanwhile.
+  private async later<T>(load: () => Promise<T>, show: (views: T) => void) {
+    const request = ++this.loadRequest;
+    try {
+      const views = await load();
+      if (request === this.loadRequest && !this.destroyed) show(views);
+    } catch {
+      this.notice('화면을 불러오지 못했어요. 연결을 확인하고 다시 눌러 주세요.');
+    }
+  }
+  private teacherPage(show: (views: Awaited<ReturnType<typeof teacherViews>>) => void) {
+    return this.later(teacherViews, show);
   }
   private liveTimer = 0;
   private live() {
@@ -1834,7 +1848,9 @@ export class App {
   private chronicle() {
     this.abandon();
     this.world.showHome();
-    this.set(chronicleMarkup(this.header('오디세이아 연대기'), this.store.data), 'chronicle');
+    void this.later(pageViews, ([, c]) =>
+      this.set(c.chronicleMarkup(this.header('오디세이아 연대기'), this.store.data), 'chronicle'),
+    );
   }
   // "scene:id" or "scene:id:line"; after a result screen the story returns to the island list.
   private sceneBack = 'chronicle';
@@ -1847,12 +1863,15 @@ export class App {
     else if (this.screen === 'chronicle') this.sceneBack = 'chronicle';
     const line = Math.max(0, Math.min(c.lines.length - 1, Number(n) || 0)),
       later = CHAPTERS.slice(CHAPTERS.indexOf(c) + 1).find(x => chapterOpen(this.store.data, x.id)) ?? null;
-    this.set(sceneMarkup(c, line, this.sceneBack === 'chronicle' ? later : null, this.sceneBack), 'scene');
+    void this.later(pageViews, ([, v]) =>
+      this.set(v.sceneMarkup(c, line, this.sceneBack === 'chronicle' ? later : null, this.sceneBack), 'scene'),
+    );
   }
   private async poster() {
     const status = this.ui.querySelector('#poster-status');
     try {
-      const blob = await posterBlob(this.store.data, this.profiles.active.name);
+      const [, {posterBlob}] = await pageViews(),
+        blob = await posterBlob(this.store.data, this.profiles.active.name);
       downloadFile(blob, 'odyssey-run-chronicle.png', 'image/png');
       if (status) status.textContent = translate('연표 포스터를 저장했어요.');
     } catch {
@@ -2184,7 +2203,9 @@ export class App {
         if (!r) return;
         this.abandon();
         this.world.showHome();
-        this.set(studentReportMarkup(this.header('학생 요약', 'progress'), r, koreanDay()), 'report');
+        void this.teacherPage(([, v]) =>
+          this.set(v.studentReportMarkup(this.header('학생 요약', 'progress'), r, koreanDay()), 'report'),
+        );
       },
     ],
     ['gallery-', arg => this.galleryAction(...(arg.split(':') as [string, string]))],
@@ -2212,20 +2233,22 @@ export class App {
       this.abandon();
       this.world.showHome();
       const rows = this.profiles.progress();
-      this.set(
-        progressMarkup(
-          this.header('학생별 진행 현황', 'profiles'),
-          rows,
-          this.offline.version,
-          this.fleet(
-            rows.reduce((n, r) => n + r.stars, 0),
-            rows.length,
-          ) +
-            activityMarkup(rows, koreanDay()) +
-            trendMarkup(rows, koreanDay()) +
-            quizReportMarkup(rows),
+      void this.teacherPage(([, {activityMarkup, trendMarkup}, {progressMarkup}]) =>
+        this.set(
+          progressMarkup(
+            this.header('학생별 진행 현황', 'profiles'),
+            rows,
+            this.offline.version,
+            this.fleet(
+              rows.reduce((n, r) => n + r.stars, 0),
+              rows.length,
+            ) +
+              activityMarkup(rows, koreanDay()) +
+              trendMarkup(rows, koreanDay()) +
+              quizReportMarkup(rows),
+          ),
+          'progress',
         ),
-        'progress',
       );
     },
     'fleet-goal': () => this.setFleetGoal(),
@@ -2243,10 +2266,12 @@ export class App {
         'text/csv;charset=utf-8',
       ),
     'progress-csv': () =>
-      this.download(
-        progressCsv(this.profiles.progress()),
-        `odyssey-run-progress-${new Date().toISOString().slice(0, 10).replaceAll('-', '')}.csv`,
-        'text/csv;charset=utf-8',
+      void teacherViews().then(([, , {progressCsv}]) =>
+        this.download(
+          progressCsv(this.profiles.progress()),
+          `odyssey-run-progress-${new Date().toISOString().slice(0, 10).replaceAll('-', '')}.csv`,
+          'text/csv;charset=utf-8',
+        ),
       ),
     contests: () => this.contestsPage(),
     gallery: () => this.galleryPage(),
@@ -2256,21 +2281,25 @@ export class App {
         island = this.ui.querySelector<HTMLSelectElement>('#ws-island')?.value ?? '';
       this.abandon();
       this.world.showHome();
-      this.set(
-        worksheetMarkup(this.header('활동지', 'progress'), quizReport(this.profiles.progress()), koreanDay(), {
-          level: level in LEVELS ? (level as Level) : 'mid',
-          stage: STAGES.includes(island as StageId) ? (island as StageId) : null,
-        }),
-        'worksheet',
+      void this.teacherPage(([{LEVELS, worksheetMarkup}]) =>
+        this.set(
+          worksheetMarkup(this.header('활동지', 'progress'), quizReport(this.profiles.progress()), koreanDay(), {
+            level: level in LEVELS ? (level as Level) : 'mid',
+            stage: STAGES.includes(island as StageId) ? (island as StageId) : null,
+          }),
+          'worksheet',
+        ),
       );
     },
     'worksheet-print': () => window.print(),
     'report-all': () => {
       this.abandon();
       this.world.showHome();
-      this.set(
-        reportAllMarkup(this.header('학생 요약 모두', 'progress'), this.profiles.progress(), koreanDay()),
-        'report',
+      void this.teacherPage(([, v]) =>
+        this.set(
+          v.reportAllMarkup(this.header('학생 요약 모두', 'progress'), this.profiles.progress(), koreanDay()),
+          'report',
+        ),
       );
     },
     duo: () => {
@@ -2293,7 +2322,9 @@ export class App {
     feats: () => {
       this.abandon();
       this.world.showHome();
-      this.set(featsMarkup(this.header('업적'), this.store.data, koreanDay()), 'feats');
+      void this.later(pageViews, ([f]) =>
+        this.set(f.featsMarkup(this.header('업적'), this.store.data, koreanDay()), 'feats'),
+      );
     },
     harbor: () => this.harbor(),
     quit: () => this.quit(),
