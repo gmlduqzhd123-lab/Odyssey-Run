@@ -32,31 +32,39 @@ export function drawSpeed(g: FxLayers, r: Runner, rt: number, reduced: boolean) 
   }
 }
 
-// The spring pad and the swing rope (ordinary runs).
+// Spring pads and swing ropes (ordinary runs and student courses), and a boss's weak points.
 export function drawMoves(g: FxLayers, r: Runner, cam: number, rt: number, ry: number) {
   const fx = g.fx;
-  if (r.springX !== null) {
-    const x = r.springX - cam;
-    if (x > -60 && x < g.view.width + 60) {
-      fx.lineStyle(3, 0x9aa4ad, 1);
-      for (let k = 0; k < 4; k++) fx.lineBetween(x - 14, C.ground - 4 - k * 5, x + 14, C.ground - 6 - k * 5);
-      fx.fillStyle(0xe8b04d, 1).fillRoundedRect(x - 22, C.ground - 26, 44, 7, 3);
-      fx.fillStyle(0xfff0b0, 0.9).fillTriangle(x, C.ground - 52, x - 9, C.ground - 38, x + 9, C.ground - 38);
+  for (const sx of r.springs) {
+    const x = sx - cam;
+    if (x < -60 || x > g.view.width + 60) continue;
+    fx.lineStyle(3, 0x9aa4ad, 1);
+    for (let k = 0; k < 4; k++) fx.lineBetween(x - 14, C.ground - 4 - k * 5, x + 14, C.ground - 6 - k * 5);
+    fx.fillStyle(0xe8b04d, 1).fillRoundedRect(x - 22, C.ground - 26, 44, 7, 3);
+    fx.fillStyle(0xfff0b0, 0.9).fillTriangle(x, C.ground - 52, x - 9, C.ground - 38, x + 9, C.ground - 38);
+  }
+  for (const rx of r.ropes) {
+    const x = rx - cam;
+    if (x < -80 || x > g.view.width + 80) continue;
+    fx.fillStyle(0x6e5236, 1).fillRect(x - 30, ROPE_TOP - 8, 60, 8);
+    // Drawn taut to the hero just after the throw.
+    if (r.ropeSwing > 0 && r.ropesUsed.has(rx) && Math.abs(r.x - rx) < 300)
+      fx.lineStyle(3, 0xc9a26a, 1).lineBetween(x, ROPE_TOP, g.view.heroX, ry - 40);
+    else {
+      const sway = Math.sin(rt * 2) * 8,
+        end = {x: x + sway, y: ROPE_END.y};
+      fx.lineStyle(3, 0xc9a26a, 1).lineBetween(x, ROPE_TOP, end.x, end.y);
+      if (!r.ropesUsed.has(rx)) fx.lineStyle(3, 0xffe3a2, 0.9).strokeCircle(end.x, end.y, 10);
     }
   }
-  if (r.ropeX !== null) {
-    const x = r.ropeX - cam;
-    if (x > -80 && x < g.view.width + 80) {
-      fx.fillStyle(0x6e5236, 1).fillRect(x - 30, ROPE_TOP - 8, 60, 8);
-      if (r.ropeSwing > 0) fx.lineStyle(3, 0xc9a26a, 1).lineBetween(x, ROPE_TOP, g.view.heroX, ry - 40);
-      else {
-        const sway = Math.sin(rt * 2) * 8,
-          end = {x: x + sway, y: ROPE_END.y};
-        fx.lineStyle(3, 0xc9a26a, 1).lineBetween(x, ROPE_TOP, end.x, end.y);
-        if (!r.ropeUsed) fx.lineStyle(3, 0xffe3a2, 0.9).strokeCircle(end.x, end.y, 10);
-      }
-    }
-  }
+  r.weakPoints.forEach((w, i) => {
+    const x = w.x - cam;
+    if (r.weakHits.has(i) || x < -40 || x > g.view.width + 40) return;
+    const pulse = 0.5 + 0.5 * Math.sin(rt * 6 + i);
+    fx.fillStyle(0xffd76a, 0.35 + 0.25 * pulse).fillCircle(x, w.y, 22 + pulse * 4);
+    fx.lineStyle(3, 0xfff1b8, 0.95).strokeCircle(x, w.y, 16);
+    fx.fillStyle(0xfff6dc, 1).fillTriangle(x, w.y - 8, x - 7, w.y + 6, x + 7, w.y + 6);
+  });
 }
 
 // Something comes up behind the hero during the chase, closer with each hit.

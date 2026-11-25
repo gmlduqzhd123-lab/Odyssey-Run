@@ -96,19 +96,19 @@ test('fever fills from the combo, shelters for five seconds and doubles combo po
 
 test('the spring launches the hero high and the rope throws a jumping hero up', () => {
   const r = ordinary();
-  r.springX = 500;
+  r.springs = [500];
   r.x = r.prevX = 480;
   for (let i = 0; i < 4 && !r.events.some(e => e.kind === 'spring'); i++) r.tick();
   assert.ok(r.events.some(e => e.kind === 'spring'));
   assert.ok(r.vy < C.jump);
   const q = ordinary();
-  q.ropeX = 1000;
+  q.ropes = [1000];
   q.x = q.prevX = 1000;
   q.y = ROPE_END.y + 32;
   q.vy = -100;
   q.grounded = false;
   q.tick();
-  assert.ok(q.ropeUsed);
+  assert.ok(q.ropesUsed.has(1000));
   assert.ok(q.events.some(e => e.kind === 'swing'));
 });
 

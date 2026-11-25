@@ -39,6 +39,14 @@ try {
       else if (type === 'down') await p.keyboard.down('ArrowDown');
       else await p.keyboard.up('ArrowDown');
     };
+  // A new sailor can start the prologue from the home screen: a guided practice run.
+  await tap('[data-action="prologue"]');
+  await p.waitForSelector('[data-action="start"]');
+  await tap('[data-action="start"]');
+  let n = 0;
+  while ((await p.locator('.countdown').count()) && n++ < 300) await p.clock.runFor(17);
+  await expect(p.locator('.route-progress span').first()).toContainText('프롤로그');
+  await p.keyboard.press('Escape');
   await tap('[data-action="islands"]');
   await tap('[data-action="stage:beach"]');
   await p.waitForSelector('.blessing-picker');
@@ -135,6 +143,64 @@ try {
   await p.locator('.live-mission').screenshot({path: 'artifacts/extras-live.png'});
   await tap('[data-action="live-stop"]');
   await expect(p.locator('.live-form')).toBeVisible();
+  // The island's reading opens once it is complete; two right answers record it.
+  await tap('[data-action="home"]');
+  await tap('[data-action="journal"]');
+  await tap('[data-action="readings"]');
+  await tap('[data-action="reading:beach"]');
+  await p.locator('input[name="reading-0"][value="1"]').check({force: true});
+  await p.locator('input[name="reading-1"][value="0"]').check({force: true});
+  await tap('[data-action="reading-check:beach"]');
+  await expect(p.locator('#reading-status')).toContainText('모두 맞혔어요');
+  expect((await save()).play.readings).toEqual(['beach']);
+  // The word cards turn two at a time.
+  await tap('[data-action="readings"]');
+  await tap('[data-action="journal"]');
+  await tap('[data-action="cards"]');
+  await tap('[data-action="card:0"]');
+  await tap('[data-action="card:1"]');
+  await expect(p.locator('.word-card.up')).not.toHaveCount(0);
+  // A wrong quiz answer goes into the notebook, and the notebook asks it again.
+  await tap('[data-action="journal"]');
+  await tap('[data-action="quiz"]');
+  const right = await p.evaluate(() => document.querySelector('h1')!.textContent);
+  void right;
+  await tap('[data-action="quiz-answer:2"]');
+  const missed = (await save()).play.missed.length;
+  if (missed) {
+    await tap('[data-action="journal"]');
+    await tap('[data-action="retry"]');
+    await expect(p.locator('.quiz-panel .eyebrow')).toContainText('오답 노트');
+  }
+  // The device check runs its storage check, and a lesson preset applies to the next start.
+  await tap('[data-action="journal"]');
+  await tap('[data-action="home"]');
+  await tap('[data-action="settings"]');
+  await tap('[data-action="device-check"]');
+  await tap('[data-action="check:storage"]');
+  await expect(p.locator('#check-storage')).toContainText('저장');
+  await tap('[data-action="settings"]');
+  await tap('[data-action="preset:easy"]');
+  await tap('[data-action="home"]');
+  await tap('[data-action="islands"]');
+  await tap('[data-action="stage:beach"]');
+  await expect(p.locator('.assist-note').last()).toContainText('수업 프리셋');
+  await expect(p.locator('.hero-ability')).toBeVisible();
+  await tap('[data-action="islands"]');
+  await tap('[data-action="home"]');
+  await tap('[data-action="settings"]');
+  await tap('[data-action="preset:off"]');
+  // A boss run shows its weak points on the HUD.
+  await tap('[data-action="home"]');
+  await tap('[data-action="challenges"]');
+  await tap('[data-action="boss:beach"]');
+  await p.waitForSelector('[data-action="start"]');
+  await tap('[data-action="start"]');
+  i = 0;
+  while ((await p.locator('.countdown').count()) && i++ < 300) await p.clock.runFor(17);
+  await expect(p.locator('#maps')).toContainText('보스 약점 0/3');
+  await p.keyboard.press('Escape');
+  await tap('[data-action="islands"]');
   // Today's shuffled route opens from the special voyages once the island is complete.
   await tap('[data-action="home"]');
   await tap('[data-action="challenges"]');
@@ -149,7 +215,7 @@ try {
   expect(errors).toEqual([]);
   await writeFile('artifacts/extras-qa.json', JSON.stringify({play: s.play, errors}, null, 1));
   console.log(
-    'extras: blessing, combo, fever, mission, chest, gate, result, photo, device status, horse, live mission and shuffle passed',
+    'extras: prologue, blessing, combo, fever, mission, chest, gate, result, photo, device status, horse, live mission, reading, cards, notebook, device check, preset, boss weak points and shuffle passed',
   );
 } finally {
   await b.close();

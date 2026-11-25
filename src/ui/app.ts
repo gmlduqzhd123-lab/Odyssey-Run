@@ -123,6 +123,8 @@ import type {CardGame} from './word-cards';
 import {ScreenAwake} from '../systems/wake-lock';
 import {gateFor, isBlessing, treasureFor, type BlessingId} from '../levels/play-extras';
 import {chaseFor, dynamicsFor, missionsFor, FEVER_FULL} from '../levels/play-dynamics';
+import {bossWeakPoints} from '../levels/bosses';
+import {prologueCourse, prologueGuide, PROLOGUE_TITLE} from '../levels/prologue';
 import {
   blessingPicker,
   comboLabel,
@@ -853,10 +855,32 @@ export class App {
       this.contestBoard(hosted.id, '학생 코스로 대회를 만들었어요. 참가 QR을 띄워 주세요.');
     }
   }
+  // The prologue (see levels/prologue): a guided practice run before the first island.
+  private prologue = false;
+  private async prologueRun() {
+    await this.prepare('beach');
+    if (this.screen !== 'prepare' || this.selected !== 'beach') return;
+    this.special = 'custom';
+    this.prologue = true;
+    this.custom = prologueCourse();
+    this.set(
+      `<div class="veil"><section class="panel"><span class="eyebrow">PROLOGUE</span><h1 tabindex="-1">🎓 ${PROLOGUE_TITLE}</h1><p>트로이를 떠나는 30초 연습 항해예요. 점프, 숙이기, 몬스터 밟기, 스프링, 밧줄, 추격을 하나씩 해 봐요. 화면 위 안내를 따라가면 돼요.</p><p class="muted">연습이라 기록·지도·해금에는 반영하지 않아요.</p>${button('start', '출발 →', 'primary large')}${button('home', '돌아가기', 'secondary')}</section></div>`,
+      'prepare',
+    );
+  }
   private finishCustom() {
     const r = this.result!;
     this.sound.setPlaying(false);
     this.controls.clear();
+    if (this.prologue) {
+      this.store.data = recordRun(this.store.data, r, koreanDay(), {special: true, weather: false});
+      this.store.persist();
+      this.set(
+        `<div class="veil"><section class="panel result special-result"><span class="eyebrow">PROLOGUE</span><h1 tabindex="-1">${r.complete ? '연습 항해 완주! 준비 끝이에요' : '괜찮아요, 한 번 더 연습해요'}</h1><p>${PROLOGUE_TITLE}</p><p>별빛 ${r.stars} · 몬스터 밟기 ${this.run?.stomps ?? 0} · HP 손실 ${r.hpLoss}회</p>${this.damageSummary()}<div class="button-row">${r.complete ? button('stage:beach', '첫 섬으로 출발 →', 'primary') : button('restart', '다시 연습', 'primary')}${button('restart', '한 번 더 연습', 'secondary')}${button('home', '시작 화면', 'secondary')}</div></section></div>`,
+        'result',
+      );
+      return;
+    }
     this.set(
       `<div class="veil"><section class="panel result special-result"><span class="eyebrow">BUILD YOUR OWN VOYAGE</span><h1 tabindex="-1">${r.complete ? '나만의 코스 완주!' : '다시, 한 번 더!'}</h1><p>${esc(this.custom?.name ?? '')}</p><div class="result-score"><span>이번 항해</span><strong>${r.score.toLocaleString()}</strong><small>별빛 ${r.stars} · HP 손실 ${r.hpLoss}회</small></div>${this.damageSummary()}<p class="muted">나만의 코스는 기록·지도·해금에 반영하지 않아요.</p><div class="button-row">${button('restart', '다시 달리기', 'primary')}${button('maker', '코스 고치기', 'secondary')}${button('maker-share', 'QR로 보내기', 'secondary')}</div></section></div>`,
       'result',
@@ -1136,7 +1160,7 @@ export class App {
     this.world.showHome();
     const done = returnedHome(this.store.data);
     this.set(
-      `<div class="home">${this.header('ODYSSEY RUN', 'home')}<div class="home-copy"><span class="eyebrow"><i></i> 작은 영웅의 긴 귀환</span><h1 tabindex="-1">오디세이 런<span>이타카로!</span></h1><p>별자리를 잇고, 숨은 이야기를 찾고,<br>우리만의 항구를 완성하러 떠나요.</p><div class="home-actions">${button('islands', '항해 시작 <span>↗</span>', 'primary large')}${button('codex', icon('map') + ' 지도 도감', 'secondary')}</div><div class="home-status">${done ? '⚑ 귀환 완료 · ' : ''}도장 ${this.store.data.journal.stamps.length}/${stampIds.length} · 별자리 ${this.store.data.journal.constellations.length}/${constellationIds.length} · 이야기 ${this.store.data.journal.stories.length}/${storyIds.length}</div>${this.offline?.waiting ? `<div class="update-bar" role="status"><span>새 버전이 준비됐어요.</span>${button('update', '지금 업데이트', 'secondary')}</div>` : ''}</div><div class="hero-caption"><span>${this.hero().eyebrow}</span><b>${this.hero().title}</b><i>${this.hero().line}</i></div><div class="home-bottom">${button('challenges', '⚔ 특별 항해', 'text-button')}${button('wardrobe', '♧ 영웅의 옷장', 'text-button')}${button('harbor', '⚓ 나의 항구', 'text-button')}${button('journal', '✧ 모험 수첩', 'text-button')}${button('feats', '🏅 업적', 'text-button')}${button('chronicle', '📜 연대기', 'text-button')}${button('settings', '⚙ 설정', 'text-button')}${button('quit', '게임 종료', 'text-button')}</div></div>`,
+      `<div class="home">${this.header('ODYSSEY RUN', 'home')}<div class="home-copy"><span class="eyebrow"><i></i> 작은 영웅의 긴 귀환</span><h1 tabindex="-1">오디세이 런<span>이타카로!</span></h1><p>별자리를 잇고, 숨은 이야기를 찾고,<br>우리만의 항구를 완성하러 떠나요.</p><div class="home-actions">${button('islands', '항해 시작 <span>↗</span>', 'primary large')}${button('codex', icon('map') + ' 지도 도감', 'secondary')}</div>${this.store.data.stages.beach.complete ? '' : button('prologue', '🎓 처음이라면: 프롤로그 연습 항해', 'text-button prologue-link')}<div class="home-status">${done ? '⚑ 귀환 완료 · ' : ''}도장 ${this.store.data.journal.stamps.length}/${stampIds.length} · 별자리 ${this.store.data.journal.constellations.length}/${constellationIds.length} · 이야기 ${this.store.data.journal.stories.length}/${storyIds.length}</div>${this.offline?.waiting ? `<div class="update-bar" role="status"><span>새 버전이 준비됐어요.</span>${button('update', '지금 업데이트', 'secondary')}</div>` : ''}</div><div class="hero-caption"><span>${this.hero().eyebrow}</span><b>${this.hero().title}</b><i>${this.hero().line}</i></div><div class="home-bottom">${button('challenges', '⚔ 특별 항해', 'text-button')}${button('wardrobe', '♧ 영웅의 옷장', 'text-button')}${button('harbor', '⚓ 나의 항구', 'text-button')}${button('journal', '✧ 모험 수첩', 'text-button')}${button('feats', '🏅 업적', 'text-button')}${button('chronicle', '📜 연대기', 'text-button')}${button('settings', '⚙ 설정', 'text-button')}${button('quit', '게임 종료', 'text-button')}</div></div>`,
       'home',
     );
     if (!this.reminded) {
@@ -1181,6 +1205,7 @@ export class App {
       return;
     }
     this.special = null;
+    this.prologue = false;
     this.selected = id;
     this.selectedVariant = 'classic';
     if (!contest) {
@@ -1221,7 +1246,7 @@ export class App {
         )
         .join(
           '',
-        )}</fieldset>${this.weatherPicker(id)}${this.blessingAllowed() ? blessingPicker(this.selectedBlessing) : ''}${readPreset(this.storage) ? `<p class="assist-note">수업 프리셋: ${PRESETS[readPreset(this.storage)!].name}</p>` : ''}<p class="route-hint">↑ 높은 유적길: 별자리·이야기 / 아래: 익숙한 항로</p>${button('start', '이 섬 달리기 <span>→</span>', 'primary large')}<small>약 75초 · 몬스터 ${c.enemies.length}마리 · 아이템 8종 · 아이템 없이도 완주 가능</small></section></div>`,
+        )}</fieldset>${this.weatherPicker(id)}${this.blessingAllowed() ? blessingPicker(this.selectedBlessing) : ''}<p class="hero-ability">${this.hero().name} · ${this.hero().ability}</p>${readPreset(this.storage) ? `<p class="assist-note">수업 프리셋: ${PRESETS[readPreset(this.storage)!].name}</p>` : ''}<p class="route-hint">↑ 높은 유적길: 별자리·이야기 / 아래: 익숙한 항로</p>${button('start', '이 섬 달리기 <span>→</span>', 'primary large')}<small>약 75초 · 몬스터 ${c.enemies.length}마리 · 아이템 8종 · 아이템 없이도 완주 가능</small></section></div>`,
       'prepare',
     );
   }
@@ -1293,13 +1318,16 @@ export class App {
       this.run.gate = gateFor(this.run.course, `${this.selected}/${this.selectedVariant}/${koreanDay()}`);
       const moves = dynamicsFor(this.run.course, this.run.gate);
       this.run.extras = true;
-      this.run.springX = moves.spring;
-      this.run.ropeX = moves.rope;
+      this.run.springs = moves.spring === null ? [] : [moves.spring];
+      this.run.ropes = moves.rope === null ? [] : [moves.rope];
       this.run.missions = missionsFor(this.run.course, STAGES.indexOf(this.selected));
       this.run.chase = chaseFor(this.run.course);
     }
     this.ghostSign = 0;
     this.revived = [false, false];
+    this.run.hero = this.store.data.preferences.hero;
+    if (this.special === 'boss') this.run.weakPoints = bossWeakPoints(this.selected);
+    if (this.prologue) this.run.guide = prologueGuide();
     this.sound.setWeather(this.run.weather);
     this.thunderAt = 0;
     if (this.run.weather === 'storm') this.run.speed = C.speed * STORM_SPEED;
@@ -1624,7 +1652,7 @@ export class App {
     this.store.data = recordRun(this.store.data, r, koreanDay(), {special: true, weather: false});
     this.store.persist();
     this.set(
-      `<div class="veil"><section class="panel result special-result"><span class="eyebrow">${boss ? 'BOSS ENCOUNTER' : 'TODAY’S VOYAGE · ' + this.daily!.date}</span><h1 tabindex="-1">${passed ? (boss ? '보스의 패턴을 돌파했어요!' : '오늘의 항해 성공!') : r.complete ? '완주했어요! 다음엔 조건도 달성해 봐요' : '다시, 패턴을 읽어 봐요'}</h1><p>${boss ? BOSSES[r.stage].name : this.daily!.name}</p><div class="result-score"><strong>${r.score}</strong><small>이 도전의 최고 ${best}점</small></div><p>HP 손실 ${r.hpLoss}회 · 별빛 ${r.stars}개 · ${Math.floor(r.distance / 10)}m / ${this.run!.length / 10}m</p>${!boss && !passed ? `<p>${this.daily!.description}</p>` : ''}${this.damageSummary()}<p>일반 최고 기록·지도·섬 해금에는 반영하지 않아요.</p><div class="button-row">${button('restart', '재도전', 'primary')}${button('challenges', '특별 항해', 'secondary')}${button('home', '시작 화면', 'secondary')}</div>${button('quiz', '신화 퀴즈 한 문제', 'text-button')}</section></div>`,
+      `<div class="veil"><section class="panel result special-result"><span class="eyebrow">${boss ? 'BOSS ENCOUNTER' : 'TODAY’S VOYAGE · ' + this.daily!.date}</span><h1 tabindex="-1">${passed ? (boss ? '보스의 패턴을 돌파했어요!' : '오늘의 항해 성공!') : r.complete ? '완주했어요! 다음엔 조건도 달성해 봐요' : '다시, 패턴을 읽어 봐요'}</h1><p>${boss ? BOSSES[r.stage].name : this.daily!.name}</p>${boss && this.run ? `<p class="boss-weak">⚔ 보스 약점 ${this.run.weakHits.size}/${this.run.weakPoints.length}${this.run.bossHp === 0 ? ' · 완전 격파!' : ''}</p>` : ''}<div class="result-score"><strong>${r.score}</strong><small>이 도전의 최고 ${best}점</small></div><p>HP 손실 ${r.hpLoss}회 · 별빛 ${r.stars}개 · ${Math.floor(r.distance / 10)}m / ${this.run!.length / 10}m</p>${!boss && !passed ? `<p>${this.daily!.description}</p>` : ''}${this.damageSummary()}<p>일반 최고 기록·지도·섬 해금에는 반영하지 않아요.</p><div class="button-row">${button('restart', '재도전', 'primary')}${button('challenges', '특별 항해', 'secondary')}${button('home', '시작 화면', 'secondary')}</div>${button('quiz', '신화 퀴즈 한 문제', 'text-button')}</section></div>`,
       'result',
     );
   }
@@ -2483,6 +2511,7 @@ export class App {
     },
     'fleet-goal': () => this.setFleetGoal(),
     'live-start': () => this.liveStart(),
+    prologue: () => void this.prologueRun(),
     retry: () => {
       this.quizRetry = true;
       this.quiz();
@@ -3014,6 +3043,7 @@ export class App {
       r.stories.size,
       r.nearMisses.size,
       r.combo,
+      r.weakHits.size,
       Math.round(r.feverGauge),
       Math.ceil(r.fever),
       r.mission ? `${r.mission.progress}/${Math.ceil(r.mission.until - r.time)}` : '',
@@ -3028,7 +3058,7 @@ export class App {
     this.setText(
       '#maps',
       this.special === 'boss'
-        ? '⚔ 3단계 돌파'
+        ? `⚔ 보스 약점 ${r.weakHits.size}/${r.weakPoints.length}`
         : this.special === 'custom'
           ? '⚒ 나만의 코스'
           : this.special === 'endless'

@@ -48,6 +48,7 @@ import {
   ROPE_LAUNCH,
   SPRING_LAUNCH,
   STOMPABLE,
+  TELEMACHUS_JUMP,
   STOMP_BOUNCE,
   type Mission,
 } from '../levels/play-dynamics';
@@ -90,7 +91,8 @@ export interface RunnerEvent {
     | 'mission-fail'
     | 'chase-start'
     | 'chase'
-    | 'revive';
+    | 'revive'
+    | 'weak';
   x: number;
   y: number;
   text?: string;
@@ -156,9 +158,10 @@ export class Runner {
   feverGauge = 0;
   fever = 0;
   fevers = 0;
-  springX: number | null = null;
-  ropeX: number | null = null;
-  ropeUsed = false;
+  // Spring pads and swing ropes (from the course, or placed by the app on ordinary runs).
+  springs: number[] = [];
+  ropes: number[] = [];
+  ropesUsed = new Set<number>();
   // Seconds the rope is still drawn taut after the throw.
   ropeSwing = 0;
   missions: Mission[] = [];
@@ -172,6 +175,15 @@ export class Runner {
   chaseEscaped = false;
   // Monsters landed on (in every mode).
   stomps = 0;
+  // Boss runs: the boss's three weak points (jump into them) and which were hit.
+  weakPoints: {x: number; y: number}[] = [];
+  weakHits = new Set<number>();
+  // The hero who runs (see systems/heroes): a small ability on ordinary runs only.
+  hero = 'odysseus';
+  // Athena's second block with one shield.
+  private aegis = 0;
+  // The prologue's step-by-step captions (see levels/prologue).
+  guide: {x: number; text: string}[] = [];
   readonly adventure;
   goal: GoalId;
   constellations = new Set<string>();
@@ -216,6 +228,9 @@ export class Runner {
     this.scenery = sceneryView(course);
     this.adventure = course.adventure ?? ADVENTURE_PLANS[stage];
     this.enemyStates = this.course.enemies.map(createEnemyState);
+    this.springs = [...(course.springs ?? [])];
+    this.ropes = [...(course.ropes ?? [])];
+    if (course.chase) this.chase = {...course.chase};
     if (rule === 'magnet') this.magnet = C.step * 2;
     if (rule === 'lantern') this.lantern = C.step * 2;
     this.updateEnemies();
@@ -294,7 +309,7 @@ export class Runner {
         this.comboPoints +
           Math.round(COMBO_POINTS[kind as ComboKind] * comboMultiplier(this.combo) * (this.fever > 0 ? 2 : 1)),
       );
-      if (this.extras && this.fever <= 0) this.fill(FEVER_STEP);
+      if (this.extras && this.fever <= 0) this.fill(FEVER_STEP + (this.ability('odysseus') ? 1 : 0));
     } else if (kind === 'hurt' || kind === 'fall') {
       this.combo = 0;
       this.feverGauge = 0;
@@ -328,10 +343,17 @@ export class Runner {
     this.finalized = null;
     this.say('revive', '친구가 일으켜 줬어요! 체력 1');
   }
+  // A hero's ability holds on ordinary runs only (records elsewhere stay comparable).
+  ability(id: string) {
+    return this.extras && this.hero === id;
+  }
   // Called once before the start: Athena's shield is held from the first step.
   bless(id: BlessingId) {
     this.blessing = id;
-    if (id === 'athena' && this.rule !== 'no-shield') this.shield = true;
+    if (id === 'athena' && this.rule !== 'no-shield') {
+      this.shield = true;
+      this.aegis = 1;
+    }
     this.rescues = id === 'poseidon' ? 1 : 0;
   }
   private tryJump() {
@@ -341,7 +363,10 @@ export class Runner {
     this.jumps = groundJump ? 1 : 2;
     this.grounded = false;
     this.coyote = 0;
-    this.vy = C.jump * (!groundJump && this.blessing === 'hermes' ? HERMES_JUMP : 1);
+    this.vy =
+      C.jump *
+      (!groundJump && this.blessing === 'hermes' ? HERMES_JUMP : 1) *
+      (!groundJump && this.ability('telemachus') ? TELEMACHUS_JUMP : 1);
     this.sliding = false;
     this.buffer = 0;
     this.emit('jump');
@@ -351,7 +376,10 @@ export class Runner {
     this.collected.add(item.id);
     if (item.kind === 'star') this.stars++;
     if (item.kind === 'map') this.maps.add(item.id);
-    if (item.kind === 'shield' && this.rule !== 'no-shield') this.shield = true;
+    if (item.kind === 'shield' && this.rule !== 'no-shield') {
+      this.shield = true;
+      this.aegis = 1;
+    }
     if (item.kind === 'wings') this.wings = C.effect;
     if (item.kind === 'magnet') this.magnet = C.effect;
     if (item.kind === 'apple') this.hp = Math.min(3, this.hp + 1);
@@ -371,7 +399,9 @@ export class Runner {
     if (this.state !== 'playing' || (!fall && (this.invincible > 0 || this.grace > 0 || this.fever > 0))) return;
     if (this.chasing) this.chaseHits++;
     if (!fall && this.shield) {
-      this.shield = false;
+      // Athena's ability: the first block of each shield keeps it for one more.
+      if (this.ability('athena') && this.aegis > 0) this.aegis--;
+      else this.shield = false;
       this.emit('block');
     } else if (fall && this.rescues > 0) {
       this.rescues--;
@@ -494,6 +524,7 @@ export class Runner {
     }
     this.updateAdventure();
     this.updateExtras(body);
+    this.updateWeak(body);
     this.updatePacing();
     this.updateEnemies();
     for (const source of this.enemyStates) {
@@ -608,37 +639,47 @@ export class Runner {
     this.say('stomp', '몬스터를 밟았어요!');
     return true;
   }
-  // The spring pad and the swing rope of an ordinary run.
+  // Spring pads and swing ropes: a spring launches a hero who runs onto it; a rope throws up a
+  // hero who jumps into its ring (once each).
   private updateMoves() {
-    if (!this.extras) return;
-    if (
-      this.springX !== null &&
-      this.grounded &&
-      this.y === C.ground &&
-      Math.abs(this.x - this.springX) < 24 &&
-      !this.sliding
-    ) {
+    if (this.grounded && this.y === C.ground && !this.sliding && this.springs.some(x => Math.abs(this.x - x) < 24)) {
       this.vy = SPRING_LAUNCH;
       this.grounded = false;
       this.coyote = 0;
       this.jumps = 1;
       this.say('spring', '스프링 발판! 하늘 높이');
     }
-    if (
-      this.ropeX !== null &&
-      !this.ropeUsed &&
-      !this.grounded &&
-      Math.hypot(this.x - this.ropeX, this.y - 32 - ROPE_END.y) < ROPE_END.r
-    ) {
-      this.ropeUsed = true;
+    if (this.grounded) return;
+    const rope = this.ropes.find(
+      x => !this.ropesUsed.has(x) && Math.hypot(this.x - x, this.y - 32 - ROPE_END.y) < ROPE_END.r,
+    );
+    if (rope !== undefined) {
+      this.ropesUsed.add(rope);
       this.ropeSwing = 0.4;
       this.vy = ROPE_LAUNCH;
       this.jumps = 1;
       this.say('swing', '밧줄을 잡고 휙!');
     }
   }
+  // Boss runs: jumping into a weak point strikes the boss (three for a full defeat).
+  private updateWeak(body: Rect) {
+    this.weakPoints.forEach((w, i) => {
+      if (this.weakHits.has(i) || !overlap(body, {x: w.x - 24, y: w.y - 24, w: 48, h: 48})) return;
+      this.weakHits.add(i);
+      this.say(
+        'weak',
+        this.weakHits.size >= this.weakPoints.length
+          ? '마지막 약점! 보스를 완전히 물리쳤어요'
+          : `보스 약점 타격! ${this.weakHits.size}/${this.weakPoints.length}`,
+      );
+    });
+  }
+  get bossHp() {
+    return this.weakPoints.length - this.weakHits.size;
+  }
   // Surprise missions and the chase.
   private updatePacing() {
+    this.updateChase();
     if (!this.extras) return;
     const next = this.missions[this.missionIndex];
     if (!this.mission && next && this.x >= next.at) {
@@ -649,9 +690,13 @@ export class Runner {
         progress: 0,
         base: {stars: this.stars, hpLoss: this.hpLoss, stomps: this.stomps},
       };
+      // Penelope's ability: two more seconds for every mission.
+      const seconds = next.seconds + (this.ability('penelope') ? 2 : 0);
+      this.mission.until = this.time + seconds;
+      this.mission.seconds = seconds;
       this.say(
         'mission-start',
-        MISSION_TEXT[next.kind].replace('{s}', String(next.seconds)).replace('{n}', String(next.goal)),
+        MISSION_TEXT[next.kind].replace('{s}', String(seconds)).replace('{n}', String(next.goal)),
       );
     }
     const m = this.mission;
@@ -675,6 +720,9 @@ export class Runner {
         this.say('mission-fail', '아쉬워요! 다음 미션을 노려요');
       }
     }
+  }
+  // The chase (ordinary runs and student courses): a clean escape earns combo points.
+  private updateChase() {
     const c = this.chase;
     if (c && !this.chasing && !this.chaseEscaped && this.x >= c.start && this.x < c.end && this.chaseHits === 0) {
       this.chasing = true;

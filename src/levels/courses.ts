@@ -62,6 +62,10 @@ export interface Course {
   // Charybdis's whirlpools: on the ground inside these the current holds the hero back
   // (CURRENT_PULL of the running speed); in the air the hero keeps full speed.
   currents?: {x: number; w: number}[];
+  // Spring pads, swing ropes and a chase stretch (student courses; ordinary runs place their own).
+  springs?: number[];
+  ropes?: number[];
+  chase?: {start: number; end: number};
   safe: number[];
   items: Collectible[];
   enemies: EnemyPlacement[];

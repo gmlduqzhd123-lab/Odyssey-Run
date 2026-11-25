@@ -29,8 +29,9 @@ export function newCardGame(seed: string): CardGame {
 // Turns a card. Returns 'match', 'miss' (two shown, to be hidden), or '' for nothing settled yet.
 export function turnCard(g: CardGame, i: number) {
   const c = g.cards[i];
-  if (!c || g.matched.has(c.person + c.face) || g.open.includes(i)) return '';
+  // Two cards still showing after a miss turn back first.
   if (g.open.length === 2) g.open = [];
+  if (!c || g.matched.has(c.person + c.face) || g.open.includes(i)) return '';
   g.open.push(i);
   if (g.open.length < 2) return '';
   g.turns++;

@@ -991,6 +991,12 @@ export class World extends Phaser.Scene {
       captionX = 560;
       caption = `O/X · ${g.question} → ${g.option}\nO라면 점프해서 ⭕, X라면 그대로 달려 ❌`;
     }
+    // The prologue's step-by-step captions.
+    const step = r.guide.filter(g => r.x >= g.x).at(-1);
+    if (step) {
+      captionX = 560;
+      caption = step.text;
+    }
     if (r.course.mode === 'boss') {
       captionX = 576;
       captionY = 210;

@@ -21,6 +21,8 @@ export const ROPE_LAUNCH = -900;
 // The rope's hanging end, relative to its x: reach it with a jump (a standing hero passes below).
 export const ROPE_END = {y: 300, r: 46};
 export const ROPE_TOP = 40;
+// Telemachus's ability: his air jump is a little stronger (ordinary runs).
+export const TELEMACHUS_JUMP = 1.08;
 
 // Plain ground from `from` to `to`: no gap, hazard, low ceiling, crate, platform, wind, current,
 // spell or monster within reach.

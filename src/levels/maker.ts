@@ -24,6 +24,10 @@ export const BLOCKS = {
   w: {name: '시소 다리', hint: '걸어서 건너기'},
   l: {name: '오르내리는 발판', hint: '타이밍'},
   v: {name: '바람길', hint: '바람 타고 점프'},
+  j: {name: '스프링 발판', hint: '밟으면 높이'},
+  r: {name: '밧줄', hint: '점프해서 잡기'},
+  t: {name: '석상병', hint: '점프 · 밟기'},
+  e: {name: '추격 구간', hint: '안 맞고 지나기'},
 } as const;
 export type BlockId = keyof typeof BLOCKS;
 export const BLOCK_IDS = Object.keys(BLOCKS) as BlockId[];
@@ -72,6 +76,11 @@ export function buildCustom(stage: StageId, blocks: string, title = '나만의 �
         h: POUNDER.h,
       });
     if (b === 'k') enemies.push({id, kind: 'crab', x: mid});
+    if (b === 't') enemies.push({id, kind: 'stone', x: mid});
+    if (b === 'j') (c.springs ??= []).push(mid);
+    if (b === 'r') (c.ropes ??= []).push(mid);
+    // One chase per course: the first chase block starts it, the last one ends it.
+    if (b === 'e') c.chase = {start: c.chase?.start ?? x, end: x + BLOCK_W};
     if (b === 'h') enemies.push({id, kind: 'harpy', x: mid});
     if (b === 'p') gap(150);
     if (b === 'b') {
