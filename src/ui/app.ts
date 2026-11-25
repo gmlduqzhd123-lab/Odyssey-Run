@@ -92,10 +92,19 @@ import {TEAMS, type Team} from '../storage/class-device';
 import type {MakerDraft} from './maker-view';
 import {buildCustom} from '../levels/maker';
 import {specialMethods} from './app-special';
+import {contestMethods} from './app-contest';
+import {makerMethods} from './app-maker';
 import {learningMethods} from './app-learning';
 import {classroomMethods} from './app-classroom';
 import {hudMethods} from './app-hud';
-import type {SpecialMethods, LearningMethods, ClassroomMethods, HudMethods} from './app-methods';
+import type {
+  SpecialMethods,
+  LearningMethods,
+  ClassroomMethods,
+  HudMethods,
+  ContestMethods,
+  MakerMethods,
+} from './app-methods';
 import {
   teacherViews,
   pageViews,
@@ -112,7 +121,8 @@ import {
   classModule,
 } from './app-shared';
 // Some of App's methods live in the app-*.ts files beside this one.
-export interface App extends SpecialMethods, LearningMethods, ClassroomMethods, HudMethods {}
+export interface App
+  extends SpecialMethods, ContestMethods, MakerMethods, LearningMethods, ClassroomMethods, HudMethods {}
 export class App {
   ui = document.querySelector<HTMLDivElement>('#ui')!;
   store: SaveStore;
@@ -1808,10 +1818,24 @@ export class App {
   }
 }
 // Each file's methods must match the shapes App declares for them.
-const methods: [SpecialMethods, LearningMethods, ClassroomMethods, HudMethods] = [
+const methods: [SpecialMethods, ContestMethods, MakerMethods, LearningMethods, ClassroomMethods, HudMethods] = [
   specialMethods,
+  contestMethods,
+  makerMethods,
   learningMethods,
   classroomMethods,
   hudMethods,
 ];
 Object.assign(App.prototype, ...methods);
+// And no method in a file that its shape leaves out: an extra key here fails to compile.
+type Extra<T, I> = Exclude<keyof T, keyof I>;
+const exact: Record<
+  | Extra<typeof specialMethods, SpecialMethods>
+  | Extra<typeof contestMethods, ContestMethods>
+  | Extra<typeof makerMethods, MakerMethods>
+  | Extra<typeof learningMethods, LearningMethods>
+  | Extra<typeof classroomMethods, ClassroomMethods>
+  | Extra<typeof hudMethods, HudMethods>,
+  never
+> = {};
+void exact;

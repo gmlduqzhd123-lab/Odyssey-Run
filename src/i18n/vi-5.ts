@@ -1291,4 +1291,13 @@ export const VI_5: Record<string, string> = {
   '정답률 {n}% · 오답 노트 {n}명': 'đúng {n}% · {n} người trong sổ câu sai',
   '읽기 지문 넣기': 'Thêm bài đọc',
   '{x}. 읽고 답해 보세요 · {x}': '{x}. Đọc và trả lời · {x}',
+  '코스 균형 통계 파일이 아니에요.': 'Đây không phải tệp thống kê độ cân bằng khóa đường.',
+  '통계 파일은 1MB 이하여야 해요.': 'Tệp thống kê phải nhỏ hơn hoặc bằng 1MB.',
+  '표 CSV 내보내기': 'Xuất bảng ra CSV',
+  '통계 파일 내보내기': 'Xuất tệp thống kê',
+  '다른 기기의 통계 파일 합치기': 'Gộp tệp thống kê của máy khác',
+  '시작한 뒤 이 기기의 항해사들이 모은 별빛을 모두 더해요. 다른 기기도 함께하면 참가 QR이 생기고, 각 기기의 결과 QR을 스캔하면 별빛이 더해져요(모둠 대항이면 모둠마다 참가 QR이 따로 생겨요).':
+    'Sau khi bắt đầu, mọi ánh sao mà các thủy thủ trên máy này thu được đều được cộng lại. Nếu có cả các máy khác, mã QR tham gia sẽ xuất hiện, và quét mã QR kết quả của từng máy sẽ cộng thêm ánh sao (thi đấu theo nhóm thì mỗi nhóm có mã QR tham gia riêng).',
+  '📱 {n}명': '📱 {n} thủy thủ',
+  '미션 · {x} 모둠': 'Nhiệm vụ · nhóm {x}',
 };

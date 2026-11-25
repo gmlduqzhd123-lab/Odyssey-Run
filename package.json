@@ -29,7 +29,8 @@
     "test:access": "tsx scripts/access-qa.ts",
     "test:budget": "tsx scripts/budget-qa.ts",
     "translations:export": "tsx scripts/translations.ts export",
-    "translations:import": "tsx scripts/translations.ts import"
+    "translations:import": "tsx scripts/translations.ts import",
+    "translations:gen": "python3 scripts/i18n/gen.py && prettier --write src/i18n/*-5.ts"
   },
   "dependencies": {
     "jsqr": "1.4.0",

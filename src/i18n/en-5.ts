@@ -1305,4 +1305,13 @@ export const EN_5: Record<string, string> = {
   '정답률 {n}% · 오답 노트 {n}명': '{n}% right · in {n} notebooks',
   '읽기 지문 넣기': 'Add the reading',
   '{x}. 읽고 답해 보세요 · {x}': '{x}. Read and answer · {x}',
+  '코스 균형 통계 파일이 아니에요.': "This isn't a course balance file.",
+  '통계 파일은 1MB 이하여야 해요.': 'The stats file must be 1 MB or smaller.',
+  '표 CSV 내보내기': 'Export the table as CSV',
+  '통계 파일 내보내기': 'Export the stats file',
+  '다른 기기의 통계 파일 합치기': "Add another device's stats file",
+  '시작한 뒤 이 기기의 항해사들이 모은 별빛을 모두 더해요. 다른 기기도 함께하면 참가 QR이 생기고, 각 기기의 결과 QR을 스캔하면 별빛이 더해져요(모둠 대항이면 모둠마다 참가 QR이 따로 생겨요).':
+    "Once it starts, all the starlight this device's sailors gather is added up. With other devices too, a join QR appears, and scanning each device's result QR adds its starlight (in a team race each team gets its own join QR).",
+  '📱 {n}명': '📱 {n} sailors',
+  '미션 · {x} 모둠': 'Mission · team {x}',
 };
