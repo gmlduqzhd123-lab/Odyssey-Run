@@ -251,7 +251,7 @@ export function worksheetMarkup(
       : ''
   }${
     reading
-      ? `<section class="sheet-reading"><h2>${L.write ? 5 : 4}. 읽고 답해 보세요 · ${reading.title}</h2><p class="read-text">${reading.lines.join(' ')}</p><ol>${reading.questions.map(q => `<li>${q.question}<br>${q.options.map((o, i) => `${'ABC'[i]}. <span>${o}</span>`).join('  ')}</li>`).join('')}</ol></section>`
+      ? `<section class="sheet-reading"><h2>${L.write ? 5 : 4}. 읽고 답해 보세요 · ${reading.title}</h2><p class="read-text">${reading.lines.map(l => `<span>${l}</span>`).join(' ')}</p><ol>${reading.questions.map(q => `<li>${q.question}<br>${q.options.map((o, i) => `${'ABC'[i]}. <span>${o}</span>`).join('  ')}</li>`).join('')}</ol></section>`
       : ''
   }<section class="answer-key"><h2>정답 (선생님용)</h2><p translate="no">1. ${fill.map((b, i) => `${i + 1}) ${b.answer}`).join('  ')}</p><p>2. ${people.map((p, i) => `${i + 1}) ${'abcdef'[roles.indexOf(p.role)]}`).join('  ')}</p><p>3. ${weakest.map((q, i) => `${i + 1}) ${'ABC'[q.answer]}${stats(q.id)}`).join('  ')}</p>${reading ? `<p>${L.write ? 5 : 4}. ${reading.questions.map((q, i) => `${i + 1}) ${'ABC'[q.answer]}`).join('  ')}</p>` : ''}</section></article></div>`;
 }

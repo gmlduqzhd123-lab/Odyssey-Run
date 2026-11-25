@@ -1247,6 +1247,8 @@ export const VI_5: Record<string, string> = {
   'O/X 문제: {x} → {x}. 맞으면 점프, 틀리면 그대로 달려요':
     'Đúng hay sai: {x} → {x}. Đúng thì nhảy, sai thì cứ chạy tiếp',
   '✓ 연습 완료': '✓ Đã luyện xong',
+  '점프·숙이기·밟기·스프링·밧줄·추격을 한 칸씩 연습하는 30초 항해예요.':
+    'Chuyến đi 30 giây để luyện nhảy, cúi, giẫm, lò xo, dây thừng và truy đuổi, từng thứ một.',
   '연습 항해 출발': 'Bắt đầu chuyến luyện tập',
   '연습 항해 ✓': 'Chuyến luyện tập ✓',
   '연습 항해 전': 'Chưa luyện tập',

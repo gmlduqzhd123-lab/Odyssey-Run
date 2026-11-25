@@ -1261,6 +1261,8 @@ export const EN_5: Record<string, string> = {
   'O/X 문제: {x} → {x}. 맞으면 점프, 틀리면 그대로 달려요':
     'True or false: {x} → {x}. Jump if true, keep running if false',
   '✓ 연습 완료': '✓ Practice done',
+  '점프·숙이기·밟기·스프링·밧줄·추격을 한 칸씩 연습하는 30초 항해예요.':
+    'A 30-second voyage to practise jumping, ducking, stomping, springs, ropes and the chase, one at a time.',
   '연습 항해 출발': 'Start the practice voyage',
   '연습 항해 ✓': 'Practice voyage ✓',
   '연습 항해 전': 'Practice voyage not yet',
