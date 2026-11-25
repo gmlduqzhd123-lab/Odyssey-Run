@@ -553,12 +553,17 @@ export class App {
       'stage-loading',
     );
     try {
-      await this.world.prepare(id, n => {
-        if (request === this.loadRequest) {
-          const p = this.ui.querySelector('#stage-loading');
-          if (p) p.textContent = `섬을 준비하고 있어요… ${Math.round(n * 100)}%`;
-        }
-      });
+      await Promise.all([
+        this.world.prepare(id, n => {
+          if (request === this.loadRequest) {
+            const p = this.ui.querySelector('#stage-loading');
+            if (p) p.textContent = `섬을 준비하고 있어요… ${Math.round(n * 100)}%`;
+          }
+        }),
+        // A run also needs the contact outlines and the O/X questions (loaded after the home screen).
+        loadContactMasks(),
+        loadQuizText(),
+      ]);
     } catch {
       if (request === this.loadRequest && this.screen === 'stage-loading')
         this.set(
