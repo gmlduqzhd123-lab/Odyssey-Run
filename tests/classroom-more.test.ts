@@ -288,3 +288,59 @@ test('the growth report marks weeks sailed before weekly counts were kept and co
   assert.ok(html.includes('class="estimate"'));
   assert.ok(html.includes('완주 ▲ 3'), 'from the first counted week (2) to this week (5)');
 });
+test('a team race with other devices adds each team contest to its own team', async () => {
+  const {readLive, liveMarkup} = await import('../src/ui/class-view');
+  const m = readLive(
+    JSON.stringify({
+      start: 1000,
+      minutes: 10,
+      goal: 100,
+      base: 0,
+      teams: {A: 10, B: 0},
+      teamContests: {A: 'abc234', B: 'def567', Z: 'ghi234', C: '<x>'},
+    }),
+  )!;
+  assert.deepEqual(m.teamContests, {A: 'abc234', B: 'def567'});
+  const html = liveMarkup(
+    m,
+    0,
+    2,
+    2000,
+    {sailors: [], teams: {}, now: {A: 30, B: 5}},
+    {stars: 0, sailors: 0, teams: {A: {stars: 40, sailors: 2}}},
+  );
+  assert.ok(html.includes('별빛 60'), 'team A: 20 here + 40 from devices');
+  assert.ok(html.includes('별빛 5'));
+  assert.ok(html.includes('contest-open:def567'));
+});
+test('balance files from two devices add up, and the board exports as CSV', async () => {
+  const {addRun, mergeBalance, balanceFile, readBalanceFile} = await import('../src/storage/balance');
+  const {balanceCsv} = await import('../src/ui/progress-view');
+  const run = {complete: true, distance: 24000, length: 24000, damage: [{kind: 'crab' as const, x: 100, time: 1}]};
+  const a = addRun({}, 'beach/classic', run),
+    b = addRun(addRun({}, 'beach/classic', {...run, complete: false, distance: 9000}), 'cave/classic', run);
+  const m = mergeBalance(a, readBalanceFile(JSON.parse(balanceFile(b))));
+  assert.equal(m['beach/classic'].runs, 2);
+  assert.equal(m['beach/classic'].done, 1);
+  assert.equal(m['beach/classic'].hits[0], 2);
+  assert.equal(m['beach/classic'].ends[3], 1);
+  assert.equal(m['cave/classic'].runs, 1);
+  assert.equal(a['beach/classic'].runs, 1, 'the device copy is not changed');
+  assert.throws(() => readBalanceFile({kind: 'other'}), /통계 파일/);
+  const csv = balanceCsv(m);
+  assert.ok(csv.split('\n').length >= 3);
+  assert.ok(csv.includes('거대 집게게'));
+});
+test('the runner keeps every HP loss for the balance stats, not only the latest few', async () => {
+  const {Runner} = await import('../src/player/runner');
+  const r = new Runner('beach');
+  r.state = 'playing';
+  for (let i = 0; i < 20; i++) {
+    r.hp = 3;
+    r.invincible = 0;
+    r.grace = 0;
+    r.hurt(false, 'crab');
+  }
+  assert.equal(r.damageLog.length, 12);
+  assert.equal(r.hits.length, 20);
+});

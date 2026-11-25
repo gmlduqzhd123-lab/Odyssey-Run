@@ -98,3 +98,33 @@ export function topKind(c: CourseBalance): DamageKind | null {
   const e = Object.entries(c.kinds).sort((a, b) => (b[1] ?? 0) - (a[1] ?? 0))[0];
   return e ? (e[0] as DamageKind) : null;
 }
+// Two devices' counts added together (the teacher gathers each classroom device's file).
+export function mergeBalance(a: Balance, b: Balance): Balance {
+  const out: Balance = structuredClone(a);
+  for (const [key, c] of Object.entries(b)) {
+    const o = out[key];
+    if (!o) {
+      out[key] = structuredClone(c);
+      continue;
+    }
+    o.runs = Math.min(MAX, o.runs + c.runs);
+    o.done = Math.min(o.runs, o.done + c.done);
+    o.hits = o.hits.map((n, i) => Math.min(MAX, n + c.hits[i]));
+    o.ends = o.ends.map((n, i) => Math.min(MAX, n + c.ends[i]));
+    for (const [k, n] of Object.entries(c.kinds))
+      o.kinds[k as DamageKind] = Math.min(MAX, (o.kinds[k as DamageKind] ?? 0) + (n ?? 0));
+  }
+  return out;
+}
+export const BALANCE_FILE = 'odyssey-run-balance';
+export const balanceFile = (b: Balance) => JSON.stringify({kind: BALANCE_FILE, version: 1, balance: b});
+export function readBalanceFile(v: unknown): Balance {
+  const o = v as Record<string, unknown> | null;
+  if (!o || o.kind !== BALANCE_FILE) throw Error('코스 균형 통계 파일이 아니에요.');
+  return readBalance(JSON.stringify(o.balance ?? {}));
+}
+export function saveBalance(storage: Store, b: Balance) {
+  try {
+    storage?.setItem(BALANCE_KEY, JSON.stringify(b));
+  } catch {}
+}

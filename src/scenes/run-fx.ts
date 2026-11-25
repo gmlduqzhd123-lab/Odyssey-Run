@@ -16,7 +16,8 @@ export interface FxLayers {
 }
 // A long run without losing HP draws a light wind streaming past (only the picture changes).
 export function drawSpeed(g: FxLayers, r: Runner, rt: number, reduced: boolean) {
-  if (reduced || r.state !== 'playing') return;
+  // The chase draws its own motion at the edge; no speed lines over it.
+  if (reduced || r.state !== 'playing' || r.chasing) return;
   const calm = rt - (r.damageLog.at(-1)?.time ?? 0),
     power = Math.max(0, Math.min(1, (calm - 10) / 30));
   if (!power) return;
@@ -149,7 +150,9 @@ export function drawWeather(g: FxLayers, r: Runner, reduced: boolean) {
   const storm = r.weather === 'storm';
   w.fillStyle(0x24364a, storm ? 0.22 : 0.12).fillRect(0, top, width, height);
   w.lineStyle(storm ? 2 : 1.5, 0xd8e6f2, storm ? 0.55 : 0.45);
-  const drops = reduced ? 30 : storm ? 90 : 60,
+  // Half the rain while the chase or fever time has the screen busy already (lighter on slow devices).
+  const busy = r.chasing || r.fever > 0,
+    drops = reduced ? 30 : Math.round((storm ? 90 : 60) / (busy ? 2 : 1)),
     slant = storm ? 18 : 6,
     fall = reduced ? 0 : r.time * (storm ? 900 : 650);
   for (let i = 0; i < drops; i++) {

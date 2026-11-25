@@ -1,3 +1,4 @@
+import type {Team} from '../storage/class-device';
 import type {LiveMission} from './class-view';
 import {type ContestLink, type ContestResult, type Link, type RivalLink, type CourseLink} from '../systems/share';
 import {type StageId} from '../levels/courses';
@@ -10,37 +11,17 @@ export interface SpecialMethods {
   takeLink(): string;
   openPendingLink(): void;
   openLink(link: Link): void;
-  contestRules(c: {stage: StageId | null; variant: VariantId | null; assist: boolean; blocks?: string}): string;
-  contestJoin(link: ContestLink): void;
-  contestRun(): Promise<void>;
-  loadDraft(): MakerDraft;
-  readDraft(): MakerDraft;
-  maker(message?: string): void;
-  makerCheck(): {ok: boolean; text: string};
-  makerAction(kind: string): void;
-  makerRun(): Promise<void>;
-  makerReceived(link: CourseLink): void;
   duoPage(message?: string): void;
   duoCourseList(): DuoCourse[];
   duoRun(): Promise<void>;
   secondHero(): 'odysseus' | 'penelope' | 'telemachus' | 'athena';
   finishDuo(): void;
-  galleryPage(message?: string): void;
-  galleryAction(kind: string, arg?: string): void;
   prologueRun(): Promise<void>;
-  finishCustom(): void;
   endlessCards(): string;
   prepareEndless(id: StageId): Promise<void>;
   prepareShuffle(id: StageId): Promise<void>;
   finishShuffle(): void;
   finishEndless(): void;
-  finishContest(): void;
-  contestCollect(result: ContestResult): void;
-  contestsPage(message?: string): void;
-  contestBoard(id: string, message?: string): void;
-  stopScanner(): void;
-  contestCsv(id: string): void;
-  contestAction(kind: string, id?: string): void;
   courseName(stage: StageId, variant: VariantId): string;
   rivalPage(link: RivalLink): void;
   rivalStart(): Promise<void>;
@@ -91,7 +72,7 @@ export interface ClassroomMethods {
   profilesPage(message?: string): void;
   teacherPage(show: (views: Awaited<ReturnType<typeof teacherViews>>) => void): Promise<void>;
   live(): LiveMission | null;
-  liveDevices(): {stars: number; sailors: number};
+  liveDevices(): {stars: number; sailors: number; teams: Partial<Record<Team, {stars: number; sailors: number}>>};
   classStars(
     board?: {
       total: number;
@@ -147,4 +128,29 @@ export interface HudMethods {
   canvasNotes(): void;
   setText(selector: string, text: string): void;
   updateHud(): void;
+}
+
+export interface ContestMethods {
+  contestRules(c: {stage: StageId | null; variant: VariantId | null; assist: boolean; blocks?: string}): string;
+  contestJoin(link: ContestLink): void;
+  contestRun(): Promise<void>;
+  finishContest(): void;
+  contestCollect(result: ContestResult): void;
+  contestsPage(message?: string): void;
+  contestBoard(id: string, message?: string): void;
+  stopScanner(): void;
+  contestCsv(id: string): void;
+  contestAction(kind: string, id?: string): void;
+}
+export interface MakerMethods {
+  loadDraft(): MakerDraft;
+  readDraft(): MakerDraft;
+  maker(message?: string): void;
+  makerCheck(): {ok: boolean; text: string};
+  makerAction(kind: string): void;
+  makerRun(): Promise<void>;
+  makerReceived(link: CourseLink): void;
+  galleryPage(message?: string): void;
+  galleryAction(kind: string, arg?: string): void;
+  finishCustom(): void;
 }

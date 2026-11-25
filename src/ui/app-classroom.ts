@@ -77,9 +77,15 @@ export const classroomMethods = {
   },
   // Other devices' starlight in the live mission: each sailor's best run in the mission's contest.
   liveDevices(this: App) {
-    const id = this.live()?.contest,
-      c = id ? this.contests.find(id) : null;
-    return {stars: c ? c.entries.reduce((n, e) => n + e.stars, 0) : 0, sailors: c?.entries.length ?? 0};
+    const m = this.live(),
+      sum = (id?: string) => {
+        const c = id ? this.contests.find(id) : null;
+        return {stars: c ? c.entries.reduce((n, e) => n + e.stars, 0) : 0, sailors: c?.entries.length ?? 0};
+      };
+    return {
+      ...sum(m?.contest),
+      teams: Object.fromEntries(Object.entries(m?.teamContests ?? {}).map(([k, id]) => [k, sum(id)])),
+    };
   },
   // This week's starlight of every sailor on this device (the live mission's measure).
   classStars(this: App, board = this.profiles.board()) {
@@ -117,16 +123,15 @@ export const classroomMethods = {
         used = TEAMS.filter(k => Object.values(t.teams).includes(k)),
         teams = used.length >= 2 ? Object.fromEntries(used.map(k => [k, t.now[k] ?? 0])) : undefined,
         island = this.ui.querySelector<HTMLSelectElement>('#live-devices')?.value as StageId,
-        // Other devices join through a contest made for this mission (whole-class missions only).
-        contest =
-          !teams && STAGES.includes(island)
-            ? this.contests.host({
-                id: newContestId(),
-                title: '실시간 미션',
-                stage: island,
-                variant: 'classic',
-                assist: false,
-              }).id
+        devices = STAGES.includes(island),
+        host = (title: string) =>
+          this.contests.host({id: newContestId(), title, stage: island, variant: 'classic', assist: false}).id,
+        // Other devices join through a contest made for this mission: one for the whole class, or
+        // one per team in a team race (each team's own join QR).
+        contest = devices && !teams ? host('실시간 미션') : undefined,
+        teamContests =
+          devices && teams
+            ? Object.fromEntries(Object.keys(teams).map(k => [k, host('미션 · ' + k + ' 모둠')]))
             : undefined;
       this.storage?.setItem(
         LIVE_KEY,
@@ -137,6 +142,7 @@ export const classroomMethods = {
           base: this.classStars(),
           ...(teams ? {teams} : {}),
           ...(contest ? {contest} : {}),
+          ...(teamContests ? {teamContests} : {}),
         }),
       );
     } catch {}

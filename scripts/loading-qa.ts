@@ -77,6 +77,41 @@ try {
   expect(current.settings).toEqual(old.settings);
   result.legacyCorePreserved = true;
   expect(errors).toEqual([]);
+  await c.close();
+  // A slow first visit (fast 3G, and the contact outlines and quiz text held back a few seconds
+  // more): the island waits in its preparation until both are here, then the run starts at once.
+  const slow = await b.newContext({viewport: {width: 1280, height: 800}, serviceWorkers: 'block'}),
+    q = await slow.newPage(),
+    slowErrors: string[] = [];
+  q.on('pageerror', e => slowErrors.push(e.message));
+  const cdp = await slow.newCDPSession(q);
+  await cdp.send('Network.enable');
+  await cdp.send('Network.emulateNetworkConditions', {
+    offline: false,
+    latency: 150,
+    downloadThroughput: (1.6 * 1024 * 1024) / 8,
+    uploadThroughput: (750 * 1024) / 8,
+  });
+  const held: string[] = [];
+  await slow.route(/assets\/(contact-masks|quiz-text)-[^/]+\.js$/, async r => {
+    held.push(r.request().url());
+    await new Promise(resolve => setTimeout(resolve, 6000));
+    await r.continue();
+  });
+  await q.goto(url);
+  await q.waitForSelector('.home', {timeout: 90000});
+  await q.locator('[data-action="islands"]').first().click();
+  await q.locator('[data-action="stage:beach"]').click();
+  await expect(q.locator('[data-action="start"]')).toBeVisible({timeout: 90000});
+  await q.locator('[data-action="start"]').click();
+  await q.waitForSelector('.countdown', {state: 'detached', timeout: 30000});
+  const from = Number(await q.locator('#progress').getAttribute('data-distance'));
+  await q.waitForTimeout(1500);
+  expect(Number(await q.locator('#progress').getAttribute('data-distance'))).toBeGreaterThan(from + 100);
+  expect(held.length).toBeGreaterThanOrEqual(2);
+  expect(slowErrors).toEqual([]);
+  result.slowFirstRunWaitsForLazyParts = true;
+  await slow.close();
   await writeFile(
     'artifacts/roadmap-loading-results.json',
     JSON.stringify(
@@ -92,7 +127,6 @@ try {
       2,
     ),
   );
-  await c.close();
 } finally {
   await b.close();
 }

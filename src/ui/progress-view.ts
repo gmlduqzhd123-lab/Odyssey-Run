@@ -75,7 +75,32 @@ export function balanceMarkup(b: Balance, on: boolean) {
     .join('');
   return `<section class="balance-board"><h2>📊 코스 균형 통계 (이 기기)</h2><p class="muted"><span>${on ? '섬 항해가 끝날 때마다 더해져요.' : '지금은 모으지 않아요(설정에서 켤 수 있어요).'}</span> <span>코스를 고를 때나 어려운 구간을 미리 알려 줄 때 참고하세요.</span></p>${
     rows.length
-      ? `<div class="table-scroll"><table><thead><tr><th scope="col">코스</th><th scope="col">항해</th><th scope="col">완주율</th><th scope="col">구간별 HP 손실</th><th scope="col">가장 어려운 구간</th><th scope="col">가장 많이 부딪힌 것</th></tr></thead><tbody>${body}</tbody></table></div>${button('balance-clear', '통계 지우기', 'text-button')}`
+      ? `<div class="table-scroll"><table><thead><tr><th scope="col">코스</th><th scope="col">항해</th><th scope="col">완주율</th><th scope="col">구간별 HP 손실</th><th scope="col">가장 어려운 구간</th><th scope="col">가장 많이 부딪힌 것</th></tr></thead><tbody>${body}</tbody></table></div><div class="button-row">${button('balance-csv', '표 CSV 내보내기', 'secondary')}${button('balance-export', '통계 파일 내보내기', 'secondary')}${button('balance-clear', '통계 지우기', 'text-button')}</div>`
       : '<p>아직 모은 항해가 없어요.</p>'
-  }</section>`;
+  }<label class="file-pick">다른 기기의 통계 파일 합치기 <input type="file" id="balance-file" accept="application/json,.json"></label><p role="status" id="balance-status"></p></section>`;
+}
+// The balance board as a spreadsheet (one row per course).
+export function balanceCsv(b: Balance) {
+  return toCsv([
+    [
+      '코스',
+      '항해',
+      '완주',
+      ...Array.from({length: STRETCHES}, (_, i) => `HP 손실 ${i * 10}~${i * 10 + 10}%`),
+      '가장 많이 부딪힌 것',
+    ],
+    ...Object.entries(b).map(([key, c]) => {
+      const [stage, variant] = key.split('/') as [StageId, VariantId],
+        k = topKind(c);
+      return [
+        COURSES[stage] && VARIANT_LABELS[stage]?.[variant]
+          ? `${COURSES[stage].name} · ${VARIANT_LABELS[stage][variant].name}`
+          : key,
+        c.runs,
+        c.done,
+        ...c.hits,
+        k ? damageName(k) : '',
+      ];
+    }),
+  ]);
 }
