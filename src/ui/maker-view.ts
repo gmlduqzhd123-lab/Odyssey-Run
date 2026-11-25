@@ -1,6 +1,6 @@
 import {COURSES, STAGES, type StageId} from '../levels/courses';
 import {BLOCKS, BLOCK_IDS, MAKER_SLOTS, type BlockId} from '../levels/maker';
-import {qrSvg} from '../systems/share';
+import {qrSvg} from '../systems/qr';
 import {button, esc} from './html';
 // Screens for building, sharing and receiving student courses.
 export interface MakerDraft {

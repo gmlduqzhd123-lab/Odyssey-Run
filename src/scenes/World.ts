@@ -11,7 +11,6 @@ import {REGIONS, sheetUrl} from '../assets/terrain';
 import {SCENERY_ART} from '../assets/scenery-art';
 import {CRUMBLE_DELAY, isCeiling} from '../levels/courses';
 import {decorFor, harborMix, type ViewId} from '../levels/scenery';
-import {FOG} from '../levels/weather';
 import {heroInfo} from '../systems/heroes';
 import {RUN_ART} from '../assets/runner-art';
 import {DISPLAY, type DisplayViewport} from '../rendering/display';
@@ -20,8 +19,7 @@ import {ENEMY_TYPES} from '../levels/enemies';
 import {heroPose, itemPose, enemyPose, obstaclePose} from '../rendering/poses';
 import {HOME_FILES, GAME_FILES, backgroundFiles} from '../assets/loading';
 import {GATE_O, GATE_X, gateStatement} from '../levels/play-extras';
-import {CHASERS, ROPE_END, ROPE_TOP} from '../levels/play-dynamics';
-import {seeded} from '../levels/endless';
+import {drawAdventure, drawChase, drawMoves, drawScenery, drawSpeed, drawWeather, type FxLayers} from './run-fx';
 // Phaser measures text with '|MÉqgy'; without the É the accented-letter font file is not
 // fetched for Korean and English players.
 const TEST_STRING = '|Mqgy';
@@ -92,6 +90,9 @@ export class World extends Phaser.Scene {
   private shake = 0;
   private baseScroll = {x: 0, y: 0};
   private speech!: Phaser.GameObjects.Text;
+  private get layers(): FxLayers {
+    return {fx: this.fx, w: this.weatherFx, view: this.view, stage: this.stage};
+  }
   private speechLife = 0;
   private said = new Set<string>();
   private cue!: Phaser.GameObjects.Text;
@@ -891,13 +892,13 @@ export class World extends Phaser.Scene {
       if (x < 50 || x > this.view.width - 30) return;
       fx.fillStyle(0xe8be72, 0.7).fillTriangle(x, 300, x - 6, 310, x + 6, 310);
     });
-    this.drawAdventure(r, cam, reduced);
+    drawAdventure(this.layers, r, cam, reduced);
     this.drawExtras(r, cam, rt);
-    this.drawMoves(r, cam, rt, ry);
-    this.drawWeather(r, reduced);
-    this.drawSpeed(r, rt, reduced);
-    this.drawScenery(r, rt, reduced);
-    this.drawChase(r, rt, ry, reduced);
+    drawMoves(this.layers, r, cam, rt, ry);
+    drawWeather(this.layers, r, reduced);
+    drawSpeed(this.layers, r, rt, reduced);
+    drawScenery(this.layers, r, rt, reduced);
+    drawChase(this.layers, r, rt, ry, reduced);
     this.drawGhost(r, cam);
     this.drawHero(r, ry, reduced);
     this.drawCostume(
@@ -1015,112 +1016,6 @@ export class World extends Phaser.Scene {
     const label = translate(g!.friend ? '친구' : '나의 최고');
     if (this.ghostTag.text !== label) this.ghostTag.setText(label);
     this.ghostTag.setPosition(x, C.ground - 100);
-  }
-  private drawWeather(r: Runner, reduced: boolean) {
-    const w = this.weatherFx,
-      top = -this.view.extraHeight,
-      height = this.view.height,
-      width = this.view.width;
-    w.clear();
-    if (r.weather === 'clear') return;
-    if (r.weather === 'fog') {
-      // Thin near the hero, thick toward the right edge; warnings are drawn above it.
-      const from = this.view.heroX + FOG.clear,
-        to = this.view.heroX + FOG.hidden;
-      // Thin slices with a smooth ramp, so the haze has no visible bands.
-      for (let x = from; x < width; x += 4) {
-        const t = Math.min(1, (x - from) / (to - from));
-        w.fillStyle(0xe8ecef, 0.88 * t * t * (3 - 2 * t)).fillRect(x, top, 4, height);
-      }
-      w.fillStyle(0xdfe5e8, 0.12).fillRect(0, top, width, height);
-      return;
-    }
-    const storm = r.weather === 'storm';
-    w.fillStyle(0x24364a, storm ? 0.22 : 0.12).fillRect(0, top, width, height);
-    w.lineStyle(storm ? 2 : 1.5, 0xd8e6f2, storm ? 0.55 : 0.45);
-    const drops = reduced ? 30 : storm ? 90 : 60,
-      slant = storm ? 18 : 6,
-      fall = reduced ? 0 : r.time * (storm ? 900 : 650);
-    for (let i = 0; i < drops; i++) {
-      const x = (i * 97 + (reduced ? 0 : r.time * 60)) % (width + 40),
-        y = top + ((i * 61 + fall) % (height + 40)) - 20;
-      w.lineBetween(x, y, x - slant, y + (storm ? 26 : 18));
-    }
-    // A short lightning flash every few seconds; never with reduced motion.
-    if (storm && !reduced && r.time % 7 < 0.1) w.fillStyle(0xffffff, 0.22).fillRect(0, top, width, height);
-  }
-  private drawAdventure(r: Runner, cam: number, reduced: boolean) {
-    const fx = this.fx,
-      branch = r.adventure.branch;
-    if (branch.start - cam < this.view.width + 40 && branch.end - cam > 0) {
-      fx.lineStyle(2, 0xf1cf7b, 0.7).lineBetween(branch.start - cam, 330, branch.end - cam, 330);
-      const x = branch.start - cam - 65;
-      fx.fillStyle(0xf1cf7b, 0.8).fillTriangle(x, 350, x - 10, 370, x + 10, 370);
-    }
-    for (const group of r.adventure.constellations) {
-      const points = group.stars.map(id => r.course.items.find(s => s.id === id)!);
-      if (points.every(s => s.x - cam < 0 || s.x - cam > this.view.width + 40)) continue;
-      fx.lineStyle(r.constellations.has(group.id) ? 3 : 1, 0xf5d88d, r.constellations.has(group.id) ? 0.85 : 0.35);
-      const order = group.shape === 'ship' ? [0, 1, 3, 4, 0, 2, 3] : [0, 1, 2, 3, 4];
-      for (let i = 1; i < order.length; i++) {
-        const a = points[order[i - 1]],
-          b = points[order[i]];
-        fx.lineBetween(a.x - cam, a.y, b.x - cam, b.y);
-      }
-      if (r.constellations.has(group.id)) {
-        const mid = points[2];
-        fx.lineStyle(2, 0xffe9ae, 0.8).strokeCircle(mid.x - cam, mid.y, 22);
-      }
-    }
-    for (const story of r.adventure.stories) {
-      if (r.stories.has(story.id) || story.x - cam < -40 || story.x - cam > this.view.width + 40) continue;
-      const x = story.x - cam,
-        y = story.y - 20;
-      fx.fillStyle(0xeee2ba, 0.95).fillRoundedRect(x - 12, y - 20, 24, 24, 4);
-      fx.lineStyle(2, 0x8d795e, 0.8)
-        .lineBetween(x - 7, y - 13, x + 7, y - 13)
-        .lineBetween(x - 7, y - 7, x + 4, y - 7);
-      if (story.pose === 'duck') {
-        fx.lineStyle(2, 0xf6d694, 0.9)
-          .lineBetween(x, y - 43, x, y - 29)
-          .lineBetween(x, y - 29, x - 5, y - 35)
-          .lineBetween(x, y - 29, x + 5, y - 35);
-      }
-    }
-    const h = r.adventure.highlight;
-    if (this.stage === 'beach' && r.x > h.start && r.x < h.end && r.course.gaps.length) {
-      const gap = r.course.gaps.find(g => g.x >= h.start && g.x <= h.end)!;
-      for (let i = 0; i < 4; i++) {
-        const fall = reduced ? 70 : Math.max(0, Math.min(110, (r.x - (gap.x - 260)) * 0.5));
-        fx.fillStyle(0x947354, 0.85).fillRoundedRect(gap.x + i * 38 - cam, 440 + fall, 31, 8, 2);
-      }
-      fx.lineStyle(2, 0xe2bd72, 0.8).lineBetween(gap.x - cam - 15, 433, gap.x - cam - 2, 420);
-    }
-    // The Sirens' song: notes drift over the open water; reduced motion keeps them still.
-    if (this.stage === 'sea' && r.x > h.start - 500 && r.x < h.end) {
-      const gap = r.course.gaps.find(g => g.x >= h.start && g.x <= h.end);
-      if (gap)
-        for (let i = 0; i < 5; i++) {
-          const drift = reduced ? 0 : r.time * 40 + i * 37,
-            x = gap.x - cam - 120 + i * 70 + (reduced ? 0 : Math.sin(drift / 30) * 10),
-            y = 300 - (drift % 90);
-          fx.fillStyle(0xf6e2a8, 0.75).fillEllipse(x, y, 11, 8);
-          fx.lineStyle(2, 0xf6e2a8, 0.75).lineBetween(x + 5, y, x + 5, y - 20);
-        }
-    }
-    if (this.stage === 'wind' && r.x > h.start - 700 && r.x < h.end) {
-      for (const p of r.course.platforms.filter(p => p.id.startsWith('wind-cloud-') || p.id === 'wind-floating-3')) {
-        const x = p.x - cam,
-          y = r.platformY(p);
-        fx.fillStyle(0xe8f1dc, 0.65).fillEllipse(x + p.w / 2, y + 10, p.w + 18, 26);
-      }
-    }
-    if (r.wings > 0 && r.magnet > 0) {
-      fx.lineStyle(2, 0xd8eddd, 0.6).strokeEllipse(this.view.heroX, r.y - 35, 98, 110);
-    }
-    if (r.lantern > 0 && r.trident) {
-      fx.lineStyle(2, 0xffe3a2, 0.75).strokeCircle(this.view.heroX, r.y - 32, 54);
-    }
   }
   private drawCostume(x: number, y: number, crouch: boolean, home: boolean) {
     const c = this.host.cosmetics(),
@@ -1306,95 +1201,6 @@ export class World extends Phaser.Scene {
     this.fx.fillTriangle(x - w / 2 + 12, y + 12, x - w / 2 + 26, y + 12, x - w / 2 + 6, y + 24);
     this.speech.setPosition(x, y);
   }
-  // The spring pad and the swing rope (ordinary runs).
-  private drawMoves(r: Runner, cam: number, rt: number, ry: number) {
-    const fx = this.fx;
-    if (r.springX !== null) {
-      const x = r.springX - cam;
-      if (x > -60 && x < this.view.width + 60) {
-        fx.lineStyle(3, 0x9aa4ad, 1);
-        for (let k = 0; k < 4; k++) fx.lineBetween(x - 14, C.ground - 4 - k * 5, x + 14, C.ground - 6 - k * 5);
-        fx.fillStyle(0xe8b04d, 1).fillRoundedRect(x - 22, C.ground - 26, 44, 7, 3);
-        fx.fillStyle(0xfff0b0, 0.9).fillTriangle(x, C.ground - 52, x - 9, C.ground - 38, x + 9, C.ground - 38);
-      }
-    }
-    if (r.ropeX !== null) {
-      const x = r.ropeX - cam;
-      if (x > -80 && x < this.view.width + 80) {
-        fx.fillStyle(0x6e5236, 1).fillRect(x - 30, ROPE_TOP - 8, 60, 8);
-        if (r.ropeSwing > 0) fx.lineStyle(3, 0xc9a26a, 1).lineBetween(x, ROPE_TOP, this.view.heroX, ry - 40);
-        else {
-          const sway = Math.sin(rt * 2) * 8,
-            end = {x: x + sway, y: ROPE_END.y};
-          fx.lineStyle(3, 0xc9a26a, 1).lineBetween(x, ROPE_TOP, end.x, end.y);
-          if (!r.ropeUsed) fx.lineStyle(3, 0xffe3a2, 0.9).strokeCircle(end.x, end.y, 10);
-        }
-      }
-    }
-  }
-  // Something comes up behind the hero during the chase, closer with each hit.
-  private drawChase(r: Runner, rt: number, ry: number, reduced: boolean) {
-    if (!r.chasing || r.state !== 'playing') return;
-    const fx = this.fx,
-      top = -this.view.extraHeight,
-      near = Math.min(2, r.chaseHits),
-      edge = this.view.heroX - 170 + near * 50 + (reduced ? 0 : Math.sin(rt * 5) * 8);
-    // A red glow along the left edge.
-    for (let i = 0; i < 6; i++) fx.fillStyle(0xd0443a, 0.05 * (6 - i)).fillRect(i * 10, top, 10, this.view.height);
-    const kind = CHASERS[r.stage].texture;
-    if (kind === 'wave' || kind === 'whirl') {
-      fx.fillStyle(0x2f7f9a, 0.85).fillEllipse(edge - 90, C.ground - 40, 240, 200);
-      fx.fillStyle(0xe6f4f8, 0.8).fillEllipse(edge - 20, C.ground - 120, 90, 40);
-    } else if (kind === 'giant' || kind === 'suitors') {
-      const n = kind === 'giant' ? 1 : 3;
-      for (let i = 0; i < n; i++) {
-        const x = edge - 60 - i * 55,
-          h = kind === 'giant' ? 200 : 110;
-        fx.fillStyle(0x2a2a33, 0.85).fillRoundedRect(x - 30, C.ground - h, 60, h, 16);
-        fx.fillCircle(x, C.ground - h - 18, kind === 'giant' ? 34 : 18);
-        fx.fillStyle(0xffd76a, 0.9).fillCircle(x + 8, C.ground - h - 20, kind === 'giant' ? 8 : 3);
-      }
-    } else {
-      // Gust, mist or song: rolling shapes in the island's colour.
-      const color = kind === 'mist' ? 0xb48ad8 : kind === 'song' ? 0xf6e2a8 : 0xe8f1f4;
-      for (let i = 0; i < 5; i++)
-        fx.fillStyle(color, 0.55).fillCircle(edge - 40 - i * 34, ry - 30 - ((i * 47 + rt * 90) % 160), 26 - i * 3);
-    }
-  }
-  // Harmless scenery moments every few seconds: gulls, a wave's spray, drifting leaves.
-  private drawScenery(r: Runner, rt: number, reduced: boolean) {
-    if (reduced || r.state !== 'playing') return;
-    const period = 14,
-      i = Math.floor(rt / period),
-      t = rt - i * period;
-    if (t > 4) return;
-    const kind = Math.floor(seeded(`${r.stage}:${i}`)() * 3),
-      w = this.weatherFx,
-      width = this.view.width;
-    if (kind === 0)
-      for (let k = 0; k < 5; k++) {
-        const x = width - t * 330 + k * 34,
-          y = 90 + (k % 2) * 18 + Math.sin(rt * 6 + k) * 4;
-        w.lineStyle(2, 0x34495a, 0.7)
-          .lineBetween(x - 8, y - 4, x, y)
-          .lineBetween(x, y, x + 8, y - 4);
-      }
-    else if (kind === 1)
-      for (let k = 0; k < 8; k++)
-        w.fillStyle(0xe6f4f8, 0.7 * (1 - t / 4)).fillCircle(
-          width * 0.85 + k * 9,
-          C.ground - 10 - t * 60 - (k % 3) * 14,
-          4,
-        );
-    else
-      for (let k = 0; k < 6; k++)
-        w.fillStyle(0x8fbf6a, 0.75).fillEllipse(
-          width - t * 260 + k * 47,
-          120 + k * 40 + Math.sin(rt * 4 + k) * 12,
-          9,
-          5,
-        );
-  }
   private puff(x: number, y: number, n: number) {
     for (let i = 0; i < n; i++) this.dust.push({x: x - 10 + i * 7, y: y - 2, vx: -40 - i * 25, life: 0.35});
     if (this.dust.length > 24) this.dust.splice(0, this.dust.length - 24);
@@ -1419,23 +1225,6 @@ export class World extends Phaser.Scene {
       this.fx
         .fillStyle(dark ? 0xb7c0c8 : 0xf1e2c0, (d.life / 0.35) * 0.7)
         .fillCircle(d.x - cam, d.y, 3 + (0.35 - d.life) * 10);
-    }
-  }
-  // A long run without losing HP draws a light wind streaming past (only the picture changes).
-  private drawSpeed(r: Runner, rt: number, reduced: boolean) {
-    if (reduced || r.state !== 'playing') return;
-    const calm = rt - (r.damageLog.at(-1)?.time ?? 0),
-      power = Math.max(0, Math.min(1, (calm - 10) / 30));
-    if (!power) return;
-    const w = this.weatherFx,
-      width = this.view.width,
-      lines = Math.round(3 + 9 * power);
-    w.lineStyle(2, 0xffffff, 0.12 + 0.18 * power);
-    for (let i = 0; i < lines; i++) {
-      const y = 70 + ((i * 89) % 330),
-        len = 40 + 50 * power + (i % 3) * 18,
-        x = width - ((rt * (700 + 400 * power) + i * 173) % (width + 200)) + 100;
-      w.lineBetween(x, y, x + len, y);
     }
   }
   // Boss runs: a jump or duck sign over the hero just before the next attack reaches them.

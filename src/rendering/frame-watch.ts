@@ -50,6 +50,25 @@ export class FrameWatch {
 // "Auto" quality has three steps: 0 full, 1 lighter (at most 1.5 device pixels a point, 1440p),
 // 2 light (the same as "가볍게"). A slow stretch steps down one; a smooth run steps back up one.
 export const AUTO_STEPS = 2;
+type Store = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'> | null;
+// The step is kept on the device ('step:1'); older versions wrote '1' for the light renderer.
+export function readAutoStep(storage: Store, key: string) {
+  try {
+    const v = storage?.getItem(key);
+    if (!v) return 0;
+    if (v === '1') return AUTO_STEPS;
+    const n = Number(v.replace('step:', ''));
+    return Number.isInteger(n) ? Math.max(0, Math.min(AUTO_STEPS, n)) : 0;
+  } catch {
+    return 0;
+  }
+}
+export function writeAutoStep(storage: Store, key: string, n: number) {
+  try {
+    if (n <= 0) storage?.removeItem(key);
+    else storage?.setItem(key, 'step:' + Math.min(AUTO_STEPS, n));
+  } catch {}
+}
 // A smooth run: at least 20 seconds of play averaging 57 fps or better.
 export const smoothRun = (played: number, fps: number) => played >= 20 && fps >= 57;
 // Paces the simulation by real frame time. A frame far longer than the recent ones (the device

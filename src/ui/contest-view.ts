@@ -9,7 +9,8 @@ import {
   type Contests,
   type Entry,
 } from '../storage/contests';
-import {linkUrl, parseLinkText, qrSvg, type ContestLink} from '../systems/share';
+import {linkUrl, parseLinkText, type ContestLink} from '../systems/share';
+import {qrSvg} from '../systems/qr';
 import type {RunResult} from '../storage/save';
 import {Scanner, toCsv} from '../systems/scanner';
 import {vibrate} from '../systems/haptics';

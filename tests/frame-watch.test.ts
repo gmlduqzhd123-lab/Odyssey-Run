@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {FrameWatch, HITCH, Pacer, smoothRun} from '../src/rendering/frame-watch';
+import {FrameWatch, HITCH, Pacer, readAutoStep, smoothRun, writeAutoStep} from '../src/rendering/frame-watch';
 
 const feed = (w: FrameWatch, dt: number, seconds: number) => {
   let hit = 0;
@@ -55,4 +55,21 @@ test('a freeze is not caught up in one jump and asks for shelter; a slow device 
   assert.ok(hitches <= 12, String(hitches));
   assert.equal(slow.step(1 / 15).time, 1 / 15);
   assert.equal(p.step(0).time, 0);
+});
+
+test('the auto quality step is read back, including the old light-renderer mark', () => {
+  const box = new Map<string, string>(),
+    storage = {
+      getItem: (k: string) => box.get(k) ?? null,
+      setItem: (k: string, v: string) => void box.set(k, v),
+      removeItem: (k: string) => void box.delete(k),
+    };
+  assert.equal(readAutoStep(storage, 'k'), 0);
+  writeAutoStep(storage, 'k', 1);
+  assert.equal(readAutoStep(storage, 'k'), 1);
+  storage.setItem('k', '1');
+  assert.equal(readAutoStep(storage, 'k'), 2);
+  writeAutoStep(storage, 'k', 0);
+  assert.equal(box.has('k'), false);
+  assert.equal(readAutoStep(null, 'k'), 0);
 });

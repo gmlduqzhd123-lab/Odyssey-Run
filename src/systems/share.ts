@@ -1,4 +1,3 @@
-import qrcode from 'qrcode-generator';
 import {MAX_SCORE} from '../config';
 import {STAGES, type StageId} from '../levels/courses';
 import {isVariant, type VariantId} from '../levels/course-ids';
@@ -269,10 +268,4 @@ export function parseLinkText(text: string): Link | null {
   const t = text.trim(),
     m = t.match(/#?(?:[gcrm]=)?([A-Za-z0-9_.-]+)$/);
   return m ? decodeLink(m[1]) : null;
-}
-export function qrSvg(text: string) {
-  const qr = qrcode(0, 'L');
-  qr.addData(text, 'Byte');
-  qr.make();
-  return qr.createSvgTag({cellSize: 4, margin: 2, scalable: true});
 }

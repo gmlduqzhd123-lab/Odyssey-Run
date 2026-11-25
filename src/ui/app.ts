@@ -47,7 +47,7 @@ import {
 import {classBackup, readClassBackup, restoreClass, CLASS_BACKUP_LIMIT, type ClassBackup} from '../storage/backup';
 import {buildEndless, sectionsPassed, ENDLESS_SECTIONS} from '../levels/endless';
 import type {Course} from '../levels/courses';
-import {button, downloadFile, esc, icon, readButton} from './html';
+import {button, downloadFile, esc, icon, readButton, settingToggle} from './html';
 import {Narrator} from '../systems/narrator';
 import {bookNav, TOTAL_MAPS} from './book-nav';
 // The book's read-only pages load on first use.
@@ -77,22 +77,20 @@ import {padConnected, Controls} from '../input/controls';
 import {Sound} from '../systems/audio';
 import {vibrate} from '../systems/haptics';
 import {deviceReducedMotion, followDevice} from '../systems/device-prefs';
-import {saveResultPicture, shareLink, shareMarkup} from './share-view';
+// The share page (with its QR library) loads on first use.
+const shareView = () => import('./share-view');
 import {deleteSailorMarkup, profilesMarkup} from './profiles-view';
 import {readJsonFile} from '../storage/json-file';
 import {sceneryView} from '../levels/scenery';
 import {keepLanguage} from '../systems/lang-cache';
 import {replaceMissingArt} from './missing-art';
-import {classPreviewMarkup, importPreviewMarkup, settingToggle, settingsMarkup} from './settings-view';
-import {
-  BoardScanner,
-  boardMarkup,
-  contestCsv,
-  contestJoinMarkup,
-  contestResultMarkup,
-  contestStartMarkup,
-  contestsMarkup,
-} from './contest-view';
+// The settings page loads just after the home screen, while the device is idle (or on first use).
+let settingsModule: typeof import('./settings-view') | null = null;
+const settingsView = () => import('./settings-view').then(m => (settingsModule = m));
+import type {BoardScanner} from './contest-view';
+// The teacher's contest pages and the course maker load on first use.
+const contestView = () => import('./contest-view');
+const makerView = () => import('./maker-view');
 import {World} from '../scenes/World';
 import {SplitScreen} from '../rendering/split-screen';
 import {TeacherLock} from './lock-controller';
@@ -110,7 +108,8 @@ import {
 import {assetUrl, STAGE_RELIC} from '../assets/catalog';
 import {STAGE_VIEW, regionArt} from '../assets/terrain';
 import {displayDensity, displayViewport} from '../rendering/display';
-import {AUTO_STEPS, FrameWatch, Pacer, SHELTER, smoothRun} from '../rendering/frame-watch';
+import {PHOTO_POSES, photoMarkup, savePhoto, type PhotoPose} from './photo-mode';
+import {AUTO_STEPS, FrameWatch, readAutoStep, writeAutoStep, Pacer, SHELTER, smoothRun} from '../rendering/frame-watch';
 import {RunFeel} from '../systems/run-feel';
 import {ScreenAwake} from '../systems/wake-lock';
 import {gateFor, isBlessing, treasureFor, type BlessingId} from '../levels/play-extras';
@@ -139,19 +138,13 @@ import {
   quizReportCsv,
   quizReportMarkup,
 } from './class-view';
-import {makerMarkup, makerReceivedMarkup, makerShareMarkup, type MakerDraft} from './maker-view';
+import type {MakerDraft} from './maker-view';
 import {MAKER_SLOTS, buildCustom, checkCustom, isBlocks, randomBlocks, BLOCKS, type BlockId} from '../levels/maker';
 const asset = assetUrl;
 const SLOW_KEY = SAVE_KEY + ':slow-device';
 // The class's live mission belongs to the shared device (see class-view LiveMission).
 const LIVE_KEY = SAVE_KEY + ':live-mission';
-const PHOTO_POSES = [
-  ['run', '달리기'],
-  ['jump', '점프'],
-  ['crouch', '숙이기'],
-  ['cheer', '만세'],
-] as const;
-type PhotoPose = (typeof PHOTO_POSES)[number][0];
+
 // The class fleet's goal belongs to the device (the teacher sets it), not to one sailor.
 const FLEET_KEY = SAVE_KEY + ':fleet-goal';
 // The course being built stays on this device between visits.
@@ -334,7 +327,13 @@ export class App {
     });
     this.world = new World({
       frame: d => this.frame(d),
-      loaded: () => this.openPendingLink(),
+      loaded: () => {
+        this.openPendingLink();
+        // The settings page is fetched once the home screen is up and the device is idle.
+        const idle = (window as Window & {requestIdleCallback?: (f: () => void) => void}).requestIdleCallback;
+        if (idle) idle(() => void settingsView().catch(() => {}));
+        else setTimeout(() => void settingsView().catch(() => {}), 1500);
+      },
       loadError: () => this.error(),
       reduced: () => this.store.data.settings.reducedMotion || deviceReducedMotion(),
       density: () => this.renderDensity,
@@ -578,7 +577,9 @@ export class App {
           ghost: link.leader.ghost,
         }
       : null;
-    this.set(contestJoinMarkup(link, this.contestRules(link), this.profiles.active.name), 'contest-join');
+    void this.later(contestView, m =>
+      this.set(m.contestJoinMarkup(link, this.contestRules(link), this.profiles.active.name), 'contest-join'),
+    );
   }
   private async contestRun() {
     const link = this.contest;
@@ -587,7 +588,9 @@ export class App {
     if (this.screen !== 'prepare' || this.selected !== link.stage || this.contest !== link) return;
     this.special = 'contest';
     this.selectedVariant = link.variant;
-    this.set(contestStartMarkup(link, this.contestRules(link), this.profiles.active.name), 'prepare');
+    const m = await contestView();
+    if (this.screen !== 'prepare' || this.contest !== link) return;
+    this.set(m.contestStartMarkup(link, this.contestRules(link), this.profiles.active.name), 'prepare');
   }
   // Student-built courses: drafts stay on this device; a passing course can be run and shared.
   private loadDraft(): MakerDraft {
@@ -618,9 +621,11 @@ export class App {
     this.world.showHome();
     const d = this.loadDraft();
     if (!unlocked(this.store.data, d.stage)) d.stage = 'beach';
-    this.set(
-      makerMarkup(this.header('코스 만들기', 'challenges'), d, id => unlocked(this.store.data, id), message),
-      'maker',
+    void this.later(makerView, m =>
+      this.set(
+        m.makerMarkup(this.header('코스 만들기', 'challenges'), d, id => unlocked(this.store.data, id), message),
+        'maker',
+      ),
     );
   }
   private makerCheck() {
@@ -638,17 +643,20 @@ export class App {
     if (kind === 'random' || kind === 'clear') {
       const d = this.readDraft();
       d.blocks = kind === 'random' ? randomBlocks(Math.random, d.stage) : 'f'.repeat(MAKER_SLOTS);
+      // Saved now: the page is re-drawn once the maker's code has loaded.
+      try {
+        this.storage?.setItem(MAKER_KEY, JSON.stringify(d));
+      } catch {}
       this.maker(
         kind === 'random' ? '무작위 코스를 만들었어요. 마음에 드는 칸만 바꿔도 돼요.' : '모든 칸을 평지로 바꿨어요.',
       );
-      this.readDraft();
     } else if (kind === 'check') say(this.makerCheck().text);
     else if (kind === 'share') {
       const c = this.makerCheck();
       if (!c.ok) return say(c.text);
       const d = this.readDraft(),
         link: CourseLink = {kind: 'course', stage: d.stage, blocks: d.blocks, title: d.title || '나만의 코스'};
-      this.set(makerShareMarkup(d, linkUrl(link, location.href)), 'maker-share');
+      void this.later(makerView, m => this.set(m.makerShareMarkup(d, linkUrl(link, location.href)), 'maker-share'));
     } else if (kind === 'run') void this.makerRun();
   }
   private async makerRun() {
@@ -672,7 +680,10 @@ export class App {
     this.abandon();
     this.world.showHome();
     this.draft = {stage: link.stage, blocks: link.blocks, title: link.title};
-    this.set(makerReceivedMarkup(this.draft, unlocked(this.store.data, link.stage)), 'maker-received');
+    const draft = this.draft;
+    void this.later(makerView, m =>
+      this.set(m.makerReceivedMarkup(draft, unlocked(this.store.data, link.stage)), 'maker-received'),
+    );
   }
   private duoPage(message = '') {
     this.abandon();
@@ -807,7 +818,10 @@ export class App {
       const c = this.gallery.list[i];
       if (!c) return;
       this.draft = {stage: c.stage, blocks: c.blocks, title: c.title};
-      this.set(makerReceivedMarkup(this.draft, unlocked(this.store.data, c.stage)), 'maker-received');
+      const draft = this.draft;
+      void this.later(makerView, m =>
+        this.set(m.makerReceivedMarkup(draft, unlocked(this.store.data, c.stage)), 'maker-received'),
+      );
     } else if (kind === 'contest') {
       const c = this.gallery.list[i];
       if (!c) return;
@@ -925,7 +939,9 @@ export class App {
       best = this.contests.record(c.id, this.profiles.active.id, now),
       result: ContestResult = {kind: 'result', contest: c.id, ...best},
       url = linkUrl(result, location.href);
-    this.set(contestResultMarkup(c.title, r, best, url, this.rivalLine(r, '1등')), 'result');
+    void this.later(contestView, m =>
+      this.set(m.contestResultMarkup(c.title, r, best, url, this.rivalLine(r, '1등')), 'result'),
+    );
   }
   private contestCollect(result: ContestResult) {
     const {contest, added} = this.contests.add(result);
@@ -939,7 +955,12 @@ export class App {
   private contestsPage(message = '') {
     this.abandon();
     this.world.showHome();
-    this.set(contestsMarkup(this.header('교사용 대회', 'challenges'), this.contests.book.hosted, message), 'contests');
+    void this.later(contestView, m =>
+      this.set(
+        m.contestsMarkup(this.header('교사용 대회', 'challenges'), this.contests.book.hosted, message),
+        'contests',
+      ),
+    );
   }
   private contestBoard(id: string, message = '') {
     const c = this.contests.find(id);
@@ -949,9 +970,11 @@ export class App {
     }
     this.abandon();
     this.world.showHome();
-    this.set(
-      boardMarkup(this.header(esc(c.title), 'contests'), c, this.contestRules(c), message, location.href),
-      'contest-board',
+    void this.later(contestView, m =>
+      this.set(
+        m.boardMarkup(this.header(esc(c.title), 'contests'), c, this.contestRules(c), message, location.href),
+        'contest-board',
+      ),
     );
   }
   private scanner: BoardScanner | null = null;
@@ -962,10 +985,12 @@ export class App {
   private contestCsv(id: string) {
     const c = this.contests.find(id);
     if (c)
-      this.download(
-        contestCsv(c.entries, contestLength(c)),
-        `odyssey-run-contest-${c.id}.csv`,
-        'text/csv;charset=utf-8',
+      void contestView().then(m =>
+        this.download(
+          m.contestCsv(c.entries, contestLength(c)),
+          `odyssey-run-contest-${c.id}.csv`,
+          'text/csv;charset=utf-8',
+        ),
       );
   }
   private contestAction(kind: string, id = '') {
@@ -984,7 +1009,11 @@ export class App {
     } else if (kind === 'open') this.contestBoard(id);
     else if (kind === 'scan') {
       if (this.scanner) this.stopScanner();
-      else this.scanner = new BoardScanner(this.ui, id, this.contests, () => this.store.data.preferences.haptics);
+      else
+        void contestView().then(m => {
+          if (this.screen === 'contest-board' && !this.scanner)
+            this.scanner = new m.BoardScanner(this.ui, id, this.contests, () => this.store.data.preferences.haptics);
+        });
     } else if (kind === 'csv') this.contestCsv(id);
     else if (kind === 'paste') {
       try {
@@ -1061,24 +1090,28 @@ export class App {
       },
       location.href,
     );
-    this.set(
-      shareMarkup(this.courseName(r.stage, r.variant ?? 'classic'), r.score, this.profiles.active.name, url),
-      'share',
+    void this.later(shareView, m =>
+      this.set(
+        m.shareMarkup(this.courseName(r.stage, r.variant ?? 'classic'), r.score, this.profiles.active.name, url),
+        'share',
+      ),
     );
   }
   private shareImage() {
     const r = this.result;
     if (!r) return;
-    return saveResultPicture(this.ui, {
-      view: STAGE_VIEW[r.stage],
-      course: this.courseName(r.stage, r.variant ?? 'classic'),
-      score: r.score,
-      rating: r.rating,
-      stars: r.stars,
-      maps: r.maps.length,
-      complete: r.complete,
-      name: this.ui.querySelector<HTMLInputElement>('#card-name')?.checked ? this.profiles.active.name : '',
-    });
+    return shareView().then(m =>
+      m.saveResultPicture(this.ui, {
+        view: STAGE_VIEW[r.stage],
+        course: this.courseName(r.stage, r.variant ?? 'classic'),
+        score: r.score,
+        rating: r.rating,
+        stars: r.stars,
+        maps: r.maps.length,
+        complete: r.complete,
+        name: this.ui.querySelector<HTMLInputElement>('#card-name')?.checked ? this.profiles.active.name : '',
+      }),
+    );
   }
   home() {
     this.rival = null;
@@ -1368,47 +1401,21 @@ export class App {
     );
     this.updateHud();
   }
-  // Photo mode (from the pause screen): the paused course without the HUD, the hero in a chosen
-  // pose, saved as a picture on this device with the island and the date along the bottom.
+  // Photo mode (from the pause screen, see ui/photo-mode): the paused course without the HUD.
   private photoPose: PhotoPose = 'run';
   private photoMode() {
     if (this.screen !== 'pause' || !this.run) return;
     this.world.photo(this.photoPose);
-    this.set(
-      `<div class="photo-ui"><section class="photo-bar" role="group" aria-labelledby="photo-title"><h2 id="photo-title" tabindex="-1">📷 사진 찍기</h2><fieldset aria-label="영웅의 자세">${PHOTO_POSES.map(([id, name]) => `<label><input type="radio" name="photo-pose" value="${id}" ${id === this.photoPose ? 'checked' : ''}><span>${name}</span></label>`).join('')}</fieldset>${button('photo-save', '사진 저장', 'primary')}${button('photo-close', '돌아가기', 'secondary')}<p role="status" id="photo-status"></p></section></div>`,
-      'photo',
-    );
+    this.set(photoMarkup(this.photoPose), 'photo');
   }
   private async photoSave() {
     if (this.screen !== 'photo' || !this.run) return;
-    const status = this.ui.querySelector('#photo-status');
-    try {
-      // Two frames: the chosen pose is drawn before the picture is taken.
-      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-      const source = this.game.canvas,
-        c = document.createElement('canvas'),
-        band = Math.round(source.height * 0.08);
-      c.width = source.width;
-      c.height = source.height + band;
-      const g = c.getContext('2d')!;
-      g.drawImage(source, 0, 0);
-      g.fillStyle = '#163a4f';
-      g.fillRect(0, source.height, c.width, band);
-      g.fillStyle = '#f6e8c5';
-      g.font = `700 ${Math.round(band * 0.45)}px 'Odyssey UI', sans-serif`;
-      g.textBaseline = 'middle';
-      g.fillText(
-        translate(`오디세이 런 · ${COURSES[this.selected].name} · ${koreanDay()}`),
-        band * 0.5,
-        source.height + band / 2,
-      );
-      const blob = await new Promise<Blob | null>(r => c.toBlob(r, 'image/png'));
-      if (!blob) throw Error('no picture');
-      downloadFile(blob, `odyssey-${this.selected}-${koreanDay()}.png`, 'image/png');
-      if (status) status.textContent = translate('사진을 이 기기에 저장했어요.');
-    } catch {
-      if (status) status.textContent = translate('사진을 만들지 못했어요. 다시 시도해 주세요.');
-    }
+    const ok = await savePhoto(
+      this.game.canvas,
+      `오디세이 런 · ${COURSES[this.selected].name} · ${koreanDay()}`,
+      `odyssey-${this.selected}-${koreanDay()}.png`,
+    );
+    this.setText('#photo-status', ok ? '사진을 이 기기에 저장했어요.' : '사진을 만들지 못했어요. 다시 시도해 주세요.');
   }
   private suspend() {
     this.narrator.stop();
@@ -1917,6 +1924,11 @@ export class App {
       .join(' · ');
   }
   private settings() {
+    if (!settingsModule) {
+      void this.later(settingsView, () => this.settings());
+      return;
+    }
+    const {settingsMarkup} = settingsModule;
     // Sub-pages of settings (touch layout, offline, import, reset) keep the original way back.
     if (!['settings', 'touch-layout', 'offline', 'import', 'reset', 'class-import'].includes(this.screen))
       this.returnScreen = this.screen === 'islands' ? 'islands' : 'home';
@@ -2154,7 +2166,13 @@ export class App {
     }
   }
   private classPreview() {
-    this.set(classPreviewMarkup(this.classImport!, new Set(this.profiles.book.list.map(p => p.id))), 'class-import');
+    const preview = (m: typeof import('./settings-view')) =>
+      this.set(
+        m.classPreviewMarkup(this.classImport!, new Set(this.profiles.book.list.map(p => p.id))),
+        'class-import',
+      );
+    if (settingsModule) preview(settingsModule);
+    else void this.later(settingsView, preview);
   }
   private classRestore() {
     if (this.screen !== 'class-import' || !this.classImport || !this.storage) return;
@@ -2173,7 +2191,9 @@ export class App {
     );
   }
   private importPreview() {
-    this.set(importPreviewMarkup(this.imported!), 'import');
+    const preview = (m: typeof import('./settings-view')) => this.set(m.importPreviewMarkup(this.imported!), 'import');
+    if (settingsModule) preview(settingsModule);
+    else void this.later(settingsView, preview);
   }
   private error() {
     this.sound.setPlaying(false);
@@ -2224,8 +2244,8 @@ export class App {
     wardrobe: () => this.wardrobe(),
     quiz: () => this.quiz(),
     share: () => this.screen === 'result' && this.sharePage(),
-    'share-copy': () => void shareLink(this.ui, 'copy'),
-    'share-native': () => void shareLink(this.ui, 'native'),
+    'share-copy': () => void shareView().then(m => m.shareLink(this.ui, 'copy')),
+    'share-native': () => void shareView().then(m => m.shareLink(this.ui, 'native')),
     'share-image': () => this.screen === 'share' && void this.shareImage(),
     'rival-start': () => this.screen === 'rival' && void this.rivalStart(),
     profiles: () => this.profilesPage(),
@@ -2612,23 +2632,11 @@ export class App {
   private quality(): Quality {
     return this.store.data.preferences.quality;
   }
-  // "Auto" quality's step on this device (0 full, 1 lighter, 2 light). Older saves wrote '1' for light.
   private autoStep() {
-    try {
-      const v = this.storage?.getItem(SLOW_KEY);
-      if (!v) return 0;
-      if (v === '1') return AUTO_STEPS;
-      const n = Number(v.replace('step:', ''));
-      return Number.isInteger(n) ? Math.max(0, Math.min(AUTO_STEPS, n)) : 0;
-    } catch {
-      return 0;
-    }
+    return readAutoStep(this.storage, SLOW_KEY);
   }
   private setAutoStep(n: number) {
-    try {
-      if (n <= 0) this.storage?.removeItem(SLOW_KEY);
-      else this.storage?.setItem(SLOW_KEY, 'step:' + n);
-    } catch {}
+    writeAutoStep(this.storage, SLOW_KEY, n);
   }
   // A slow stretch steps "auto" down one step (it can happen twice), each time watched afresh.
   private slowDevice() {

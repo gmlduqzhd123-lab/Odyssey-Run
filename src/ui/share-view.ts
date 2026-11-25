@@ -1,4 +1,4 @@
-import {qrSvg} from '../systems/share';
+import {qrSvg} from '../systems/qr';
 import {button, downloadFile, esc} from './html';
 import {resultCard, type CardInfo} from './result-card';
 // The share screen after a run: the comparison link and QR, copying or sending it, and saving
