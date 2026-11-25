@@ -6,8 +6,10 @@ import {button} from './html';
 import {getLang, translateTo, type Lang} from '../i18n';
 import {sentences} from '../systems/narrator';
 import type {QuestionReport} from './class-view';
+import {readingFor} from '../levels/readings';
 // A printable class worksheet: fill-in-the-blank lines from the map stories, people to match with
-// their roles, and review questions (the ones this class misses most), with an answer key.
+// their roles, review questions (the ones in the class's wrong-answer notebooks first, then the
+// ones answered right least often), the island's reading with its questions, and an answer key.
 const KEYWORDS = [
   '키클롭스',
   '아이올로스',
@@ -186,12 +188,21 @@ export interface WorksheetOptions {
   level: Level;
   // One island's stories and questions first, or every island.
   stage: StageId | null;
+  // The island's short reading and its two questions (the first island's when every island).
+  reading?: boolean;
+}
+// How many sailors have each question in their wrong-answer notebook.
+export function notebookCounts(rows: {missedIds: readonly string[]}[]) {
+  const out: Record<string, number> = {};
+  for (const r of rows) for (const id of r.missedIds) out[id] = (out[id] ?? 0) + 1;
+  return out;
 }
 export function worksheetMarkup(
   header: string,
   report: QuestionReport[],
   date: string,
   opts: WorksheetOptions = {level: 'mid', stage: null},
+  notebook: Record<string, number> = {},
 ) {
   const L = LEVELS[opts.level],
     all = blanks(),
@@ -209,18 +220,38 @@ export function worksheetMarkup(
       'roles' + date,
     ),
     answered = report.filter(r => r.answered),
-    ranked = answered.length ? [...answered].sort((a, b) => a.right / a.answered - b.right / b.answered) : report,
+    rate = (r: QuestionReport) => (r.answered ? r.right / r.answered : 1),
+    // The class's notebooks first (most sailors), then the lowest share of right answers.
+    missedMost = report.some(r => notebook[r.id]) || answered.length,
+    ranked = missedMost
+      ? [...report]
+          .filter(r => notebook[r.id] || r.answered)
+          .sort((a, b) => (notebook[b.id] ?? 0) - (notebook[a.id] ?? 0) || rate(a) - rate(b))
+      : report,
     own = opts.stage ? ranked.filter(r => quizStage(r.id) === opts.stage) : [],
     weakest = [...own, ...ranked.filter(r => !own.includes(r))]
       .slice(0, L.quiz)
       .map(r => QUIZ.find(q => q.id === r.id)!),
+    stats = (id: string) => {
+      const r = report.find(r => r.id === id),
+        parts = [
+          r?.answered ? `정답률 ${Math.round((r.right / r.answered) * 100)}%` : '',
+          notebook[id] ? `오답 노트 ${notebook[id]}명` : '',
+        ].filter(Boolean);
+      return parts.length ? ` <small>${parts.join(' · ')}</small>` : '';
+    },
+    reading = opts.reading === false ? null : readingFor(opts.stage ?? STAGES[0]),
     title = opts.stage ? `오디세이 런 활동지 · ${COURSES[opts.stage].name}` : '오디세이 런 활동지';
-  const controls = `<div class="no-print worksheet-options"><label>학년 <select id="ws-level">${(Object.keys(LEVELS) as Level[]).map(l => `<option value="${l}" ${l === opts.level ? 'selected' : ''}>${LEVELS[l].name}</option>`).join('')}</select></label><label>섬 <select id="ws-island"><option value="">모든 섬</option>${STAGES.map(id => `<option value="${id}" ${id === opts.stage ? 'selected' : ''}>${COURSES[id].name}</option>`).join('')}</select></label>${button('worksheet', '다시 만들기', 'secondary')}</div>`;
-  return `<div class="page worksheet">${header}<div class="no-print button-row">${button('worksheet-print', '🖨 인쇄하기', 'primary')}${button('progress', '진행 현황으로', 'secondary')}</div>${controls}<article class="sheet"><header class="sheet-head"><h1 tabindex="-1">${title}</h1><p>이름 ____________ · 날짜 ${date} · ${L.name}</p></header><section><h2>1. 빈칸에 알맞은 말을 써 보세요</h2>${L.bank ? `<p class="word-bank" translate="no"><span translate="yes">보기:</span> ${bank.join(' · ')}</p>` : ''}<ol translate="no">${fill.map(b => `<li>${b.text}</li>`).join('')}</ol></section><section><h2>2. 인물과 알맞은 설명을 선으로 이어 보세요</h2><div class="match"><ol>${people.map(p => `<li>${p.name}</li>`).join('')}</ol><ol type="a">${roles.map(r => `<li>${r}</li>`).join('')}</ol></div></section><section><h2>3. 다시 풀어 보는 신화 퀴즈</h2><ol>${weakest.map(q => `<li>${q.question}<br>${q.options.map((o, i) => `${'ABC'[i]}. <span>${o}</span>`).join('  ')}</li>`).join('')}</ol></section>${
+  const controls = `<div class="no-print worksheet-options"><label>학년 <select id="ws-level">${(Object.keys(LEVELS) as Level[]).map(l => `<option value="${l}" ${l === opts.level ? 'selected' : ''}>${LEVELS[l].name}</option>`).join('')}</select></label><label>섬 <select id="ws-island"><option value="">모든 섬</option>${STAGES.map(id => `<option value="${id}" ${id === opts.stage ? 'selected' : ''}>${COURSES[id].name}</option>`).join('')}</select></label><label><input type="checkbox" id="ws-reading" ${opts.reading === false ? '' : 'checked'}> 읽기 지문 넣기</label>${button('worksheet', '다시 만들기', 'secondary')}</div>`;
+  return `<div class="page worksheet">${header}<div class="no-print button-row">${button('worksheet-print', '🖨 인쇄하기', 'primary')}${button('progress', '진행 현황으로', 'secondary')}</div>${controls}<article class="sheet"><header class="sheet-head"><h1 tabindex="-1">${title}</h1><p>이름 ____________ · 날짜 ${date} · ${L.name}</p></header><section><h2>1. 빈칸에 알맞은 말을 써 보세요</h2>${L.bank ? `<p class="word-bank" translate="no"><span translate="yes">보기:</span> ${bank.join(' · ')}</p>` : ''}<ol translate="no">${fill.map(b => `<li>${b.text}</li>`).join('')}</ol></section><section><h2>2. 인물과 알맞은 설명을 선으로 이어 보세요</h2><div class="match"><ol>${people.map(p => `<li>${p.name}</li>`).join('')}</ol><ol type="a">${roles.map(r => `<li>${r}</li>`).join('')}</ol></div></section><section><h2>3. ${missedMost ? '우리 반이 많이 틀린 신화 퀴즈' : '다시 풀어 보는 신화 퀴즈'}</h2><ol>${weakest.map(q => `<li>${q.question}<br>${q.options.map((o, i) => `${'ABC'[i]}. <span>${o}</span>`).join('  ')}</li>`).join('')}</ol></section>${
     L.write
       ? `<section><h2>4. 생각을 써 보세요</h2><ol>${WRITE.slice(0, L.write)
           .map(w => `<li>${w}<p class="note-lines">&nbsp;</p></li>`)
           .join('')}</ol></section>`
       : ''
-  }<section class="answer-key"><h2>정답 (선생님용)</h2><p translate="no">1. ${fill.map((b, i) => `${i + 1}) ${b.answer}`).join('  ')}</p><p>2. ${people.map((p, i) => `${i + 1}) ${'abcdef'[roles.indexOf(p.role)]}`).join('  ')}</p><p>3. ${weakest.map((q, i) => `${i + 1}) ${'ABC'[q.answer]}`).join('  ')}</p></section></article></div>`;
+  }${
+    reading
+      ? `<section class="sheet-reading"><h2>${L.write ? 5 : 4}. 읽고 답해 보세요 · ${reading.title}</h2><p class="read-text">${reading.lines.join(' ')}</p><ol>${reading.questions.map(q => `<li>${q.question}<br>${q.options.map((o, i) => `${'ABC'[i]}. <span>${o}</span>`).join('  ')}</li>`).join('')}</ol></section>`
+      : ''
+  }<section class="answer-key"><h2>정답 (선생님용)</h2><p translate="no">1. ${fill.map((b, i) => `${i + 1}) ${b.answer}`).join('  ')}</p><p>2. ${people.map((p, i) => `${i + 1}) ${'abcdef'[roles.indexOf(p.role)]}`).join('  ')}</p><p>3. ${weakest.map((q, i) => `${i + 1}) ${'ABC'[q.answer]}${stats(q.id)}`).join('  ')}</p>${reading ? `<p>${L.write ? 5 : 4}. ${reading.questions.map((q, i) => `${i + 1}) ${'ABC'[q.answer]}`).join('  ')}</p>` : ''}</section></article></div>`;
 }

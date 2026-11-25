@@ -47,7 +47,11 @@ export interface LiveMission {
   base: number;
   // Team race: each team's starlight when the mission started (absent for the whole class together).
   teams?: Partial<Record<Team, number>>;
+  // Other devices join through a class contest made for the mission: they scan its QR, run on
+  // their own device and show their result QR; each sailor's best starlight there is added.
+  contest?: string;
 }
+const CONTEST_ID = /^[a-z2-9]{6}$/;
 export {TEAMS, readTeams, type Team} from '../storage/class-device';
 import {TEAMS, type Team} from '../storage/class-device';
 export const TEAM_NAMES: Record<Team, string> = {
@@ -93,6 +97,7 @@ export function readLive(raw: string | null): LiveMission | null {
         goal: v.goal,
         base: v.base,
         ...(teams && Object.keys(teams).length >= 2 ? {teams: teams as Partial<Record<Team, number>>} : {}),
+        ...(typeof v.contest === 'string' && CONTEST_ID.test(v.contest) ? {contest: v.contest} : {}),
       };
     }
   } catch {}
@@ -109,7 +114,15 @@ export interface LiveTeams {
   // Each team's starlight now.
   now: Partial<Record<Team, number>>;
 }
-export function liveMarkup(m: LiveMission | null, stars: number, sailors: number, now: number, t?: LiveTeams) {
+export function liveMarkup(
+  m: LiveMission | null,
+  stars: number,
+  sailors: number,
+  now: number,
+  t?: LiveTeams,
+  // Starlight from other devices (the mission's contest), and how many sailors sent it.
+  devices = {stars: 0, sailors: 0},
+) {
   if (!m) {
     const picker = t?.sailors.length
       ? `<details class="team-picker"><summary>모둠 나누기 (모둠 대항으로 하려면)</summary><ul>${t.sailors
@@ -119,9 +132,9 @@ export function liveMarkup(m: LiveMission | null, stars: number, sailors: number
           )
           .join('')}</ul><small>두 모둠 이상에 항해사가 있으면 모둠 대항 미션이 돼요.</small></details>`
       : '';
-    return `<section class="live-mission"><h2>⏱ 반 실시간 미션 <small>전자칠판에 띄워 두고 차례로 달려요</small></h2><div class="live-form"><label>시간 <select id="live-minutes">${LIVE_MINUTES.map(n => `<option value="${n}" ${n === 10 ? 'selected' : ''}>${n}분</option>`).join('')}</select></label><label>목표 별빛 <input id="live-goal" type="number" inputmode="numeric" min="10" max="100000" step="10" value="${Math.max(50, sailors * 40)}"></label>${button('live-start', '미션 시작', 'primary')}</div>${picker}<p class="muted">시작한 뒤 이 기기의 항해사들이 모은 별빛을 모두 더해요.</p></section>`;
+    return `<section class="live-mission"><h2>⏱ 반 실시간 미션 <small>전자칠판에 띄워 두고 차례로 달려요</small></h2><div class="live-form"><label>시간 <select id="live-minutes">${LIVE_MINUTES.map(n => `<option value="${n}" ${n === 10 ? 'selected' : ''}>${n}분</option>`).join('')}</select></label><label>목표 별빛 <input id="live-goal" type="number" inputmode="numeric" min="10" max="100000" step="10" value="${Math.max(50, sailors * 40)}"></label><label>다른 기기도 함께 <select id="live-devices"><option value="">이 기기만</option>${STAGES.map(id => `<option value="${id}">${COURSES[id].name}에서</option>`).join('')}</select></label>${button('live-start', '미션 시작', 'primary')}</div>${picker}<p class="muted">시작한 뒤 이 기기의 항해사들이 모은 별빛을 모두 더해요. 다른 기기도 함께하면 참가 QR이 생기고, 각 기기의 결과 QR을 스캔하면 별빛이 더해져요(모둠 대항에서는 이 기기만 세요).</p></section>`;
   }
-  const got = Math.max(0, stars - m.base),
+  const got = Math.max(0, stars - m.base) + (m.contest ? devices.stars : 0),
     left = liveLeft(m, now),
     share = Math.min(1, got / m.goal),
     done = got >= m.goal;
@@ -142,7 +155,7 @@ export function liveMarkup(m: LiveMission | null, stars: number, sailors: number
         '',
       )}</ul><p>${winner ? `⚑ ${TEAM_NAMES[winner.k]} 승리!` : left ? '모둠원이 차례로 달려 별빛을 모아요' : '아쉬워요! 아무 모둠도 별빛을 모으지 못했어요'}</p>${button('live-stop', left && !winner ? '미션 그만두기' : '미션 닫기', 'secondary')}</section>`;
   }
-  return `<section class="live-mission"><h2>⏱ 반 실시간 미션 <small>${m.minutes}분 · 목표 별빛 ${m.goal.toLocaleString()}</small></h2><p class="live-count"><b>별빛 ${got.toLocaleString()} / ${m.goal.toLocaleString()}</b> <span id="live-time" role="timer">${left ? '남은 시간 ' + clock(left) : '시간 종료'}</span></p><span class="fleet-line" role="img" aria-label="미션 진행 ${Math.round(share * 100)}%"><i style="width:${share * 100}%"></i></span><p>${done ? '⚑ 미션 성공! 모두 함께 해냈어요' : left ? '한 명씩 달려서 별빛을 모아요' : '아쉬워요! 다음엔 목표를 조금 낮춰 봐요'}</p>${button('live-stop', left && !done ? '미션 그만두기' : '미션 닫기', 'secondary')}</section>`;
+  return `<section class="live-mission"><h2>⏱ 반 실시간 미션 <small>${m.minutes}분 · 목표 별빛 ${m.goal.toLocaleString()}</small></h2><p class="live-count"><b>별빛 ${got.toLocaleString()} / ${m.goal.toLocaleString()}</b> <span id="live-time" role="timer">${left ? '남은 시간 ' + clock(left) : '시간 종료'}</span></p><span class="fleet-line" role="img" aria-label="미션 진행 ${Math.round(share * 100)}%"><i style="width:${share * 100}%"></i></span>${m.contest ? `<p class="live-devices">📱 다른 기기 ${devices.sailors}명 · 별빛 ${devices.stars.toLocaleString()} ${button('contest-open:' + m.contest, '참가 QR·결과 스캔', 'secondary')}</p>` : ''}<p>${done ? '⚑ 미션 성공! 모두 함께 해냈어요' : left ? '한 명씩 달려서 별빛을 모아요' : '아쉬워요! 다음엔 목표를 조금 낮춰 봐요'}</p>${button('live-stop', left && !done ? '미션 그만두기' : '미션 닫기', 'secondary')}</section>`;
 }
 export interface QuestionReport {
   id: string;

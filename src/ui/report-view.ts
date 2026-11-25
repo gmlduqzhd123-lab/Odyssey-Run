@@ -87,6 +87,8 @@ export function growthWeeks(r: SailorProgress, today: string, weeks = REPORT_WEE
       stars: w?.stars ?? 0,
       quiz: w?.quiz ?? 0,
       days: r.days.filter(d => weekKey(d) === week).length,
+      // Weeks sailed before weekly counts were kept: only the calendar knows them.
+      tracked: !!w,
     };
   });
 }
@@ -95,9 +97,11 @@ export function growthMarkup(header: string, rows: SailorProgress[], today: stri
   return `<div class="page growth report-print">${header}<div class="page-heading"><span class="eyebrow">GROWTH REPORT</span><h1 tabindex="-1">📈 성장 리포트</h1><p>최근 ${REPORT_WEEKS}주 동안 학생마다 얼마나 꾸준히 항해했는지 보여요. 주별 기록은 이번 버전부터 쌓여요.</p>${button('worksheet-print', '🖨 인쇄', 'secondary')}</div>${rows
     .map(r => {
       const ws = growthWeeks(r, today),
-        active = ws.filter(w => w.runs || w.days || w.quiz),
+        // Compared over the weeks with counts only (a calendar-only week is not a zero).
+        active = ws.filter(w => w.tracked && (w.runs || w.days || w.quiz)),
         first = active[0],
-        last = active.at(-1);
+        last = active.at(-1),
+        before = ws.some(w => !w.tracked && w.days);
       return `<section class="growth-card"><h2 translate="no">${esc(r.name)}</h2><p>완주한 섬 ${r.islands}/${STAGES.length} · 맞힌 퀴즈 ${r.quiz}/${quizIds.length} · 읽은 섬 이야기 ${r.readings}/${STAGES.length} · 오답 노트 ${r.missed}문제 · ${r.prologue ? '연습 항해 ✓' : '연습 항해 전'}</p>${
         first && last && first !== last
           ? `<p class="growth-change">처음 주와 비교: 완주 ${change(first.runs, last.runs)} · 별빛 ${change(first.stars, last.stars)} · 퀴즈 ${change(first.quiz, last.quiz)}</p>`
@@ -110,8 +114,13 @@ export function growthMarkup(header: string, rows: SailorProgress[], today: stri
           ['퀴즈 정답', 'quiz'],
         ] as const
       )
-        .map(([label, k]) => `<tr><th scope="row">${label}</th>${ws.map(w => `<td>${w[k] || '·'}</td>`).join('')}</tr>`)
-        .join('')}</tbody></table></div></section>`;
+        .map(
+          ([label, k]) =>
+            `<tr><th scope="row">${label}</th>${ws.map(w => (k !== 'days' && !w.tracked && w.days ? '<td class="estimate">?</td>' : `<td>${w[k] || '·'}</td>`)).join('')}</tr>`,
+        )
+        .join(
+          '',
+        )}</tbody></table></div>${before ? '<p class="muted">? 표시는 주별 기록을 쌓기 전에 항해한 주예요. 항해 달력으로 항해한 날만 알 수 있어요.</p>' : ''}</section>`;
     })
     .join('')}</div>`;
 }

@@ -46,8 +46,9 @@ const lengthOf = (c: Course) => c.length ?? C.length;
 // the course on, away from the O/X gate and anything already placed.
 function spot(course: Course, share: number, before: number, after: number, taken: number[]) {
   const length = lengthOf(course);
-  // From the chosen share on first, then from the first fifth; fewer monsters nearby only if needed.
-  for (const from of [share, 0.2])
+  // From the chosen share on first, then from the first fifth, then the first tenth (a busy course
+  // still gets its rope early on); fewer monsters nearby only if needed.
+  for (const from of [share, 0.2, 0.1])
     for (const reach of [500, 300, 150])
       for (let x = Math.round((length * from) / 100) * 100; x < length - 2500; x += 100)
         if (plain(course, x - before, x + after, reach) && taken.every(t => Math.abs(t - x) > 1200)) return x;

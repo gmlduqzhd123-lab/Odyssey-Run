@@ -26,7 +26,7 @@ const ordinary = (stage: (typeof STAGES)[number] = 'beach') => {
   return r;
 };
 
-test('every island course has a spring, most a rope, on plain ground apart from the gate', () => {
+test('every island course has a spring and a rope, on plain ground apart from the gate', () => {
   let ropes = 0;
   for (const stage of STAGES)
     for (const variant of VARIANTS) {
@@ -34,8 +34,8 @@ test('every island course has a spring, most a rope, on plain ground apart from 
         gate = gateFor(course, 'x'),
         d = dynamicsFor(course, gate);
       assert.ok(d.spring !== null, `${stage}/${variant} spring`);
-      // A course too busy for a rope's run-up and landing simply has none.
-      if (d.rope !== null) ropes++;
+      assert.ok(d.rope !== null, `${stage}/${variant} rope`);
+      ropes++;
       for (const x of [d.spring!, d.rope].filter((x): x is number => x !== null)) {
         assert.ok(!course.gaps.some(g => g.x < x + 700 && g.x + g.w > x - 250), `${stage}/${variant} gap at ${x}`);
         assert.ok(
@@ -49,7 +49,7 @@ test('every island course has a spring, most a rope, on plain ground apart from 
       const chase = chaseFor(course);
       assert.ok(chase.start < chase.end);
     }
-  assert.ok(ropes >= 15, String(ropes));
+  assert.equal(ropes, STAGES.length * VARIANTS.length);
 });
 
 test('landing on a crab defeats it and bounces; running into it still hurts', () => {

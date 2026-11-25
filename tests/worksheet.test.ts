@@ -46,3 +46,22 @@ test('the worksheet blanks a keyword in at least eight stories in every language
   await loadDictionary('en');
   assert.ok(blanks('en').length >= 8);
 });
+test('the worksheet asks the class notebook questions first and adds the island reading with its key', async () => {
+  const {worksheetMarkup, notebookCounts} = await import('../src/ui/worksheet-view');
+  const {QUIZ} = await import('../src/levels/quiz-text');
+  const {readingFor} = await import('../src/levels/readings');
+  const report = QUIZ.map(q => ({id: q.id, question: q.question, answered: 0, right: 0, wrong: null, read: ''}));
+  const notebook = notebookCounts([{missedIds: ['bow', 'argos']}, {missedIds: ['bow']}]);
+  assert.deepEqual(notebook, {bow: 2, argos: 1});
+  const html = worksheetMarkup('', report, '2026-11-25', {level: 'mid', stage: 'palace', reading: true}, notebook);
+  const quiz = html.slice(html.indexOf('우리 반이 많이 틀린 신화 퀴즈'));
+  const bow = QUIZ.find(q => q.id === 'bow')!.question,
+    argos = QUIZ.find(q => q.id === 'argos')!.question;
+  assert.ok(quiz.indexOf(bow) < quiz.indexOf(argos), 'most notebooks first');
+  assert.ok(html.includes('오답 노트 2명'));
+  const r = readingFor('palace')!;
+  assert.ok(html.includes(r.title) && html.includes(r.questions[0].question));
+  const off = worksheetMarkup('', report, '2026-11-25', {level: 'mid', stage: 'palace', reading: false});
+  assert.ok(!off.includes(r.questions[0].question));
+  assert.ok(off.includes('다시 풀어 보는 신화 퀴즈'), 'no class data: the plain title');
+});

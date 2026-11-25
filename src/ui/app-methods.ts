@@ -91,6 +91,7 @@ export interface ClassroomMethods {
   profilesPage(message?: string): void;
   teacherPage(show: (views: Awaited<ReturnType<typeof teacherViews>>) => void): Promise<void>;
   live(): LiveMission | null;
+  liveDevices(): {stars: number; sailors: number};
   classStars(
     board?: {
       total: number;

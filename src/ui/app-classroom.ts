@@ -12,6 +12,8 @@ import {readJsonFile} from '../storage/json-file';
 import {FLEET_KEY, TEAMS_KEY, TEAMS, readTeams} from '../storage/class-device';
 import {weekKey} from '../storage/feats';
 import type {App} from './app';
+import {STAGES, type StageId} from '../levels/courses';
+import {newContestId} from '../storage/contests';
 import {teacherViews, settingsModule, settingsView, LIVE_KEY, classModule, classView} from './app-shared';
 // Loaded before any of these methods use it (see profilesPage).
 const cv = () => classModule!;
@@ -42,7 +44,14 @@ export const classroomMethods = {
             board.filter(p => p.week === weekKey(koreanDay())).reduce((n, p) => n + p.weekRuns, 0),
             board.length,
           ) +
-          cv().liveMarkup(this.live(), this.classStars(board), board.length, Date.now(), this.liveTeams(board)),
+          cv().liveMarkup(
+            this.live(),
+            this.classStars(board),
+            board.length,
+            Date.now(),
+            this.liveTeams(board),
+            this.liveDevices(),
+          ),
       ),
       'profiles',
     );
@@ -65,6 +74,12 @@ export const classroomMethods = {
     } catch {
       return null;
     }
+  },
+  // Other devices' starlight in the live mission: each sailor's best run in the mission's contest.
+  liveDevices(this: App) {
+    const id = this.live()?.contest,
+      c = id ? this.contests.find(id) : null;
+    return {stars: c ? c.entries.reduce((n, e) => n + e.stars, 0) : 0, sailors: c?.entries.length ?? 0};
   },
   // This week's starlight of every sailor on this device (the live mission's measure).
   classStars(this: App, board = this.profiles.board()) {
@@ -100,10 +115,29 @@ export const classroomMethods = {
       // Two or more teams with sailors make it a team race, each from its own starlight now.
       const t = this.liveTeams(),
         used = TEAMS.filter(k => Object.values(t.teams).includes(k)),
-        teams = used.length >= 2 ? Object.fromEntries(used.map(k => [k, t.now[k] ?? 0])) : undefined;
+        teams = used.length >= 2 ? Object.fromEntries(used.map(k => [k, t.now[k] ?? 0])) : undefined,
+        island = this.ui.querySelector<HTMLSelectElement>('#live-devices')?.value as StageId,
+        // Other devices join through a contest made for this mission (whole-class missions only).
+        contest =
+          !teams && STAGES.includes(island)
+            ? this.contests.host({
+                id: newContestId(),
+                title: '실시간 미션',
+                stage: island,
+                variant: 'classic',
+                assist: false,
+              }).id
+            : undefined;
       this.storage?.setItem(
         LIVE_KEY,
-        JSON.stringify({start: Date.now(), minutes, goal, base: this.classStars(), ...(teams ? {teams} : {})}),
+        JSON.stringify({
+          start: Date.now(),
+          minutes,
+          goal,
+          base: this.classStars(),
+          ...(teams ? {teams} : {}),
+          ...(contest ? {contest} : {}),
+        }),
       );
     } catch {}
     this.profilesPage();

@@ -40,7 +40,7 @@ import {
   type Settings,
 } from '../storage/save';
 import {VARIANTS, VARIANT_LABELS} from '../levels/variants';
-import {isVariant, type VariantId} from '../levels/course-ids';
+import {courseKey, isVariant, type VariantId} from '../levels/course-ids';
 import {padConnected, Controls} from '../input/controls';
 import {Sound} from '../systems/audio';
 import {vibrate} from '../systems/haptics';
@@ -50,6 +50,7 @@ import {keepLanguage} from '../systems/lang-cache';
 import {replaceMissingArt} from './missing-art';
 import type {BoardScanner} from './contest-view';
 import {World} from '../scenes/World';
+import {balanceOn, clearBalance, readBalance, recordBalance, setBalanceOn, BALANCE_KEY} from '../storage/balance';
 import {loadContactMasks, masksReady} from '../systems/contact';
 import {SplitScreen} from '../rendering/split-screen';
 import {TeacherLock} from './lock-controller';
@@ -845,6 +846,12 @@ export class App {
       weather: this.run.weather !== 'clear',
     });
     this.store.persist();
+    recordBalance(this.storage, courseKey(this.result.stage, this.result.variant ?? 'classic'), {
+      complete: this.result.complete,
+      distance: this.result.distance,
+      length: this.run.course.length ?? C.length,
+      damage: this.run.damageLog,
+    });
     this.protect();
     this.sound.setPlaying(false);
     this.controls.clear();
@@ -945,7 +952,7 @@ export class App {
         deviceMotion: deviceReducedMotion(),
         lock: this.lock.config ? {lesson: this.lock.config.lesson, open: this.lock.open} : null,
         device: deviceStatusMarkup(this.deviceStatus()),
-        extra: this.presetMarkup() + this.notesMarkup(),
+        extra: this.presetMarkup() + this.notesMarkup() + settingsModule.balanceToggleMarkup(balanceOn(this.storage)),
       }),
       'settings',
     );
@@ -1221,7 +1228,7 @@ export class App {
       this.abandon();
       this.world.showHome();
       const rows = this.profiles.progress();
-      void this.teacherPage(([, {activityMarkup, trendMarkup}, {progressMarkup}]) =>
+      void this.teacherPage(([, {activityMarkup, trendMarkup}, {progressMarkup, balanceMarkup}]) =>
         this.set(
           progressMarkup(
             this.header('학생별 진행 현황', 'profiles'),
@@ -1233,7 +1240,8 @@ export class App {
             ) +
               activityMarkup(rows, koreanDay()) +
               trendMarkup(rows, koreanDay()) +
-              classModule!.quizReportMarkup(rows),
+              classModule!.quizReportMarkup(rows) +
+              balanceMarkup(readBalance(this.storage?.getItem(BALANCE_KEY) ?? null), balanceOn(this.storage)),
           ),
           'progress',
         ),
@@ -1278,6 +1286,18 @@ export class App {
     },
     'note-export': () =>
       this.download(JSON.stringify(readNotes(this.storage), null, 1), 'odyssey-run-translation-notes.json'),
+    'balance-on': () => {
+      setBalanceOn(this.storage, true);
+      this.settings();
+    },
+    'balance-off': () => {
+      setBalanceOn(this.storage, false);
+      this.settings();
+    },
+    'balance-clear': () => {
+      clearBalance(this.storage);
+      this.ui.querySelector('.balance-board')?.remove();
+    },
     'note-clear': () => {
       clearNotes(this.storage);
       this.settings();
@@ -1307,10 +1327,11 @@ export class App {
     worksheet: () => {
       // Re-made from the page's own choices when it is already open.
       const level = this.ui.querySelector<HTMLSelectElement>('#ws-level')?.value ?? 'mid',
-        island = this.ui.querySelector<HTMLSelectElement>('#ws-island')?.value ?? '';
+        island = this.ui.querySelector<HTMLSelectElement>('#ws-island')?.value ?? '',
+        reading = this.ui.querySelector<HTMLInputElement>('#ws-reading')?.checked ?? true;
       this.abandon();
       this.world.showHome();
-      void this.teacherPage(([{LEVELS, worksheetMarkup}]) =>
+      void this.teacherPage(([{LEVELS, worksheetMarkup, notebookCounts}]) =>
         this.set(
           worksheetMarkup(
             this.header('활동지', 'progress'),
@@ -1319,7 +1340,9 @@ export class App {
             {
               level: level in LEVELS ? (level as Level) : 'mid',
               stage: STAGES.includes(island as StageId) ? (island as StageId) : null,
+              reading,
             },
+            notebookCounts(this.profiles.progress()),
           ),
           'worksheet',
         ),

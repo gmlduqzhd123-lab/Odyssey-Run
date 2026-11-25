@@ -86,3 +86,7 @@ export function importPreviewMarkup(s: Save) {
 export function classPreviewMarkup(b: ClassBackup, known: Set<string>) {
   return `<div class="veil"><section class="panel"><span class="eyebrow">RESTORE YOUR CLASS</span><h1 tabindex="-1">반 전체 기록을 합칠까요?</h1><p>항해사 ${b.profiles.list.length}명 · 대회 ${b.contests.hosted.length}개${b.gallery?.length ? ` · 갤러리 코스 ${b.gallery.length}개` : ''}</p><div class="import-list">${b.profiles.list.map(p => `<p><b translate="no">${esc(p.name)}</b><span>${known.has(p.id) ? '합치기' : '새로 추가'}</span></p>`).join('')}</div><p class="muted">같은 항해사는 더 좋은 기록을 남기고, 대회 순위는 이름별 최고 기록을 남겨요. 이 기기의 기록은 지우지 않아요.</p><div class="button-row">${button('settings', '취소', 'secondary')}${button('class-import-confirm', '합쳐서 가져오기', 'primary')}</div></section></div>`;
 }
+// The teacher's course balance (see storage/balance): off until turned on, on this device only.
+export function balanceToggleMarkup(on: boolean) {
+  return `<section class="balance-toggle"><h2>📊 코스 균형 통계</h2><p class="muted">이 기기에서 달린 섬 항해마다 완주율과 HP를 잃은 구간을 모아요. 학생 기록·백업·점수와는 상관없고, 학생별 진행 현황 아래에 보여요.</p><div class="button-row">${on ? button('balance-off', '통계 모으기 끄기', 'secondary') : button('balance-on', '통계 모으기 켜기', 'secondary')}</div><p class="muted">${on ? '지금 모으는 중이에요.' : '지금은 모으지 않아요.'}</p></section>`;
+}
