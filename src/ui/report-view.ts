@@ -1,5 +1,5 @@
 import {COURSES, STAGES} from '../levels/courses';
-import {QUIZ} from '../levels/quiz';
+import {quizIds} from '../levels/quiz';
 import {ACHIEVEMENTS, streaks, weekKey} from '../storage/feats';
 import {TOTAL_MAPS} from './book-nav';
 import {button, esc} from './html';
@@ -34,7 +34,7 @@ export function activityMarkup(rows: SailorProgress[], today: string) {
 export function studentSheet(r: SailorProgress, today: string) {
   const s = streaks(r.days, today),
     recent = r.days.filter(d => Date.parse(today) - Date.parse(d) < 28 * 86_400_000).length;
-  return `<article class="sheet"><header class="sheet-head"><h1 tabindex="-1"><span>오디세이 런 기록</span> · <span translate="no">${esc(r.name)}</span></h1><p>${today} 기준 · 이 기기에 저장된 기록</p></header><section><h2>섬 완주</h2><ul class="report-islands">${STAGES.map((id, i) => `<li>${r.stages[i].complete ? '⚑' : '○'} ${COURSES[id].name}${r.stages[i].complete ? ` · ${'★'.repeat(r.stages[i].rating)}` : ''}</li>`).join('')}</ul></section><section><h2>모험의 발자취</h2><p>지도 조각 ${r.maps}/${TOTAL_MAPS} · 신화 퀴즈 ${r.quiz}/${QUIZ.length} · 배지 ${r.badges}/${ACHIEVEMENTS.length}</p><p>최근 4주 동안 ${recent}일 항해 · 연속 ${s.current}일 · 최고 연속 ${s.best}일</p></section><section><h2>선생님 한마디</h2><p class="note-lines">&nbsp;</p></section></article>`;
+  return `<article class="sheet"><header class="sheet-head"><h1 tabindex="-1"><span>오디세이 런 기록</span> · <span translate="no">${esc(r.name)}</span></h1><p>${today} 기준 · 이 기기에 저장된 기록</p></header><section><h2>섬 완주</h2><ul class="report-islands">${STAGES.map((id, i) => `<li>${r.stages[i].complete ? '⚑' : '○'} ${COURSES[id].name}${r.stages[i].complete ? ` · ${'★'.repeat(r.stages[i].rating)}` : ''}</li>`).join('')}</ul></section><section><h2>모험의 발자취</h2><p>지도 조각 ${r.maps}/${TOTAL_MAPS} · 신화 퀴즈 ${r.quiz}/${quizIds.length} · 배지 ${r.badges}/${ACHIEVEMENTS.length}</p><p>최근 4주 동안 ${recent}일 항해 · 연속 ${s.current}일 · 최고 연속 ${s.best}일</p></section><section><h2>선생님 한마디</h2><p class="note-lines">&nbsp;</p></section></article>`;
 }
 export function studentReportMarkup(header: string, r: SailorProgress, today: string) {
   return `<div class="page student-report">${header}<div class="no-print button-row">${button('worksheet-print', '🖨 인쇄하기', 'primary')}${button('progress', '진행 현황으로', 'secondary')}</div>${studentSheet(r, today)}</div>`;
@@ -67,7 +67,7 @@ export function trendMarkup(rows: SailorProgress[], today: string) {
         .join(''),
       help = needsHelp(r, rows, today),
       week = weeks.at(-1)!.days;
-    return `<tr${help ? ' class="needs-help"' : ''}><th scope="row" translate="no">${esc(r.name)}</th><td><svg class="trend-bars" viewBox="0 0 96 30" role="img" aria-label="최근 ${REPORT_WEEKS}주 주별 항해일 ${weeks.map(w => w.days).join(', ')}">${bars}</svg></td><td>${week}일</td><td>${r.islands}/${STAGES.length}</td><td>${r.quiz}/${QUIZ.length}</td><td>${help ? `⚠ ${help}` : '—'}</td></tr>`;
+    return `<tr${help ? ' class="needs-help"' : ''}><th scope="row" translate="no">${esc(r.name)}</th><td><svg class="trend-bars" viewBox="0 0 96 30" role="img" aria-label="최근 ${REPORT_WEEKS}주 주별 항해일 ${weeks.map(w => w.days).join(', ')}">${bars}</svg></td><td>${week}일</td><td>${r.islands}/${STAGES.length}</td><td>${r.quiz}/${quizIds.length}</td><td>${help ? `⚠ ${help}` : '—'}</td></tr>`;
   });
   const flagged = rows.filter(r => needsHelp(r, rows, today)).length;
   return `<section class="trend"><h2>학생별 흐름 <small>최근 ${REPORT_WEEKS}주</small></h2><p class="muted">막대 하나가 한 주예요(높을수록 그 주에 여러 날 항해). ${flagged ? `살펴볼 학생 ${flagged}명을 표시했어요.` : '모두 꾸준히 항해하고 있어요.'}</p><div class="table-wrap"><table><thead><tr><th scope="col">이름</th><th scope="col">주별 항해</th><th scope="col">이번 주</th><th scope="col">섬</th><th scope="col">퀴즈</th><th scope="col">살펴보기</th></tr></thead><tbody>${lines.join('')}</tbody></table></div></section>`;
@@ -98,7 +98,7 @@ export function growthMarkup(header: string, rows: SailorProgress[], today: stri
         active = ws.filter(w => w.runs || w.days || w.quiz),
         first = active[0],
         last = active.at(-1);
-      return `<section class="growth-card"><h2 translate="no">${esc(r.name)}</h2><p>완주한 섬 ${r.islands}/${STAGES.length} · 맞힌 퀴즈 ${r.quiz}/${QUIZ.length} · 읽은 섬 이야기 ${r.readings}/${STAGES.length} · 오답 노트 ${r.missed}문제 · ${r.prologue ? '연습 항해 ✓' : '연습 항해 전'}</p>${
+      return `<section class="growth-card"><h2 translate="no">${esc(r.name)}</h2><p>완주한 섬 ${r.islands}/${STAGES.length} · 맞힌 퀴즈 ${r.quiz}/${quizIds.length} · 읽은 섬 이야기 ${r.readings}/${STAGES.length} · 오답 노트 ${r.missed}문제 · ${r.prologue ? '연습 항해 ✓' : '연습 항해 전'}</p>${
         first && last && first !== last
           ? `<p class="growth-change">처음 주와 비교: 완주 ${change(first.runs, last.runs)} · 별빛 ${change(first.stars, last.stars)} · 퀴즈 ${change(first.quiz, last.quiz)}</p>`
           : '<p class="muted">비교하려면 두 주 이상의 기록이 필요해요.</p>'

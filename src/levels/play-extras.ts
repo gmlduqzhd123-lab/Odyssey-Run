@@ -1,6 +1,6 @@
 import {C} from '../config';
 import {isCeiling, type Course, type Rect} from './courses';
-import {QUIZ} from './quiz';
+import {QUIZ_ANSWERS, quizIds, quizText} from './quiz';
 import {seeded} from './endless';
 // Extras for an ordinary island run (never a boss, daily, endless, contest, duo or student
 // course, so shared records stay comparable): a blessing chosen before the start, a hidden
@@ -82,16 +82,17 @@ export function gateFor(course: Course, seed: string): Gate | null {
     for (let x = Math.round(length / 3 / 100) * 100; x < length - 3000; x += 100)
       if (clear(course, x - GATE_LEAD, x + 160, reach)) {
         const random = seeded('gate:' + seed),
-          q = QUIZ[Math.floor(random() * QUIZ.length)],
+          id = quizIds[Math.floor(random() * quizIds.length)],
+          answer = QUIZ_ANSWERS[id],
           truth = random() < 0.5,
-          wrong = ([0, 1, 2] as const).filter(i => i !== q.answer),
-          option = truth ? q.answer : wrong[Math.floor(random() * 2)];
-        return {x, quiz: q.id, option, truth};
+          wrong = ([0, 1, 2] as const).filter(i => i !== answer),
+          option = truth ? answer : wrong[Math.floor(random() * 2)];
+        return {x, quiz: id, option, truth};
       }
   return null;
 }
 export const gateStatement = (g: Gate) => {
-  const q = QUIZ.find(q => q.id === g.quiz)!;
+  const q = quizText().find(q => q.id === g.quiz)!;
   return {question: q.question, option: q.options[g.option], answer: q.options[q.answer]};
 };
 

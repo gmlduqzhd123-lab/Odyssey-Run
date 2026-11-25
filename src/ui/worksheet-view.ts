@@ -1,5 +1,5 @@
 import {COURSES, MAP_STORIES, STAGES, type StageId} from '../levels/courses';
-import {QUIZ, QUIZ_READ} from '../levels/quiz';
+import {QUIZ, QUIZ_READ} from '../levels/quiz-text';
 import {PEOPLE} from '../assets/catalog';
 import {seeded} from '../levels/endless';
 import {button} from './html';

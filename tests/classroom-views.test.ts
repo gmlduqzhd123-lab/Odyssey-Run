@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import {emptySave} from '../src/storage/save';
 import {progress} from '../src/storage/profiles';
 import {recordQuiz} from '../src/storage/feats';
-import {QUIZ, QUIZ_READ, quizIds} from '../src/levels/quiz';
+import {QUIZ, QUIZ_READ} from '../src/levels/quiz-text';
+import {quizIds} from '../src/levels/quiz';
 import {MAP_STORIES, STAGES} from '../src/levels/courses';
 import {FLEET_STEPS, defaultFleetGoal, fleetMarkup, quizReport, quizReportCsv} from '../src/ui/class-view';
 

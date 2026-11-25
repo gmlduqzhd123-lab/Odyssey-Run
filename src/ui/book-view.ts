@@ -1,7 +1,7 @@
 import {COURSES, MAP_STORIES, STAGES} from '../levels/courses';
 import {ART_SHEETS, REGIONS, STAGE_VIEW, sheetSize, sheetUrl} from '../assets/terrain';
 import {assetUrl as asset, PEOPLE, RELICS} from '../assets/catalog';
-import {PERSON_MYTHS} from '../levels/quiz';
+import {PERSON_MYTHS} from '../levels/quiz-text';
 import {ENEMY_TYPES, type EnemyKind} from '../levels/enemies';
 import {MONSTER_ART} from '../assets/expansion-art';
 import {button, readButton} from './html';

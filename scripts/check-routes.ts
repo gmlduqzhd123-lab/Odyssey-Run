@@ -1,3 +1,10 @@
+import {CONTACT_MASKS} from '../src/assets/contact-masks';
+import {useContactMasks} from '../src/systems/contact';
+import {QUIZ} from '../src/levels/quiz-text';
+import {useQuizText} from '../src/levels/quiz';
+// The app loads the contact outlines before a run; these node checks load them (and the quiz text) at once.
+useContactMasks(CONTACT_MASKS);
+useQuizText(QUIZ);
 import {Runner} from '../src/player/runner';
 import {STAGES} from '../src/levels/courses';
 import {routeInputs} from '../src/levels/route-inputs';

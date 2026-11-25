@@ -1,5 +1,5 @@
 import {COURSES, MAP_STORIES, STAGES} from '../levels/courses';
-import {QUIZ, QUIZ_READ} from '../levels/quiz';
+import {QUIZ, QUIZ_READ} from '../levels/quiz-text';
 import {PEOPLE} from '../assets/catalog';
 import {toCsv} from '../systems/scanner';
 import {translate} from '../i18n';

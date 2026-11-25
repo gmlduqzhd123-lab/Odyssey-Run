@@ -1,4 +1,4 @@
-import {CONTACT_MASKS} from '../assets/contact-masks';
+import type {ContactMask} from '../assets/contact-masks';
 import {SCENERY_MASKS} from '../assets/scenery-art';
 import {heroPose, itemPose, enemyPose, obstaclePose, type HeroPoseState, type SpritePose} from '../rendering/poses';
 import type {Collectible, Rect, Obstacle} from '../levels/courses';
@@ -9,8 +9,21 @@ type Shape = Rect & {mask: string; flipX?: boolean; reveal?: number};
 // Shapes drawn in code are solid all the way across.
 const SOLID = {w: 1, h: 1, rows: [[0, 1]]};
 const DRAWN: Readonly<Record<string, typeof SOLID>> = {'obstacle-pounder': SOLID};
+// The traced hero, item and monster outlines load before the first run (they are not in the
+// startup scripts); a run never starts before they are here.
+let MASKS: Readonly<Record<string, ContactMask>> | null = null;
+export const masksReady = () => MASKS !== null;
+export function useContactMasks(m: Readonly<Record<string, ContactMask>>) {
+  MASKS = m;
+}
+export const loadContactMasks = () =>
+  MASKS ? Promise.resolve() : import('../assets/contact-masks').then(m => useContactMasks(m.CONTACT_MASKS));
+const masks = () => {
+  if (!MASKS) throw Error('contact masks are not loaded');
+  return MASKS;
+};
 export function containsInk(s: Shape, x: number, y: number) {
-  const mask = CONTACT_MASKS[s.mask] ?? SCENERY_MASKS[s.mask] ?? DRAWN[s.mask];
+  const mask = masks()[s.mask] ?? SCENERY_MASKS[s.mask] ?? DRAWN[s.mask];
   if (x < s.x || x >= s.x + s.w || y < s.y || y >= s.y + s.h * (s.reveal ?? 1)) return false;
   let u = Math.floor(((x - s.x) / s.w) * mask.w);
   if (s.flipX) u = mask.w - 1 - u;

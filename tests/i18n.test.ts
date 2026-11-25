@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {EN} from '../src/i18n/en';
 import {translateTo, loadDictionary} from '../src/i18n';
-import {QUIZ} from '../src/levels/quiz';
+import {QUIZ} from '../src/levels/quiz-text';
 import {COURSES, STAGES, MAP_STORIES} from '../src/levels/courses';
 import {ADVENTURE_PLANS} from '../src/levels/adventure';
 import {PEOPLE, RELICS} from '../src/assets/catalog';
