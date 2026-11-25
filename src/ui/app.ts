@@ -112,6 +112,7 @@ import {PHOTO_POSES, photoMarkup, savePhoto, type PhotoPose} from './photo-mode'
 import {AUTO_STEPS, FrameWatch, readAutoStep, writeAutoStep, Pacer, SHELTER, smoothRun} from '../rendering/frame-watch';
 import {RunFeel} from '../systems/run-feel';
 import {Announcer} from '../systems/announcer';
+import {FLEET_KEY, TEAMS_KEY} from '../storage/class-device';
 import {PRESETS, PRESET_IDS, isPreset, readPreset, writePreset} from '../storage/lesson-preset';
 import {addNote, clearNotes, noteBanner, noteModeAvailable, readNotes, tappedText} from './translation-report';
 import type {CheckId, Results} from './device-check';
@@ -121,9 +122,9 @@ const readingView = () => import('./reading-view');
 const wordCards = () => import('./word-cards');
 import type {CardGame} from './word-cards';
 import {ScreenAwake} from '../systems/wake-lock';
-import {gateFor, isBlessing, treasureFor, type BlessingId} from '../levels/play-extras';
+import {gateFor, gateStatement, isBlessing, treasureFor, type BlessingId} from '../levels/play-extras';
 import {chaseFor, dynamicsFor, missionsFor, FEVER_FULL} from '../levels/play-dynamics';
-import {bossWeakPoints} from '../levels/bosses';
+import {bossPhase, bossWeakPoints} from '../levels/bosses';
 import {prologueCourse, prologueGuide, PROLOGUE_TITLE} from '../levels/prologue';
 import {
   blessingPicker,
@@ -159,10 +160,7 @@ const asset = assetUrl;
 const SLOW_KEY = SAVE_KEY + ':slow-device';
 // The class's live mission belongs to the shared device (see class-view LiveMission).
 const LIVE_KEY = SAVE_KEY + ':live-mission';
-const TEAMS_KEY = SAVE_KEY + ':teams';
 
-// The class fleet's goal belongs to the device (the teacher sets it), not to one sailor.
-const FLEET_KEY = SAVE_KEY + ':fleet-goal';
 // The course being built stays on this device between visits.
 const MAKER_KEY = SAVE_KEY + ':maker';
 // How long each menu button stays highlighted while switch scanning (ms).
@@ -874,6 +872,7 @@ export class App {
     this.controls.clear();
     if (this.prologue) {
       this.store.data = recordRun(this.store.data, r, koreanDay(), {special: true, weather: false});
+      if (r.complete) this.store.data.play.prologue = true;
       this.store.persist();
       this.set(
         `<div class="veil"><section class="panel result special-result"><span class="eyebrow">PROLOGUE</span><h1 tabindex="-1">${r.complete ? '연습 항해 완주! 준비 끝이에요' : '괜찮아요, 한 번 더 연습해요'}</h1><p>${PROLOGUE_TITLE}</p><p>별빛 ${r.stars} · 몬스터 밟기 ${this.run?.stomps ?? 0} · HP 손실 ${r.hpLoss}회</p>${this.damageSummary()}<div class="button-row">${r.complete ? button('stage:beach', '첫 섬으로 출발 →', 'primary') : button('restart', '다시 연습', 'primary')}${button('restart', '한 번 더 연습', 'secondary')}${button('home', '시작 화면', 'secondary')}</div></section></div>`,
@@ -1183,7 +1182,7 @@ export class App {
     const save = this.store.data;
     const count = STAGES.reduce((n, id) => n + save.stages[id].maps.length, 0);
     this.set(
-      `<div class="page islands">${this.header('항해 지도')}<div class="page-heading"><span class="eyebrow">YOUR JOURNEY HOME</span><h1 tabindex="-1">어느 섬으로 떠날까요?</h1><p>앞선 섬을 완주하면 다음 항로가 열려요.</p>${this.store.data.stages.beach.complete ? '' : button('prologue', '🎓 처음이라면: 프롤로그 연습 항해', 'secondary prologue-link')}<span class="map-total">${icon('map')} ${count} / ${TOTAL_MAPS} 발견 ${count === TOTAL_MAPS ? '· 지도 완성!' : ''}</span></div><div class="island-grid">${STAGES.map(
+      `<div class="page islands">${this.header('항해 지도')}<div class="page-heading"><span class="eyebrow">YOUR JOURNEY HOME</span><h1 tabindex="-1">어느 섬으로 떠날까요?</h1><p>앞선 섬을 완주하면 다음 항로가 열려요.</p>${this.store.data.stages.beach.complete || this.store.data.play.prologue ? '' : button('prologue', '🎓 처음이라면: 프롤로그 연습 항해', 'secondary prologue-link')}<span class="map-total">${icon('map')} ${count} / ${TOTAL_MAPS} 발견 ${count === TOTAL_MAPS ? '· 지도 완성!' : ''}</span></div><div class="island-grid">${STAGES.map(
         (id, i) => {
           const c = COURSES[id],
             r = save.stages[id],
@@ -1310,6 +1309,7 @@ export class App {
     this.run.weather = this.weatherOn();
     this.feel.reset();
     this.announcer.reset();
+    this.spoken = '';
     this.frameWatch.begin();
     // The playful extras belong to ordinary island runs only (shared records stay comparable).
     if (!this.special) {
@@ -1572,7 +1572,7 @@ export class App {
         },
       ).join(
         '',
-      )}</div>${this.endlessCards()}${this.dailyCard()}<section class="daily-card"><span class="eyebrow">TWO SAILORS, ONE SCREEN</span><h2>👥 둘이서 번갈아 달리기</h2><p>한 화면에서 두 명이 같은 코스를 차례로 달리고 팀 점수를 만들어요.</p>${button('duo', '둘이서 달리기', 'primary')}</section><section class="daily-card"><span class="eyebrow">BUILD YOUR OWN VOYAGE</span><h2>⚒ 나만의 코스 만들기</h2><p>열 칸에 블록을 골라 코스를 만들고 QR로 친구에게 보내요.</p>${button('maker', '코스 만들기', 'primary')}</section><section class="daily-card"><span class="eyebrow">FOR TEACHERS</span><h2>교사용 대회</h2><p>코스를 정해 QR로 학생을 초대하고, 결과 QR을 찍어 순위를 모아요.</p>${button('contests', '대회 열기·순위 보기', 'secondary')}</section></div>`,
+      )}</div>${this.endlessCards()}${this.dailyCard()}<section class="daily-card"><span class="eyebrow">PROLOGUE</span><h2>🎓 프롤로그: 트로이 탈출</h2><p>점프·숙이기·밟기·스프링·밧줄·추격을 한 칸씩 연습하는 30초 항해예요.${this.store.data.play.prologue ? ' ✓ 연습 완료' : ''}</p>${button('prologue', '연습 항해 출발', 'secondary')}</section><section class="daily-card"><span class="eyebrow">TWO SAILORS, ONE SCREEN</span><h2>👥 둘이서 번갈아 달리기</h2><p>한 화면에서 두 명이 같은 코스를 차례로 달리고 팀 점수를 만들어요.</p>${button('duo', '둘이서 달리기', 'primary')}</section><section class="daily-card"><span class="eyebrow">BUILD YOUR OWN VOYAGE</span><h2>⚒ 나만의 코스 만들기</h2><p>열 칸에 블록을 골라 코스를 만들고 QR로 친구에게 보내요.</p>${button('maker', '코스 만들기', 'primary')}</section><section class="daily-card"><span class="eyebrow">FOR TEACHERS</span><h2>교사용 대회</h2><p>코스를 정해 QR로 학생을 초대하고, 결과 QR을 찍어 순위를 모아요.</p>${button('contests', '대회 열기·순위 보기', 'secondary')}</section></div>`,
       'challenges',
     );
   }
@@ -2885,6 +2885,7 @@ export class App {
       );
       if (this.screen === 'play') {
         this.updateHud();
+        this.canvasNotes();
         const note = this.announcer.take(performance.now() / 1000);
         if (note) this.setText('#play-live', note);
       }
@@ -2921,6 +2922,32 @@ export class App {
       for (const r of [this.run, this.run2]) if (r) r.comboPoints += 150;
       this.world.feedback('overtake', e.x, 0, '합동 격파! 둘 다 콤보 점수 +150');
       this.split.world?.feedback('overtake', e.x, 0, '합동 격파! 둘 다 콤보 점수 +150');
+    }
+  }
+  // Words drawn only on the canvas, told to screen readers once each: the O/X question as the
+  // gate comes into view, each prologue step and each boss phase.
+  private spoken = '';
+  private canvasNotes() {
+    const r = this.run;
+    if (!r) return;
+    let key = '',
+      text = '';
+    const step = r.guide.filter(g => r.x >= g.x).at(-1);
+    if (step) [key, text] = ['guide:' + step.x, step.text];
+    if (r.gate && r.gateSaid === null && r.x >= r.gate.x - 1500) {
+      const g = gateStatement(r.gate);
+      [key, text] = [
+        'gate',
+        `O/X 문제: ${translate(g.question)} → ${translate(g.option)}. 맞으면 점프, 틀리면 그대로 달려요`,
+      ];
+    }
+    if (r.course.mode === 'boss') {
+      const phase = bossPhase(r.stage, r.x);
+      [key, text] = ['boss:' + phase, BOSSES[r.stage].phases[phase]];
+    }
+    if (key && key !== this.spoken) {
+      this.spoken = key;
+      this.announcer.say(translate(text));
     }
   }
   private quality(): Quality {

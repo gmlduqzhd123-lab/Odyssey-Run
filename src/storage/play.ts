@@ -23,6 +23,8 @@ export interface PlayRecord {
   cards: number;
   // Past weeks' totals (newest last), for the teacher's growth report.
   weeks: WeekSnapshot[];
+  // The prologue practice run was finished.
+  prologue: boolean;
 }
 export interface WeekSnapshot {
   week: string;
@@ -55,6 +57,7 @@ export const emptyPlay = (): PlayRecord => ({
   readings: [],
   cards: 0,
   weeks: [],
+  prologue: false,
 });
 // Keeps a finished week's counters (a week with nothing done is not kept).
 export function keepWeek(play: PlayRecord, w: {week: string; counts: Partial<Record<string, number>>}) {
@@ -116,6 +119,8 @@ export function readPlay(v: unknown): PlayRecord {
     if (new Set(out.weeks.map(w => w.week)).size !== out.weeks.length) fail();
     out.weeks.sort((a, b) => a.week.localeCompare(b.week));
   }
+  if (p.prologue !== undefined && typeof p.prologue !== 'boolean') fail();
+  out.prologue = p.prologue === true;
   return out;
 }
 // A finished run's extras folded into the record.
@@ -169,5 +174,6 @@ export function mergePlay(a: PlayRecord, b: PlayRecord): PlayRecord {
     );
   }
   out.weeks = [...weeks.values()].sort((a, b) => a.week.localeCompare(b.week)).slice(-MAX_WEEKS);
+  out.prologue = a.prologue || b.prologue;
   return out;
 }

@@ -159,6 +159,7 @@ export function progress(save: Save | null) {
       : null,
     readings: save?.play.readings.length ?? 0,
     missed: save?.play.missed.length ?? 0,
+    prologue: save?.play.prologue ?? false,
   };
 }
 export function summary(save: Save | null) {

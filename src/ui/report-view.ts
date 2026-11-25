@@ -98,7 +98,7 @@ export function growthMarkup(header: string, rows: SailorProgress[], today: stri
         active = ws.filter(w => w.runs || w.days || w.quiz),
         first = active[0],
         last = active.at(-1);
-      return `<section class="growth-card"><h2 translate="no">${esc(r.name)}</h2><p>완주한 섬 ${r.islands}/${STAGES.length} · 맞힌 퀴즈 ${r.quiz}/${QUIZ.length} · 읽은 섬 이야기 ${r.readings}/${STAGES.length} · 오답 노트 ${r.missed}문제</p>${
+      return `<section class="growth-card"><h2 translate="no">${esc(r.name)}</h2><p>완주한 섬 ${r.islands}/${STAGES.length} · 맞힌 퀴즈 ${r.quiz}/${QUIZ.length} · 읽은 섬 이야기 ${r.readings}/${STAGES.length} · 오답 노트 ${r.missed}문제 · ${r.prologue ? '연습 항해 ✓' : '연습 항해 전'}</p>${
         first && last && first !== last
           ? `<p class="growth-change">처음 주와 비교: 완주 ${change(first.runs, last.runs)} · 별빛 ${change(first.stars, last.stars)} · 퀴즈 ${change(first.quiz, last.quiz)}</p>`
           : '<p class="muted">비교하려면 두 주 이상의 기록이 필요해요.</p>'

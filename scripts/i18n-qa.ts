@@ -126,6 +126,33 @@ try {
   await go('endless:wind', 'endless-prepare');
   await p.waitForSelector('[data-action="start"]');
   await scan(p, 'endless-prepare');
+  // The prologue, the learning pages and the teacher's pages (some load on first use).
+  await go('challenges');
+  await p.locator('[data-action="prologue"]:visible').first().click();
+  await p.waitForSelector('[data-action="start"]');
+  await scan(p, 'prologue-prepare');
+  await toHome();
+  const visit = async (action: string, ready: string, screen: string) => {
+    await p.locator(`[data-action="${action}"]:visible`).first().click();
+    await p.waitForSelector(ready);
+    await scan(p, screen);
+  };
+  await go('journal');
+  await visit('readings', '.reading-list', 'readings');
+  await visit('reading:beach', '.reading-card', 'reading');
+  await visit('readings', '.reading-list', 'readings');
+  await go('journal');
+  await visit('cards', '.card-grid', 'cards');
+  await toHome();
+  await visit('settings', '.settings', 'settings-lazy');
+  await visit('device-check', '.check-list', 'device-check');
+  await p.locator('[data-action="check:storage"]').click();
+  await expect(p.locator('#check-storage')).not.toContainText('…');
+  await scan(p, 'device-check-run');
+  await toHome();
+  await go('profiles');
+  await visit('progress', '.progress-board', 'progress');
+  await visit('growth', '.growth-card', 'growth');
   await toHome();
   // The sea opens after Circe's island, which this older save has not sailed yet.
   for (const stage of ['beach', 'cave', 'wind', 'circe']) {

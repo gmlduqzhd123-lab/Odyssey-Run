@@ -21,6 +21,10 @@ export const ANNOUNCE_GAP = 1.2;
 export class Announcer {
   private next = '';
   private last = -Infinity;
+  // Words the screen only draws on the canvas (an O/X question, a prologue step, a boss phase).
+  say(text: string) {
+    if (text) this.next = text;
+  }
   push(kind: string, text?: string) {
     const base = ANNOUNCED[kind];
     if (base === undefined) return;

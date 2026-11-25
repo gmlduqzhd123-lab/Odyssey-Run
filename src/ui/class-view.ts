@@ -48,27 +48,14 @@ export interface LiveMission {
   // Team race: each team's starlight when the mission started (absent for the whole class together).
   teams?: Partial<Record<Team, number>>;
 }
-// Teams for the race: each sailor's team is kept on the device ({sailor id: team}).
-export const TEAMS = ['A', 'B', 'C', 'D'] as const;
-export type Team = (typeof TEAMS)[number];
+export {TEAMS, readTeams, type Team} from '../storage/class-device';
+import {TEAMS, type Team} from '../storage/class-device';
 export const TEAM_NAMES: Record<Team, string> = {
   A: '🔴 바람 모둠',
   B: '🔵 파도 모둠',
   C: '🟢 올리브 모둠',
   D: '🟡 태양 모둠',
 };
-export function readTeams(raw: string | null): Record<string, Team> {
-  try {
-    const v = JSON.parse(raw ?? '{}');
-    return Object.fromEntries(
-      Object.entries(v && typeof v === 'object' ? v : {}).filter(
-        ([k, t]) => typeof k === 'string' && k.length <= 40 && TEAMS.includes(t as Team),
-      ),
-    ) as Record<string, Team>;
-  } catch {
-    return {};
-  }
-}
 // Each team's starlight now (sailors without a team are left out).
 export function teamStars(rows: {id: string; stars: number}[], teams: Record<string, Team>) {
   const out: Partial<Record<Team, number>> = {};
