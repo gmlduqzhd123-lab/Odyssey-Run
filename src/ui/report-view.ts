@@ -72,3 +72,46 @@ export function trendMarkup(rows: SailorProgress[], today: string) {
   const flagged = rows.filter(r => needsHelp(r, rows, today)).length;
   return `<section class="trend"><h2>학생별 흐름 <small>최근 ${REPORT_WEEKS}주</small></h2><p class="muted">막대 하나가 한 주예요(높을수록 그 주에 여러 날 항해). ${flagged ? `살펴볼 학생 ${flagged}명을 표시했어요.` : '모두 꾸준히 항해하고 있어요.'}</p><div class="table-wrap"><table><thead><tr><th scope="col">이름</th><th scope="col">주별 항해</th><th scope="col">이번 주</th><th scope="col">섬</th><th scope="col">퀴즈</th><th scope="col">살펴보기</th></tr></thead><tbody>${lines.join('')}</tbody></table></div></section>`;
 }
+
+// The growth report: each student's weeks side by side (finished runs, starlight, myth questions
+// right and days sailed), oldest to newest, with the change from the first week shown to the
+// latest. Weeks are kept from this version on; days sailed come from the calendar.
+export function growthWeeks(r: SailorProgress, today: string, weeks = REPORT_WEEKS) {
+  const keys = weeklyActivity([r], today, weeks).map(w => w.week),
+    all = [...r.weeks, ...(r.thisWeek && r.thisWeek.week ? [r.thisWeek] : [])];
+  return keys.map(week => {
+    const w = all.find(x => x.week === week);
+    return {
+      week,
+      runs: w?.runs ?? 0,
+      stars: w?.stars ?? 0,
+      quiz: w?.quiz ?? 0,
+      days: r.days.filter(d => weekKey(d) === week).length,
+    };
+  });
+}
+const change = (a: number, b: number) => (b > a ? `▲ ${b - a}` : b < a ? `▼ ${a - b}` : '＝');
+export function growthMarkup(header: string, rows: SailorProgress[], today: string) {
+  return `<div class="page growth report-print">${header}<div class="page-heading"><span class="eyebrow">GROWTH REPORT</span><h1 tabindex="-1">📈 성장 리포트</h1><p>최근 ${REPORT_WEEKS}주 동안 학생마다 얼마나 꾸준히 항해했는지 보여요. 주별 기록은 이번 버전부터 쌓여요.</p>${button('worksheet-print', '🖨 인쇄', 'secondary')}</div>${rows
+    .map(r => {
+      const ws = growthWeeks(r, today),
+        active = ws.filter(w => w.runs || w.days || w.quiz),
+        first = active[0],
+        last = active.at(-1);
+      return `<section class="growth-card"><h2 translate="no">${esc(r.name)}</h2><p>완주한 섬 ${r.islands}/${STAGES.length} · 맞힌 퀴즈 ${r.quiz}/${QUIZ.length} · 읽은 섬 이야기 ${r.readings}/${STAGES.length} · 오답 노트 ${r.missed}문제</p>${
+        first && last && first !== last
+          ? `<p class="growth-change">처음 주와 비교: 완주 ${change(first.runs, last.runs)} · 별빛 ${change(first.stars, last.stars)} · 퀴즈 ${change(first.quiz, last.quiz)}</p>`
+          : '<p class="muted">비교하려면 두 주 이상의 기록이 필요해요.</p>'
+      }<div class="table-scroll" tabindex="0" role="region" aria-label="주별 기록"><table><thead><tr><th scope="col">주</th>${ws.map(w => `<th scope="col" translate="no">${w.week.slice(5)}</th>`).join('')}</tr></thead><tbody>${(
+        [
+          ['항해한 날', 'days'],
+          ['완주', 'runs'],
+          ['별빛', 'stars'],
+          ['퀴즈 정답', 'quiz'],
+        ] as const
+      )
+        .map(([label, k]) => `<tr><th scope="row">${label}</th>${ws.map(w => `<td>${w[k] || '·'}</td>`).join('')}</tr>`)
+        .join('')}</tbody></table></div></section>`;
+    })
+    .join('')}</div>`;
+}

@@ -576,7 +576,9 @@ export class World extends Phaser.Scene {
           fontSize: '18px',
           color:
             kind === 'hurt' || kind === 'mission-fail' || (kind === 'gate' && message?.startsWith('아쉬워요'))
-              ? '#ffb8a3'
+              ? this.host.cosmetics().colorSafe
+                ? '#9cc8ff'
+                : '#ffb8a3'
               : kind === 'charm'
                 ? '#e6c8ff'
                 : '#ffebae',
@@ -856,8 +858,10 @@ export class World extends Phaser.Scene {
       .filter(o => o.role === 'hazard' && o.x - r.x <= 700 && o.x + o.w > r.x - 32)
       .forEach(o => {
         const x = o.x - cam + o.w / 2;
-        fx.fillStyle(0xe8b04d, 0.18).fillRect(o.x - cam - 8, 340, o.w + 16, 100);
-        fx.fillStyle(0xeab758).fillTriangle(x, 300, x - 12, 322, x + 12, 322);
+        // Colour-safe: a blue glow and a yellow sign instead of orange on orange.
+        const safe = this.host.cosmetics().colorSafe;
+        fx.fillStyle(safe ? 0x2f6fd0 : 0xe8b04d, safe ? 0.22 : 0.18).fillRect(o.x - cam - 8, 340, o.w + 16, 100);
+        fx.fillStyle(safe ? 0xffd500 : 0xeab758).fillTriangle(x, 300, x - 12, 322, x + 12, 322);
         fx.lineStyle(2, 0x624c32, 1).lineBetween(x, 305, x, 312);
         fx.fillStyle(0x624c32).fillCircle(x, 317, 1.5);
       });
