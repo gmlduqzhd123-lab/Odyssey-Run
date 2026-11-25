@@ -50,7 +50,19 @@ import {keepLanguage} from '../systems/lang-cache';
 import {replaceMissingArt} from './missing-art';
 import type {BoardScanner} from './contest-view';
 import {World} from '../scenes/World';
-import {balanceOn, clearBalance, readBalance, recordBalance, setBalanceOn, BALANCE_KEY} from '../storage/balance';
+import {readJsonFile} from '../storage/json-file';
+import {
+  balanceFile,
+  balanceOn,
+  clearBalance,
+  mergeBalance,
+  readBalance,
+  readBalanceFile,
+  recordBalance,
+  saveBalance,
+  setBalanceOn,
+  BALANCE_KEY,
+} from '../storage/balance';
 import {loadContactMasks, masksReady} from '../systems/contact';
 import {SplitScreen} from '../rendering/split-screen';
 import {TeacherLock} from './lock-controller';
@@ -553,16 +565,26 @@ export class App {
       'stage-loading',
     );
     try {
+      // The island's pictures are most of it; a run also needs the contact outlines and the O/X
+      // questions (fetched after the home screen, so usually already here).
+      let art = 0,
+        extra = (masksReady() ? 1 : 0) + (quizReady() ? 1 : 0);
+      const show = () => {
+        if (request !== this.loadRequest) return;
+        const p = this.ui.querySelector('#stage-loading');
+        if (p) p.textContent = `섬을 준비하고 있어요… ${Math.round((art * 0.9 + extra * 0.05) * 100)}%`;
+      };
+      const more = () => {
+        extra++;
+        show();
+      };
       await Promise.all([
         this.world.prepare(id, n => {
-          if (request === this.loadRequest) {
-            const p = this.ui.querySelector('#stage-loading');
-            if (p) p.textContent = `섬을 준비하고 있어요… ${Math.round(n * 100)}%`;
-          }
+          art = n;
+          show();
         }),
-        // A run also needs the contact outlines and the O/X questions (loaded after the home screen).
-        loadContactMasks(),
-        loadQuizText(),
+        masksReady() ? null : loadContactMasks().then(more),
+        quizReady() ? null : loadQuizText().then(more),
       ]);
     } catch {
       if (request === this.loadRequest && this.screen === 'stage-loading')
@@ -855,7 +877,7 @@ export class App {
       complete: this.result.complete,
       distance: this.result.distance,
       length: this.run.course.length ?? C.length,
-      damage: this.run.damageLog,
+      damage: this.run.hits,
     });
     this.protect();
     this.sound.setPlaying(false);
@@ -1160,6 +1182,18 @@ export class App {
       this.notice();
       return;
     }
+    if (input.id === 'balance-file' && input.files?.[0]) {
+      const file = input.files[0];
+      input.value = '';
+      void readJsonFile(file, 1048576, '통계 파일은 1MB 이하여야 해요.')
+        .then(raw => {
+          const here = readBalance(this.storage?.getItem(BALANCE_KEY) ?? null);
+          saveBalance(this.storage, mergeBalance(here, readBalanceFile(raw)));
+          this.routes.progress();
+        })
+        .catch(e => this.setText('#balance-status', (e as Error).message));
+      return;
+    }
     if (input.id === 'class-import' && input.files?.[0]) void this.readClassFile(input, input.files[0]);
     else if (input.id === 'import-file' && input.files?.[0]) void this.readSaveFile(input, input.files[0]);
   }
@@ -1299,6 +1333,20 @@ export class App {
       setBalanceOn(this.storage, false);
       this.settings();
     },
+    'balance-csv': () =>
+      void teacherViews().then(([, , {balanceCsv}]) =>
+        this.download(
+          balanceCsv(readBalance(this.storage?.getItem(BALANCE_KEY) ?? null)),
+          `odyssey-run-balance-${koreanDay().replaceAll('-', '')}.csv`,
+          'text/csv;charset=utf-8',
+        ),
+      ),
+    'balance-export': () =>
+      this.download(
+        balanceFile(readBalance(this.storage?.getItem(BALANCE_KEY) ?? null)),
+        `odyssey-run-balance-${koreanDay().replaceAll('-', '')}.json`,
+        'application/json',
+      ),
     'balance-clear': () => {
       clearBalance(this.storage);
       this.ui.querySelector('.balance-board')?.remove();
@@ -1336,7 +1384,7 @@ export class App {
         reading = this.ui.querySelector<HTMLInputElement>('#ws-reading')?.checked ?? true;
       this.abandon();
       this.world.showHome();
-      void this.teacherPage(([{LEVELS, worksheetMarkup, notebookCounts}]) =>
+      void this.teacherPage(([{LEVELS, worksheetMarkup, notebookCounts, classReadingStage}]) =>
         this.set(
           worksheetMarkup(
             this.header('활동지', 'progress'),
@@ -1346,6 +1394,7 @@ export class App {
               level: level in LEVELS ? (level as Level) : 'mid',
               stage: STAGES.includes(island as StageId) ? (island as StageId) : null,
               reading,
+              readingStage: classReadingStage(this.profiles.progress()),
             },
             notebookCounts(this.profiles.progress()),
           ),

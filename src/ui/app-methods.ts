@@ -1,3 +1,4 @@
+import type {Team} from '../storage/class-device';
 import type {LiveMission} from './class-view';
 import {type ContestLink, type ContestResult, type Link, type RivalLink, type CourseLink} from '../systems/share';
 import {type StageId} from '../levels/courses';
@@ -91,7 +92,7 @@ export interface ClassroomMethods {
   profilesPage(message?: string): void;
   teacherPage(show: (views: Awaited<ReturnType<typeof teacherViews>>) => void): Promise<void>;
   live(): LiveMission | null;
-  liveDevices(): {stars: number; sailors: number};
+  liveDevices(): {stars: number; sailors: number; teams: Partial<Record<Team, {stars: number; sailors: number}>>};
   classStars(
     board?: {
       total: number;

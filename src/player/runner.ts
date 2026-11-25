@@ -207,6 +207,8 @@ export class Runner {
   crumbling = new Map<string, number>();
   trace: number[] = [0];
   damageLog: DamageEvent[] = [];
+  // Every HP loss of the run (the log above keeps the latest few), for the course balance.
+  hits: DamageEvent[] = [];
   safeX = 0;
   recovering = 0;
   stars = 0;
@@ -418,6 +420,7 @@ export class Runner {
       this.hpLoss++;
       this.damageLog.push({kind, x: this.x, time: this.time});
       if (this.damageLog.length > 12) this.damageLog.shift();
+      if (this.hits.length < 300) this.hits.push({kind, x: this.x, time: this.time});
       this.emit(fall ? 'fall' : 'hurt');
     }
     this.invincible = C.invincible;

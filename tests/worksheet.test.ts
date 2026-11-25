@@ -65,3 +65,10 @@ test('the worksheet asks the class notebook questions first and adds the island 
   assert.ok(!off.includes(r.questions[0].question));
   assert.ok(off.includes('다시 풀어 보는 신화 퀴즈'), 'no class data: the plain title');
 });
+test('an every-island worksheet reads from the furthest island half the class has finished', async () => {
+  const {classReadingStage} = await import('../src/ui/worksheet-view');
+  const row = (n: number) => ({stages: Array.from({length: 7}, (_, i) => ({complete: i < n}))});
+  assert.equal(classReadingStage([]), 'beach');
+  assert.equal(classReadingStage([row(3), row(3), row(1), row(0)]), 'wind');
+  assert.equal(classReadingStage([row(0), row(0)]), 'beach');
+});

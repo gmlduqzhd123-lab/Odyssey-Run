@@ -323,6 +323,10 @@ for (const lang of (process.env.QA_LANGS || 'ko,en').split(','))
       v => !process.env.QA_VIEWPORTS || process.env.QA_VIEWPORTS.split(',').includes(v.name),
     ))
       passes.push([lang, played, v]);
+// QA_SHARD=k/n keeps every n-th pass from the k-th, so CI can spread one language over jobs.
+const [shard, shards] = (process.env.QA_SHARD || '1/1').split('/').map(Number);
+if (!(shards >= 1 && shard >= 1 && shard <= shards)) throw Error('QA_SHARD must look like 1/2');
+passes.splice(0, passes.length, ...passes.filter((_, i) => i % shards === shard - 1));
 try {
   let next = 0;
   await Promise.all(

@@ -16,8 +16,8 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: '22'
           cache: npm
@@ -38,7 +38,7 @@ jobs:
           fi
       - run: npm run build
       - name: Keep the built site for the browser checks
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: site
           path: dist
@@ -73,18 +73,24 @@ jobs:
             run: npm run test:loading && npm run test:update
           # Clipped or overlapping text on every menu screen at classroom window sizes. The script
           # runs three viewports at a time (QA_PARALLEL), so one job covers both saves of a language.
-          - suite: layout-ko
-            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=ko npm run test:layout
-          - suite: layout-en
-            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=en npm run test:layout
+          - suite: layout-ko-1
+            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=ko QA_SHARD=1/2 npm run test:layout
+          - suite: layout-ko-2
+            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=ko QA_SHARD=2/2 npm run test:layout
+          - suite: layout-en-1
+            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=en QA_SHARD=1/2 npm run test:layout
+          - suite: layout-en-2
+            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=en QA_SHARD=2/2 npm run test:layout
           - suite: access
             run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:access
           # Bundle and offline-core size, and a 4× slower CPU opening the game and running.
           - suite: budget
             run: QA_URL="http://localhost:4176$PAGES_BASE" npm run test:budget
           # The same screens with the device's "more contrast" setting and a 20px browser font.
-          - suite: layout-contrast-large-text
-            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_CONTRAST=more QA_LANGS=ko QA_SAVES=played npm run test:layout && QA_URL="http://localhost:4176$PAGES_BASE" QA_ROOT_FONT=20 QA_LANGS=ko QA_SAVES=played npm run test:layout
+          - suite: layout-contrast
+            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_CONTRAST=more QA_LANGS=ko QA_SAVES=played npm run test:layout
+          - suite: layout-large-text
+            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_ROOT_FONT=20 QA_LANGS=ko QA_SAVES=played npm run test:layout
           # One language per job: each layout pass takes over ten minutes.
           - suite: layout-vi
             run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=vi QA_SAVES=played npm run test:layout
@@ -94,13 +100,13 @@ jobs:
             run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=ru QA_SAVES=played npm run test:layout
     name: browser (${{ matrix.suite }})
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: '22'
           cache: npm
       - run: npm ci
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v6
         with:
           name: site
           path: dist
@@ -130,7 +136,7 @@ jobs:
         run: ${{ matrix.run }}
       - name: Preserve browser evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: browser-qa-${{ matrix.suite }}
           if-no-files-found: ignore

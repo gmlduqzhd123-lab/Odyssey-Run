@@ -188,8 +188,19 @@ export interface WorksheetOptions {
   level: Level;
   // One island's stories and questions first, or every island.
   stage: StageId | null;
-  // The island's short reading and its two questions (the first island's when every island).
+  // The island's short reading and its two questions (with every island: the class's island).
   reading?: boolean;
+  readingStage?: StageId;
+}
+// The furthest island at least half the class has finished (the first island if none), for the
+// reading of an every-island worksheet.
+export function classReadingStage(rows: {stages: {complete: boolean}[]}[]): StageId {
+  let out: StageId = STAGES[0];
+  STAGES.forEach((id, i) => {
+    const done = rows.filter(r => r.stages[i]?.complete).length;
+    if (rows.length && done * 2 >= rows.length) out = id;
+  });
+  return out;
 }
 // How many sailors have each question in their wrong-answer notebook.
 export function notebookCounts(rows: {missedIds: readonly string[]}[]) {
@@ -240,7 +251,7 @@ export function worksheetMarkup(
         ].filter(Boolean);
       return parts.length ? ` <small>${parts.join(' · ')}</small>` : '';
     },
-    reading = opts.reading === false ? null : readingFor(opts.stage ?? STAGES[0]),
+    reading = opts.reading === false ? null : readingFor(opts.stage ?? opts.readingStage ?? STAGES[0]),
     title = opts.stage ? `오디세이 런 활동지 · ${COURSES[opts.stage].name}` : '오디세이 런 활동지';
   const controls = `<div class="no-print worksheet-options"><label>학년 <select id="ws-level">${(Object.keys(LEVELS) as Level[]).map(l => `<option value="${l}" ${l === opts.level ? 'selected' : ''}>${LEVELS[l].name}</option>`).join('')}</select></label><label>섬 <select id="ws-island"><option value="">모든 섬</option>${STAGES.map(id => `<option value="${id}" ${id === opts.stage ? 'selected' : ''}>${COURSES[id].name}</option>`).join('')}</select></label><label><input type="checkbox" id="ws-reading" ${opts.reading === false ? '' : 'checked'}> 읽기 지문 넣기</label>${button('worksheet', '다시 만들기', 'secondary')}</div>`;
   return `<div class="page worksheet">${header}<div class="no-print button-row">${button('worksheet-print', '🖨 인쇄하기', 'primary')}${button('progress', '진행 현황으로', 'secondary')}</div>${controls}<article class="sheet"><header class="sheet-head"><h1 tabindex="-1">${title}</h1><p>이름 ____________ · 날짜 ${date} · ${L.name}</p></header><section><h2>1. 빈칸에 알맞은 말을 써 보세요</h2>${L.bank ? `<p class="word-bank" translate="no"><span translate="yes">보기:</span> ${bank.join(' · ')}</p>` : ''}<ol translate="no">${fill.map(b => `<li>${b.text}</li>`).join('')}</ol></section><section><h2>2. 인물과 알맞은 설명을 선으로 이어 보세요</h2><div class="match"><ol>${people.map(p => `<li>${p.name}</li>`).join('')}</ol><ol type="a">${roles.map(r => `<li>${r}</li>`).join('')}</ol></div></section><section><h2>3. ${missedMost ? '우리 반이 많이 틀린 신화 퀴즈' : '다시 풀어 보는 신화 퀴즈'}</h2><ol>${weakest.map(q => `<li>${q.question}<br>${q.options.map((o, i) => `${'ABC'[i]}. <span>${o}</span>`).join('  ')}</li>`).join('')}</ol></section>${
