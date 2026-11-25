@@ -1,41 +1,16 @@
 import {Offline} from '../systems/offline';
 import {getLang, initialLang, LANGS, observe, setLang, translate, translateTree, type Lang} from '../i18n';
-import {dailySpec, dailyPassed, koreanDay, type DailySpec} from '../levels/daily';
+import {koreanDay, type DailySpec} from '../levels/daily';
 import {COSMETICS, cosmeticUnlocked} from '../systems/cosmetics';
-import {BOSSES, BOSS_COURSES} from '../levels/bosses';
-import {mergeTrial} from '../storage/expeditions';
-import {damageGuidance} from '../systems/damage';
+import {BOSS_COURSES} from '../levels/bosses';
 import {defaultPreferences, PACES, type Assist, type Pace, type Quality} from '../storage/preferences';
-import {ADVENTURE_PLANS, GOALS, stampIds, constellationIds, storyIds, type GoalId} from '../levels/adventure';
-import {ghostDistance} from '../storage/journal';
-import {QUIZ, type QuizQuestion} from '../levels/quiz';
-import {
-  decodeLink,
-  linkUrl,
-  parseLinkText,
-  type ContestLink,
-  type ContestResult,
-  type Link,
-  type RivalLink,
-  type CourseLink,
-} from '../systems/share';
-import {Contests, contestLength, newContestId, type Entry} from '../storage/contests';
+import {GOALS, stampIds, constellationIds, storyIds, type GoalId} from '../levels/adventure';
+import {loadQuizText, quizReady, type QuizQuestion} from '../levels/quiz';
+import {type ContestLink, type RivalLink} from '../systems/share';
+import {Contests} from '../storage/contests';
 import {Gallery} from '../storage/gallery';
 import type {Level} from './worksheet-view';
-// Pages away from the voyage itself load on first use (kept out of the startup scripts): the
-// teacher's pages, the book, achievements, the chronicle and the class gallery.
-const teacherViews = () =>
-  Promise.all([import('./worksheet-view'), import('./report-view'), import('./progress-view')]);
-const pageViews = () => Promise.all([import('./feats-view'), import('./chronicle-view'), import('./gallery-view')]);
-import {
-  backupAge,
-  backupReminder,
-  iosBrowserTab,
-  markBackup,
-  protection,
-  requestProtection,
-  type Protection,
-} from '../storage/durability';
+import {backupAge, backupReminder, iosBrowserTab, protection, type Protection} from '../storage/durability';
 import {
   dropSpareCopies,
   freeRemixGhosts,
@@ -44,143 +19,98 @@ import {
   storageUse,
   STORAGE_LIMIT,
 } from '../storage/durability';
-import {classBackup, readClassBackup, restoreClass, CLASS_BACKUP_LIMIT, type ClassBackup} from '../storage/backup';
-import {buildEndless, sectionsPassed, ENDLESS_SECTIONS} from '../levels/endless';
+import {type ClassBackup} from '../storage/backup';
 import type {Course} from '../levels/courses';
-import {button, downloadFile, esc, icon, readButton, settingToggle} from './html';
+import {button, downloadFile, esc, icon, settingToggle} from './html';
 import {Narrator} from '../systems/narrator';
-import {bookNav, TOTAL_MAPS} from './book-nav';
-// The book's read-only pages load on first use.
-const bookPages = () => import('./book-view');
-import {harborArt, harborUnlocks, harborRequirements, journalCards} from './adventure-view';
+import {TOTAL_MAPS} from './book-nav';
 import Phaser from 'phaser';
 import {C} from '../config';
-import {COURSES, STAGES, MAP_STORIES, type StageId} from '../levels/courses';
+import {COURSES, STAGES, type StageId} from '../levels/courses';
 import {Runner} from '../player/runner';
-import {Profiles, profileKey, readBook, cleanName, PROFILES_KEY, MAX_PROFILES, MAIN_PROFILE} from '../storage/profiles';
+import {Profiles, profileKey, readBook, PROFILES_KEY} from '../storage/profiles';
 import {
   dropRemixGhosts,
   SaveStore,
   mergeResult,
   unlocked,
-  validateSave,
   courseRecord,
-  courseGhost,
   type Save,
   type RunResult,
   type Settings,
-  SAVE_KEY,
 } from '../storage/save';
 import {VARIANTS, VARIANT_LABELS} from '../levels/variants';
-import {isVariant, type VariantId} from '../levels/course-ids';
+import {courseKey, isVariant, type VariantId} from '../levels/course-ids';
 import {padConnected, Controls} from '../input/controls';
 import {Sound} from '../systems/audio';
 import {vibrate} from '../systems/haptics';
 import {deviceReducedMotion, followDevice} from '../systems/device-prefs';
-// The share page (with its QR library) loads on first use.
-const shareView = () => import('./share-view');
-import {deleteSailorMarkup, profilesMarkup} from './profiles-view';
-import {readJsonFile} from '../storage/json-file';
 import {sceneryView} from '../levels/scenery';
 import {keepLanguage} from '../systems/lang-cache';
 import {replaceMissingArt} from './missing-art';
-// The settings page loads just after the home screen, while the device is idle (or on first use).
-let settingsModule: typeof import('./settings-view') | null = null;
-const settingsView = () => import('./settings-view').then(m => (settingsModule = m));
 import type {BoardScanner} from './contest-view';
-// The teacher's contest pages and the course maker load on first use.
-const contestView = () => import('./contest-view');
-const makerView = () => import('./maker-view');
 import {World} from '../scenes/World';
+import {balanceOn, clearBalance, readBalance, recordBalance, setBalanceOn, BALANCE_KEY} from '../storage/balance';
+import {loadContactMasks, masksReady} from '../systems/contact';
 import {SplitScreen} from '../rendering/split-screen';
 import {TeacherLock} from './lock-controller';
-import {
-  duoLoadingMarkup,
-  duoPageMarkup,
-  duoPrepareMarkup,
-  duoTeamMarkup,
-  duoTurnMarkup,
-  secondHudMarkup,
-  updateSecondHud,
-  type Duo,
-  type DuoCourse,
-} from './duo-view';
-import {assetUrl, STAGE_RELIC} from '../assets/catalog';
+import {type Duo, type DuoCourse} from './duo-view';
+import {STAGE_RELIC} from '../assets/catalog';
 import {STAGE_VIEW, regionArt} from '../assets/terrain';
 import {displayDensity, displayViewport} from '../rendering/display';
 import {PHOTO_POSES, photoMarkup, savePhoto, type PhotoPose} from './photo-mode';
 import {AUTO_STEPS, FrameWatch, readAutoStep, writeAutoStep, Pacer, SHELTER, smoothRun} from '../rendering/frame-watch';
 import {RunFeel} from '../systems/run-feel';
 import {Announcer} from '../systems/announcer';
-import {PRESETS, PRESET_IDS, isPreset, readPreset, writePreset} from '../storage/lesson-preset';
-import {addNote, clearNotes, noteBanner, noteModeAvailable, readNotes, tappedText} from './translation-report';
-import type {CheckId, Results} from './device-check';
-// The device check page, the island readings and the word cards load on first use.
-const deviceCheck = () => import('./device-check');
-const readingView = () => import('./reading-view');
-const wordCards = () => import('./word-cards');
+import {TEAMS_KEY} from '../storage/class-device';
+import {PRESETS, isPreset, readPreset, writePreset} from '../storage/lesson-preset';
+import {clearNotes, readNotes} from './translation-report';
+import type {Results} from './device-check';
 import type {CardGame} from './word-cards';
 import {ScreenAwake} from '../systems/wake-lock';
 import {gateFor, isBlessing, treasureFor, type BlessingId} from '../levels/play-extras';
-import {chaseFor, dynamicsFor, missionsFor, FEVER_FULL} from '../levels/play-dynamics';
+import {chaseFor, dynamicsFor, missionsFor} from '../levels/play-dynamics';
 import {bossWeakPoints} from '../levels/bosses';
-import {prologueCourse, prologueGuide, PROLOGUE_TITLE} from '../levels/prologue';
-import {
-  blessingPicker,
-  comboLabel,
-  deviceStatusMarkup,
-  resultExtrasMarkup,
-  type DeviceStatus,
-} from './play-extras-view';
+import {prologueGuide} from '../levels/prologue';
+import {blessingPicker, deviceStatusMarkup, resultExtrasMarkup, type DeviceStatus} from './play-extras-view';
 import {WEATHERS, STORM_SPEED, isWeather, type WeatherId} from '../levels/weather';
 import {HEROES, heroInfo, heroUnlocked} from '../systems/heroes';
-import {recordQuiz, recordRun, returnedHome, weekKey} from '../storage/feats';
-import {CHAPTERS, chapter, chapterOpen} from '../levels/chronicle';
-import {
-  clock,
-  liveLeft,
-  liveMarkup,
-  readLive,
-  readTeams,
-  teamStars,
-  TEAMS,
-  LIVE_MINUTES,
-  type Team,
-  defaultFleetGoal,
-  fleetMarkup,
-  horseMarkup,
-  quizReport,
-  quizReportCsv,
-  quizReportMarkup,
-} from './class-view';
+import {recordRun, returnedHome} from '../storage/feats';
+import {TEAMS, type Team} from '../storage/class-device';
 import type {MakerDraft} from './maker-view';
-import {MAKER_SLOTS, buildCustom, checkCustom, isBlocks, randomBlocks, BLOCKS, type BlockId} from '../levels/maker';
-const asset = assetUrl;
-const SLOW_KEY = SAVE_KEY + ':slow-device';
-// The class's live mission belongs to the shared device (see class-view LiveMission).
-const LIVE_KEY = SAVE_KEY + ':live-mission';
-const TEAMS_KEY = SAVE_KEY + ':teams';
-
-// The class fleet's goal belongs to the device (the teacher sets it), not to one sailor.
-const FLEET_KEY = SAVE_KEY + ':fleet-goal';
-// The course being built stays on this device between visits.
-const MAKER_KEY = SAVE_KEY + ':maker';
-// How long each menu button stays highlighted while switch scanning (ms).
-const SCAN_STEP = 1600;
-// Logical width of the portrait game strip (4:3): closer than the landscape 960 so the hero and
-// hazards are drawn larger on a phone held upright, yet wide enough (it was 720) to see a little
-// more of the course ahead.
-const PORTRAIT_VIEW = 800;
+import {buildCustom} from '../levels/maker';
+import {specialMethods} from './app-special';
+import {learningMethods} from './app-learning';
+import {classroomMethods} from './app-classroom';
+import {hudMethods} from './app-hud';
+import type {SpecialMethods, LearningMethods, ClassroomMethods, HudMethods} from './app-methods';
+import {
+  teacherViews,
+  pageViews,
+  shareView,
+  settingsModule,
+  settingsView,
+  readingView,
+  wordCards,
+  asset,
+  SLOW_KEY,
+  LIVE_KEY,
+  SCAN_STEP,
+  PORTRAIT_VIEW,
+  classModule,
+} from './app-shared';
+// Some of App's methods live in the app-*.ts files beside this one.
+export interface App extends SpecialMethods, LearningMethods, ClassroomMethods, HudMethods {}
 export class App {
-  private ui = document.querySelector<HTMLDivElement>('#ui')!;
-  private store: SaveStore;
-  private profiles: Profiles;
-  private storage: Storage | null = null;
-  private pendingDelete = '';
-  private world: World;
-  private game: Phaser.Game;
+  ui = document.querySelector<HTMLDivElement>('#ui')!;
+  store: SaveStore;
+  profiles: Profiles;
+  storage: Storage | null = null;
+  pendingDelete = '';
+  world: World;
+  game: Phaser.Game;
   // The second sailor's own scene and canvas, made the first time two sailors run at once.
-  private split = new SplitScreen(
+  split = new SplitScreen(
     {
       reduced: () => this.store.data.settings.reducedMotion || deviceReducedMotion(),
       density: () => this.renderDensity,
@@ -190,75 +120,75 @@ export class App {
     },
     () => ({view: this.view, density: this.renderDensity}),
   );
-  private run2: Runner | null = null;
+  run2: Runner | null = null;
   // The teacher's lock (see storage/teacher-lock and ui/lock-controller): guarded actions wait for the PIN.
-  private lock!: TeacherLock;
-  private offline: Offline;
-  private controls: Controls;
-  private sound: Sound;
-  private run: Runner | null = null;
-  private result: RunResult | null = null;
-  private screen = 'loading';
-  private returnScreen = 'home';
-  private selected: StageId = 'beach';
-  private accumulator = 0;
-  private countdown = 0;
-  private imported: Save | null = null;
-  private classImport: ClassBackup | null = null;
-  private lastHud = '';
-  private destroyed = false;
-  private abort = new AbortController();
-  private view = displayViewport(
+  lock!: TeacherLock;
+  offline: Offline;
+  controls: Controls;
+  sound: Sound;
+  run: Runner | null = null;
+  result: RunResult | null = null;
+  screen = 'loading';
+  returnScreen = 'home';
+  selected: StageId = 'beach';
+  accumulator = 0;
+  countdown = 0;
+  imported: Save | null = null;
+  classImport: ClassBackup | null = null;
+  lastHud = '';
+  destroyed = false;
+  abort = new AbortController();
+  view = displayViewport(
     document.querySelector('#shell')!.getBoundingClientRect().width,
     document.querySelector('#shell')!.getBoundingClientRect().height,
   );
-  private renderDensity = displayDensity(
+  renderDensity = displayDensity(
     document.querySelector('#shell')!.getBoundingClientRect().width,
     window.devicePixelRatio,
     document.querySelector('#shell')!.getBoundingClientRect().height,
   );
-  private displayObserver: ResizeObserver;
-  private daily: DailySpec | null = null;
-  private special: 'boss' | 'daily' | 'contest' | 'endless' | 'custom' | 'duo' | null = null;
+  displayObserver: ResizeObserver;
+  daily: DailySpec | null = null;
+  special: 'boss' | 'daily' | 'contest' | 'endless' | 'custom' | 'duo' | null = null;
   // Two sailors taking turns on one course (classroom board): names, island and finished scores.
-  private duo: Duo | null = null;
-  private draft: MakerDraft | null = null;
-  private custom: Course | null = null;
+  duo: Duo | null = null;
+  draft: MakerDraft | null = null;
+  custom: Course | null = null;
   // An endless voyage, or today's shuffled route (the island's six sections once, in today's order).
-  private endless: {course: Course; date: string; shuffle?: boolean} | null = null;
-  private contests: Contests;
-  private gallery: Gallery;
-  private contest: ContestLink | null = null;
-  private loadRequest = 0;
-  private controlsReturn = false;
-  private importRequest = 0;
-  private selectedGoal: GoalId = 'maps';
-  private selectedVariant: VariantId = 'classic';
-  private selectedWeather: WeatherId = 'clear';
-  private question: QuizQuestion | null = null;
-  private quizReturn = 'islands';
-  private rival: RivalLink | null = null;
-  private pendingLink = '';
-  private protectionState: Protection = 'unsupported';
-  private protectionAsked = false;
-  private reminded = false;
-  private frameWatch = new FrameWatch();
-  private pacer = new Pacer();
-  private feel = new RunFeel();
-  private announcer = new Announcer();
-  private awake = new ScreenAwake();
-  private selectedBlessing: BlessingId = 'none';
+  endless: {course: Course; date: string; shuffle?: boolean} | null = null;
+  contests: Contests;
+  gallery: Gallery;
+  contest: ContestLink | null = null;
+  loadRequest = 0;
+  controlsReturn = false;
+  importRequest = 0;
+  selectedGoal: GoalId = 'maps';
+  selectedVariant: VariantId = 'classic';
+  selectedWeather: WeatherId = 'clear';
+  question: QuizQuestion | null = null;
+  quizReturn = 'islands';
+  rival: RivalLink | null = null;
+  pendingLink = '';
+  protectionState: Protection = 'unsupported';
+  protectionAsked = false;
+  reminded = false;
+  frameWatch = new FrameWatch();
+  pacer = new Pacer();
+  feel = new RunFeel();
+  announcer = new Announcer();
+  awake = new ScreenAwake();
+  selectedBlessing: BlessingId = 'none';
   // The last run's average frames per second, for the device status in the settings.
-  private lastFps = 0;
-  private resizeQueued = 0;
+  lastFps = 0;
+  resizeQueued = 0;
   // Which side of the comparison voyage the hero was on (for the overtaking cue), and the
   // partners already brought back once in a two-sailor run.
-  private ghostSign = 0;
-  private revived = [false, false];
+  ghostSign = 0;
+  revived = [false, false];
   // Enemies stomped or passed by each sailor of a two-sailor run, for the joint-defeat bonus.
-  private jointSeen = new Map<string, number>();
-  private thunderAt = 0;
-  private narrator = new Narrator(
+  jointSeen = new Map<string, number>();
+  thunderAt = 0;
+  narrator = new Narrator(
     reading => {
       const b = this.ui.querySelector('[data-action="read-aloud"]');
       if (!b) return;
@@ -348,8 +278,10 @@ export class App {
         this.openPendingLink();
         // The settings page is fetched once the home screen is up and the device is idle.
         const idle = (window as Window & {requestIdleCallback?: (f: () => void) => void}).requestIdleCallback;
-        if (idle) idle(() => void settingsView().catch(() => {}));
-        else setTimeout(() => void settingsView().catch(() => {}), 1500);
+        // So are the contact outlines every run needs (a run waits for them if they are late).
+        const soon = () => void Promise.all([settingsView(), loadContactMasks(), loadQuizText()]).catch(() => {});
+        if (idle) idle(soon);
+        else setTimeout(soon, 1500);
       },
       loadError: () => this.error(),
       reduced: () => this.store.data.settings.reducedMotion || deviceReducedMotion(),
@@ -447,9 +379,9 @@ export class App {
       {signal: this.abort.signal},
     );
   }
-  private sharedNotice = false;
+  sharedNotice = false;
   // Another tab saved: fold its progress in now (saving also merges, so nothing is lost either way).
-  private otherTab(e: StorageEvent) {
+  otherTab(e: StorageEvent) {
     if (e.key === PROFILES_KEY) {
       const active = this.profiles.active.id;
       this.profiles.book = readBook(e.newValue);
@@ -464,15 +396,15 @@ export class App {
       this.notice('같은 항해사가 다른 탭에서도 열려 있어요. 두 탭의 기록은 합쳐서 저장해요.');
     }
   }
-  private notice(message = this.store.warning) {
+  notice(message = this.store.warning) {
     const n = document.querySelector<HTMLElement>('#notice')!;
     n.textContent = message;
     n.hidden = !message;
   }
   // Switch scanning: on menus, one button at a time is highlighted and focused, so a single switch
   // mapped to Space or Enter can pick it (the browser presses a focused button on those keys).
-  private scanTimer = 0;
-  private scan() {
+  scanTimer = 0;
+  scan() {
     clearInterval(this.scanTimer);
     this.ui.querySelectorAll('.scan-focus').forEach(e => e.classList.remove('scan-focus'));
     if (!this.store.data.preferences.switchScan || ['play', 'countdown'].includes(this.screen)) return;
@@ -488,7 +420,7 @@ export class App {
       items[i].focus({preventScroll: false});
     }, SCAN_STEP);
   }
-  private set(html: string, screen: string) {
+  set(html: string, screen: string) {
     clearInterval(this.liveTimer);
     this.narrator.stop();
     this.importRequest++;
@@ -509,7 +441,7 @@ export class App {
       this.ui.querySelector<HTMLElement>('[autofocus], h1[tabindex], h2[tabindex]')?.focus({preventScroll: true}),
     );
   }
-  private async fullscreen() {
+  async fullscreen() {
     try {
       if (document.fullscreenElement) await document.exitFullscreen();
       else if (document.documentElement.requestFullscreen)
@@ -525,7 +457,7 @@ export class App {
   }
   // On phones and tablets a run fills the whole screen: the browser's bars are hidden and Android
   // turns to landscape. Must run inside the tap that starts the run (browsers require a gesture).
-  private immersive() {
+  immersive() {
     const p = this.store.data.preferences;
     if (
       !p.autoFullscreen ||
@@ -544,616 +476,18 @@ export class App {
       })
       .catch(() => {});
   }
-  private header(label: string, back = 'home') {
+  header(label: string, back = 'home') {
     return `<header class="topbar">${button(back, '← <span>돌아가기</span>', 'text-button')}<span class="brand">${icon('compass')} ${label}</span><span class="edition">ODYSSEY RUN / VOL. 01</span><span class="ys-key"><label class="ys-chip lang-pick" translate="no"><span aria-hidden="true">🌐 ${LANGS.find(l => l.id === getLang())!.short}</span><select data-lang aria-label="Language · 언어">${LANGS.map(l => `<option value="${l.id}" lang="${l.html}" ${l.id === getLang() ? 'selected' : ''}>${l.name}</option>`).join('')}</select></label>${button('profiles', `👤 <span class="ys-wide">${esc(this.profiles.active.name)}</span>`, 'ys-chip', `aria-label="항해사 ${esc(this.profiles.active.name)}, 바꾸기"`)}${button('fullscreen', '⛶ <span class="ys-wide">전체 화면</span>', 'ys-chip', 'aria-label="전체 화면 전환"')}<button type="button" class="ys-chip" data-ys-install aria-label="앱 설치">📲<span class="ys-wide"> 앱 설치</span></button><button type="button" class="ys-chip" data-qr aria-label="QR 코드로 접속">📱 QR</button></span></header>`;
-  }
-  // Shared records arrive in the URL fragment; read once and drop it so a reload does not repeat it.
-  private takeLink() {
-    if (!/^#[gcrm]=/.test(location.hash)) return '';
-    const code = location.hash.slice(3);
-    try {
-      history.replaceState(null, '', location.pathname + location.search);
-    } catch {}
-    return code;
-  }
-  private openPendingLink() {
-    const code = this.pendingLink;
-    this.pendingLink = '';
-    if (!code) {
-      this.home();
-      return;
-    }
-    let link: Link;
-    try {
-      link = decodeLink(code);
-    } catch (error) {
-      this.home();
-      this.notice((error as Error).message);
-      return;
-    }
-    this.openLink(link);
-  }
-  private openLink(link: Link) {
-    if (link.kind === 'ghost') this.rivalPage(link);
-    else if (link.kind === 'contest') this.contestJoin(link);
-    else if (link.kind === 'course') this.makerReceived(link);
-    else this.contestCollect(link);
-  }
-  private contestRules(c: {stage: StageId | null; variant: VariantId | null; assist: boolean; blocks?: string}) {
-    return `${c.blocks && c.stage ? `${COURSES[c.stage].name} · 학생이 만든 코스` : c.stage && c.variant ? this.courseName(c.stage, c.variant) : '코스 정보 없음'} · 쉬운 항해 ${c.assist ? '허용' : '끔'}`;
-  }
-  private contestJoin(link: ContestLink) {
-    this.abandon();
-    this.world.showHome();
-    this.contest = link;
-    this.rival = link.leader
-      ? {
-          kind: 'ghost',
-          name: link.leader.name,
-          stage: link.stage,
-          variant: link.variant,
-          score: link.leader.score,
-          ghost: link.leader.ghost,
-        }
-      : null;
-    void this.later(contestView, m =>
-      this.set(m.contestJoinMarkup(link, this.contestRules(link), this.profiles.active.name), 'contest-join'),
-    );
-  }
-  private async contestRun() {
-    const link = this.contest;
-    if (!link) return;
-    await this.prepare(link.stage, true);
-    if (this.screen !== 'prepare' || this.selected !== link.stage || this.contest !== link) return;
-    this.special = 'contest';
-    this.selectedVariant = link.variant;
-    const m = await contestView();
-    if (this.screen !== 'prepare' || this.contest !== link) return;
-    this.set(m.contestStartMarkup(link, this.contestRules(link), this.profiles.active.name), 'prepare');
-  }
-  // Student-built courses: drafts stay on this device; a passing course can be run and shared.
-  private loadDraft(): MakerDraft {
-    if (this.draft) return this.draft;
-    try {
-      const d = JSON.parse(this.storage?.getItem(MAKER_KEY) ?? 'null');
-      if (d && STAGES.includes(d.stage) && typeof d.blocks === 'string' && isBlocks(d.blocks))
-        return (this.draft = {stage: d.stage, blocks: d.blocks, title: String(d.title ?? '').slice(0, 12)});
-    } catch {}
-    return (this.draft = {stage: 'beach', blocks: 'f'.repeat(MAKER_SLOTS), title: ''});
-  }
-  // Reads the form back into the draft (the selects are the source while the page is open).
-  private readDraft() {
-    const d = this.loadDraft();
-    if (this.screen !== 'maker') return d;
-    const stage = this.ui.querySelector<HTMLSelectElement>('#maker-stage')?.value as StageId,
-      blocks = [...this.ui.querySelectorAll<HTMLSelectElement>('[data-slot]')].map(s => s.value).join('');
-    if (STAGES.includes(stage) && unlocked(this.store.data, stage)) d.stage = stage;
-    if (isBlocks(blocks)) d.blocks = blocks;
-    d.title = (this.ui.querySelector<HTMLInputElement>('#maker-title')?.value ?? '').trim().slice(0, 12);
-    try {
-      this.storage?.setItem(MAKER_KEY, JSON.stringify(d));
-    } catch {}
-    return d;
-  }
-  private maker(message = '') {
-    this.abandon();
-    this.world.showHome();
-    const d = this.loadDraft();
-    if (!unlocked(this.store.data, d.stage)) d.stage = 'beach';
-    void this.later(makerView, m =>
-      this.set(
-        m.makerMarkup(this.header('코스 만들기', 'challenges'), d, id => unlocked(this.store.data, id), message),
-        'maker',
-      ),
-    );
-  }
-  private makerCheck() {
-    const d = this.readDraft(),
-      r = checkCustom(buildCustom(d.stage, d.blocks, d.title || '나만의 코스'));
-    return {
-      ok: r.ok,
-      text: r.ok
-        ? `✓ 끝까지 갈 수 있는 코스예요! 별빛 ${r.stars}개를 모았어요.`
-        : `${r.slot + 1}번 칸(${BLOCKS[d.blocks[r.slot] as BlockId].name})에서 막혀요. 블록을 바꿔 보세요.`,
-    };
-  }
-  private makerAction(kind: string) {
-    const say = (text: string) => this.setText('#maker-message', text);
-    if (kind === 'random' || kind === 'clear') {
-      const d = this.readDraft();
-      d.blocks = kind === 'random' ? randomBlocks(Math.random, d.stage) : 'f'.repeat(MAKER_SLOTS);
-      // Saved now: the page is re-drawn once the maker's code has loaded.
-      try {
-        this.storage?.setItem(MAKER_KEY, JSON.stringify(d));
-      } catch {}
-      this.maker(
-        kind === 'random' ? '무작위 코스를 만들었어요. 마음에 드는 칸만 바꿔도 돼요.' : '모든 칸을 평지로 바꿨어요.',
-      );
-    } else if (kind === 'check') say(this.makerCheck().text);
-    else if (kind === 'share') {
-      const c = this.makerCheck();
-      if (!c.ok) return say(c.text);
-      const d = this.readDraft(),
-        link: CourseLink = {kind: 'course', stage: d.stage, blocks: d.blocks, title: d.title || '나만의 코스'};
-      void this.later(makerView, m => this.set(m.makerShareMarkup(d, linkUrl(link, location.href)), 'maker-share'));
-    } else if (kind === 'run') void this.makerRun();
-  }
-  private async makerRun() {
-    const fromMaker = this.screen === 'maker';
-    if (fromMaker) {
-      const c = this.makerCheck();
-      if (!c.ok) return this.setText('#maker-message', c.text);
-    }
-    const d = this.readDraft();
-    if (!unlocked(this.store.data, d.stage)) return;
-    await this.prepare(d.stage);
-    if (this.screen !== 'prepare' || this.selected !== d.stage) return;
-    this.special = 'custom';
-    this.custom = buildCustom(d.stage, d.blocks, d.title || '나만의 코스');
-    this.set(
-      `<div class="veil"><section class="panel"><span class="eyebrow">BUILD YOUR OWN VOYAGE</span><h1 tabindex="-1">${esc(this.custom.name)}</h1><p>${COURSES[d.stage].name} · ${MAKER_SLOTS}칸 · 약 40초</p><p class="muted">나만의 코스는 기록·지도·해금에 반영하지 않아요.</p>${button('start', '출발 →', 'primary large')}${button('maker', '코스 만들기로', 'secondary')}</section></div>`,
-      'prepare',
-    );
-  }
-  private makerReceived(link: CourseLink) {
-    this.abandon();
-    this.world.showHome();
-    this.draft = {stage: link.stage, blocks: link.blocks, title: link.title};
-    const draft = this.draft;
-    void this.later(makerView, m =>
-      this.set(m.makerReceivedMarkup(draft, unlocked(this.store.data, link.stage)), 'maker-received'),
-    );
-  }
-  private duoPage(message = '') {
-    this.abandon();
-    this.world.showHome();
-    const open = STAGES.filter(id => unlocked(this.store.data, id) && this.lock.lessonOpen(id));
-    this.duoCourses = this.duoCourseList();
-    this.set(duoPageMarkup(this.header('둘이서 번갈아', 'challenges'), open, message, this.duoCourses), 'duo');
   }
   // Student-made courses two sailors can race on: this device's own draft when it passes the
   // course check, then the class gallery's top courses.
-  private duoCourses: DuoCourse[] = [];
-  private duoCourseList(): DuoCourse[] {
-    const out: DuoCourse[] = [],
-      d = this.loadDraft();
-    if (
-      d.blocks !== 'f'.repeat(MAKER_SLOTS) &&
-      checkCustom(buildCustom(d.stage, d.blocks, d.title || '나만의 코스')).ok
-    )
-      out.push({stage: d.stage, blocks: d.blocks, title: d.title || '나만의 코스'});
-    for (const g of this.gallery.ranked().slice(0, 10))
-      if (!out.some(c => c.blocks === g.blocks && c.stage === g.stage))
-        out.push({stage: g.stage, blocks: g.blocks, title: g.title || '학생 코스'});
-    return out;
-  }
-  private async duoRun() {
-    if (this.screen === 'duo') {
-      const a = cleanName(this.ui.querySelector<HTMLInputElement>('#duo-a')?.value ?? ''),
-        b = cleanName(this.ui.querySelector<HTMLInputElement>('#duo-b')?.value ?? ''),
-        pick = this.ui.querySelector<HTMLSelectElement>('#duo-stage')?.value ?? '',
-        course = pick.startsWith('course:') ? this.duoCourses[Number(pick.slice(7))] : undefined,
-        stage = (course?.stage ?? pick) as StageId;
-      if (!a || !b) return this.setText('#duo-message', '두 항해사의 이름을 적어 주세요.');
-      if (!STAGES.includes(stage) || (!course && (!unlocked(this.store.data, stage) || !this.lock.lessonOpen(stage))))
-        return;
-      const together = !!this.ui.querySelector<HTMLInputElement>('#duo-together')?.checked;
-      if (together && this.portrait)
-        return this.setText(
-          '#duo-message',
-          '동시에 달리려면 화면을 가로로 돌려 주세요. 세로 화면은 둘로 나누기엔 너무 좁아요.',
-        );
-      this.duo = {
-        names: [a, b],
-        stage,
-        scores: [],
-        together,
-        ...(course ? {course} : {}),
-      };
-    }
-    const d = this.duo;
-    if (!d) return;
-    // A student course runs like a contest course: its island need not be open on this device.
-    await this.prepare(d.stage, !!d.course);
-    if (this.screen !== 'prepare' || this.selected !== d.stage || this.duo !== d) return;
-    if (d.together) {
-      // The second scene loads the same island into its own canvas before the countdown.
-      this.set(duoLoadingMarkup(), 'stage-loading');
-      const request = ++this.loadRequest;
-      try {
-        await (await this.split.open()).prepare(d.stage);
-      } catch {
-        if (request === this.loadRequest)
-          this.duoPage('두 번째 화면을 준비하지 못했어요. 연결을 확인하고 다시 시도해 주세요.');
-        return;
-      }
-      if (
-        request !== this.loadRequest ||
-        (this.screen as string) !== 'stage-loading' ||
-        this.duo !== d ||
-        this.destroyed
-      )
-        return;
-    }
-    this.special = 'duo';
-    this.set(duoPrepareMarkup(d), 'prepare');
-  }
-  // The second sailor runs as a different hero so the two halves read apart at a glance.
-  private secondHero() {
-    const first = this.store.data.preferences.hero;
-    return HEROES.find(h => h.id !== first)!.id;
-  }
-  private get together() {
+  duoCourses: DuoCourse[] = [];
+  get together() {
     return this.special === 'duo' && !!this.duo?.together;
   }
-  private finishDuo() {
-    const d = this.duo!,
-      r = this.result!;
-    this.sound.setPlaying(false);
-    this.controls.clear();
-    if (d.together && this.run2) {
-      d.scores = [r, this.run2.result()];
-      this.run2 = null;
-      this.split.show(false);
-    } else d.scores.push(r);
-    if (d.scores.length < 2) this.set(duoTurnMarkup(d, r), 'result');
-    else this.set(duoTeamMarkup(d), 'result');
-  }
-  private galleryPage(message = '') {
-    this.abandon();
-    this.world.showHome();
-    void this.later(pageViews, ([, , g]) =>
-      this.set(g.galleryMarkup(this.header('반 코스 갤러리', 'contests'), this.gallery.ranked(), message), 'gallery'),
-    );
-  }
-  private galleryAction(kind: string, arg = '') {
-    const i = Number(arg);
-    if (kind === 'add') {
-      // A course received by link, or the course on this device's maker.
-      const d = this.screen === 'maker-received' || this.screen === 'maker' ? this.readDraft() : null;
-      if (!d) return;
-      const ok = this.gallery.add({stage: d.stage, blocks: d.blocks, title: d.title || '나만의 코스'});
-      this.galleryPage(
-        ok
-          ? `‘${d.title || '나만의 코스'}’ 코스를 갤러리에 담았어요.`
-          : '갤러리가 가득 찼어요. 코스를 몇 개 지워 주세요.',
-      );
-    } else if (kind === 'paste') {
-      try {
-        const link = parseLinkText(this.ui.querySelector<HTMLInputElement>('#gallery-code')?.value ?? '');
-        if (link?.kind !== 'course') throw Error('학생 코스 화면의 링크를 붙여 넣어 주세요.');
-        const ok = this.gallery.add(link);
-        this.galleryPage(ok ? `‘${link.title}’ 코스를 담았어요.` : '갤러리가 가득 찼어요. 코스를 몇 개 지워 주세요.');
-      } catch (error) {
-        this.setText('#gallery-message', (error as Error).message);
-      }
-    } else if (kind === 'up' || kind === 'down') {
-      this.gallery.vote(i, kind === 'up' ? 1 : -1);
-      this.galleryPage();
-    } else if (kind === 'remove') {
-      this.gallery.remove(i);
-      this.galleryPage('코스를 지웠어요.');
-    } else if (kind === 'run') {
-      const c = this.gallery.list[i];
-      if (!c) return;
-      this.draft = {stage: c.stage, blocks: c.blocks, title: c.title};
-      const draft = this.draft;
-      void this.later(makerView, m =>
-        this.set(m.makerReceivedMarkup(draft, unlocked(this.store.data, c.stage)), 'maker-received'),
-      );
-    } else if (kind === 'contest') {
-      const c = this.gallery.list[i];
-      if (!c) return;
-      const hosted = this.contests.host({
-        id: newContestId(),
-        title: c.title.slice(0, 12),
-        stage: c.stage,
-        variant: 'classic',
-        assist: false,
-        blocks: c.blocks,
-      });
-      this.contestBoard(hosted.id, '학생 코스로 대회를 만들었어요. 참가 QR을 띄워 주세요.');
-    }
-  }
   // The prologue (see levels/prologue): a guided practice run before the first island.
-  private prologue = false;
-  private async prologueRun() {
-    await this.prepare('beach');
-    if (this.screen !== 'prepare' || this.selected !== 'beach') return;
-    this.special = 'custom';
-    this.prologue = true;
-    this.custom = prologueCourse();
-    this.set(
-      `<div class="veil"><section class="panel"><span class="eyebrow">PROLOGUE</span><h1 tabindex="-1">🎓 ${PROLOGUE_TITLE}</h1><p>트로이를 떠나는 30초 연습 항해예요. 점프, 숙이기, 몬스터 밟기, 스프링, 밧줄, 추격을 하나씩 해 봐요. 화면 위 안내를 따라가면 돼요.</p><p class="muted">연습이라 기록·지도·해금에는 반영하지 않아요.</p>${button('start', '출발 →', 'primary large')}${button('home', '돌아가기', 'secondary')}</section></div>`,
-      'prepare',
-    );
-  }
-  private finishCustom() {
-    const r = this.result!;
-    this.sound.setPlaying(false);
-    this.controls.clear();
-    if (this.prologue) {
-      this.store.data = recordRun(this.store.data, r, koreanDay(), {special: true, weather: false});
-      this.store.persist();
-      this.set(
-        `<div class="veil"><section class="panel result special-result"><span class="eyebrow">PROLOGUE</span><h1 tabindex="-1">${r.complete ? '연습 항해 완주! 준비 끝이에요' : '괜찮아요, 한 번 더 연습해요'}</h1><p>${PROLOGUE_TITLE}</p><p>별빛 ${r.stars} · 몬스터 밟기 ${this.run?.stomps ?? 0} · HP 손실 ${r.hpLoss}회</p>${this.damageSummary()}<div class="button-row">${r.complete ? button('stage:beach', '첫 섬으로 출발 →', 'primary') : button('restart', '다시 연습', 'primary')}${button('restart', '한 번 더 연습', 'secondary')}${button('home', '시작 화면', 'secondary')}</div></section></div>`,
-        'result',
-      );
-      return;
-    }
-    this.set(
-      `<div class="veil"><section class="panel result special-result"><span class="eyebrow">BUILD YOUR OWN VOYAGE</span><h1 tabindex="-1">${r.complete ? '나만의 코스 완주!' : '다시, 한 번 더!'}</h1><p>${esc(this.custom?.name ?? '')}</p><div class="result-score"><span>이번 항해</span><strong>${r.score.toLocaleString()}</strong><small>별빛 ${r.stars} · HP 손실 ${r.hpLoss}회</small></div>${this.damageSummary()}<p class="muted">나만의 코스는 기록·지도·해금에 반영하지 않아요.</p><div class="button-row">${button('restart', '다시 달리기', 'primary')}${button('maker', '코스 고치기', 'secondary')}${button('maker-share', 'QR로 보내기', 'secondary')}</div></section></div>`,
-      'result',
-    );
-  }
-  private endlessCards() {
-    return `<section class="endless-section"><span class="eyebrow">ENDLESS VOYAGE</span><h2>끝없는 항해</h2><p>섬의 여섯 구간이 날마다 다른 순서로 이어져요. 체력이 다할 때까지 얼마나 멀리 갈 수 있을까요? 지도는 나오지 않고 일반 기록과 따로 남겨요.</p><div class="trial-grid stages">${STAGES.map(
-      id => {
-        const open = this.store.data.stages[id].complete,
-          r = this.store.data.endless[id];
-        return `<section class="trial-card"><h2>${COURSES[id].name}</h2><p>${r ? `최고 ${Math.floor(r.bestDistance / 10).toLocaleString()}m · ${sectionsPassed(r.bestDistance)}구간 · ${r.bestScore.toLocaleString()}점` : '아직 기록 전'}</p>${button('endless:' + id, open ? '끝없는 항해 출발' : '해당 섬 완주 후 열려요', 'primary', open ? '' : 'disabled')}${open ? button('shuffle:' + id, '🔀 오늘의 셔플 항로', 'secondary') : ''}</section>`;
-      },
-    ).join('')}</div></section>`;
-  }
-  private async prepareEndless(id: StageId) {
-    if (!this.store.data.stages[id].complete) {
-      this.challenges();
-      return;
-    }
-    const date = dailySpec().date;
-    await this.prepare(id);
-    if (this.screen !== 'prepare' || this.selected !== id) return;
-    this.special = 'endless';
-    this.endless = {course: buildEndless(id, `${date}:${id}`), date};
-    const best = this.store.data.endless[id];
-    this.set(
-      `<div class="veil"><section class="panel"><span class="eyebrow">ENDLESS VOYAGE · ${date}</span><h1 tabindex="-1">끝없는 ${COURSES[id].name}</h1><p>여섯 구간이 오늘의 순서로 최대 ${ENDLESS_SECTIONS}번 이어져요. 오늘은 모두 같은 순서를 달려요.</p><p>체력 3 · 사과로 회복 · 지도 없음${best ? ` · 나의 최고 ${Math.floor(best.bestDistance / 10).toLocaleString()}m` : ''}</p>${button('start', '출발 →', 'primary large')}${button('challenges', '돌아가기', 'secondary')}</section></div>`,
-      'prepare',
-    );
-  }
-  // Today's shuffled route: the six sections once, in an order everyone shares today.
-  private async prepareShuffle(id: StageId) {
-    if (!this.store.data.stages[id].complete) {
-      this.challenges();
-      return;
-    }
-    const date = dailySpec().date;
-    await this.prepare(id);
-    if (this.screen !== 'prepare' || this.selected !== id) return;
-    this.special = 'endless';
-    this.endless = {course: buildEndless(id, `shuffle:${date}:${id}`, 6), date, shuffle: true};
-    this.set(
-      `<div class="veil"><section class="panel"><span class="eyebrow">SHUFFLED ROUTE · ${date}</span><h1 tabindex="-1">🔀 ${COURSES[id].name} 셔플 항로</h1><p>이 섬의 여섯 구간을 오늘의 순서로 한 번씩 이어 달려요. 아는 장애물도 순서가 바뀌면 새로워요.</p><p>체력 3 · 약 75초 · 지도 없음 · 일반 기록과 따로예요</p>${button('start', '출발 →', 'primary large')}${button('challenges', '돌아가기', 'secondary')}</section></div>`,
-      'prepare',
-    );
-  }
-  private finishShuffle() {
-    const r = this.result!;
-    this.sound.setPlaying(false);
-    this.controls.clear();
-    this.store.data = recordRun(this.store.data, r, koreanDay(), {special: true, weather: false});
-    this.store.persist();
-    this.set(
-      `<div class="veil"><section class="panel result special-result"><span class="eyebrow">SHUFFLED ROUTE · ${this.endless!.date}</span><h1 tabindex="-1">${r.complete ? '셔플 항로 완주!' : '다시, 새 순서로!'}</h1><p>${COURSES[r.stage].name}</p><div class="result-score"><span>이번 항해</span><strong>${r.score.toLocaleString()}</strong><small>${Math.floor(r.distance / 10).toLocaleString()}m · 별빛 ${r.stars} · HP 손실 ${r.hpLoss}회</small></div>${this.damageSummary()}<p class="muted">일반 최고 기록·지도·섬 해금에는 반영하지 않아요. 내일은 다른 순서예요.</p><div class="button-row">${button('restart', '다시 출발', 'primary')}${button('challenges', '특별 항해', 'secondary')}${button('home', '시작 화면', 'secondary')}</div></section></div>`,
-      'result',
-    );
-  }
-  private finishEndless() {
-    if (this.endless?.shuffle) {
-      this.finishShuffle();
-      return;
-    }
-    const r = this.result!,
-      id = r.stage,
-      old = this.store.data.endless[id];
-    this.sound.setPlaying(false);
-    this.controls.clear();
-    const record = {
-      bestScore: Math.max(old?.bestScore ?? 0, r.score),
-      bestDistance: Math.max(old?.bestDistance ?? 0, Math.floor(r.distance)),
-    };
-    this.store.data = recordRun(this.store.data, r, koreanDay(), {special: true, weather: false});
-    this.store.data.endless[id] = record;
-    this.store.persist();
-    const meters = Math.floor(r.distance / 10),
-      fresh = !old || r.distance > old.bestDistance;
-    this.set(
-      `<div class="veil"><section class="panel result special-result"><span class="eyebrow">ENDLESS VOYAGE · ${this.endless!.date}</span><h1 tabindex="-1">${r.complete ? '끝까지 항해했어요!' : fresh ? '새로운 최고 거리!' : '다시, 더 멀리!'}</h1><p>${COURSES[id].name}</p><div class="result-score"><span>이번 항해</span><strong>${meters.toLocaleString()}m</strong><small>${sectionsPassed(r.distance)}구간 · ${r.score.toLocaleString()}점 · 별빛 ${r.stars}</small></div><p>나의 최고 ${Math.floor(record.bestDistance / 10).toLocaleString()}m · ${record.bestScore.toLocaleString()}점</p>${this.damageSummary()}<p class="muted">일반 최고 기록·지도·섬 해금에는 반영하지 않아요.</p><div class="button-row">${button('restart', '다시 출발', 'primary')}${button('challenges', '특별 항해', 'secondary')}${button('home', '시작 화면', 'secondary')}</div>${button('quiz', '신화 퀴즈 한 문제', 'text-button')}</section></div>`,
-      'result',
-    );
-  }
-  private finishContest() {
-    const r = this.result!,
-      c = this.contest!;
-    this.sound.setPlaying(false);
-    this.controls.clear();
-    const now: Entry = {
-        name: this.profiles.active.name,
-        score: r.score,
-        complete: r.complete,
-        stars: r.stars,
-        maps: r.maps.length,
-        hpLoss: r.hpLoss,
-        time: Math.round(this.run!.time * 10) / 10,
-        ...(r.adventure?.ghost ? {ghost: r.adventure.ghost} : {}),
-      },
-      best = this.contests.record(c.id, this.profiles.active.id, now),
-      result: ContestResult = {kind: 'result', contest: c.id, ...best},
-      url = linkUrl(result, location.href);
-    void this.later(contestView, m =>
-      this.set(m.contestResultMarkup(c.title, r, best, url, this.rivalLine(r, '1등')), 'result'),
-    );
-  }
-  private contestCollect(result: ContestResult) {
-    const {contest, added} = this.contests.add(result);
-    this.contestBoard(
-      contest.id,
-      added
-        ? `‘${result.name}’의 결과를 받았어요. 같은 이름은 가장 좋은 기록만 남겨요.`
-        : `순위표가 가득 찼어요(최대 인원). 다른 대회를 새로 만들어 주세요.`,
-    );
-  }
-  private contestsPage(message = '') {
-    this.abandon();
-    this.world.showHome();
-    void this.later(contestView, m =>
-      this.set(
-        m.contestsMarkup(this.header('교사용 대회', 'challenges'), this.contests.book.hosted, message),
-        'contests',
-      ),
-    );
-  }
-  private contestBoard(id: string, message = '') {
-    const c = this.contests.find(id);
-    if (!c) {
-      this.contestsPage('대회를 찾지 못했어요.');
-      return;
-    }
-    this.abandon();
-    this.world.showHome();
-    void this.later(contestView, m =>
-      this.set(
-        m.boardMarkup(this.header(esc(c.title), 'contests'), c, this.contestRules(c), message, location.href),
-        'contest-board',
-      ),
-    );
-  }
-  private scanner: BoardScanner | null = null;
-  private stopScanner() {
-    this.scanner?.stop();
-    this.scanner = null;
-  }
-  private contestCsv(id: string) {
-    const c = this.contests.find(id);
-    if (c)
-      void contestView().then(m =>
-        this.download(
-          m.contestCsv(c.entries, contestLength(c)),
-          `odyssey-run-contest-${c.id}.csv`,
-          'text/csv;charset=utf-8',
-        ),
-      );
-  }
-  private contestAction(kind: string, id = '') {
-    const say = (text: string) => {
-      const box = this.ui.querySelector('#contest-message');
-      if (box) box.textContent = text;
-    };
-    if (kind === 'create') {
-      const title = this.ui.querySelector<HTMLInputElement>('#contest-title')?.value.trim() || '우리 반 대회',
-        stage = this.ui.querySelector<HTMLSelectElement>('#contest-stage')!.value as StageId,
-        variant = this.ui.querySelector<HTMLSelectElement>('#contest-variant')!.value,
-        assist = this.ui.querySelector<HTMLInputElement>('#contest-assist')!.checked;
-      if (!STAGES.includes(stage) || !isVariant(variant)) return;
-      const c = this.contests.host({id: newContestId(), title: title.slice(0, 12), stage, variant, assist});
-      this.contestBoard(c.id, '대회를 만들었어요. 참가 QR을 띄워 주세요.');
-    } else if (kind === 'open') this.contestBoard(id);
-    else if (kind === 'scan') {
-      if (this.scanner) this.stopScanner();
-      else
-        void contestView().then(m => {
-          if (this.screen === 'contest-board' && !this.scanner)
-            this.scanner = new m.BoardScanner(this.ui, id, this.contests, () => this.store.data.preferences.haptics);
-        });
-    } else if (kind === 'csv') this.contestCsv(id);
-    else if (kind === 'paste') {
-      try {
-        const link = parseLinkText(this.ui.querySelector<HTMLInputElement>('#contest-code')?.value ?? '');
-        if (link?.kind !== 'result') throw Error('학생 결과 화면의 결과 코드를 붙여 넣어 주세요.');
-        this.contestCollect(link);
-      } catch (error) {
-        say((error as Error).message);
-      }
-    } else if (kind === 'drop') {
-      const [contest, name] = id.split('/');
-      this.contests.drop(contest, decodeURIComponent(name ?? ''));
-      this.contestBoard(contest, `‘${decodeURIComponent(name ?? '')}’ 기록을 뺐어요. 다시 찍으면 다시 들어가요.`);
-    } else if (kind === 'clear') {
-      this.contests.clear(id);
-      this.contestBoard(id, '순위를 비웠어요.');
-    } else if (kind === 'delete') {
-      this.contests.remove(id);
-      this.contestsPage('대회를 지웠어요.');
-    } else if (kind === 'host-here' && this.contest) {
-      const c = this.contests.host({...this.contest});
-      this.contestBoard(c.id, '이 기기에서 결과를 모아요.');
-    } else if (kind === 'run' && this.screen === 'contest-join') void this.contestRun();
-  }
-  private courseName(stage: StageId, variant: VariantId) {
-    return `${COURSES[stage].name} · ${VARIANT_LABELS[stage][variant].name}`;
-  }
-  private rivalPage(link: RivalLink) {
-    this.abandon();
-    this.world.showHome();
-    this.rival = link;
-    const open = unlocked(this.store.data, link.stage);
-    this.set(
-      `<div class="veil"><section class="panel rival-panel"><span class="eyebrow">A FRIEND’S VOYAGE</span><h1 tabindex="-1">‘${esc(link.name)}’의 기록이 도착했어요</h1><p>${this.courseName(link.stage, link.variant)}</p><div class="result-score"><span>친구의 점수</span><strong>${link.score.toLocaleString()}</strong><small>${Math.floor(link.ghost.samples.at(-1)! / 10)}m · ${Math.floor(link.ghost.duration)}초 항해</small></div><p>같은 코스를 달리면 친구의 배가 진행 막대에 함께 표시돼요.</p>${open ? button('rival-start', '이 기록과 겨루기 →', 'primary large') : `<p class="unlock-hint">${COURSES[link.stage].name}은 아직 잠겨 있어요. 앞선 섬을 먼저 완주해 주세요.</p>`}${button('home', '시작 화면으로', 'secondary')}<small>링크로 받은 기록은 이 기기에서 확인할 수 없어요. 재미로 겨뤄요.</small></section></div>`,
-      'rival',
-    );
-  }
-  private async rivalStart() {
-    const link = this.rival;
-    if (!link || !unlocked(this.store.data, link.stage)) return;
-    await this.prepare(link.stage);
-    if (this.screen !== 'prepare' || this.selected !== link.stage || this.rival !== link) return;
-    this.selectedVariant = link.variant;
-    this.set(
-      `<div class="veil"><section class="panel"><span class="eyebrow">A FRIEND’S VOYAGE</span><h1 tabindex="-1">‘${esc(link.name)}’의 기록과 나란히</h1><p>${this.courseName(link.stage, link.variant)} · 친구 ${link.score.toLocaleString()}점</p><p>일반 항해와 똑같이 기록·지도·해금이 남아요.</p>${button('start', '출발 →', 'primary large')}${button('home', '그만두기', 'secondary')}</section></div>`,
-      'prepare',
-    );
-  }
-  // Where the comparison voyage is now: a friend's link first, else this sailor's best on the course.
-  private ghostNow(): {x: number; friend: boolean} | null {
-    const r = this.run;
-    if (!r || (this.special && this.special !== 'contest') || !this.store.data.preferences.ghostRunner) return null;
-    const rival = this.rivalFor(this.selected, r.variant);
-    if (this.special && !rival) return null;
-    const x = ghostDistance(rival?.ghost ?? courseGhost(this.store.data, this.selected, r.variant), r.time);
-    return x === null ? null : {x, friend: !!rival};
-  }
-  private rivalFor(stage: StageId, variant: VariantId) {
-    const r = this.rival;
-    return (!this.special || this.special === 'contest') && r && r.stage === stage && r.variant === variant ? r : null;
-  }
-  private sharePage() {
-    const r = this.result,
-      ghost = r?.adventure?.ghost;
-    if (!r || !ghost || this.special) return;
-    const url = linkUrl(
-      {
-        kind: 'ghost',
-        name: this.profiles.active.name,
-        stage: r.stage,
-        variant: r.variant ?? 'classic',
-        score: r.score,
-        ghost,
-      },
-      location.href,
-    );
-    void this.later(shareView, m =>
-      this.set(
-        m.shareMarkup(this.courseName(r.stage, r.variant ?? 'classic'), r.score, this.profiles.active.name, url),
-        'share',
-      ),
-    );
-  }
-  private shareImage() {
-    const r = this.result;
-    if (!r) return;
-    return shareView().then(m =>
-      m.saveResultPicture(this.ui, {
-        view: STAGE_VIEW[r.stage],
-        course: this.courseName(r.stage, r.variant ?? 'classic'),
-        score: r.score,
-        rating: r.rating,
-        stars: r.stars,
-        maps: r.maps.length,
-        complete: r.complete,
-        name: this.ui.querySelector<HTMLInputElement>('#card-name')?.checked ? this.profiles.active.name : '',
-      }),
-    );
-  }
+  prologue = false;
+  scanner: BoardScanner | null = null;
   home() {
     this.rival = null;
     this.abandon();
@@ -1177,13 +511,13 @@ export class App {
     }
     this.game.loop.wake();
   }
-  private islands() {
+  islands() {
     this.abandon();
     this.world.showHome();
     const save = this.store.data;
     const count = STAGES.reduce((n, id) => n + save.stages[id].maps.length, 0);
     this.set(
-      `<div class="page islands">${this.header('항해 지도')}<div class="page-heading"><span class="eyebrow">YOUR JOURNEY HOME</span><h1 tabindex="-1">어느 섬으로 떠날까요?</h1><p>앞선 섬을 완주하면 다음 항로가 열려요.</p>${this.store.data.stages.beach.complete ? '' : button('prologue', '🎓 처음이라면: 프롤로그 연습 항해', 'secondary prologue-link')}<span class="map-total">${icon('map')} ${count} / ${TOTAL_MAPS} 발견 ${count === TOTAL_MAPS ? '· 지도 완성!' : ''}</span></div><div class="island-grid">${STAGES.map(
+      `<div class="page islands">${this.header('항해 지도')}<div class="page-heading"><span class="eyebrow">YOUR JOURNEY HOME</span><h1 tabindex="-1">어느 섬으로 떠날까요?</h1><p>앞선 섬을 완주하면 다음 항로가 열려요.</p>${this.store.data.stages.beach.complete || this.store.data.play.prologue ? '' : button('prologue', '🎓 처음이라면: 프롤로그 연습 항해', 'secondary prologue-link')}<span class="map-total">${icon('map')} ${count} / ${TOTAL_MAPS} 발견 ${count === TOTAL_MAPS ? '· 지도 완성!' : ''}</span></div><div class="island-grid">${STAGES.map(
         (id, i) => {
           const c = COURSES[id],
             r = save.stages[id],
@@ -1199,7 +533,7 @@ export class App {
     );
   }
   // Contests may open any island; they never record it as the last (possibly locked) stage.
-  private async prepare(id: StageId, contest = false) {
+  async prepare(id: StageId, contest = false) {
     if (!contest && (!unlocked(this.store.data, id) || !this.lock.lessonOpen(id))) {
       this.islands();
       return;
@@ -1219,12 +553,17 @@ export class App {
       'stage-loading',
     );
     try {
-      await this.world.prepare(id, n => {
-        if (request === this.loadRequest) {
-          const p = this.ui.querySelector('#stage-loading');
-          if (p) p.textContent = `섬을 준비하고 있어요… ${Math.round(n * 100)}%`;
-        }
-      });
+      await Promise.all([
+        this.world.prepare(id, n => {
+          if (request === this.loadRequest) {
+            const p = this.ui.querySelector('#stage-loading');
+            if (p) p.textContent = `섬을 준비하고 있어요… ${Math.round(n * 100)}%`;
+          }
+        }),
+        // A run also needs the contact outlines and the O/X questions (loaded after the home screen).
+        loadContactMasks(),
+        loadQuizText(),
+      ]);
     } catch {
       if (request === this.loadRequest && this.screen === 'stage-loading')
         this.set(
@@ -1251,7 +590,7 @@ export class App {
     );
   }
   // Weather opens once the island is complete; it changes the look (and the storm's pace) only.
-  private weatherPicker(id: StageId) {
+  weatherPicker(id: StageId) {
     const open = this.store.data.stages[id].complete;
     if (!open) this.selectedWeather = 'clear';
     return `<fieldset class="course-picker weather-picker" ${open ? '' : 'disabled'}><legend>날씨 · ${open ? '골라서 달려요' : '이 섬을 완주하면 열려요'}</legend>${(
@@ -1263,12 +602,12 @@ export class App {
       )
       .join('')}</fieldset>`;
   }
-  private weatherOn() {
+  weatherOn() {
     const preset = readPreset(this.storage);
     if (preset && !PRESETS[preset].weather) return 'clear';
     return !this.special && this.store.data.stages[this.selected].complete ? this.selectedWeather : 'clear';
   }
-  private coursePicker(id: StageId) {
+  coursePicker(id: StageId) {
     return `<fieldset class="course-picker"><legend>이번에 달릴 코스 · 섬마다 3개</legend>${VARIANTS.map(variant => {
       const meta = VARIANT_LABELS[id][variant],
         record = courseRecord(this.store.data, id, variant);
@@ -1277,7 +616,16 @@ export class App {
       '',
     )}<p>모든 코스는 약 75초 · 별빛 100 · 지도 3<br>어느 코스든 완주하면 다음 섬이 열려요. 지도와 발견은 함께 모아요.</p></fieldset>`;
   }
-  private start() {
+  start() {
+    // The contact outlines and the O/X questions are fetched while the home screen is idle; on a very slow first visit
+    // the run starts once they are here.
+    if (!masksReady() || !quizReady()) {
+      const screen = this.screen;
+      void Promise.all([loadContactMasks(), loadQuizText()])
+        .then(() => this.screen === screen && !this.destroyed && this.start())
+        .catch(() => this.error());
+      return;
+    }
     // Contests and student courses in two-player mode may run on an island this device has not opened.
     const anyIsland = this.special === 'contest' || (this.special === 'duo' && !!this.duo?.course);
     if (!anyIsland && !unlocked(this.store.data, this.selected)) {
@@ -1310,6 +658,7 @@ export class App {
     this.run.weather = this.weatherOn();
     this.feel.reset();
     this.announcer.reset();
+    this.spoken = '';
     this.frameWatch.begin();
     // The playful extras belong to ordinary island runs only (shared records stay comparable).
     if (!this.special) {
@@ -1359,14 +708,14 @@ export class App {
     this.store.persist();
     this.beginCountdown();
   }
-  private assist(): Assist {
+  assist(): Assist {
     if (this.special === 'contest' && !this.contest?.assist) return defaultPreferences().assist;
     // A lesson preset on this device sets the help for every sailor.
     const preset = readPreset(this.storage);
     if (preset) return {...PRESETS[preset].assist};
     return this.store.data.preferences.assist;
   }
-  private assistLabel() {
+  assistLabel() {
     const a = this.assist();
     return [
       a.pace < 1 ? `속도 ${a.pace}배` : '',
@@ -1374,13 +723,10 @@ export class App {
       a.autoSlide ? '버튼 하나' : '',
     ].filter(Boolean);
   }
-  private hud() {
-    return `<div class="play-ui" tabindex="-1" role="group" aria-label="게임 조작" data-one-button="${this.assist().autoSlide}"><div class="hud"><div class="hp-block"><span class="hud-caption"${this.together ? ' translate="no"' : ''}>${this.together ? esc(this.duo!.names[0]) : this.hero().name}</span><strong id="hp" role="img" aria-label="체력 3"></strong></div><div class="route-progress"><span>${this.special === 'boss' ? BOSSES[this.selected].name : this.special === 'daily' ? '오늘의 항해 · ' + this.daily!.name : this.special === 'contest' ? '대회 · ' + esc(this.contest!.title) : this.special === 'endless' ? (this.endless?.shuffle ? '셔플 항로 · ' : '끝없는 항해 · ') + COURSES[this.selected].name : this.special === 'duo' ? (this.together ? '둘이서 동시에 · ' : '둘이서 번갈아 · ') + COURSES[this.selected].name : this.special === 'custom' ? (this.custom?.name === '나만의 코스' ? '나만의 코스' : '나만의 코스 · ' + esc(this.custom?.name ?? '')) : COURSES[this.selected].name + ' · ' + VARIANT_LABELS[this.selected][this.selectedVariant].name}${this.weatherOn() === 'clear' ? '' : ` · ${WEATHERS[this.weatherOn()].icon} ${WEATHERS[this.weatherOn()].name}`}</span><progress id="progress" data-course="${this.selected}/${this.selectedVariant}" max="24000" value="0" aria-label="섬 진행률"></progress><i id="ghost-marker" hidden aria-label="비교 항해 위치"></i><small id="progress-label">0%</small></div><div class="score-block"><span class="hud-caption">SCORE</span><strong id="score">0</strong></div><div class="hud-actions">${button('fullscreen', '⛶', 'fullscreen-button', 'aria-label="전체 화면 전환"')}${button('pause', 'Ⅱ', 'pause-button', 'aria-label="일시정지"')}</div></div><div class="run-chips"><div class="run-details"><span id="stars">✦ 0 / 100</span><span id="maps">지도 0 / 3</span><span id="effects"></span><span id="combo" aria-live="off"></span><p id="play-live" class="sr-only" aria-live="polite" aria-atomic="true"></p><span id="fever" hidden><i></i></span><span id="mission"></span>${this.assistLabel().length ? `<span class="assist-chip">쉬운 항해 · ${this.assistLabel().join(' · ')}</span>` : ''}</div><div class="adventure-hud"><span id="goal-progress"></span><span id="ghost-delta"></span><span id="discovery-progress"></span></div></div><div class="touch-controls"><button data-control="slide" class="control slide" aria-label="슬라이드, 누르고 유지"><span>⇣</span><b>슬라이드</b><small>↓ 누르기</small></button><button data-control="jump" class="control jump" aria-label="점프, 공중에서 다시 누르면 2단 점프"><span>↟</span><b>점프</b><small>Space / ↑</small></button></div>${this.together ? secondHudMarkup(this.duo!.names[1]) : ''}</div>`;
-  }
   // An upright phone first asks to be turned: the course is much wider sideways. Turning starts
   // the countdown at once; "keep upright" is remembered until the page is closed.
-  private portraitOk = false;
-  private rotatePrompt() {
+  portraitOk = false;
+  rotatePrompt() {
     this.accumulator = 0;
     this.sound.setPlaying(false);
     this.run!.state = 'ready';
@@ -1392,7 +738,7 @@ export class App {
       'rotate',
     );
   }
-  private async rotateLock() {
+  async rotateLock() {
     try {
       if (!document.fullscreenElement) await document.documentElement.requestFullscreen({navigationUI: 'hide'});
       await (screen.orientation as ScreenOrientation & {lock: (o: string) => Promise<void>}).lock('landscape');
@@ -1401,7 +747,7 @@ export class App {
     }
     this.resizeDisplay();
   }
-  private beginCountdown() {
+  beginCountdown() {
     if (this.portrait && !this.portraitOk && navigator.maxTouchPoints > 0) {
       this.rotatePrompt();
       return;
@@ -1419,7 +765,7 @@ export class App {
     this.controls.bind(this.ui);
     this.updateHud();
   }
-  private play() {
+  play() {
     this.countdown = 0;
     this.run!.state = 'playing';
     if (this.run2) this.run2.state = 'playing';
@@ -1429,7 +775,7 @@ export class App {
     this.awake.keep(true);
     this.updateHud();
   }
-  private pause() {
+  pause() {
     if (!this.run || !['play', 'countdown'].includes(this.screen)) return;
     this.run.state = 'paused';
     if (this.run2) {
@@ -1443,7 +789,7 @@ export class App {
     this.run.clearInput();
     this.pauseScreen();
   }
-  private pauseScreen() {
+  pauseScreen() {
     this.world.photo(null);
     this.set(
       this.hud() +
@@ -1453,13 +799,13 @@ export class App {
     this.updateHud();
   }
   // Photo mode (from the pause screen, see ui/photo-mode): the paused course without the HUD.
-  private photoPose: PhotoPose = 'run';
-  private photoMode() {
+  photoPose: PhotoPose = 'run';
+  photoMode() {
     if (this.screen !== 'pause' || !this.run) return;
     this.world.photo(this.photoPose);
     this.set(photoMarkup(this.photoPose), 'photo');
   }
-  private async photoSave() {
+  async photoSave() {
     if (this.screen !== 'photo' || !this.run) return;
     const ok = await savePhoto(
       this.game.canvas,
@@ -1468,13 +814,13 @@ export class App {
     );
     this.setText('#photo-status', ok ? '사진을 이 기기에 저장했어요.' : '사진을 만들지 못했어요. 다시 시도해 주세요.');
   }
-  private suspend() {
+  suspend() {
     this.narrator.stop();
     if (['play', 'countdown'].includes(this.screen)) this.pause();
     this.controls.clear();
     this.sound.setPlaying(false);
   }
-  private abandon() {
+  abandon() {
     this.loadRequest++;
     if (this.run) {
       this.run.clearInput();
@@ -1492,7 +838,7 @@ export class App {
     this.sound.setPlaying(false);
     this.awake.keep(false);
   }
-  private finish() {
+  finish() {
     if (!this.run || this.result) return;
     this.result = this.run.result();
     this.runEnded();
@@ -1505,6 +851,12 @@ export class App {
       weather: this.run.weather !== 'clear',
     });
     this.store.persist();
+    recordBalance(this.storage, courseKey(this.result.stage, this.result.variant ?? 'classic'), {
+      complete: this.result.complete,
+      distance: this.result.distance,
+      length: this.run.course.length ?? C.length,
+      damage: this.run.damageLog,
+    });
     this.protect();
     this.sound.setPlaying(false);
     this.controls.clear();
@@ -1518,16 +870,16 @@ export class App {
       'result',
     );
   }
-  private rivalLine(r: RunResult, who = '친구') {
+  rivalLine(r: RunResult, who = '친구') {
     const rival = this.rivalFor(r.stage, r.variant ?? 'classic');
     if (!rival) return '';
     const diff = r.score - rival.score;
     return `<p class="rival-result"><b>${who} ‘${esc(rival.name)}’ ${rival.score.toLocaleString()}점</b> · ${diff > 0 ? `${diff.toLocaleString()}점 앞섰어요!` : diff === 0 ? '똑같은 점수예요!' : `${(-diff).toLocaleString()}점 차이, 다시 도전해 봐요`}</p>`;
   }
-  private hero() {
+  hero() {
     return heroInfo(this.store.data.preferences.hero);
   }
-  private heroChoices() {
+  heroChoices() {
     const p = this.store.data.preferences;
     return `<section class="trial-card hero-choices"><h2>달리는 영웅</h2><p class="muted">누가 달려도 점프·속도·점수는 똑같아요. 모습과 대사만 바뀌어요.</p><div class="hero-grid">${HEROES.map(
       h => {
@@ -1537,7 +889,7 @@ export class App {
       },
     ).join('')}</div></section>`;
   }
-  private wardrobe() {
+  wardrobe() {
     this.abandon();
     this.world.showHome();
     this.set(
@@ -1560,206 +912,8 @@ export class App {
       'wardrobe',
     );
   }
-  private challenges() {
-    this.abandon();
-    this.world.showHome();
-    this.set(
-      `<div class="page challenges">${this.header('특별 항해')}<div class="page-heading"><span class="eyebrow">READ THE PATTERN</span><h1 tabindex="-1">예고를 읽고, 한 번 더!</h1><p>일반 항로의 점수·지도·해금과 별도로 기록해요.</p></div><div class="trial-grid stages">${STAGES.map(
-        id => {
-          const open = this.store.data.stages[id].complete,
-            r = this.store.data.expeditions.bosses[id];
-          return `<section class="trial-card">${regionArt(STAGE_VIEW[id], 'prepare-art')}<h2>${BOSSES[id].name}</h2><p>${BOSSES[id].description}</p><small>30초 · 체력 3 · 예고 후 공격 · 아이템 없음</small><p>${r ? `최고 ${r.bestScore}점 · ${r.complete ? '✓ 돌파' : '다시 도전'}` : '아직 도전 전'}</p>${button('boss:' + id, open ? '보스 도전' : '해당 섬 완주 후 열려요', 'primary', open ? '' : 'disabled')}</section>`;
-        },
-      ).join(
-        '',
-      )}</div>${this.endlessCards()}${this.dailyCard()}<section class="daily-card"><span class="eyebrow">TWO SAILORS, ONE SCREEN</span><h2>👥 둘이서 번갈아 달리기</h2><p>한 화면에서 두 명이 같은 코스를 차례로 달리고 팀 점수를 만들어요.</p>${button('duo', '둘이서 달리기', 'primary')}</section><section class="daily-card"><span class="eyebrow">BUILD YOUR OWN VOYAGE</span><h2>⚒ 나만의 코스 만들기</h2><p>열 칸에 블록을 골라 코스를 만들고 QR로 친구에게 보내요.</p>${button('maker', '코스 만들기', 'primary')}</section><section class="daily-card"><span class="eyebrow">FOR TEACHERS</span><h2>교사용 대회</h2><p>코스를 정해 QR로 학생을 초대하고, 결과 QR을 찍어 순위를 모아요.</p>${button('contests', '대회 열기·순위 보기', 'secondary')}</section></div>`,
-      'challenges',
-    );
-  }
-  private async prepareBoss(id: StageId) {
-    if (!this.store.data.stages[id].complete) {
-      this.challenges();
-      return;
-    }
-    await this.prepare(id);
-    if (this.screen !== 'prepare' || this.selected !== id) return;
-    this.special = 'boss';
-    this.set(
-      `<div class="veil"><section class="panel"><span class="eyebrow">BOSS ENCOUNTER</span><h1 tabindex="-1">${BOSSES[id].name}</h1><p>${BOSSES[id].description}</p><ol>${BOSSES[id].phases.map(p => `<li>${p}</li>`).join('')}</ol><p>30초 · 아이템 없음 · 체력과 점프는 일반 항해와 같아요.<br>보스 도전의 최고 기록만 남겨요.</p>${button('start', '보스 도전 시작', 'primary')}${button('challenges', '돌아가기', 'secondary')}</section></div>`,
-      'prepare',
-    );
-  }
-  private dailyCard() {
-    const d = dailySpec(),
-      r = this.store.data.expeditions.daily.find(r => r.date === d.date);
-    return `<section class="daily-card"><span class="eyebrow">TODAY’S VOYAGE · ${d.date} 한국 날짜</span><h2>${d.name}</h2><p>${d.description}</p><p>출항의 해변 · ${VARIANT_LABELS.beach[d.variant].name} · 약 75초</p><p>${r ? `최고 ${r.bestScore}점 · ${r.complete ? '✓ 오늘 도전 성공' : '다시 도전할 수 있어요'}` : '오늘의 첫 항해를 시작해 보세요.'}</p>${button('daily', '오늘의 항해 시작', 'primary')}<small>기기 시각을 사용해요. 최근 14일을 보관하며 온라인 순위는 제공하지 않아요.</small></section>`;
-  }
-  private async prepareDaily() {
-    const d = dailySpec();
-    await this.prepare('beach');
-    if (this.screen !== 'prepare' || this.selected !== 'beach') return;
-    this.special = 'daily';
-    this.daily = d;
-    this.selectedVariant = d.variant;
-    this.set(
-      `<div class="veil"><section class="panel"><span class="eyebrow">TODAY’S VOYAGE · ${d.date}</span><h1 tabindex="-1">${d.name}</h1><p>${d.description}</p><p>${VARIANT_LABELS.beach[d.variant].name} · 체력 3 · 약 75초<br>오늘의 기록만 남기며 일반 기록과 해금은 바꾸지 않아요.</p>${button('start', '오늘의 항해 달리기', 'primary')}${button('challenges', '돌아가기', 'secondary')}</section></div>`,
-      'prepare',
-    );
-  }
-  private finishSpecial() {
-    if (this.special === 'contest') {
-      this.finishContest();
-      return;
-    }
-    if (this.special === 'endless') {
-      this.finishEndless();
-      return;
-    }
-    if (this.special === 'custom') {
-      this.finishCustom();
-      return;
-    }
-    if (this.special === 'duo') {
-      this.finishDuo();
-      return;
-    }
-    const r = this.result!,
-      e = this.store.data.expeditions,
-      boss = this.special === 'boss',
-      passed = boss ? r.complete : dailyPassed(this.daily!, r);
-    this.sound.setPlaying(false);
-    this.controls.clear();
-    let best: number;
-    if (boss) {
-      e.bosses[r.stage] = mergeTrial(e.bosses[r.stage], r, passed);
-      best = e.bosses[r.stage]!.bestScore;
-    } else {
-      const date = this.daily!.date,
-        record = {
-          ...mergeTrial(
-            e.daily.find(d => d.date === date),
-            r,
-            passed,
-          ),
-          date,
-        };
-      e.daily = [record, ...e.daily.filter(d => d.date !== date)]
-        .sort((a, b) => b.date.localeCompare(a.date))
-        .slice(0, 14);
-      best = record.bestScore;
-    }
-    // After the trial is merged: recordRun returns a copy, and e points into the current one.
-    this.store.data = recordRun(this.store.data, r, koreanDay(), {special: true, weather: false});
-    this.store.persist();
-    this.set(
-      `<div class="veil"><section class="panel result special-result"><span class="eyebrow">${boss ? 'BOSS ENCOUNTER' : 'TODAY’S VOYAGE · ' + this.daily!.date}</span><h1 tabindex="-1">${passed ? (boss ? '보스의 패턴을 돌파했어요!' : '오늘의 항해 성공!') : r.complete ? '완주했어요! 다음엔 조건도 달성해 봐요' : '다시, 패턴을 읽어 봐요'}</h1><p>${boss ? BOSSES[r.stage].name : this.daily!.name}</p>${boss && this.run ? `<p class="boss-weak">⚔ 보스 약점 ${this.run.weakHits.size}/${this.run.weakPoints.length}${this.run.bossHp === 0 ? ' · 완전 격파!' : ''}</p>` : ''}<div class="result-score"><strong>${r.score}</strong><small>이 도전의 최고 ${best}점</small></div><p>HP 손실 ${r.hpLoss}회 · 별빛 ${r.stars}개 · ${Math.floor(r.distance / 10)}m / ${this.run!.length / 10}m</p>${!boss && !passed ? `<p>${this.daily!.description}</p>` : ''}${this.damageSummary()}<p>일반 최고 기록·지도·섬 해금에는 반영하지 않아요.</p><div class="button-row">${button('restart', '재도전', 'primary')}${button('challenges', '특별 항해', 'secondary')}${button('home', '시작 화면', 'secondary')}</div>${button('quiz', '신화 퀴즈 한 문제', 'text-button')}</section></div>`,
-      'result',
-    );
-  }
-  private damageSummary() {
-    const events = this.run?.damageLog ?? [];
-    if (!events.length) return '';
-    const last = damageGuidance(events.at(-1)!);
-    return `<section class="damage-summary"><h2>다음 항해의 힌트</h2><p>마지막 HP 손실: <b>${last.name}</b> · ${last.meters}m 지점</p><p>${last.hint}</p><small>방패 방어는 HP 손실에 포함하지 않아요. 회복해도 피해 이력은 남아요.</small></section>`;
-  }
-  private bookPage(show: (pages: Awaited<ReturnType<typeof bookPages>>) => void) {
-    return this.later(bookPages, show);
-  }
-  private codex() {
-    const found = new Set(STAGES.flatMap(id => this.store.data.stages[id].maps));
-    void this.bookPage(b => this.set(b.codexPage(this.header('귀환의 지도'), found), 'codex'));
-  }
-  private landscapes() {
-    void this.bookPage(b => this.set(b.landscapesPage(this.header('항해 도감')), 'landscapes'));
-  }
-  private sheet(id: string) {
-    void this.bookPage(b => {
-      const html = b.sheetPage(this.header('풍경과 원화', 'landscapes'), id);
-      if (html) this.set(html, 'sheet');
-    });
-  }
-  private people() {
-    void this.bookPage(b => this.set(b.peoplePage(this.header('항해 도감')), 'people'));
-  }
-  private person(id: string) {
-    void this.bookPage(b => {
-      const html = b.personPage(id);
-      if (html) this.set(html, 'person');
-    });
-  }
-  private relics() {
-    void this.bookPage(b => this.set(b.relicsPage(this.header('항해 도감')), 'relics'));
-  }
-  private bestiary() {
-    void this.bookPage(b => this.set(b.bestiaryPage(this.header('항해 도감')), 'bestiary'));
-  }
-  private journal() {
-    this.abandon();
-    this.world.showHome();
-    const j = this.store.data.journal;
-    this.set(
-      `<div class="page journal">${this.header('모험 수첩')}<div class="page-heading"><span class="eyebrow">YOUR OWN ODYSSEY</span><h1 tabindex="-1">나만의 모험을 채워요</h1><p>도전 도장과 발견은 결과 화면에서 기록돼요. 점수와 별빛을 소비하지 않아요.</p></div>${bookNav('journal')}${journalCards(j)}<section class="journal-section"><h2>다시 달릴 항로</h2><p>${STAGES.map(id => `${COURSES[id].name}: ${j.routes.includes(id + '-upper') ? '✓ 높은 길' : '○ 높은 길'} · ${j.routes.includes(id + '-lower') ? '✓ 아래 길' : '○ 아래 길'}`).join('<br>')}</p></section><section class="journal-section"><h2>신화 퀴즈</h2><p>맞힌 문제 ${this.store.data.quiz.length} / ${QUIZ.length}</p>${button('quiz', '한 문제 풀기', 'secondary')}<p>📒 오답 노트 ${this.store.data.play.missed.length}문제 · 다시 맞힌 문제 ${this.store.data.play.mastered}</p>${this.store.data.play.missed.length ? button('retry', '오답 노트 풀기', 'secondary') : ''}</section><section class="journal-section"><h2>읽기와 낱말</h2><p>완주한 섬의 짧은 글을 읽고 답해요. 다 읽은 섬 ${this.store.data.play.readings.length}/${STAGES.length}</p><div class="button-row">${button('readings', '📖 섬 이야기 읽기', 'secondary')}${button('cards', '📇 인물 낱말 카드', 'secondary')}</div></section><section class="journal-section"><h2>오디세이아 연대기</h2><p>트로이에서 이타카까지, 완주한 섬의 그림 이야기를 다시 봐요.</p>${button('chronicle', '연대기 보기', 'secondary')}</section><section class="journal-section"><h2>업적과 주간 도전</h2><p>배지·이번 주 도전·항해 달력을 한눈에 봐요.</p>${button('feats', '업적 보기', 'secondary')}</section><div class="page-foot">${button('islands', '다음 모험으로 →', 'primary')}</div></div>`,
-      'journal',
-    );
-  }
-  private harbor() {
-    this.abandon();
-    this.world.showHome();
-    const save = this.store.data,
-      done = STAGES.filter(id => save.stages[id].complete).length,
-      maps = STAGES.reduce((n, id) => n + save.stages[id].maps.length, 0),
-      unlocks = harborUnlocks(save.journal, done, maps);
-    this.set(
-      `<div class="page harbor">${this.header('이타카 항구')}<div class="page-heading"><span class="eyebrow">A HOME WORTH RETURNING TO</span><h1 tabindex="-1">모험이 쌓이는 우리 항구</h1><p>배·등대·동료의 집·별빛 깃발·축제를 하나씩 완성해요. ${unlocks.filter(Boolean).length}/5 완성</p></div><div class="harbor-picture">${harborArt(unlocks, save.preferences.sail)}</div><div class="harbor-checklist">${harborRequirements.map((text, i) => `<span class="${unlocks[i] ? 'complete' : ''}">${unlocks[i] ? '✓' : '○'} ${text}</span>`).join('')}</div><div class="page-foot">${button('islands', '항구를 위한 모험 →', 'primary')}${button('journal', '모험 수첩', 'secondary')}</div></div>`,
-      'harbor',
-    );
-  }
-  private discovery(id: string) {
-    const story = Object.values(ADVENTURE_PLANS)
-      .flatMap(p => p.stories)
-      .find(s => s.id === id);
-    if (!story || !this.store.data.journal.stories.includes(id)) return;
-    this.set(
-      `<div class="veil"><section class="panel story"><span class="eyebrow">HIDDEN WORDS</span><h1 tabindex="-1">${story.title}</h1><p class="read-text">${story.story}</p>${readButton()}${button('journal', '모험 수첩으로', 'primary')}</section></div>`,
-      'discovery',
-    );
-  }
-  private profilesPage(message = '') {
-    this.abandon();
-    this.world.showHome();
-    const board = this.profiles.board(),
-      active = this.profiles.active.id;
-    this.set(
-      profilesMarkup(
-        this.header('항해사'),
-        board,
-        active,
-        this.profiles.book.list.length,
-        message,
-        this.fleet(
-          board.reduce((n, p) => n + p.stars, 0),
-          board.length,
-        ) +
-          horseMarkup(
-            board.filter(p => p.week === weekKey(koreanDay())).reduce((n, p) => n + p.weekRuns, 0),
-            board.length,
-          ) +
-          liveMarkup(this.live(), this.classStars(board), board.length, Date.now(), this.liveTeams(board)),
-      ),
-      'profiles',
-    );
-    // The live mission's clock ticks on the board; when time is up the page shows the outcome.
-    const m = this.live();
-    if (m && liveLeft(m, Date.now()) > 0)
-      this.liveTimer = window.setInterval(() => {
-        const left = liveLeft(m, Date.now());
-        if (this.screen !== 'profiles') return clearInterval(this.liveTimer);
-        if (!left) return this.profilesPage();
-        this.setText('#live-time', '남은 시간 ' + clock(left));
-      }, 1000);
-  }
   // Shows a page once its code has loaded, unless another screen was chosen meanwhile.
-  private async later<T>(load: () => Promise<T>, show: (views: T) => void) {
+  async later<T>(load: () => Promise<T>, show: (views: T) => void) {
     const request = ++this.loadRequest;
     try {
       const views = await load();
@@ -1768,369 +922,18 @@ export class App {
       this.notice('화면을 불러오지 못했어요. 연결을 확인하고 다시 눌러 주세요.');
     }
   }
-  private teacherPage(show: (views: Awaited<ReturnType<typeof teacherViews>>) => void) {
-    return this.later(teacherViews, show);
-  }
-  private blessingAllowed() {
-    const preset = readPreset(this.storage);
-    return !preset || PRESETS[preset].blessing;
-  }
-  // Lesson presets (see storage/lesson-preset), changed behind the teacher's lock.
-  private presetMarkup() {
-    const on = readPreset(this.storage);
-    return `<section class="lesson-presets"><h2>수업 프리셋</h2><p class="muted">한 번 고르면 이 기기의 모든 항해사에게 쉬운 항해·날씨·축복 설정이 함께 적용돼요.${on ? ` 지금: <b>${PRESETS[on].name}</b>` : ' 지금은 꺼져 있어요.'}</p><div class="preset-grid">${PRESET_IDS.map(id => `<div><b>${PRESETS[id].name}</b><small>${PRESETS[id].description}</small>${button('preset:' + id, on === id ? '✓ 적용 중' : '적용', on === id ? 'secondary' : 'primary', on === id ? 'aria-pressed="true"' : '')}</div>`).join('')}</div>${on ? button('preset:off', '프리셋 끄기', 'text-button') : ''}</section>`;
-  }
   // Translation notes (see ui/translation-report): the mode, the banner and the settings section.
-  private noteMode = false;
-  private notesMarkup() {
-    if (!noteModeAvailable()) return '';
-    const n = readNotes(this.storage).length;
-    return `<section class="translation-notes"><h2>번역 고치기 도움</h2><p class="muted">이상한 번역을 눌러서 메모를 남기고, 파일로 내보내 선생님께 전달해요. 지금 메모 ${n}개.</p><div class="button-row">${button('note-mode', '✏️ 번역 신고 모드 켜기', 'secondary')}${n ? button('note-export', '메모 내보내기', 'secondary') + button('note-clear', '메모 모두 지우기', 'text-button') : ''}</div></section>`;
-  }
-  private setNoteMode(on: boolean) {
-    this.noteMode = on && noteModeAvailable();
-    document.querySelector('.note-banner')?.remove();
-    const app = document.querySelector<HTMLElement>('#app')!;
-    app.toggleAttribute('data-note-mode', this.noteMode);
-    if (this.noteMode) document.body.insertAdjacentHTML('beforeend', noteBanner());
-  }
-  // With the note mode on, a tap on text asks for a note instead of pressing the button.
-  private noteTap(e: MouseEvent) {
-    const target = e.target as Element;
-    if (target.closest('[data-note-off]')) {
-      this.setNoteMode(false);
-      return;
-    }
-    if (!this.noteMode || !target.closest('#ui')) return;
-    e.preventDefault();
-    e.stopPropagation();
-    const text = tappedText(target);
-    if (!text) return;
-    const note = window.prompt(translate('“{x}” — 어떤 점이 이상한가요?').replace('{x}', text.slice(0, 80)));
-    if (note === null || !note.trim()) return;
-    const n = addNote(this.storage, {lang: getLang(), text, note: note.trim(), screen: this.screen});
-    this.notice(translate('번역 메모를 남겼어요. 지금 {n}개예요.').replace('{n}', String(n)));
-  }
+  noteMode = false;
   // The device check page and its results (kept while the page is open).
-  private checks: Results = {};
-  private deviceCheckPage() {
-    void this.later(deviceCheck, m =>
-      this.set(m.deviceCheckMarkup(this.header('기기 점검', 'settings'), this.checks), 'device-check'),
-    );
-  }
-  private async runChecks(arg: string) {
-    if (this.screen !== 'device-check') return;
-    const m = await deviceCheck();
-    if (arg === 'copy') {
-      const d = this.deviceStatus(),
-        text = m.resultsText(this.checks, `${navigator.userAgent} · ${d.screen.join('×')} · DPR ${d.ratio}`);
-      try {
-        await navigator.clipboard.writeText(text);
-        this.setText('#check-status', '결과를 복사했어요. 메모나 메신저에 붙여 넣어 주세요.');
-      } catch {
-        this.setText('#check-status', '복사하지 못했어요. 화면을 찍어 두셔도 돼요.');
-      }
-      return;
-    }
-    const ids = (arg === 'all' ? m.CHECKS.map(c => c.id) : [arg]) as CheckId[];
-    for (const id of ids) {
-      if (!m.CHECKS.some(c => c.id === id)) continue;
-      this.setText(`#check-${id}`, '점검 중…');
-      this.checks[id] = await m.runCheck(id, () => {
-        this.sound.unlock();
-        this.sound.stinger('mission');
-        return this.store.data.settings.sfx;
-      });
-      if (this.screen !== 'device-check') return;
-    }
-    this.set(m.deviceCheckMarkup(this.header('기기 점검', 'settings'), this.checks), 'device-check');
-  }
-  // An island's reading (open once the island is complete); both answers right records it.
-  private reading(id: string) {
-    if (!STAGES.includes(id as StageId) || !this.store.data.stages[id as StageId].complete) return;
-    this.abandon();
-    this.world.showHome();
-    void this.later(readingView, m => {
-      const r = m.readingFor(id);
-      if (r) this.set(m.readingMarkup(this.header('섬 이야기 읽기', 'readings'), r), 'reading');
-    });
-  }
-  private async readingCheck(id: string) {
-    if (this.screen !== 'reading') return;
-    const m = await readingView(),
-      r = m.readingFor(id);
-    if (!r) return;
-    const chosen = r.questions.map((_, i) => {
-      const v = this.ui.querySelector<HTMLInputElement>(`input[name="reading-${i}"]:checked`)?.value;
-      return v === undefined ? null : Number(v);
-    });
-    if (chosen.some(c => c === null)) return this.setText('#reading-status', '두 질문에 모두 답해 주세요.');
-    if (r.questions.every((q, i) => chosen[i] === q.answer) && !this.store.data.play.readings.includes(id)) {
-      this.store.data.play.readings = STAGES.filter(s => s === id || this.store.data.play.readings.includes(s));
-      this.store.persist();
-    }
-    this.set(m.readingMarkup(this.header('섬 이야기 읽기', 'readings'), r, chosen, true), 'reading');
-  }
+  checks: Results = {};
   // The word-card game (see ui/word-cards): two cards a turn; a miss turns back after a moment.
-  private cardGame: CardGame | null = null;
-  private cardTimer = 0;
-  private async turnCard(i: number) {
-    const g = this.cardGame;
-    if (!g || this.screen !== 'cards') return;
-    const m = await wordCards(),
-      how = m.turnCard(g, i),
-      show = () =>
-        this.screen === 'cards' &&
-        this.set(m.cardsMarkup(this.header('인물 낱말 카드', 'journal'), g, this.store.data.play.cards), 'cards');
-    clearTimeout(this.cardTimer);
-    if (m.cardsDone(g) && (!this.store.data.play.cards || g.turns < this.store.data.play.cards)) {
-      this.store.data.play.cards = g.turns;
-      this.store.persist();
-    }
-    show();
-    this.ui.querySelector<HTMLElement>(`[data-action="card:${i}"]`)?.focus();
-    if (how === 'miss')
-      this.cardTimer = window.setTimeout(() => {
-        g.open = [];
-        show();
-      }, 900);
-  }
-  private liveTimer = 0;
-  private live() {
-    try {
-      return readLive(this.storage?.getItem(LIVE_KEY) ?? null);
-    } catch {
-      return null;
-    }
-  }
-  // This week's starlight of every sailor on this device (the live mission's measure).
-  private classStars(board = this.profiles.board()) {
-    const week = weekKey(koreanDay());
-    return board.filter(p => p.week === week).reduce((n, p) => n + p.weekStars, 0);
-  }
-  private teams() {
-    try {
-      return readTeams(this.storage?.getItem(TEAMS_KEY) ?? null);
-    } catch {
-      return {};
-    }
-  }
-  // Each sailor's starlight this week, by team (the team race's measure).
-  private liveTeams(board = this.profiles.board()) {
-    const week = weekKey(koreanDay()),
-      teams = this.teams();
-    return {
-      sailors: board.map(p => ({id: p.id, name: p.name})),
-      teams,
-      now: teamStars(
-        board.map(p => ({id: p.id, stars: p.week === week ? p.weekStars : 0})),
-        teams,
-      ),
-    };
-  }
-  private liveStart() {
-    if (this.screen !== 'profiles') return;
-    const minutes = Number(this.ui.querySelector<HTMLSelectElement>('#live-minutes')?.value),
-      goal = Math.round(Number(this.ui.querySelector<HTMLInputElement>('#live-goal')?.value));
-    if (!LIVE_MINUTES.includes(minutes) || !Number.isSafeInteger(goal) || goal < 10 || goal > 100_000) return;
-    try {
-      // Two or more teams with sailors make it a team race, each from its own starlight now.
-      const t = this.liveTeams(),
-        used = TEAMS.filter(k => Object.values(t.teams).includes(k)),
-        teams = used.length >= 2 ? Object.fromEntries(used.map(k => [k, t.now[k] ?? 0])) : undefined;
-      this.storage?.setItem(
-        LIVE_KEY,
-        JSON.stringify({start: Date.now(), minutes, goal, base: this.classStars(), ...(teams ? {teams} : {})}),
-      );
-    } catch {}
-    this.profilesPage();
-  }
-  private fleetGoal(sailors: number) {
-    try {
-      const n = Number(this.storage?.getItem(FLEET_KEY));
-      if (Number.isSafeInteger(n) && n >= 50 && n <= 100_000) return n;
-    } catch {}
-    return defaultFleetGoal(sailors);
-  }
-  private fleet(stars: number, sailors: number) {
-    return fleetMarkup(stars, this.fleetGoal(sailors), sailors);
-  }
-  private setFleetGoal() {
-    const n = Math.round(Number(this.ui.querySelector<HTMLInputElement>('#fleet-goal')?.value) / 50) * 50;
-    if (!Number.isFinite(n) || n < 50 || n > 100_000) {
-      this.notice('함대 목표는 별빛 50에서 100,000 사이로 정해 주세요.');
-      return;
-    }
-    try {
-      this.storage?.setItem(FLEET_KEY, String(n));
-    } catch {}
-    if (this.screen === 'progress') this.routes.progress();
-    else this.profilesPage('함대 목표를 바꿨어요.');
-  }
-  private switchProfile(id: string, message: string) {
-    if (!this.profiles.use(id)) {
-      this.profilesPage('항해사를 바꾸지 못했어요. 브라우저 저장 권한을 확인해 주세요.');
-      return;
-    }
-    this.abandon();
-    this.store = new SaveStore(this.storage, profileKey(id));
-    this.store.onFull = () => freeRemixGhosts(this.storage);
-    this.selected = this.store.data.lastStage;
-    this.selectedVariant = 'classic';
-    this.question = null;
-    this.resizeDisplay();
-    this.sound.changed();
-    this.profilesPage(message);
-  }
-  private profileAction(kind: string, id = '') {
-    const input = this.ui.querySelector<HTMLInputElement>('#profile-name'),
-      name = input?.value ?? '';
-    try {
-      if (kind === 'add') {
-        const created = this.profiles.add(name);
-        this.switchProfile(created, `새 항해사 ‘${this.profiles.active.name}’의 기록을 시작해요.`);
-      } else if (kind === 'numbered') {
-        const want = Number(this.ui.querySelector<HTMLInputElement>('#profile-count')?.value) || 0,
-          made = this.profiles.addNumbered(Math.max(0, Math.min(MAX_PROFILES, Math.floor(want))), n =>
-            translate(`${n}번`),
-          );
-        this.profilesPage(
-          made ? `번호 항해사 ${made}명을 만들었어요.` : `더 만들 수 없어요. 항해사는 ${MAX_PROFILES}명까지예요.`,
-        );
-      } else if (kind === 'rename') {
-        this.profiles.rename(this.profiles.active.id, name);
-        this.profilesPage('이름을 바꿨어요.');
-      } else if (kind === 'use') {
-        const p = this.profiles.book.list.find(p => p.id === id);
-        if (p) this.switchProfile(id, `지금 항해사: ${p.name}`);
-      } else if (kind === 'delete') {
-        const p = this.profiles.book.list.find(p => p.id === id);
-        if (!p || id === MAIN_PROFILE || id === this.profiles.active.id) return;
-        this.pendingDelete = id;
-        this.set(deleteSailorMarkup(p.name), 'profile-delete');
-      } else if (kind === 'delete-confirm' && this.screen === 'profile-delete' && this.pendingDelete) {
-        this.profiles.remove(this.pendingDelete);
-        this.pendingDelete = '';
-        this.profilesPage('항해사를 지웠어요.');
-      }
-    } catch (error) {
-      const box = this.ui.querySelector('#profile-message');
-      if (box) box.textContent = (error as Error).message;
-      else this.profilesPage((error as Error).message);
-    }
-  }
-  private quizRetry = false;
-  private quiz() {
-    if (this.screen !== 'quiz' && this.screen !== 'quiz-answer')
-      this.quizReturn = ['people', 'journal'].includes(this.screen) ? this.screen : 'islands';
-    this.abandon();
-    const done = this.store.data.quiz,
-      missed = this.store.data.play.missed,
-      // The wrong-answer notebook asks only its own questions (and ends when it is empty).
-      notebook = this.quizRetry ? QUIZ.filter(q => missed.includes(q.id)) : [],
-      open = QUIZ.filter(q => !done.includes(q.id) && q.id !== this.question?.id),
-      pool = notebook.length ? notebook : open.length ? open : QUIZ.filter(q => q.id !== this.question?.id);
-    if (this.quizRetry && !notebook.length) this.quizRetry = false;
-    this.question = pool[Math.floor(Math.random() * pool.length)];
-    const q = this.question;
-    this.set(
-      `<div class="veil"><section class="panel quiz-panel"><span class="eyebrow">${this.quizRetry ? `📒 오답 노트 · 남은 문제 ${missed.length}` : `MYTH QUIZ · 맞힌 문제 ${done.length}/${QUIZ.length}`}</span><h1 tabindex="-1">${q.question}</h1><div class="quiz-options">${q.options.map((o, i) => button('quiz-answer:' + i, `<b>${'ABC'[i]}</b> ${o}`, 'secondary')).join('')}</div>${readButton()}${button(this.quizReturn, '그만 풀기', 'text-button')}<small>점수·해금과 상관없이 언제든 풀 수 있어요.</small></section></div>`,
-      'quiz',
-    );
-  }
-  private quizAnswer(choice: number) {
-    const q = this.question;
-    if (!q || this.screen !== 'quiz') return;
-    const right = choice === q.answer;
-    this.store.data = recordQuiz(this.store.data, q.id, choice, koreanDay());
-    if (right && !this.store.data.quiz.includes(q.id)) this.store.data.quiz.push(q.id);
-    this.store.persist();
-    this.set(
-      `<div class="veil"><section class="panel quiz-panel" data-correct="${right}"><span class="eyebrow">MYTH QUIZ · 맞힌 문제 ${this.store.data.quiz.length}/${QUIZ.length}</span><h1 tabindex="-1">${right ? '정답이에요!' : '아쉬워요, 다음엔 맞힐 수 있어요'}</h1><p><b>정답: ${q.options[q.answer]}</b></p><p class="read-text">${q.explain}</p>${readButton()}<div class="button-row">${this.quizRetry && this.store.data.play.missed.length ? button('retry', `오답 노트 계속 (${this.store.data.play.missed.length})`, 'primary') : button('quiz', '한 문제 더', 'primary')}${button(this.quizReturn, '돌아가기', 'secondary')}</div></section></div>`,
-      'quiz-answer',
-    );
-  }
-  private quit() {
-    const unfinished = !!this.run && !this.result;
-    this.abandon();
-    this.world.showHome();
-    this.set(
-      `<div class="veil"><section class="panel quit-panel"><span class="eyebrow">UNTIL OUR NEXT VOYAGE</span><h1 tabindex="-1">오늘의 항해를 마쳤어요</h1><p>게임과 소리는 멈췄어요.<br>확정된 기록과 설정은 그대로 보관해요.${unfinished ? '<br>진행 중이던 판의 임시 점수와 발견은 반영하지 않아요.' : ''}</p><div class="button-row">${button('home', '시작 화면으로', 'primary')}${button('close-tab', '탭 닫기', 'secondary')}</div><small>탭 닫기가 지원되지 않으면 브라우저의 닫기 버튼을 사용해 주세요.</small></section></div>`,
-      'quit',
-    );
-  }
-  private chronicle() {
-    this.abandon();
-    this.world.showHome();
-    void this.later(pageViews, ([, c]) =>
-      this.set(c.chronicleMarkup(this.header('오디세이아 연대기'), this.store.data), 'chronicle'),
-    );
-  }
+  cardGame: CardGame | null = null;
+  cardTimer = 0;
+  liveTimer = 0;
+  quizRetry = false;
   // "scene:id" or "scene:id:line"; after a result screen the story returns to the island list.
-  private sceneBack = 'chronicle';
-  private scene(arg: string) {
-    const [id, n] = arg.split(':'),
-      c = chapter(id);
-    if (!c || !chapterOpen(this.store.data, c.id)) return;
-    if (!['scene', 'chronicle'].includes(this.screen))
-      this.sceneBack = this.screen === 'result' ? 'islands' : 'chronicle';
-    else if (this.screen === 'chronicle') this.sceneBack = 'chronicle';
-    const line = Math.max(0, Math.min(c.lines.length - 1, Number(n) || 0)),
-      later = CHAPTERS.slice(CHAPTERS.indexOf(c) + 1).find(x => chapterOpen(this.store.data, x.id)) ?? null;
-    void this.later(pageViews, ([, v]) =>
-      this.set(v.sceneMarkup(c, line, this.sceneBack === 'chronicle' ? later : null, this.sceneBack), 'scene'),
-    );
-  }
-  private async poster() {
-    const status = this.ui.querySelector('#poster-status');
-    try {
-      const [, {posterBlob}] = await pageViews(),
-        blob = await posterBlob(this.store.data, this.profiles.active.name);
-      downloadFile(blob, 'odyssey-run-chronicle.png', 'image/png');
-      if (status) status.textContent = translate('연표 포스터를 저장했어요.');
-    } catch {
-      if (status) status.textContent = translate('포스터를 만들지 못했어요.');
-    }
-  }
-  private story(index: number) {
-    const id = `${STAGES[Math.floor(index / 3)]}-map-${(index % 3) + 1}`;
-    if (!STAGES.some(s => this.store.data.stages[s].maps.includes(id))) return;
-    const [title, text] = MAP_STORIES[index];
-    this.set(
-      `<div class="veil"><section class="panel story">${icon('map')}<span class="eyebrow">FRAGMENT ${String(index + 1).padStart(2, '0')}</span><h1 tabindex="-1">${title}</h1><p class="read-text">${text}</p>${readButton()}${button('codex', '도감으로 돌아가기', 'primary')}</section></div>`,
-      'story',
-    );
-  }
-  // True at most once a week per hint, so tips do not repeat every visit.
-  private weekly(name: string) {
-    try {
-      const key = SAVE_KEY + ':' + name,
-        last = Number(this.storage?.getItem(key) ?? 0);
-      if (Date.now() - last < 7 * 86_400_000) return false;
-      this.storage?.setItem(key, String(Date.now()));
-    } catch {}
-    return true;
-  }
-  private protect() {
-    if (this.protectionAsked || this.protectionState === 'persisted') return;
-    this.protectionAsked = true;
-    void requestProtection().then(p => (this.protectionState = p));
-  }
-  private protectionLine() {
-    const age = backupAge(this.storage),
-      last = age === null ? '아직 없음' : age === 0 ? '오늘' : `${age}일 전`;
-    return [
-      `마지막 반 전체 백업: ${last}`,
-      this.protectionState === 'persisted'
-        ? '이 브라우저는 기록을 지우지 않도록 보호하고 있어요.'
-        : '저장 공간이 부족하거나 오래 열지 않으면 브라우저가 기록을 지울 수 있어요.',
-      iosBrowserTab() ? '아이폰·아이패드는 공유 → 홈 화면에 추가로 설치해야 오래 열지 않아도 기록이 남아요.' : '',
-      `저장 공간 ${Math.ceil(storageUse(this.storage) / 1024).toLocaleString()}KB 사용 (한도 약 ${STORAGE_LIMIT / 1048576}MB의 ${Math.round((storageUse(this.storage) / STORAGE_LIMIT) * 100)}%)`,
-    ]
-      .filter(Boolean)
-      .join(' · ');
-  }
-  private settings() {
+  sceneBack = 'chronicle';
+  settings() {
     if (!settingsModule) {
       void this.later(settingsView, () => this.settings());
       return;
@@ -2154,12 +957,12 @@ export class App {
         deviceMotion: deviceReducedMotion(),
         lock: this.lock.config ? {lesson: this.lock.config.lesson, open: this.lock.open} : null,
         device: deviceStatusMarkup(this.deviceStatus()),
-        extra: this.presetMarkup() + this.notesMarkup(),
+        extra: this.presetMarkup() + this.notesMarkup() + settingsModule.balanceToggleMarkup(balanceOn(this.storage)),
       }),
       'settings',
     );
   }
-  private applyLayout() {
+  applyLayout() {
     document
       .querySelector<HTMLElement>('#app')!
       .toggleAttribute('data-color-safe', this.store.data.preferences.colorSafe);
@@ -2171,7 +974,7 @@ export class App {
     root.style.setProperty('--control-opacity', String(t.opacity));
     root.dataset.swapped = String(t.swapped);
   }
-  private touchLayout() {
+  touchLayout() {
     const t = this.store.data.preferences.touch;
     this.set(
       `<div class="veil"><section class="panel layout-editor"><h1 tabindex="-1">터치 버튼 맞춤</h1><p>멈춘 상태에서 조절해요. 미리보기 버튼은 점프를 실행하지 않아요.</p>${(
@@ -2192,7 +995,7 @@ export class App {
       'touch-layout',
     );
   }
-  private layoutInput(e: Event) {
+  layoutInput(e: Event) {
     const input = e.target as HTMLInputElement,
       key = input.dataset.layout;
     if (this.screen !== 'touch-layout' || !key) return;
@@ -2206,19 +1009,19 @@ export class App {
     }
     this.applyLayout();
   }
-  private closeLayout() {
+  closeLayout() {
     if (this.controlsReturn && this.run) {
       this.screen = 'play';
       this.pause();
     } else this.settings();
   }
-  private offlineKey() {
+  offlineKey() {
     const o = this.offline;
     return JSON.stringify([o.available, o.downloading, o.ready, o.bytes, o.waiting, o.message, navigator.onLine]);
   }
-  private lastOffline = '';
+  lastOffline = '';
   // Progress ticks only rewrite the busy button; other changes re-render but keep keyboard focus.
-  private offlineChanged() {
+  offlineChanged() {
     const o = this.offline,
       key = this.offlineKey();
     if (key === this.lastOffline && o.downloading) {
@@ -2233,7 +1036,7 @@ export class App {
         this.ui.querySelector<HTMLElement>(`[data-action="${focused}"]`)?.focus({preventScroll: true}),
       );
   }
-  private offlinePage() {
+  offlinePage() {
     this.lastOffline = this.offlineKey();
     const o = this.offline;
     this.set(
@@ -2241,16 +1044,16 @@ export class App {
       'offline',
     );
   }
-  private download(data: string | Blob, filename: string, type?: string) {
+  download(data: string | Blob, filename: string, type?: string) {
     downloadFile(data, filename, type);
   }
-  private export() {
+  export() {
     this.download(
       JSON.stringify(this.store.data, null, 2),
       `odyssey-run-save-${new Date().toISOString().slice(0, 10).replaceAll('-', '')}.json`,
     );
   }
-  private async change(e: Event) {
+  async change(e: Event) {
     const input = e.target as HTMLInputElement;
     if (input.matches('[data-lang]')) {
       if (['play', 'countdown', 'pause'].includes(this.screen) || !LANGS.some(l => l.id === input.value)) return;
@@ -2360,68 +1163,7 @@ export class App {
     if (input.id === 'class-import' && input.files?.[0]) void this.readClassFile(input, input.files[0]);
     else if (input.id === 'import-file' && input.files?.[0]) void this.readSaveFile(input, input.files[0]);
   }
-  private async readClassFile(input: HTMLInputElement, file: File) {
-    const box = this.ui.querySelector('#import-error');
-    try {
-      const raw = await readJsonFile(file, CLASS_BACKUP_LIMIT, '반 전체 백업 파일은 4MB 이하여야 해요.');
-      if (this.screen !== 'settings') return;
-      this.classImport = readClassBackup(raw);
-      this.classPreview();
-    } catch (error) {
-      if (box) box.textContent = (error as Error).message;
-    } finally {
-      input.value = '';
-    }
-  }
-  private async readSaveFile(input: HTMLInputElement, file: File) {
-    const request = ++this.importRequest;
-    const active = () =>
-      !this.destroyed && request === this.importRequest && this.screen === 'settings' && input.isConnected;
-    try {
-      const raw = await readJsonFile(file, 131072, '기록 파일은 128KiB 이하여야 해요.');
-      if (!active()) return;
-      this.imported = validateSave(raw);
-      this.importPreview();
-    } catch (error) {
-      if (active()) {
-        const box = this.ui.querySelector('#import-error');
-        if (box) box.textContent = (error as Error).message;
-      }
-    } finally {
-      if (active()) input.value = '';
-    }
-  }
-  private classPreview() {
-    const preview = (m: typeof import('./settings-view')) =>
-      this.set(
-        m.classPreviewMarkup(this.classImport!, new Set(this.profiles.book.list.map(p => p.id))),
-        'class-import',
-      );
-    if (settingsModule) preview(settingsModule);
-    else void this.later(settingsView, preview);
-  }
-  private classRestore() {
-    if (this.screen !== 'class-import' || !this.classImport || !this.storage) return;
-    const r = restoreClass(this.storage, this.classImport);
-    this.classImport = null;
-    this.profiles = new Profiles(this.storage);
-    this.contests = new Contests(this.storage);
-    this.gallery = new Gallery(this.storage);
-    this.store = new SaveStore(this.storage, profileKey(this.profiles.active.id));
-    this.store.onFull = () => freeRemixGhosts(this.storage);
-    this.selected = this.store.data.lastStage;
-    this.resizeDisplay();
-    this.settings();
-    this.notice(
-      `반 전체 기록을 가져왔어요. 합친 항해사 ${r.merged}명 · 새 항해사 ${r.added}명 · 대회 ${r.contests}개${r.gallery ? ` · 갤러리 코스 ${r.gallery}개` : ''}${r.skipped ? ` · 인원 초과로 건너뜀 ${r.skipped}명` : ''}`,
-    );
-  }
-  private importPreview() {
-    const preview = (m: typeof import('./settings-view')) => this.set(m.importPreviewMarkup(this.imported!), 'import');
-    if (settingsModule) preview(settingsModule);
-    else void this.later(settingsView, preview);
-  }
-  private error() {
+  error() {
     this.sound.setPlaying(false);
     this.set(
       `<div class="veil"><section class="panel"><h1 tabindex="-1">항해 준비가 멈췄어요</h1><p>필요한 그림을 불러오지 못했어요.<br>연결을 확인하고 다시 준비해 주세요.</p>${button('reload', '다시 준비하기', 'primary')}</section></div>`,
@@ -2429,7 +1171,7 @@ export class App {
     );
   }
   // Buttons carry "name" or "name:argument" in data-action. Routes with an argument come first.
-  private readonly argRoutes: [string, (arg: string) => void][] = [
+  readonly argRoutes: [string, (arg: string) => void][] = [
     ['download-stage:', id => STAGES.includes(id as StageId) && void this.offline.download(id as StageId)],
     ['equip:', arg => this.equip(arg)],
     ['hero:', id => this.chooseHero(id)],
@@ -2472,7 +1214,7 @@ export class App {
     ['story:', n => this.story(Number(n))],
     ['scene:', arg => this.scene(arg)],
   ];
-  private readonly routes: Record<string, () => void> = {
+  readonly routes: Record<string, () => void> = {
     offline: () => {
       this.offlinePage();
       void this.offline.refresh();
@@ -2491,7 +1233,7 @@ export class App {
       this.abandon();
       this.world.showHome();
       const rows = this.profiles.progress();
-      void this.teacherPage(([, {activityMarkup, trendMarkup}, {progressMarkup}]) =>
+      void this.teacherPage(([, {activityMarkup, trendMarkup}, {progressMarkup, balanceMarkup}]) =>
         this.set(
           progressMarkup(
             this.header('학생별 진행 현황', 'profiles'),
@@ -2503,7 +1245,8 @@ export class App {
             ) +
               activityMarkup(rows, koreanDay()) +
               trendMarkup(rows, koreanDay()) +
-              quizReportMarkup(rows),
+              classModule!.quizReportMarkup(rows) +
+              balanceMarkup(readBalance(this.storage?.getItem(BALANCE_KEY) ?? null), balanceOn(this.storage)),
           ),
           'progress',
         ),
@@ -2548,6 +1291,18 @@ export class App {
     },
     'note-export': () =>
       this.download(JSON.stringify(readNotes(this.storage), null, 1), 'odyssey-run-translation-notes.json'),
+    'balance-on': () => {
+      setBalanceOn(this.storage, true);
+      this.settings();
+    },
+    'balance-off': () => {
+      setBalanceOn(this.storage, false);
+      this.settings();
+    },
+    'balance-clear': () => {
+      clearBalance(this.storage);
+      this.ui.querySelector('.balance-board')?.remove();
+    },
     'note-clear': () => {
       clearNotes(this.storage);
       this.settings();
@@ -2560,7 +1315,7 @@ export class App {
     },
     'quiz-csv': () =>
       this.download(
-        quizReportCsv(this.profiles.progress()),
+        classModule!.quizReportCsv(this.profiles.progress()),
         `odyssey-run-quiz-${new Date().toISOString().slice(0, 10).replaceAll('-', '')}.csv`,
         'text/csv;charset=utf-8',
       ),
@@ -2577,15 +1332,23 @@ export class App {
     worksheet: () => {
       // Re-made from the page's own choices when it is already open.
       const level = this.ui.querySelector<HTMLSelectElement>('#ws-level')?.value ?? 'mid',
-        island = this.ui.querySelector<HTMLSelectElement>('#ws-island')?.value ?? '';
+        island = this.ui.querySelector<HTMLSelectElement>('#ws-island')?.value ?? '',
+        reading = this.ui.querySelector<HTMLInputElement>('#ws-reading')?.checked ?? true;
       this.abandon();
       this.world.showHome();
-      void this.teacherPage(([{LEVELS, worksheetMarkup}]) =>
+      void this.teacherPage(([{LEVELS, worksheetMarkup, notebookCounts}]) =>
         this.set(
-          worksheetMarkup(this.header('활동지', 'progress'), quizReport(this.profiles.progress()), koreanDay(), {
-            level: level in LEVELS ? (level as Level) : 'mid',
-            stage: STAGES.includes(island as StageId) ? (island as StageId) : null,
-          }),
+          worksheetMarkup(
+            this.header('활동지', 'progress'),
+            classModule!.quizReport(this.profiles.progress()),
+            koreanDay(),
+            {
+              level: level in LEVELS ? (level as Level) : 'mid',
+              stage: STAGES.includes(island as StageId) ? (island as StageId) : null,
+              reading,
+            },
+            notebookCounts(this.profiles.progress()),
+          ),
           'worksheet',
         ),
       );
@@ -2754,13 +1517,13 @@ export class App {
     },
     reload: () => location.reload(),
   };
-  private action(action: string) {
+  action(action: string) {
     if (this.lock.stops(action)) return;
     const route = this.argRoutes.find(([prefix]) => action.startsWith(prefix));
     if (route) route[1](action.slice(route[0].length));
     else if (Object.hasOwn(this.routes, action)) this.routes[action]();
   }
-  private equip(arg: string) {
+  equip(arg: string) {
     const [slot, id] = arg.split(':'),
       entry = COSMETICS.find(c => c.slot === slot && c.id === id);
     if (!entry || !cosmeticUnlocked(this.store.data, id)) return;
@@ -2768,52 +1531,14 @@ export class App {
     this.store.persist();
     this.wardrobe();
   }
-  private chooseHero(id: string) {
+  chooseHero(id: string) {
     const h = HEROES.find(h => h.id === id);
     if (!h || !heroUnlocked(this.store.data, h.id) || this.screen !== 'wardrobe') return;
     this.store.data.preferences.hero = h.id;
     this.store.persist();
     this.wardrobe();
   }
-  private sheetZoom() {
-    if (this.screen !== 'sheet') return;
-    const expanded = this.ui.querySelector('.sheet-viewer')!.classList.toggle('expanded'),
-      b = this.ui.querySelector('[data-action="sheet-zoom"]')!;
-    b.setAttribute('aria-pressed', String(expanded));
-    b.textContent = translate(expanded ? '화면에 맞추기' : '원본 크기로 확대');
-  }
-  private classExport() {
-    if (!this.storage) return;
-    this.protect();
-    markBackup(this.storage);
-    this.download(
-      JSON.stringify(classBackup(this.storage)),
-      `odyssey-run-class-${new Date().toISOString().slice(0, 10).replaceAll('-', '')}.json`,
-    );
-    this.setText('#protection', this.protectionLine());
-  }
-  private askProtection() {
-    void requestProtection().then(p => {
-      this.protectionState = p;
-      if (this.screen === 'settings') this.settings();
-      this.notice(
-        p === 'persisted'
-          ? '이 브라우저가 기록을 지우지 않도록 보호해요.'
-          : '브라우저가 보호 요청을 받아들이지 않았어요. 반 전체 백업을 자주 해 주세요.',
-      );
-    });
-  }
-  private importConfirm() {
-    if (this.screen !== 'import' || !this.imported) return;
-    const ok = this.store.replace(this.imported);
-    this.imported = null;
-    this.settings();
-    if (ok) {
-      this.resizeDisplay();
-      this.notice('기록 파일을 복원했어요.');
-    }
-  }
-  private frame(delta: number) {
+  frame(delta: number) {
     if (this.destroyed) return;
     if (this.screen === 'quit') {
       this.game.loop.sleep();
@@ -2885,6 +1610,7 @@ export class App {
       );
       if (this.screen === 'play') {
         this.updateHud();
+        this.canvasNotes();
         const note = this.announcer.take(performance.now() / 1000);
         if (note) this.setText('#play-live', note);
       }
@@ -2892,12 +1618,12 @@ export class App {
     }
   }
   // The share of a step since the last one, for drawing between the last two (0 to 1).
-  private blend() {
+  blend() {
     return Math.max(0, Math.min(1, this.accumulator / C.step));
   }
   // Two sailors at once: one with a combo of 10 brings a fallen partner back once (spending the
   // combo), and both landing on the same monster's kind within a second is a joint defeat.
-  private together2() {
+  together2() {
     const pair = [this.run, this.run2];
     if (!pair[0] || !pair[1]) return;
     pair.forEach((r, i) => {
@@ -2911,7 +1637,7 @@ export class App {
       }
     });
   }
-  private joint(e: {x: number}, who: number) {
+  joint(e: {x: number}, who: number) {
     const now = performance.now(),
       key = String(1 - who),
       seen = this.jointSeen.get(key);
@@ -2923,17 +1649,20 @@ export class App {
       this.split.world?.feedback('overtake', e.x, 0, '합동 격파! 둘 다 콤보 점수 +150');
     }
   }
-  private quality(): Quality {
+  // Words drawn only on the canvas, told to screen readers once each: the O/X question as the
+  // gate comes into view, each prologue step and each boss phase.
+  spoken = '';
+  quality(): Quality {
     return this.store.data.preferences.quality;
   }
-  private autoStep() {
+  autoStep() {
     return readAutoStep(this.storage, SLOW_KEY);
   }
-  private setAutoStep(n: number) {
+  setAutoStep(n: number) {
     writeAutoStep(this.storage, SLOW_KEY, n);
   }
   // A slow stretch steps "auto" down one step (it can happen twice), each time watched afresh.
-  private slowDevice() {
+  slowDevice() {
     if (this.store.data.preferences.quality !== 'auto') return;
     const step = this.autoStep();
     if (step >= AUTO_STEPS) return;
@@ -2949,7 +1678,7 @@ export class App {
       );
   }
   // After a smooth run, "auto" steps back up one (seen from the next screen on).
-  private runEnded() {
+  runEnded() {
     this.awake.keep(false);
     if (this.frameWatch.played > 0) this.lastFps = this.frameWatch.fps;
     if (
@@ -2963,7 +1692,7 @@ export class App {
     this.frameWatch.begin();
   }
   // Size changes come in bursts (a turn, the address bar, fullscreen): handle them once a frame.
-  private queueResize() {
+  queueResize() {
     if (this.resizeQueued) return;
     this.resizeQueued = requestAnimationFrame(() => {
       this.resizeQueued = 0;
@@ -2984,144 +1713,11 @@ export class App {
       awake: 'wakeLock' in navigator,
     };
   }
-  private setText(selector: string, text: string) {
-    const el = this.ui.querySelector(selector);
-    text = translate(text);
-    if (el && el.textContent !== text) el.textContent = text;
-  }
-  private updateHud() {
-    const r = this.run;
-    if (!r || !this.ui.querySelector('#hp')) return;
-    if (this.run2) updateSecondHud(this.ui, this.run2, (sel, text) => this.setText(sel, text));
-    // Progress and the ghost move every frame; everything else is rewritten only when its value changes.
-    const progress = this.ui.querySelector<HTMLProgressElement>('#progress')!;
-    progress.max = r.length;
-    progress.value = Math.min(r.length, r.x);
-    progress.dataset.distance = String(r.x);
-    progress.dataset.air = String(!r.grounded);
-    this.setText('#progress-label', Math.min(100, Math.floor((r.x / r.length) * 100)).toString() + '%');
-    const rival = this.rivalFor(this.selected, r.variant),
-      ghost = this.special
-        ? rival
-          ? ghostDistance(rival.ghost, r.time)
-          : null
-        : ghostDistance(rival?.ghost ?? courseGhost(this.store.data, this.selected, r.variant), r.time),
-      who = rival ? (this.special === 'contest' ? `1등 ‘${rival.name}’` : `친구 ‘${rival.name}’`) : '나의 비교 항해',
-      marker = this.ui.querySelector<HTMLElement>('#ghost-marker')!;
-    marker.hidden = ghost === null;
-    // Overtaking (or being caught) is called out; the last tenth shows the gap large.
-    if (ghost !== null && r.time > 2 && r.state === 'playing') {
-      const sign = r.x - ghost > 30 ? 1 : r.x - ghost < -30 ? -1 : this.ghostSign;
-      if (this.ghostSign && sign !== this.ghostSign) {
-        this.world.feedback('overtake', r.x, 0, sign > 0 ? `추월! ${who}보다 앞서요` : `${who}에게 따라잡혔어요!`);
-        this.sound.stinger(sign > 0 ? 'overtake' : '');
-      }
-      this.ghostSign = sign;
-    }
-    this.ui.querySelector('#ghost-delta')?.classList.toggle('close-race', ghost !== null && r.x > r.length * 0.9);
-    if (ghost !== null) marker.style.left = `${ghost / 240}%`;
-    this.setText(
-      '#ghost-delta',
-      ghost === null
-        ? '이 코스의 첫 기록을 남겨 보세요'
-        : Math.abs(r.x - ghost) <= C.speed * C.step * 2
-          ? `${who} · 나란히`
-          : `${who} ${Math.floor(Math.abs(r.x - ghost) / 10)}m ${r.x >= ghost ? '앞' : '뒤'}`,
-    );
-    const text = [
-      r.hp,
-      r.points,
-      r.maps.size,
-      r.stars,
-      Math.ceil(r.wings),
-      Math.ceil(r.magnet),
-      r.shield,
-      r.trident,
-      Math.ceil(r.lantern),
-      r.goalProgress,
-      r.constellations.size,
-      r.stories.size,
-      r.nearMisses.size,
-      r.combo,
-      r.weakHits.size,
-      Math.round(r.feverGauge),
-      Math.ceil(r.fever),
-      r.mission ? `${r.mission.progress}/${Math.ceil(r.mission.until - r.time)}` : '',
-    ].join();
-    if (text === this.lastHud) return;
-    this.lastHud = text;
-    const hp = this.ui.querySelector('#hp')!;
-    hp.innerHTML = `<span>${'♥'.repeat(Math.max(0, r.hp))}</span><em>${'♡'.repeat(3 - Math.max(0, r.hp))}</em>`;
-    hp.setAttribute('aria-label', `체력 ${Math.max(0, r.hp)}`);
-    this.setText('#score', r.points.toLocaleString());
-    this.setText('#stars', `✦ ${r.stars} / 100`);
-    this.setText(
-      '#maps',
-      this.special === 'boss'
-        ? `⚔ 보스 약점 ${r.weakHits.size}/${r.weakPoints.length}`
-        : this.special === 'custom'
-          ? '⚒ 나만의 코스'
-          : this.special === 'endless'
-            ? `∞ ${sectionsPassed(r.maxDistance)}구간`
-            : `지도 ${r.maps.size} / 3`,
-    );
-    const g = GOALS[r.goal];
-    this.setText(
-      '#goal-progress',
-      this.special
-        ? this.special === 'boss'
-          ? '⚔ 보스 도전 · 예고를 읽어요'
-          : this.special === 'contest'
-            ? `⚑ 대회 · ${this.contest!.title}`
-            : this.special === 'custom'
-              ? `⚒ ${this.custom?.name ?? ''}`
-              : this.special === 'duo'
-                ? this.together
-                  ? `👥 ${this.duo!.names[0]} · ${this.duo!.names[1]} 함께`
-                  : `👥 ${this.duo?.names[this.duo.scores.length] ?? ''} 차례`
-                : this.special === 'endless'
-                  ? `${this.endless!.shuffle ? '🔀 셔플 항로' : '∞ 끝없는 항해'} · ${this.endless!.date} 순서`
-                  : `◇ 오늘의 항해 · ${this.daily!.name}`
-        : `${r.goalComplete ? '✓' : '◇'} ${g.name} ${Math.min(g.target, r.goalProgress)}/${g.target}`,
-    );
-    this.setText('#combo', comboLabel(r.combo));
-    const fever = this.ui.querySelector<HTMLElement>('#fever')!;
-    fever.hidden = !r.extras;
-    fever.classList.toggle('on', r.fever > 0);
-    fever.querySelector('i')!.style.width = `${r.fever > 0 ? (r.fever / 5) * 100 : (r.feverGauge / FEVER_FULL) * 100}%`;
-    fever.setAttribute(
-      'aria-label',
-      r.fever > 0 ? `피버 ${Math.ceil(r.fever)}초` : `피버 ${Math.round(r.feverGauge)}%`,
-    );
-    fever.setAttribute('role', 'img');
-    const m = r.mission;
-    this.setText(
-      '#mission',
-      !m
-        ? ''
-        : m.kind === 'clean'
-          ? `🎯 상처 없이 · ${Math.ceil(m.until - r.time)}초`
-          : `🎯 ${m.kind === 'stars' ? '별빛' : '몬스터 밟기'} ${Math.min(m.progress, m.goal)}/${m.goal} · ${Math.ceil(m.until - r.time)}초`,
-    );
-    this.setText('#discovery-progress', `✧ 별자리 ${r.constellations.size}/3 · 회피 ${r.nearMisses.size}`);
-    this.setText(
-      '#effects',
-      [
-        r.shield ? '⬡ 방패' : '',
-        r.trident ? '⚒ 삼지창 1회' : '',
-        r.rule === 'lantern' ? '신탁의 등불' : r.lantern > 0 ? `등불 ${Math.ceil(r.lantern)}초` : '',
-        r.wings > 0 ? `날개 ${Math.ceil(r.wings)}초` : '',
-        r.rule === 'magnet' ? '신탁의 자석' : r.magnet > 0 ? `자석 ${Math.ceil(r.magnet)}초` : '',
-      ]
-        .filter(Boolean)
-        .join(' · '),
-    );
-  }
   // Phones held upright play too: the game becomes a 16:9 strip under the score with large
   // buttons below it (CSS keyed on data-portrait). Turning the phone mid-run pauses the run,
   // because everything moves under the player's thumbs.
-  private portrait = false;
-  private orientation() {
+  portrait = false;
+  orientation() {
     const portrait = innerHeight > innerWidth && (navigator.maxTouchPoints > 0 || innerWidth < 700),
       changed = portrait !== this.portrait;
     this.portrait = portrait;
@@ -3130,7 +1726,7 @@ export class App {
     // Turned sideways while asked to: the run starts.
     else if (!portrait && this.run && this.screen === 'rotate') this.beginCountdown();
   }
-  private resizeDisplay() {
+  resizeDisplay() {
     if (!this.game?.isBooted || this.destroyed) return;
     const rect = document.querySelector('#game')!.getBoundingClientRect(),
       view = displayViewport(rect.width, rect.height, this.portrait ? PORTRAIT_VIEW : 960),
@@ -3162,3 +1758,11 @@ export class App {
     this.split.destroy();
   }
 }
+// Each file's methods must match the shapes App declares for them.
+const methods: [SpecialMethods, LearningMethods, ClassroomMethods, HudMethods] = [
+  specialMethods,
+  learningMethods,
+  classroomMethods,
+  hudMethods,
+];
+Object.assign(App.prototype, ...methods);

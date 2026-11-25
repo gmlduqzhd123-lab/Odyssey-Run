@@ -85,8 +85,13 @@ jobs:
           # The same screens with the device's "more contrast" setting and a 20px browser font.
           - suite: layout-contrast-large-text
             run: QA_URL="http://localhost:4176$PAGES_BASE" QA_CONTRAST=more QA_LANGS=ko QA_SAVES=played npm run test:layout && QA_URL="http://localhost:4176$PAGES_BASE" QA_ROOT_FONT=20 QA_LANGS=ko QA_SAVES=played npm run test:layout
-          - suite: layout-vi-zh-ru
-            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=vi,zh,ru QA_SAVES=played npm run test:layout
+          # One language per job: each layout pass takes over ten minutes.
+          - suite: layout-vi
+            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=vi QA_SAVES=played npm run test:layout
+          - suite: layout-zh
+            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=zh QA_SAVES=played npm run test:layout
+          - suite: layout-ru
+            run: QA_URL="http://localhost:4176$PAGES_BASE" QA_LANGS=ru QA_SAVES=played npm run test:layout
     name: browser (${{ matrix.suite }})
     steps:
       - uses: actions/checkout@v4

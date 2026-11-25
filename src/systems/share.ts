@@ -3,7 +3,8 @@ import {STAGES, type StageId} from '../levels/courses';
 import {isVariant, type VariantId} from '../levels/course-ids';
 import {validateGhost, GHOST_SECONDS, type Ghost} from '../storage/journal';
 import {cleanName} from '../storage/profiles';
-import {isBlocks} from '../levels/maker';
+import {isBlocks, MAKER_SLOTS} from '../levels/maker';
+export const NEWER = '이 코스에는 이 기기에 없는 새 블록이 들어 있어요. 게임을 업데이트한 뒤 다시 열어 주세요.';
 // Links carry records in the URL fragment, so nothing is sent to a server. They cannot be
 // verified either: anything parsed here is checked for shape and range, never trusted as proof.
 const enc = new TextEncoder(),
@@ -229,6 +230,9 @@ export function decodeLink(code: string): Link {
         blocks: f[4],
         title: (cleanName(textIn(f[5])) || '우리 반 대회').slice(0, 12),
       };
+    // Blocks this version does not know come from a newer game: say so instead of "wrong code".
+    const newer = (b: string | undefined) => !!b && b.length === MAKER_SLOTS && /^[a-z]+$/.test(b) && !isBlocks(b);
+    if ((kind === 'm1' && newer(f[1])) || ((kind === 'c2' || kind === 'c3') && newer(f[4]))) throw Error(NEWER);
     if (kind === 'm1' && f.length === 3 && isBlocks(f[1]))
       return {
         kind: 'course',
@@ -254,7 +258,8 @@ export function decodeLink(code: string): Link {
         time: int(f[6], 36000) / 10,
         name: name(f[7], '항해사'),
       };
-  } catch {
+  } catch (e) {
+    if ((e as Error).message === NEWER) throw e;
     throw Error('기록 코드의 내용이 올바르지 않아요.');
   }
   throw Error('알 수 없는 코드예요.');

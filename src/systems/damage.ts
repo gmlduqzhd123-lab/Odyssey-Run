@@ -28,4 +28,5 @@ const guidance: Record<DamageKind, {name: string; hint: string}> = {
   shade: {name: '안개 망령', hint: '망령의 예고가 보이면 지상에서 숙여 통과해 보세요.'},
   contact: {name: '장애물 접촉', hint: '별빛이 이어지는 길과 앞쪽 위험 표시를 함께 살펴보세요.'},
 };
+export const damageName = (k: DamageKind) => guidance[k]?.name ?? guidance.contact.name;
 export const damageGuidance = (e: DamageEvent) => ({...guidance[e.kind], meters: Math.floor(e.x / 10)});

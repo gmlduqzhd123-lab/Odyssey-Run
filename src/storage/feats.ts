@@ -1,6 +1,6 @@
 import {STAGES} from '../levels/courses';
 import {constellationIds, stampIds, storyIds} from '../levels/adventure';
-import {QUIZ, quizIds} from '../levels/quiz';
+import {QUIZ_ANSWERS, quizIds} from '../levels/quiz';
 import {seeded} from '../levels/endless';
 import {HEROES, heroUnlocked} from '../systems/heroes';
 import type {RunResult, Save} from './save';
@@ -93,16 +93,16 @@ export function recordRun(save: Save, r: RunResult, date: string, how: {special:
   return out;
 }
 export function recordQuiz(save: Save, id: string, choice: number, date: string): Save {
-  const q = QUIZ.find(q => q.id === id);
-  if (!q || ![0, 1, 2].includes(choice)) return save;
+  if (!quizIds.includes(id) || ![0, 1, 2].includes(choice)) return save;
+  const answer = QUIZ_ANSWERS[id];
   const out = structuredClone(save),
     picks = out.quizPicks[id] ?? [0, 0, 0];
   picks[choice] = Math.min(100_000, picks[choice] + 1);
   out.quizPicks[id] = picks;
   markDay(out, date);
-  answered(out.play, id, choice === q.answer);
-  if (choice === q.answer) bump(out, date, 'quiz', 1);
-  seasonQuiz(out, choice === q.answer, date);
+  answered(out.play, id, choice === answer);
+  if (choice === answer) bump(out, date, 'quiz', 1);
+  seasonQuiz(out, choice === answer, date);
   return out;
 }
 // Longest run of consecutive days, and the run ending today (or yesterday, not yet broken).

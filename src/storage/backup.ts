@@ -3,6 +3,7 @@ import {mergeSaves} from './merge';
 import {readBook, profileKey, PROFILES_KEY, MAX_PROFILES, cleanName, type ProfileBook} from './profiles';
 import {readContests, CONTESTS_KEY, Contests, type ContestBook} from './contests';
 import {readGallery, Gallery, GALLERY_KEY, type GalleryCourse} from './gallery';
+import {parseClassDevice, readClassDevice, restoreClassDevice, type ClassDevice} from './class-device';
 // One file for a whole class: every sailor's save, the sailor list and contest boards.
 // Restoring merges instead of replacing, so nothing already on the device is lost.
 export const CLASS_BACKUP_LIMIT = 4 * 1024 * 1024;
@@ -16,6 +17,8 @@ export interface ClassBackup {
   contests: ContestBook;
   // The class course gallery (teacher's device); older backups have none.
   gallery?: GalleryCourse[];
+  // Teams, lesson preset and fleet goal of the shared device; older backups have none.
+  device?: ClassDevice;
 }
 export function classBackup(storage: Store): ClassBackup {
   const profiles = readBook(storage.getItem(PROFILES_KEY)),
@@ -36,6 +39,7 @@ export function classBackup(storage: Store): ClassBackup {
     saves,
     contests: readContests(storage.getItem(CONTESTS_KEY)),
     gallery: readGallery(storage.getItem(GALLERY_KEY)),
+    device: readClassDevice(storage),
   };
 }
 export function readClassBackup(raw: unknown): ClassBackup {
@@ -61,6 +65,7 @@ export function readClassBackup(raw: unknown): ClassBackup {
     saves,
     contests: readContests(JSON.stringify(v.contests ?? {})),
     gallery: readGallery(JSON.stringify(v.gallery ?? [])),
+    device: parseClassDevice(v.device),
   };
 }
 export interface RestoreSummary {
@@ -72,7 +77,9 @@ export interface RestoreSummary {
 }
 export function restoreClass(storage: Store, backup: ClassBackup): RestoreSummary {
   const book = readBook(storage.getItem(PROFILES_KEY)),
-    summary: RestoreSummary = {merged: 0, added: 0, skipped: 0, contests: 0, gallery: 0};
+    summary: RestoreSummary = {merged: 0, added: 0, skipped: 0, contests: 0, gallery: 0},
+    // Backup sailor id → the id it was restored under on this device.
+    ids: Record<string, string> = {};
   for (const p of backup.profiles.list) {
     const name = cleanName(p.name),
       // Same id first, then same name; the first sailor always exists, so it always merges.
@@ -89,6 +96,7 @@ export function restoreClass(storage: Store, backup: ClassBackup): RestoreSummar
       summary.skipped++;
       continue;
     }
+    ids[p.id] = id;
     const save = backup.saves[p.id];
     if (!save) continue;
     const store = new SaveStore(storage, profileKey(id));
@@ -98,6 +106,7 @@ export function restoreClass(storage: Store, backup: ClassBackup): RestoreSummar
     else store.persist();
   }
   storage.setItem(PROFILES_KEY, JSON.stringify(book));
+  if (backup.device) restoreClassDevice(storage, backup.device, ids);
   const contests = new Contests(storage);
   for (const c of backup.contests.hosted) {
     const known = contests.find(c.id);

@@ -12,7 +12,7 @@ import {
   titleFor,
 } from '../src/storage/season';
 import {STAGES} from '../src/levels/courses';
-import {QUIZ} from '../src/levels/quiz';
+import {QUIZ} from '../src/levels/quiz-text';
 import {C} from '../src/config';
 
 const run = (stage: RunResult['stage'], extra: Partial<RunResult> = {}): RunResult => ({

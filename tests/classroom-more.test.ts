@@ -216,3 +216,75 @@ test("Odysseus's ability adds combo points without changing the fever or the run
   assert.equal(o.feverGauge, p.feverGauge);
   assert.ok(o.comboPoints > p.comboPoints);
 });
+test('course balance counts runs, finishes, the stretch of each HP loss and its cause, only when on', async () => {
+  const {addRun, readBalance, recordBalance, setBalanceOn, hardest, topKind, BALANCE_KEY, stretchOf} =
+    await import('../src/storage/balance');
+  const m = new Map<string, string>(),
+    s = {
+      getItem: (k: string) => m.get(k) ?? null,
+      setItem: (k: string, v: string) => void m.set(k, v),
+      removeItem: (k: string) => void m.delete(k),
+    };
+  const run = {complete: false, distance: 12500, length: 24000, damage: [{kind: 'crab' as const, x: 5000, time: 3}]};
+  recordBalance(s, 'beach/classic', run);
+  assert.equal(m.get(BALANCE_KEY), undefined, 'off by default');
+  setBalanceOn(s, true);
+  recordBalance(s, 'beach/classic', run);
+  recordBalance(s, 'beach/classic', {
+    ...run,
+    complete: true,
+    distance: 24000,
+    damage: [
+      {kind: 'crab', x: 5100, time: 3},
+      {kind: 'fall', x: 20000, time: 9},
+    ],
+  });
+  const b = readBalance(m.get(BALANCE_KEY)!);
+  assert.equal(b['beach/classic'].runs, 2);
+  assert.equal(b['beach/classic'].done, 1);
+  assert.equal(b['beach/classic'].ends[stretchOf(12500, 24000)], 1);
+  assert.equal(hardest(b['beach/classic']), 2);
+  assert.equal(topKind(b['beach/classic']), 'crab');
+  // Damaged or hostile data is dropped, never trusted.
+  assert.deepEqual(
+    readBalance('{"x":{"runs":1},"beach/classic":{"runs":-1,"done":5,"hits":"no"}}')['beach/classic'].runs,
+    0,
+  );
+  assert.deepEqual(readBalance('nope'), {});
+  assert.equal(addRun({}, '../bad', run)['../bad'], undefined);
+});
+test('a live mission can count other devices through its contest', async () => {
+  const {readLive, liveMarkup} = await import('../src/ui/class-view');
+  const m = readLive(JSON.stringify({start: 1000, minutes: 10, goal: 100, base: 20, contest: 'abc234'}))!;
+  assert.equal(m.contest, 'abc234');
+  assert.equal(
+    readLive(JSON.stringify({start: 1000, minutes: 10, goal: 100, base: 20, contest: '<b>'}))!.contest,
+    undefined,
+  );
+  const html = liveMarkup(m, 50, 3, 2000, undefined, {stars: 45, sailors: 2});
+  assert.ok(html.includes('별빛 75 / 100'), 'this device 30 + other devices 45');
+  assert.ok(html.includes('contest-open:abc234'));
+  assert.ok(liveMarkup(null, 0, 3, 0).includes('live-devices'));
+});
+test('the growth report marks weeks sailed before weekly counts were kept and compares only counted weeks', async () => {
+  const {growthWeeks, growthMarkup} = await import('../src/ui/report-view');
+  const r = {
+    name: '지우',
+    islands: 2,
+    quiz: 3,
+    readings: 1,
+    missed: 0,
+    prologue: true,
+    days: ['2026-11-03', '2026-11-04', '2026-11-18', '2026-11-24'],
+    weeks: [{week: '2026-W47', runs: 2, stars: 80, quiz: 1}],
+    thisWeek: {week: '2026-W48', runs: 5, stars: 150, quiz: 2},
+  } as unknown as Parameters<typeof growthWeeks>[0];
+  const ws = growthWeeks(r, '2026-11-25');
+  const early = ws.find(w => w.week === '2026-W45')!;
+  assert.equal(early.tracked, false);
+  assert.equal(early.days, 2);
+  assert.equal(ws.find(w => w.week === '2026-W48')!.tracked, true);
+  const html = growthMarkup('', [r], '2026-11-25');
+  assert.ok(html.includes('class="estimate"'));
+  assert.ok(html.includes('완주 ▲ 3'), 'from the first counted week (2) to this week (5)');
+});

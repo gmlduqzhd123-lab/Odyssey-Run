@@ -159,6 +159,9 @@ export function progress(save: Save | null) {
       : null,
     readings: save?.play.readings.length ?? 0,
     missed: save?.play.missed.length ?? 0,
+    // The questions in this sailor's wrong-answer notebook (the class worksheet asks them again).
+    missedIds: save?.play.missed ?? [],
+    prologue: save?.play.prologue ?? false,
   };
 }
 export function summary(save: Save | null) {

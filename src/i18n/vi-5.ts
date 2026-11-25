@@ -1242,4 +1242,53 @@ export const VI_5: Record<string, string> = {
   '가시 함정 · 점프로 넘어요': 'Bẫy gai · nhảy qua',
   '잘했어요! 이제 진짜 항해를 떠나요': 'Giỏi lắm! Giờ hãy bắt đầu chuyến đi thật',
   '{x} · {x}': '{x} · {x}',
+  '이 코스에는 이 기기에 없는 새 블록이 들어 있어요. 게임을 업데이트한 뒤 다시 열어 주세요.':
+    'Khóa này có khối mới mà máy này chưa có. Hãy cập nhật trò chơi rồi mở lại.',
+  'O/X 문제: {x} → {x}. 맞으면 점프, 틀리면 그대로 달려요':
+    'Đúng hay sai: {x} → {x}. Đúng thì nhảy, sai thì cứ chạy tiếp',
+  '✓ 연습 완료': '✓ Đã luyện xong',
+  '점프·숙이기·밟기·스프링·밧줄·추격을 한 칸씩 연습하는 30초 항해예요.':
+    'Chuyến đi 30 giây để luyện nhảy, cúi, giẫm, lò xo, dây thừng và truy đuổi, từng thứ một.',
+  '연습 항해 출발': 'Bắt đầu chuyến luyện tập',
+  '연습 항해 ✓': 'Chuyến luyện tập ✓',
+  '연습 항해 전': 'Chưa luyện tập',
+  '완주한 섬 {n}/{n} · 맞힌 퀴즈 {n}/{n} · 읽은 섬 이야기 {n}/{n} · 오답 노트 {n}문제 · {x}':
+    'Đảo đã hoàn thành {n}/{n} · câu đố đúng {n}/{n} · bài đọc về đảo {n}/{n} · sổ câu sai {n} câu · {x}',
+  '? 표시는 주별 기록을 쌓기 전에 항해한 주예요. 항해 달력으로 항해한 날만 알 수 있어요.':
+    'Dấu ? là tuần đã ra khơi trước khi bắt đầu lưu số liệu theo tuần: lịch ra khơi chỉ cho biết những ngày đã chơi.',
+  '실시간 미션': 'Nhiệm vụ trực tiếp',
+  '다른 기기도 함께': 'Cùng các máy khác',
+  '이 기기만': 'Chỉ máy này',
+  '{x}에서': 'ở {x}',
+  '시작한 뒤 이 기기의 항해사들이 모은 별빛을 모두 더해요. 다른 기기도 함께하면 참가 QR이 생기고, 각 기기의 결과 QR을 스캔하면 별빛이 더해져요(모둠 대항에서는 이 기기만 세요).':
+    'Sau khi bắt đầu, mọi ánh sao mà các thủy thủ trên máy này thu được đều được cộng lại. Nếu có cả các máy khác, mã QR tham gia sẽ xuất hiện, và quét mã QR kết quả của từng máy sẽ cộng thêm ánh sao (thi đấu theo nhóm chỉ tính máy này).',
+  '📱 다른 기기 {n}명 · 별빛 {n}': '📱 Máy khác: {n} thủy thủ · ánh sao {n}',
+  '참가 QR·결과 스캔': 'QR tham gia · quét kết quả',
+  '📊 코스 균형 통계': '📊 Thống kê độ cân bằng khóa đường',
+  '📊 코스 균형 통계 (이 기기)': '📊 Thống kê độ cân bằng khóa đường (máy này)',
+  '이 기기에서 달린 섬 항해마다 완주율과 HP를 잃은 구간을 모아요. 학생 기록·백업·점수와는 상관없고, 학생별 진행 현황 아래에 보여요.':
+    'Với mỗi chuyến ra đảo chạy trên máy này, hệ thống ghi lại tỉ lệ hoàn thành và những đoạn bị mất HP. Không liên quan đến hồ sơ, bản sao lưu hay điểm của học sinh, và hiển thị bên dưới tiến độ từng học sinh.',
+  '통계 모으기 켜기': 'Bật thu thập thống kê',
+  '통계 모으기 끄기': 'Tắt thu thập thống kê',
+  '지금 모으는 중이에요.': 'Đang thu thập.',
+  '지금은 모으지 않아요.': 'Hiện không thu thập.',
+  '섬 항해가 끝날 때마다 더해져요.': 'Được cộng sau mỗi chuyến ra đảo.',
+  '지금은 모으지 않아요(설정에서 켤 수 있어요).': 'Hiện không thu thập (có thể bật trong cài đặt).',
+  '코스를 고를 때나 어려운 구간을 미리 알려 줄 때 참고하세요.':
+    'Hãy tham khảo khi chọn khóa đường hoặc báo trước đoạn khó.',
+  항해: 'Chuyến',
+  완주율: 'Tỉ lệ hoàn thành',
+  '구간별 HP 손실': 'Mất HP theo đoạn',
+  '구간별 HP 손실 {x}': 'Mất HP theo đoạn {x}',
+  '가장 어려운 구간': 'Đoạn khó nhất',
+  '가장 많이 부딪힌 것': 'Va phải nhiều nhất',
+  '아직 모은 항해가 없어요.': 'Chưa thu thập chuyến nào.',
+  '통계 지우기': 'Xóa thống kê',
+  '우리 반이 많이 틀린 신화 퀴즈': 'Câu đố thần thoại lớp mình hay sai',
+  '{x}. 우리 반이 많이 틀린 신화 퀴즈': '{x}. Câu đố thần thoại lớp mình hay sai',
+  '정답률 {n}%': 'đúng {n}%',
+  '오답 노트 {n}명': '{n} người trong sổ câu sai',
+  '정답률 {n}% · 오답 노트 {n}명': 'đúng {n}% · {n} người trong sổ câu sai',
+  '읽기 지문 넣기': 'Thêm bài đọc',
+  '{x}. 읽고 답해 보세요 · {x}': '{x}. Đọc và trả lời · {x}',
 };

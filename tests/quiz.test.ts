@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {QUIZ, PERSON_MYTHS} from '../src/levels/quiz';
+import {QUIZ, PERSON_MYTHS} from '../src/levels/quiz-text';
 import {PEOPLE} from '../src/assets/catalog';
 import {emptySave, validateSave} from '../src/storage/save';
 
@@ -37,4 +37,12 @@ test('the service worker knows every island that can be downloaded', async () =>
   const sw = readFileSync('public/sw.js', 'utf8'),
     list = sw.match(/const STAGES = (\[[^\]]+\])/)![1].replaceAll("'", '"');
   assert.deepEqual(JSON.parse(list), [...STAGES]);
+});
+test('the startup quiz ids and answers match the questions text, in order', async () => {
+  const {QUIZ_ANSWERS, quizIds} = await import('../src/levels/quiz');
+  assert.deepEqual(
+    quizIds,
+    QUIZ.map(q => q.id),
+  );
+  for (const q of QUIZ) assert.equal(QUIZ_ANSWERS[q.id], q.answer, q.id);
 });

@@ -11,6 +11,7 @@ import {
   toBase64Url,
   fromBase64Url,
   type RivalLink,
+  NEWER,
 } from '../src/systems/share';
 import {Runner} from '../src/player/runner';
 
@@ -95,4 +96,17 @@ test('contest and result codes round-trip and reject tampering or nonsense', () 
   assert.throws(() => decodeLink(forged('c1.abc123.atlantis.classic.0.AA')), /올바르지/);
   assert.throws(() => decodeLink(forged('g1.beach.classic.4000.20.AAAA.AA')), /올바르지/);
   assert.throws(() => decodeLink(forged('x1.whatever')), /알 수 없는/);
+});
+
+test('a course with blocks from a newer version asks for an update instead of saying the code is wrong', () => {
+  const code = encodeLink({kind: 'course', stage: 'beach', blocks: 'fjrteffffff'.slice(0, 10), title: 'x'});
+  assert.ok(decodeLink(code));
+  // The same code with a block letter this version does not have, sealed again.
+  const body = code.slice(0, code.lastIndexOf('.')).replace('fjrteffff', 'fjrtezfff');
+  let h = 7;
+  for (const c of body) h = (h * 31 + c.charCodeAt(0)) % 997;
+  assert.throws(
+    () => decodeLink(`${body}.${h.toString(36)}`),
+    (e: Error) => e.message === NEWER,
+  );
 });
