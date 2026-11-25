@@ -1,6 +1,7 @@
 import type {Save} from '../storage/save';
-// Who runs the voyage. Every hero moves, jumps and scores exactly alike; only the look and the
-// words change. Unlocked by what a sailor has found, never bought with points.
+// Who runs the voyage. Unlocked by what a sailor has found, never bought with points. Each has one
+// small ability on ordinary island runs (see player/runner ability); everywhere else — and in every
+// score — the heroes are exactly alike.
 export const HEROES = [
   {
     id: 'odysseus',
@@ -11,6 +12,7 @@ export const HEROES = [
     start: '이타카로 가는 여정, 출발!',
     requirement: '처음부터 함께해요',
     tint: 0xffffff,
+    ability: '지혜: 콤보 점수를 10% 더 받아요',
   },
   {
     id: 'telemachus',
@@ -21,6 +23,7 @@ export const HEROES = [
     start: '아버지의 소식을 찾아, 출발!',
     requirement: '지도 조각 6개 발견',
     tint: 0xdcefd6,
+    ability: '젊은 다리: 2단 점프가 조금 더 높아요',
   },
   {
     id: 'penelope',
@@ -31,6 +34,7 @@ export const HEROES = [
     start: '베틀의 지혜를 품고, 출발!',
     requirement: '숨은 이야기 4개 발견',
     tint: 0xf6dceb,
+    ability: '인내: 돌발 미션 시간이 2초 더 길어요',
   },
   {
     id: 'athena',
@@ -41,6 +45,7 @@ export const HEROES = [
     start: '부엉이의 눈으로 길을 살펴요, 출발!',
     requirement: '신화 퀴즈 10문제 맞히기',
     tint: 0xe2e4f6,
+    ability: '방패의 여신: 방패 하나로 두 번 막아요',
   },
 ] as const;
 export type HeroId = (typeof HEROES)[number]['id'];

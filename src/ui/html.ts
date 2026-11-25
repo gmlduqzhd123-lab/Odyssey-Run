@@ -1,3 +1,4 @@
+import type {Save, Settings} from '../storage/save';
 import {assetUrl} from '../assets/catalog';
 import {canNarrate} from '../systems/narrator';
 // Small markup helpers shared by every screen.
@@ -20,3 +21,6 @@ export function downloadFile(data: string | Blob, filename: string, type = 'appl
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+// A switch for one of the sound and motion settings (the settings page and the pause dialog).
+export const settingToggle = (save: Save, key: keyof Settings, label: string) =>
+  `<label class="toggle"><span>${label}</span><input type="checkbox" data-setting="${key}" ${save.settings[key] ? 'checked' : ''}><i aria-hidden="true"></i></label>`;

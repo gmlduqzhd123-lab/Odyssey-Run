@@ -1,4 +1,5 @@
 import test from 'node:test';
+import {qrSvg} from '../src/systems/qr';
 import assert from 'node:assert/strict';
 import {
   encodeLink,
@@ -9,7 +10,6 @@ import {
   unpackSteps,
   toBase64Url,
   fromBase64Url,
-  qrSvg,
   type RivalLink,
 } from '../src/systems/share';
 import {Runner} from '../src/player/runner';

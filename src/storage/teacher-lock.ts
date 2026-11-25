@@ -23,7 +23,14 @@ const GUARDED = [
   'lock-off',
   'lesson-',
 ];
-const GUARDED_PREFIXES = ['contest-delete:', 'contest-clear:', 'contest-drop:', 'gallery-remove:', 'profile-delete'];
+const GUARDED_PREFIXES = [
+  'contest-delete:',
+  'contest-clear:',
+  'contest-drop:',
+  'gallery-remove:',
+  'profile-delete',
+  'preset:',
+];
 export const guarded = (action: string) =>
   GUARDED.some(a => (a.endsWith('-') ? action.startsWith(a) : action === a)) ||
   GUARDED_PREFIXES.some(p => action.startsWith(p));

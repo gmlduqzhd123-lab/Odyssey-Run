@@ -126,17 +126,24 @@ test('the chest is found by jumping on its plank and the record keeps chests, co
     gate: {quiz: 'home', right: true},
   });
   playRun(play, 'beach', {combo: 5, comboPoints: 100, blessing: 'none', treasure: t.id});
-  assert.deepEqual(play, {combos: {beach: {best: 12, points: 300}}, treasures: ['beach/classic'], gates: 1});
+  assert.deepEqual(play, {
+    ...emptyPlay(),
+    combos: {beach: {best: 12, points: 300}},
+    treasures: ['beach/classic'],
+    gates: 1,
+  });
   assert.deepEqual(readPlay(JSON.parse(JSON.stringify(play))), play);
   assert.throws(() => readPlay({combos: {}, treasures: ['nowhere/classic'], gates: 0}));
   assert.throws(() => readPlay({combos: {beach: {best: -1, points: 0}}, treasures: [], gates: 0}));
   assert.deepEqual(readPlay(undefined), emptyPlay());
   const other = {
+    ...emptyPlay(),
     combos: {beach: {best: 20, points: 90}, cave: {best: 3, points: 30}},
     treasures: ['cave/classic'],
     gates: 4,
   };
   assert.deepEqual(mergePlay(play, other), {
+    ...emptyPlay(),
     combos: {beach: {best: 20, points: 300}, cave: {best: 3, points: 30}},
     treasures: ['beach/classic', 'cave/classic'],
     gates: 4,

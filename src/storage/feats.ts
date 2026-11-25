@@ -5,7 +5,7 @@ import {seeded} from '../levels/endless';
 import {HEROES, heroUnlocked} from '../systems/heroes';
 import type {RunResult, Save} from './save';
 import {mergeSeason, seasonQuiz, seasonRun} from './season';
-import {mergePlay, playRun} from './play';
+import {answered, keepWeek, mergePlay, playRun} from './play';
 // Achievements, weekly challenges and the voyage calendar. Badges are read from the record
 // itself; only the days sailed, this week's counters and quiz answers are stored.
 export interface Weekly {
@@ -52,7 +52,11 @@ export function weeklyTasks(week: string): WeeklyId[] {
 }
 function thisWeek(save: Save, date: string) {
   const week = weekKey(date);
-  if (save.weekly.week !== week) save.weekly = {week, counts: {}, claimed: false, done: save.weekly.done};
+  if (save.weekly.week !== week) {
+    // The finished week is kept for the growth report (see storage/play WeekSnapshot).
+    keepWeek(save.play, save.weekly);
+    save.weekly = {week, counts: {}, claimed: false, done: save.weekly.done};
+  }
   return save.weekly;
 }
 function bump(save: Save, date: string, id: WeeklyId, n: number) {
@@ -96,6 +100,7 @@ export function recordQuiz(save: Save, id: string, choice: number, date: string)
   picks[choice] = Math.min(100_000, picks[choice] + 1);
   out.quizPicks[id] = picks;
   markDay(out, date);
+  answered(out.play, id, choice === q.answer);
   if (choice === q.answer) bump(out, date, 'quiz', 1);
   seasonQuiz(out, choice === q.answer, date);
   return out;
@@ -261,6 +266,20 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
     description: '숨은 보물 상자 7개를 찾아요',
     icon: '🗝',
     done: s => s.play.treasures.length >= 7,
+  },
+  {
+    id: 'notebook',
+    name: '오답 정복',
+    description: '오답 노트에서 5문제를 다시 맞혀요',
+    icon: '📒',
+    done: s => s.play.mastered >= 5,
+  },
+  {
+    id: 'reader',
+    name: '꼼꼼한 독자',
+    description: '섬 읽기 지문 7개를 모두 읽고 답해요',
+    icon: '📖',
+    done: s => s.play.readings.length >= 7,
   },
 ];
 // Badges, once earned, stay: a new island or course must never take one away. The ids are kept

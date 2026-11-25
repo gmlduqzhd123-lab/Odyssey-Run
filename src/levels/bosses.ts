@@ -104,3 +104,10 @@ export function bossInputs(stage: StageId) {
   for (const z of BOSS_COURSES[stage].currents ?? []) jumps.push(z.x - 60, z.x + 140);
   return {jumps: jumps.sort((a, b) => a - b), slides};
 }
+// Three golden weak points, one in each phase: between the phase's two attacks, a jump high in the
+// air (a voluntary one, not part of dodging). Hitting all three defeats the boss outright.
+export const WEAK_Y = 300;
+export function bossWeakPoints(stage: StageId) {
+  const e = BOSS_COURSES[stage].enemies;
+  return [0, 1, 2].map(i => ({x: Math.round((e[i * 2].x + e[i * 2 + 1].x) / 2), y: WEAK_Y}));
+}

@@ -147,6 +147,18 @@ export function progress(save: Save | null) {
     picks: save?.quizPicks ?? {},
     days: save?.days ?? [],
     badges: save ? earnedBadges(save).length : 0,
+    // Past weeks and this week, for the growth report.
+    weeks: save?.play.weeks ?? [],
+    thisWeek: save
+      ? {
+          week: save.weekly.week,
+          runs: save.weekly.counts.runs ?? 0,
+          stars: save.weekly.counts.stars ?? 0,
+          quiz: save.weekly.counts.quiz ?? 0,
+        }
+      : null,
+    readings: save?.play.readings.length ?? 0,
+    missed: save?.play.missed.length ?? 0,
   };
 }
 export function summary(save: Save | null) {

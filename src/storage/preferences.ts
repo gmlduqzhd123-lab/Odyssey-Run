@@ -33,6 +33,8 @@ export interface Preferences {
   hazardMarks: boolean;
   // Menus step through their buttons on a timer; Space or Enter (an access switch) picks one.
   switchScan: boolean;
+  // Colours for red-green colour blindness: hazard glows, warnings and chips in blue and yellow.
+  colorSafe: boolean;
   // Loudness of the music, effects (with weather sounds) and read-aloud voice, 0 to 1.
   volume: Volume;
 }
@@ -54,6 +56,7 @@ export const defaultPreferences = (): Preferences => ({
   ghostRunner: true,
   hazardMarks: false,
   switchScan: false,
+  colorSafe: false,
   volume: {music: 1, sfx: 1, voice: 1},
 });
 export function readPreferences(raw: unknown): Preferences {
@@ -95,7 +98,7 @@ export function readPreferences(raw: unknown): Preferences {
       out.volume[key] = n;
     }
   }
-  for (const key of ['hazardMarks', 'switchScan'] as const)
+  for (const key of ['hazardMarks', 'switchScan', 'colorSafe'] as const)
     if (v[key] !== undefined) {
       if (typeof v[key] !== 'boolean') throw Error('보기·조작 도움 설정을 확인해 주세요.');
       out[key] = v[key] as boolean;
