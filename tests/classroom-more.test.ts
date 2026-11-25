@@ -201,3 +201,18 @@ test('lesson presets, teams and translation notes are kept on the device and rea
   clearNotes(s);
   assert.deepEqual(readNotes(s), []);
 });
+
+test("Odysseus's ability adds combo points without changing the fever or the run", () => {
+  const make = (hero: string) => {
+    const r = new Runner('beach');
+    r.extras = true;
+    r.hero = hero;
+    r.state = 'playing';
+    for (const s of r.course.items.filter(i => i.kind === 'star').slice(0, 20)) r.collect(s);
+    return r;
+  };
+  const o = make('odysseus'),
+    p = make('penelope');
+  assert.equal(o.feverGauge, p.feverGauge);
+  assert.ok(o.comboPoints > p.comboPoints);
+});

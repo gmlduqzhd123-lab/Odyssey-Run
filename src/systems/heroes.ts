@@ -12,7 +12,7 @@ export const HEROES = [
     start: '이타카로 가는 여정, 출발!',
     requirement: '처음부터 함께해요',
     tint: 0xffffff,
-    ability: '지혜: 피버 게이지가 조금 더 빨리 차요',
+    ability: '지혜: 콤보 점수를 10% 더 받아요',
   },
   {
     id: 'telemachus',

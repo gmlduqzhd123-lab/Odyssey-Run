@@ -1094,7 +1094,7 @@ export const EN_5: Record<string, string> = {
   '숨은 보물 발견!': 'Hidden treasure found!',
   '친구가 일으켜 줬어요!': 'Your friend picked you up!',
   '완주!': 'Finished!',
-  '지혜: 피버 게이지가 조금 더 빨리 차요': 'Wisdom: the fever gauge fills a little faster',
+  '지혜: 콤보 점수를 10% 더 받아요': 'Wisdom: 10% more combo points',
   '젊은 다리: 2단 점프가 조금 더 높아요': 'Young legs: the double jump goes a little higher',
   '인내: 돌발 미션 시간이 2초 더 길어요': 'Patience: surprise missions get 2 more seconds',
   '방패의 여신: 방패 하나로 두 번 막아요': 'Goddess of the shield: one shield blocks twice',

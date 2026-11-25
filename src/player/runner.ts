@@ -307,9 +307,15 @@ export class Runner {
       this.comboPoints = Math.min(
         MAX_COMBO_POINTS,
         this.comboPoints +
-          Math.round(COMBO_POINTS[kind as ComboKind] * comboMultiplier(this.combo) * (this.fever > 0 ? 2 : 1)),
+          Math.round(
+            COMBO_POINTS[kind as ComboKind] *
+              comboMultiplier(this.combo) *
+              (this.fever > 0 ? 2 : 1) *
+              // Odysseus's ability: a little more combo points (it never changes how a run goes).
+              (this.ability('odysseus') ? 1.1 : 1),
+          ),
       );
-      if (this.extras && this.fever <= 0) this.fill(FEVER_STEP + (this.ability('odysseus') ? 1 : 0));
+      if (this.extras && this.fever <= 0) this.fill(FEVER_STEP);
     } else if (kind === 'hurt' || kind === 'fall') {
       this.combo = 0;
       this.feverGauge = 0;

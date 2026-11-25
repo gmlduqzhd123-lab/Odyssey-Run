@@ -1081,7 +1081,7 @@ export const VI_5: Record<string, string> = {
   '숨은 보물 발견!': 'Tìm thấy kho báu ẩn!',
   '친구가 일으켜 줬어요!': 'Bạn đã đỡ bạn dậy!',
   '완주!': 'Về đích!',
-  '지혜: 피버 게이지가 조금 더 빨리 차요': 'Trí tuệ: thanh cuồng nhiệt đầy nhanh hơn một chút',
+  '지혜: 콤보 점수를 10% 더 받아요': 'Trí tuệ: nhận thêm 10% điểm combo',
   '젊은 다리: 2단 점프가 조금 더 높아요': 'Đôi chân trẻ: nhảy kép cao hơn một chút',
   '인내: 돌발 미션 시간이 2초 더 길어요': 'Kiên nhẫn: nhiệm vụ bất ngờ dài thêm 2 giây',
   '방패의 여신: 방패 하나로 두 번 막아요': 'Nữ thần khiên: một tấm khiên đỡ được hai lần',
