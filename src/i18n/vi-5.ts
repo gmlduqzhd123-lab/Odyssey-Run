@@ -1223,6 +1223,8 @@ export const VI_5: Record<string, string> = {
   '{x} {n}%': '{x} {n}%',
   '프롤로그: 트로이 탈출': 'Mở đầu: Thoát khỏi Troy',
   '🎓 {x}': '🎓 {x}',
+  '🎓 연습 항해': '🎓 Chuyến tập',
+  '처음이라면: 프롤로그 연습 항해': 'Lần đầu? Chuyến tập mở đầu',
   '🎓 처음이라면: 프롤로그 연습 항해': '🎓 Lần đầu? Chuyến tập mở đầu',
   '연습 항해 완주! 준비 끝이에요': 'Hoàn thành chuyến tập! Sẵn sàng rồi',
   '괜찮아요, 한 번 더 연습해요': 'Không sao, tập thêm lần nữa nhé',

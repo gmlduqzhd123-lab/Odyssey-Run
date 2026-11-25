@@ -1237,6 +1237,8 @@ export const EN_5: Record<string, string> = {
   '{x} {n}%': '{x} {n}%',
   '프롤로그: 트로이 탈출': 'Prologue: Escape from Troy',
   '🎓 {x}': '🎓 {x}',
+  '🎓 연습 항해': '🎓 Practice run',
+  '처음이라면: 프롤로그 연습 항해': 'New here? Prologue practice run',
   '🎓 처음이라면: 프롤로그 연습 항해': '🎓 New here? Prologue practice run',
   '연습 항해 완주! 준비 끝이에요': "Practice run finished! You're ready",
   '괜찮아요, 한 번 더 연습해요': "That's OK, let's practise once more",
