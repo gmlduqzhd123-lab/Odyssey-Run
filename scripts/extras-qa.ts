@@ -39,7 +39,8 @@ try {
       else if (type === 'down') await p.keyboard.down('ArrowDown');
       else await p.keyboard.up('ArrowDown');
     };
-  // A new sailor can start the prologue from the home screen: a guided practice run.
+  // A new sailor can start the prologue from the island map: a guided practice run.
+  await tap('[data-action="islands"]');
   await tap('[data-action="prologue"]');
   await p.waitForSelector('[data-action="start"]');
   await tap('[data-action="start"]');
